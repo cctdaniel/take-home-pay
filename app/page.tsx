@@ -41,7 +41,7 @@ export default function Home() {
               <li><strong className="text-zinc-300">State Income Tax</strong> – Varies by state (0% to 13.3%)</li>
               <li><strong className="text-zinc-300">Social Security</strong> – 6.2% up to ${new Intl.NumberFormat().format(181200)} wage base</li>
               <li><strong className="text-zinc-300">Medicare</strong> – 1.45% (plus 0.9% above $200k)</li>
-              <li><strong className="text-zinc-300">State Disability Insurance</strong> – Required in CA, NY, NJ, and others</li>
+              <li><strong className="text-zinc-300">State Disability Insurance</strong> – Required in CA, HI, NJ, NY, and RI</li>
               <li><strong className="text-zinc-300">Pre-tax Deductions</strong> – 401(k) and HSA contributions reduce taxable income</li>
             </ul>
           </div>
