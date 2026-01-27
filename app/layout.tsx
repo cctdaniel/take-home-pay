@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: `Take Home Pay Calculator ${TAX_YEAR} | US Salary After Tax`,
   description:
-    `Free ${TAX_YEAR} take home pay calculator for all 50 US states. Calculate your salary after taxes including federal, state, Social Security, Medicare, 401(k), HSA, and IRA deductions. Supports California, New York, Texas, Florida, Washington, and 17 more states.`,
+    `Free ${TAX_YEAR} take home pay calculator for all 50 US states + DC. Calculate your salary after taxes including federal, state, Social Security, Medicare, 401(k), HSA, and IRA deductions.`,
   keywords: [
     "take home pay calculator",
     "salary after tax calculator",
@@ -36,14 +36,14 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: `Take Home Pay Calculator ${TAX_YEAR} | US Salary After Tax`,
-    description: `Calculate your actual take home pay after federal & state taxes. Free ${TAX_YEAR} calculator for CA, NY, TX, FL, WA and 17 more states.`,
+    description: `Calculate your actual take home pay after federal & state taxes. Free ${TAX_YEAR} calculator for all 50 US states + DC.`,
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
     title: `Take Home Pay Calculator ${TAX_YEAR}`,
-    description: `Calculate your actual take home pay after federal & state taxes across 22 US states.`,
+    description: `Calculate your actual take home pay after federal & state taxes across all 50 US states + DC.`,
   },
   robots: {
     index: true,

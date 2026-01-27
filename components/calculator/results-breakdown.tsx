@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { DeductionRow } from "./deduction-row";
 import { formatCurrency, formatCurrencyWithCents, formatPercentage } from "@/lib/format";
 import type { CalculationResult, PayFrequency } from "@/lib/tax-calculations/types";
-import { getStateCalculator, hasNoIncomeTax } from "@/lib/tax-calculations/states";
+import { getStateCalculator, hasNoIncomeTax } from "@/lib/tax-calculations/state-tax";
 
 interface ResultsBreakdownProps {
   result: CalculationResult;

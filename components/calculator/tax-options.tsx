@@ -4,7 +4,7 @@ import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import type { FilingStatus } from "@/lib/constants/tax-brackets-2025";
 import type { PayFrequency } from "@/lib/tax-calculations/types";
-import { getStateOptions } from "@/lib/tax-calculations/states";
+import { getStateOptions } from "@/lib/tax-calculations/state-tax";
 
 interface TaxOptionsProps {
   state: string;

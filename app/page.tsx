@@ -19,7 +19,7 @@ export default function Home() {
             and state tax brackets, Social Security, Medicare, and retirement contributions.
           </p>
           <p className="text-zinc-500 text-sm mt-2">
-            Supports 22 states including California, New York, Texas, Florida, Washington, and more.
+            Supports all 50 US states plus Washington D.C.
           </p>
         </div>
 

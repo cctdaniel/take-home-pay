@@ -1,4 +1,4 @@
-import type { StateCalculator } from "../types";
+import type { StateCalculator } from "./types";
 
 const STATE_NAMES: Record<string, string> = {
   TX: "Texas",

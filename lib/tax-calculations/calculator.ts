@@ -2,7 +2,7 @@ import type { CalculatorInputs, CalculationResult, PayFrequency } from "./types"
 import type { FilingStatus } from "../constants/tax-brackets-2025";
 import { calculateFederalIncomeTax, getFederalTaxableIncome } from "./federal-tax";
 import { calculatePayrollTaxes } from "./payroll-tax";
-import { getStateCalculator, hasNoIncomeTax } from "./states";
+import { getStateCalculator, hasNoIncomeTax } from "./state-tax";
 import { STANDARD_DEDUCTIONS } from "../constants/tax-brackets-2025";
 
 function getPeriodsPerYear(frequency: PayFrequency): number {

@@ -3,7 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatNumber, parseFormattedNumber } from "@/lib/format";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface SalaryInputProps {
   value: number;
@@ -12,29 +12,50 @@ interface SalaryInputProps {
 
 export function SalaryInput({ value, onChange }: SalaryInputProps) {
   const [displayValue, setDisplayValue] = useState(formatNumber(value));
-  const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const cursorPosRef = useRef<number | null>(null);
 
+  // Sync display value when external value changes
   useEffect(() => {
-    if (!isFocused) {
-      setDisplayValue(formatNumber(value));
+    setDisplayValue(formatNumber(value));
+  }, [value]);
+
+  // Restore cursor position after formatting
+  useEffect(() => {
+    if (cursorPosRef.current !== null && inputRef.current) {
+      inputRef.current.setSelectionRange(cursorPosRef.current, cursorPosRef.current);
+      cursorPosRef.current = null;
     }
-  }, [value, isFocused]);
+  }, [displayValue]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value;
-    setDisplayValue(rawValue);
+    const input = e.target;
+    const rawValue = input.value;
+    const cursorPos = input.selectionStart ?? 0;
+
+    // Count commas before cursor in the old value
+    const commasBefore = (displayValue.slice(0, cursorPos).match(/,/g) || []).length;
+
+    // Parse and format the new value
     const parsed = parseFormattedNumber(rawValue);
+    const formatted = parsed > 0 ? formatNumber(parsed) : "";
+
+    // Count digits before cursor in raw input (excluding commas)
+    const digitsBeforeCursor = rawValue.slice(0, cursorPos).replace(/,/g, "").length;
+
+    // Find new cursor position: count through formatted string until we've passed the same number of digits
+    let newCursorPos = 0;
+    let digitCount = 0;
+    for (let i = 0; i < formatted.length && digitCount < digitsBeforeCursor; i++) {
+      newCursorPos = i + 1;
+      if (formatted[i] !== ",") {
+        digitCount++;
+      }
+    }
+
+    cursorPosRef.current = newCursorPos;
+    setDisplayValue(formatted);
     onChange(parsed);
-  };
-
-  const handleFocus = () => {
-    setIsFocused(true);
-    setDisplayValue(value.toString());
-  };
-
-  const handleBlur = () => {
-    setIsFocused(false);
-    setDisplayValue(formatNumber(value));
   };
 
   return (
@@ -45,13 +66,12 @@ export function SalaryInput({ value, onChange }: SalaryInputProps) {
           $
         </span>
         <Input
+          ref={inputRef}
           id="salary"
           type="text"
           inputMode="numeric"
           value={displayValue}
           onChange={handleChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
           className="pl-7 text-lg font-medium h-12"
           placeholder="100,000"
         />

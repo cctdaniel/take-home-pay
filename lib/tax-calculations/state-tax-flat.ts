@@ -1,6 +1,6 @@
-import { FLAT_TAX_RATES, FLAT_TAX_STATE_DEDUCTIONS } from "../../constants/state-tax-brackets-2025";
-import type { FilingStatus } from "../../constants/tax-brackets-2025";
-import type { StateCalculator } from "../types";
+import { FLAT_TAX_RATES, FLAT_TAX_STATE_DEDUCTIONS } from "../constants/state-tax-brackets-2025";
+import type { FilingStatus } from "../constants/tax-brackets-2025";
+import type { StateCalculator } from "./types";
 
 const STATE_NAMES: Record<string, string> = {
   MA: "Massachusetts",
@@ -12,6 +12,11 @@ const STATE_NAMES: Record<string, string> = {
   IN: "Indiana",
   UT: "Utah",
   AZ: "Arizona",
+  ID: "Idaho",
+  KY: "Kentucky",
+  MS: "Mississippi",
+  ND: "North Dakota",
+  SC: "South Carolina",
 };
 
 export function createFlatTaxCalculator(stateCode: string): StateCalculator {
@@ -43,3 +48,8 @@ export const michiganCalculator = createFlatTaxCalculator("MI");
 export const indianaCalculator = createFlatTaxCalculator("IN");
 export const utahCalculator = createFlatTaxCalculator("UT");
 export const arizonaCalculator = createFlatTaxCalculator("AZ");
+export const idahoCalculator = createFlatTaxCalculator("ID");
+export const kentuckyCalculator = createFlatTaxCalculator("KY");
+export const mississippiCalculator = createFlatTaxCalculator("MS");
+export const northDakotaCalculator = createFlatTaxCalculator("ND");
+export const southCarolinaCalculator = createFlatTaxCalculator("SC");

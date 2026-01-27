@@ -151,6 +151,11 @@ export const FLAT_TAX_RATES: Record<string, number> = {
   IN: 0.0305,    // Indiana (reduced from 3.15%)
   UT: 0.0485,    // Utah
   AZ: 0.025,     // Arizona
+  ID: 0.058,     // Idaho (flat as of 2023)
+  KY: 0.04,      // Kentucky (flat as of 2023)
+  MS: 0.05,      // Mississippi (flat as of 2026)
+  ND: 0.0195,    // North Dakota (effective flat rate)
+  SC: 0.064,     // South Carolina (transitioning to flat)
 };
 
 export const FLAT_TAX_STATE_DEDUCTIONS: Record<string, Record<FilingStatus, number>> = {
@@ -163,6 +168,11 @@ export const FLAT_TAX_STATE_DEDUCTIONS: Record<string, Record<FilingStatus, numb
   IN: { single: 0, married_jointly: 0, married_separately: 0, head_of_household: 0 },
   UT: { single: 0, married_jointly: 0, married_separately: 0, head_of_household: 0 },
   AZ: { single: 15000, married_jointly: 30000, married_separately: 15000, head_of_household: 22500 },
+  ID: { single: 0, married_jointly: 0, married_separately: 0, head_of_household: 0 },
+  KY: { single: 3160, married_jointly: 6320, married_separately: 3160, head_of_household: 3160 },
+  MS: { single: 0, married_jointly: 0, married_separately: 0, head_of_household: 0 },
+  ND: { single: 0, married_jointly: 0, married_separately: 0, head_of_household: 0 },
+  SC: { single: 0, married_jointly: 0, married_separately: 0, head_of_household: 0 },
 };
 
 // ============================================================================
@@ -190,4 +200,975 @@ export const NY_ADDITIONAL_TAXES = {
   sdiMaxAnnual: 31.20,
   pflRate: 0.00373,
   pflWageBase: 91830, // Increased for 2026
+};
+
+// ============================================================================
+// ALABAMA TAX BRACKETS (2026)
+// ============================================================================
+export const ALABAMA_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 500, rate: 0.02 },
+    { min: 500, max: 3000, rate: 0.04 },
+    { min: 3000, max: Infinity, rate: 0.05 },
+  ],
+  married_jointly: [
+    { min: 0, max: 1000, rate: 0.02 },
+    { min: 1000, max: 6000, rate: 0.04 },
+    { min: 6000, max: Infinity, rate: 0.05 },
+  ],
+  married_separately: [
+    { min: 0, max: 500, rate: 0.02 },
+    { min: 500, max: 3000, rate: 0.04 },
+    { min: 3000, max: Infinity, rate: 0.05 },
+  ],
+  head_of_household: [
+    { min: 0, max: 500, rate: 0.02 },
+    { min: 500, max: 3000, rate: 0.04 },
+    { min: 3000, max: Infinity, rate: 0.05 },
+  ],
+};
+
+export const AL_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 3000,
+  married_jointly: 8500,
+  married_separately: 4250,
+  head_of_household: 5200,
+};
+
+// ============================================================================
+// ARKANSAS TAX BRACKETS (2026)
+// ============================================================================
+export const ARKANSAS_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 5100, rate: 0.02 },
+    { min: 5100, max: 10200, rate: 0.04 },
+    { min: 10200, max: Infinity, rate: 0.039 },
+  ],
+  married_jointly: [
+    { min: 0, max: 5100, rate: 0.02 },
+    { min: 5100, max: 10200, rate: 0.04 },
+    { min: 10200, max: Infinity, rate: 0.039 },
+  ],
+  married_separately: [
+    { min: 0, max: 5100, rate: 0.02 },
+    { min: 5100, max: 10200, rate: 0.04 },
+    { min: 10200, max: Infinity, rate: 0.039 },
+  ],
+  head_of_household: [
+    { min: 0, max: 5100, rate: 0.02 },
+    { min: 5100, max: 10200, rate: 0.04 },
+    { min: 10200, max: Infinity, rate: 0.039 },
+  ],
+};
+
+export const AR_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 2340,
+  married_jointly: 4680,
+  married_separately: 2340,
+  head_of_household: 2340,
+};
+
+// ============================================================================
+// CONNECTICUT TAX BRACKETS (2026)
+// ============================================================================
+export const CONNECTICUT_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 10000, rate: 0.03 },
+    { min: 10000, max: 50000, rate: 0.05 },
+    { min: 50000, max: 100000, rate: 0.055 },
+    { min: 100000, max: 200000, rate: 0.06 },
+    { min: 200000, max: 250000, rate: 0.065 },
+    { min: 250000, max: 500000, rate: 0.069 },
+    { min: 500000, max: Infinity, rate: 0.0699 },
+  ],
+  married_jointly: [
+    { min: 0, max: 20000, rate: 0.03 },
+    { min: 20000, max: 100000, rate: 0.05 },
+    { min: 100000, max: 200000, rate: 0.055 },
+    { min: 200000, max: 400000, rate: 0.06 },
+    { min: 400000, max: 500000, rate: 0.065 },
+    { min: 500000, max: 1000000, rate: 0.069 },
+    { min: 1000000, max: Infinity, rate: 0.0699 },
+  ],
+  married_separately: [
+    { min: 0, max: 10000, rate: 0.03 },
+    { min: 10000, max: 50000, rate: 0.05 },
+    { min: 50000, max: 100000, rate: 0.055 },
+    { min: 100000, max: 200000, rate: 0.06 },
+    { min: 200000, max: 250000, rate: 0.065 },
+    { min: 250000, max: 500000, rate: 0.069 },
+    { min: 500000, max: Infinity, rate: 0.0699 },
+  ],
+  head_of_household: [
+    { min: 0, max: 16000, rate: 0.03 },
+    { min: 16000, max: 80000, rate: 0.05 },
+    { min: 80000, max: 160000, rate: 0.055 },
+    { min: 160000, max: 320000, rate: 0.06 },
+    { min: 320000, max: 400000, rate: 0.065 },
+    { min: 400000, max: 800000, rate: 0.069 },
+    { min: 800000, max: Infinity, rate: 0.0699 },
+  ],
+};
+
+export const CT_PERSONAL_EXEMPTIONS: Record<FilingStatus, number> = {
+  single: 15000,
+  married_jointly: 24000,
+  married_separately: 12000,
+  head_of_household: 19000,
+};
+
+// ============================================================================
+// DELAWARE TAX BRACKETS (2026)
+// ============================================================================
+export const DELAWARE_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 2000, rate: 0.0 },
+    { min: 2000, max: 5000, rate: 0.022 },
+    { min: 5000, max: 10000, rate: 0.039 },
+    { min: 10000, max: 20000, rate: 0.048 },
+    { min: 20000, max: 25000, rate: 0.052 },
+    { min: 25000, max: 60000, rate: 0.0555 },
+    { min: 60000, max: Infinity, rate: 0.066 },
+  ],
+  married_jointly: [
+    { min: 0, max: 2000, rate: 0.0 },
+    { min: 2000, max: 5000, rate: 0.022 },
+    { min: 5000, max: 10000, rate: 0.039 },
+    { min: 10000, max: 20000, rate: 0.048 },
+    { min: 20000, max: 25000, rate: 0.052 },
+    { min: 25000, max: 60000, rate: 0.0555 },
+    { min: 60000, max: Infinity, rate: 0.066 },
+  ],
+  married_separately: [
+    { min: 0, max: 2000, rate: 0.0 },
+    { min: 2000, max: 5000, rate: 0.022 },
+    { min: 5000, max: 10000, rate: 0.039 },
+    { min: 10000, max: 20000, rate: 0.048 },
+    { min: 20000, max: 25000, rate: 0.052 },
+    { min: 25000, max: 60000, rate: 0.0555 },
+    { min: 60000, max: Infinity, rate: 0.066 },
+  ],
+  head_of_household: [
+    { min: 0, max: 2000, rate: 0.0 },
+    { min: 2000, max: 5000, rate: 0.022 },
+    { min: 5000, max: 10000, rate: 0.039 },
+    { min: 10000, max: 20000, rate: 0.048 },
+    { min: 20000, max: 25000, rate: 0.052 },
+    { min: 25000, max: 60000, rate: 0.0555 },
+    { min: 60000, max: Infinity, rate: 0.066 },
+  ],
+};
+
+export const DE_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 3250,
+  married_jointly: 6500,
+  married_separately: 3250,
+  head_of_household: 3250,
+};
+
+// ============================================================================
+// DISTRICT OF COLUMBIA TAX BRACKETS (2026)
+// ============================================================================
+export const DC_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 10000, rate: 0.04 },
+    { min: 10000, max: 40000, rate: 0.06 },
+    { min: 40000, max: 60000, rate: 0.065 },
+    { min: 60000, max: 250000, rate: 0.085 },
+    { min: 250000, max: 500000, rate: 0.0925 },
+    { min: 500000, max: 1000000, rate: 0.0975 },
+    { min: 1000000, max: Infinity, rate: 0.1075 },
+  ],
+  married_jointly: [
+    { min: 0, max: 10000, rate: 0.04 },
+    { min: 10000, max: 40000, rate: 0.06 },
+    { min: 40000, max: 60000, rate: 0.065 },
+    { min: 60000, max: 250000, rate: 0.085 },
+    { min: 250000, max: 500000, rate: 0.0925 },
+    { min: 500000, max: 1000000, rate: 0.0975 },
+    { min: 1000000, max: Infinity, rate: 0.1075 },
+  ],
+  married_separately: [
+    { min: 0, max: 10000, rate: 0.04 },
+    { min: 10000, max: 40000, rate: 0.06 },
+    { min: 40000, max: 60000, rate: 0.065 },
+    { min: 60000, max: 250000, rate: 0.085 },
+    { min: 250000, max: 500000, rate: 0.0925 },
+    { min: 500000, max: 1000000, rate: 0.0975 },
+    { min: 1000000, max: Infinity, rate: 0.1075 },
+  ],
+  head_of_household: [
+    { min: 0, max: 10000, rate: 0.04 },
+    { min: 10000, max: 40000, rate: 0.06 },
+    { min: 40000, max: 60000, rate: 0.065 },
+    { min: 60000, max: 250000, rate: 0.085 },
+    { min: 250000, max: 500000, rate: 0.0925 },
+    { min: 500000, max: 1000000, rate: 0.0975 },
+    { min: 1000000, max: Infinity, rate: 0.1075 },
+  ],
+};
+
+export const DC_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 14600,
+  married_jointly: 29200,
+  married_separately: 14600,
+  head_of_household: 21900,
+};
+
+// ============================================================================
+// HAWAII TAX BRACKETS (2026)
+// ============================================================================
+export const HAWAII_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 2400, rate: 0.014 },
+    { min: 2400, max: 4800, rate: 0.032 },
+    { min: 4800, max: 9600, rate: 0.055 },
+    { min: 9600, max: 14400, rate: 0.064 },
+    { min: 14400, max: 19200, rate: 0.068 },
+    { min: 19200, max: 24000, rate: 0.072 },
+    { min: 24000, max: 36000, rate: 0.076 },
+    { min: 36000, max: 48000, rate: 0.079 },
+    { min: 48000, max: 150000, rate: 0.0825 },
+    { min: 150000, max: 175000, rate: 0.09 },
+    { min: 175000, max: 200000, rate: 0.10 },
+    { min: 200000, max: Infinity, rate: 0.11 },
+  ],
+  married_jointly: [
+    { min: 0, max: 4800, rate: 0.014 },
+    { min: 4800, max: 9600, rate: 0.032 },
+    { min: 9600, max: 19200, rate: 0.055 },
+    { min: 19200, max: 28800, rate: 0.064 },
+    { min: 28800, max: 38400, rate: 0.068 },
+    { min: 38400, max: 48000, rate: 0.072 },
+    { min: 48000, max: 72000, rate: 0.076 },
+    { min: 72000, max: 96000, rate: 0.079 },
+    { min: 96000, max: 300000, rate: 0.0825 },
+    { min: 300000, max: 350000, rate: 0.09 },
+    { min: 350000, max: 400000, rate: 0.10 },
+    { min: 400000, max: Infinity, rate: 0.11 },
+  ],
+  married_separately: [
+    { min: 0, max: 2400, rate: 0.014 },
+    { min: 2400, max: 4800, rate: 0.032 },
+    { min: 4800, max: 9600, rate: 0.055 },
+    { min: 9600, max: 14400, rate: 0.064 },
+    { min: 14400, max: 19200, rate: 0.068 },
+    { min: 19200, max: 24000, rate: 0.072 },
+    { min: 24000, max: 36000, rate: 0.076 },
+    { min: 36000, max: 48000, rate: 0.079 },
+    { min: 48000, max: 150000, rate: 0.0825 },
+    { min: 150000, max: 175000, rate: 0.09 },
+    { min: 175000, max: 200000, rate: 0.10 },
+    { min: 200000, max: Infinity, rate: 0.11 },
+  ],
+  head_of_household: [
+    { min: 0, max: 3600, rate: 0.014 },
+    { min: 3600, max: 7200, rate: 0.032 },
+    { min: 7200, max: 14400, rate: 0.055 },
+    { min: 14400, max: 21600, rate: 0.064 },
+    { min: 21600, max: 28800, rate: 0.068 },
+    { min: 28800, max: 36000, rate: 0.072 },
+    { min: 36000, max: 54000, rate: 0.076 },
+    { min: 54000, max: 72000, rate: 0.079 },
+    { min: 72000, max: 225000, rate: 0.0825 },
+    { min: 225000, max: 262500, rate: 0.09 },
+    { min: 262500, max: 300000, rate: 0.10 },
+    { min: 300000, max: Infinity, rate: 0.11 },
+  ],
+};
+
+export const HI_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 2200,
+  married_jointly: 4400,
+  married_separately: 2200,
+  head_of_household: 3212,
+};
+
+// ============================================================================
+// IOWA TAX BRACKETS (2026)
+// ============================================================================
+export const IOWA_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 6210, rate: 0.044 },
+    { min: 6210, max: 31050, rate: 0.0482 },
+    { min: 31050, max: Infinity, rate: 0.057 },
+  ],
+  married_jointly: [
+    { min: 0, max: 12420, rate: 0.044 },
+    { min: 12420, max: 62100, rate: 0.0482 },
+    { min: 62100, max: Infinity, rate: 0.057 },
+  ],
+  married_separately: [
+    { min: 0, max: 6210, rate: 0.044 },
+    { min: 6210, max: 31050, rate: 0.0482 },
+    { min: 31050, max: Infinity, rate: 0.057 },
+  ],
+  head_of_household: [
+    { min: 0, max: 6210, rate: 0.044 },
+    { min: 6210, max: 31050, rate: 0.0482 },
+    { min: 31050, max: Infinity, rate: 0.057 },
+  ],
+};
+
+export const IA_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 2210,
+  married_jointly: 5450,
+  married_separately: 2210,
+  head_of_household: 5450,
+};
+
+// ============================================================================
+// KANSAS TAX BRACKETS (2026)
+// ============================================================================
+export const KANSAS_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 15000, rate: 0.031 },
+    { min: 15000, max: 30000, rate: 0.0525 },
+    { min: 30000, max: Infinity, rate: 0.057 },
+  ],
+  married_jointly: [
+    { min: 0, max: 30000, rate: 0.031 },
+    { min: 30000, max: 60000, rate: 0.0525 },
+    { min: 60000, max: Infinity, rate: 0.057 },
+  ],
+  married_separately: [
+    { min: 0, max: 15000, rate: 0.031 },
+    { min: 15000, max: 30000, rate: 0.0525 },
+    { min: 30000, max: Infinity, rate: 0.057 },
+  ],
+  head_of_household: [
+    { min: 0, max: 15000, rate: 0.031 },
+    { min: 15000, max: 30000, rate: 0.0525 },
+    { min: 30000, max: Infinity, rate: 0.057 },
+  ],
+};
+
+export const KS_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 3500,
+  married_jointly: 8000,
+  married_separately: 4000,
+  head_of_household: 6000,
+};
+
+// ============================================================================
+// LOUISIANA TAX BRACKETS (2026)
+// ============================================================================
+export const LOUISIANA_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 12500, rate: 0.0185 },
+    { min: 12500, max: 50000, rate: 0.035 },
+    { min: 50000, max: Infinity, rate: 0.0425 },
+  ],
+  married_jointly: [
+    { min: 0, max: 25000, rate: 0.0185 },
+    { min: 25000, max: 100000, rate: 0.035 },
+    { min: 100000, max: Infinity, rate: 0.0425 },
+  ],
+  married_separately: [
+    { min: 0, max: 12500, rate: 0.0185 },
+    { min: 12500, max: 50000, rate: 0.035 },
+    { min: 50000, max: Infinity, rate: 0.0425 },
+  ],
+  head_of_household: [
+    { min: 0, max: 12500, rate: 0.0185 },
+    { min: 12500, max: 50000, rate: 0.035 },
+    { min: 50000, max: Infinity, rate: 0.0425 },
+  ],
+};
+
+export const LA_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 0,
+  married_jointly: 0,
+  married_separately: 0,
+  head_of_household: 0,
+};
+
+export const LA_PERSONAL_EXEMPTIONS: Record<FilingStatus, number> = {
+  single: 4500,
+  married_jointly: 9000,
+  married_separately: 4500,
+  head_of_household: 4500,
+};
+
+// ============================================================================
+// MAINE TAX BRACKETS (2026)
+// ============================================================================
+export const MAINE_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 26050, rate: 0.058 },
+    { min: 26050, max: 61600, rate: 0.0675 },
+    { min: 61600, max: Infinity, rate: 0.0715 },
+  ],
+  married_jointly: [
+    { min: 0, max: 52100, rate: 0.058 },
+    { min: 52100, max: 123250, rate: 0.0675 },
+    { min: 123250, max: Infinity, rate: 0.0715 },
+  ],
+  married_separately: [
+    { min: 0, max: 26050, rate: 0.058 },
+    { min: 26050, max: 61600, rate: 0.0675 },
+    { min: 61600, max: Infinity, rate: 0.0715 },
+  ],
+  head_of_household: [
+    { min: 0, max: 39100, rate: 0.058 },
+    { min: 39100, max: 92450, rate: 0.0675 },
+    { min: 92450, max: Infinity, rate: 0.0715 },
+  ],
+};
+
+export const ME_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 14600,
+  married_jointly: 29200,
+  married_separately: 14600,
+  head_of_household: 21900,
+};
+
+// ============================================================================
+// MARYLAND TAX BRACKETS (2026)
+// ============================================================================
+export const MARYLAND_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 1000, rate: 0.02 },
+    { min: 1000, max: 2000, rate: 0.03 },
+    { min: 2000, max: 3000, rate: 0.04 },
+    { min: 3000, max: 100000, rate: 0.0475 },
+    { min: 100000, max: 125000, rate: 0.05 },
+    { min: 125000, max: 150000, rate: 0.0525 },
+    { min: 150000, max: 250000, rate: 0.055 },
+    { min: 250000, max: Infinity, rate: 0.0575 },
+  ],
+  married_jointly: [
+    { min: 0, max: 1000, rate: 0.02 },
+    { min: 1000, max: 2000, rate: 0.03 },
+    { min: 2000, max: 3000, rate: 0.04 },
+    { min: 3000, max: 150000, rate: 0.0475 },
+    { min: 150000, max: 175000, rate: 0.05 },
+    { min: 175000, max: 225000, rate: 0.0525 },
+    { min: 225000, max: 300000, rate: 0.055 },
+    { min: 300000, max: Infinity, rate: 0.0575 },
+  ],
+  married_separately: [
+    { min: 0, max: 1000, rate: 0.02 },
+    { min: 1000, max: 2000, rate: 0.03 },
+    { min: 2000, max: 3000, rate: 0.04 },
+    { min: 3000, max: 100000, rate: 0.0475 },
+    { min: 100000, max: 125000, rate: 0.05 },
+    { min: 125000, max: 150000, rate: 0.0525 },
+    { min: 150000, max: 250000, rate: 0.055 },
+    { min: 250000, max: Infinity, rate: 0.0575 },
+  ],
+  head_of_household: [
+    { min: 0, max: 1000, rate: 0.02 },
+    { min: 1000, max: 2000, rate: 0.03 },
+    { min: 2000, max: 3000, rate: 0.04 },
+    { min: 3000, max: 150000, rate: 0.0475 },
+    { min: 150000, max: 175000, rate: 0.05 },
+    { min: 175000, max: 225000, rate: 0.0525 },
+    { min: 225000, max: 300000, rate: 0.055 },
+    { min: 300000, max: Infinity, rate: 0.0575 },
+  ],
+};
+
+export const MD_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 2550,
+  married_jointly: 5150,
+  married_separately: 2550,
+  head_of_household: 5150,
+};
+
+// ============================================================================
+// MINNESOTA TAX BRACKETS (2026)
+// ============================================================================
+export const MINNESOTA_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 31690, rate: 0.0535 },
+    { min: 31690, max: 104090, rate: 0.068 },
+    { min: 104090, max: 193240, rate: 0.0785 },
+    { min: 193240, max: Infinity, rate: 0.0985 },
+  ],
+  married_jointly: [
+    { min: 0, max: 46330, rate: 0.0535 },
+    { min: 46330, max: 184040, rate: 0.068 },
+    { min: 184040, max: 321450, rate: 0.0785 },
+    { min: 321450, max: Infinity, rate: 0.0985 },
+  ],
+  married_separately: [
+    { min: 0, max: 23165, rate: 0.0535 },
+    { min: 23165, max: 92020, rate: 0.068 },
+    { min: 92020, max: 160725, rate: 0.0785 },
+    { min: 160725, max: Infinity, rate: 0.0985 },
+  ],
+  head_of_household: [
+    { min: 0, max: 39010, rate: 0.0535 },
+    { min: 39010, max: 156370, rate: 0.068 },
+    { min: 156370, max: 256880, rate: 0.0785 },
+    { min: 256880, max: Infinity, rate: 0.0985 },
+  ],
+};
+
+export const MN_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 14575,
+  married_jointly: 29150,
+  married_separately: 14575,
+  head_of_household: 21900,
+};
+
+// ============================================================================
+// MISSOURI TAX BRACKETS (2026)
+// ============================================================================
+export const MISSOURI_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 1207, rate: 0.0 },
+    { min: 1207, max: 2414, rate: 0.02 },
+    { min: 2414, max: 3621, rate: 0.025 },
+    { min: 3621, max: 4828, rate: 0.03 },
+    { min: 4828, max: 6035, rate: 0.035 },
+    { min: 6035, max: 7242, rate: 0.04 },
+    { min: 7242, max: 8449, rate: 0.045 },
+    { min: 8449, max: Infinity, rate: 0.048 },
+  ],
+  married_jointly: [
+    { min: 0, max: 1207, rate: 0.0 },
+    { min: 1207, max: 2414, rate: 0.02 },
+    { min: 2414, max: 3621, rate: 0.025 },
+    { min: 3621, max: 4828, rate: 0.03 },
+    { min: 4828, max: 6035, rate: 0.035 },
+    { min: 6035, max: 7242, rate: 0.04 },
+    { min: 7242, max: 8449, rate: 0.045 },
+    { min: 8449, max: Infinity, rate: 0.048 },
+  ],
+  married_separately: [
+    { min: 0, max: 1207, rate: 0.0 },
+    { min: 1207, max: 2414, rate: 0.02 },
+    { min: 2414, max: 3621, rate: 0.025 },
+    { min: 3621, max: 4828, rate: 0.03 },
+    { min: 4828, max: 6035, rate: 0.035 },
+    { min: 6035, max: 7242, rate: 0.04 },
+    { min: 7242, max: 8449, rate: 0.045 },
+    { min: 8449, max: Infinity, rate: 0.048 },
+  ],
+  head_of_household: [
+    { min: 0, max: 1207, rate: 0.0 },
+    { min: 1207, max: 2414, rate: 0.02 },
+    { min: 2414, max: 3621, rate: 0.025 },
+    { min: 3621, max: 4828, rate: 0.03 },
+    { min: 4828, max: 6035, rate: 0.035 },
+    { min: 6035, max: 7242, rate: 0.04 },
+    { min: 7242, max: 8449, rate: 0.045 },
+    { min: 8449, max: Infinity, rate: 0.048 },
+  ],
+};
+
+export const MO_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 14600,
+  married_jointly: 29200,
+  married_separately: 14600,
+  head_of_household: 21900,
+};
+
+// ============================================================================
+// MONTANA TAX BRACKETS (2026)
+// ============================================================================
+export const MONTANA_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 20500, rate: 0.047 },
+    { min: 20500, max: Infinity, rate: 0.059 },
+  ],
+  married_jointly: [
+    { min: 0, max: 41000, rate: 0.047 },
+    { min: 41000, max: Infinity, rate: 0.059 },
+  ],
+  married_separately: [
+    { min: 0, max: 20500, rate: 0.047 },
+    { min: 20500, max: Infinity, rate: 0.059 },
+  ],
+  head_of_household: [
+    { min: 0, max: 20500, rate: 0.047 },
+    { min: 20500, max: Infinity, rate: 0.059 },
+  ],
+};
+
+export const MT_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 5540,
+  married_jointly: 11080,
+  married_separately: 5540,
+  head_of_household: 8310,
+};
+
+// ============================================================================
+// NEBRASKA TAX BRACKETS (2026)
+// ============================================================================
+export const NEBRASKA_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 3700, rate: 0.0246 },
+    { min: 3700, max: 22170, rate: 0.0351 },
+    { min: 22170, max: 35730, rate: 0.0501 },
+    { min: 35730, max: Infinity, rate: 0.0584 },
+  ],
+  married_jointly: [
+    { min: 0, max: 7390, rate: 0.0246 },
+    { min: 7390, max: 44350, rate: 0.0351 },
+    { min: 44350, max: 71460, rate: 0.0501 },
+    { min: 71460, max: Infinity, rate: 0.0584 },
+  ],
+  married_separately: [
+    { min: 0, max: 3700, rate: 0.0246 },
+    { min: 3700, max: 22170, rate: 0.0351 },
+    { min: 22170, max: 35730, rate: 0.0501 },
+    { min: 35730, max: Infinity, rate: 0.0584 },
+  ],
+  head_of_household: [
+    { min: 0, max: 6620, rate: 0.0246 },
+    { min: 6620, max: 33090, rate: 0.0351 },
+    { min: 33090, max: 53600, rate: 0.0501 },
+    { min: 53600, max: Infinity, rate: 0.0584 },
+  ],
+};
+
+export const NE_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 7900,
+  married_jointly: 15800,
+  married_separately: 7900,
+  head_of_household: 11600,
+};
+
+// ============================================================================
+// NEW MEXICO TAX BRACKETS (2026)
+// ============================================================================
+export const NEW_MEXICO_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 5500, rate: 0.017 },
+    { min: 5500, max: 11000, rate: 0.032 },
+    { min: 11000, max: 16000, rate: 0.047 },
+    { min: 16000, max: 210000, rate: 0.049 },
+    { min: 210000, max: Infinity, rate: 0.059 },
+  ],
+  married_jointly: [
+    { min: 0, max: 8000, rate: 0.017 },
+    { min: 8000, max: 16000, rate: 0.032 },
+    { min: 16000, max: 24000, rate: 0.047 },
+    { min: 24000, max: 315000, rate: 0.049 },
+    { min: 315000, max: Infinity, rate: 0.059 },
+  ],
+  married_separately: [
+    { min: 0, max: 4000, rate: 0.017 },
+    { min: 4000, max: 8000, rate: 0.032 },
+    { min: 8000, max: 12000, rate: 0.047 },
+    { min: 12000, max: 157500, rate: 0.049 },
+    { min: 157500, max: Infinity, rate: 0.059 },
+  ],
+  head_of_household: [
+    { min: 0, max: 8000, rate: 0.017 },
+    { min: 8000, max: 16000, rate: 0.032 },
+    { min: 16000, max: 24000, rate: 0.047 },
+    { min: 24000, max: 315000, rate: 0.049 },
+    { min: 315000, max: Infinity, rate: 0.059 },
+  ],
+};
+
+export const NM_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 14600,
+  married_jointly: 29200,
+  married_separately: 14600,
+  head_of_household: 21900,
+};
+
+// ============================================================================
+// OHIO TAX BRACKETS (2026)
+// ============================================================================
+export const OHIO_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 26050, rate: 0.0 },
+    { min: 26050, max: 100000, rate: 0.0275 },
+    { min: 100000, max: Infinity, rate: 0.035 },
+  ],
+  married_jointly: [
+    { min: 0, max: 26050, rate: 0.0 },
+    { min: 26050, max: 100000, rate: 0.0275 },
+    { min: 100000, max: Infinity, rate: 0.035 },
+  ],
+  married_separately: [
+    { min: 0, max: 26050, rate: 0.0 },
+    { min: 26050, max: 100000, rate: 0.0275 },
+    { min: 100000, max: Infinity, rate: 0.035 },
+  ],
+  head_of_household: [
+    { min: 0, max: 26050, rate: 0.0 },
+    { min: 26050, max: 100000, rate: 0.0275 },
+    { min: 100000, max: Infinity, rate: 0.035 },
+  ],
+};
+
+export const OH_PERSONAL_EXEMPTIONS: Record<FilingStatus, number> = {
+  single: 2400,
+  married_jointly: 4800,
+  married_separately: 2400,
+  head_of_household: 2400,
+};
+
+// ============================================================================
+// OKLAHOMA TAX BRACKETS (2026)
+// ============================================================================
+export const OKLAHOMA_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 1000, rate: 0.0025 },
+    { min: 1000, max: 2500, rate: 0.0075 },
+    { min: 2500, max: 3750, rate: 0.0175 },
+    { min: 3750, max: 4900, rate: 0.0275 },
+    { min: 4900, max: 7200, rate: 0.0375 },
+    { min: 7200, max: Infinity, rate: 0.0475 },
+  ],
+  married_jointly: [
+    { min: 0, max: 2000, rate: 0.0025 },
+    { min: 2000, max: 5000, rate: 0.0075 },
+    { min: 5000, max: 7500, rate: 0.0175 },
+    { min: 7500, max: 9800, rate: 0.0275 },
+    { min: 9800, max: 12200, rate: 0.0375 },
+    { min: 12200, max: Infinity, rate: 0.0475 },
+  ],
+  married_separately: [
+    { min: 0, max: 1000, rate: 0.0025 },
+    { min: 1000, max: 2500, rate: 0.0075 },
+    { min: 2500, max: 3750, rate: 0.0175 },
+    { min: 3750, max: 4900, rate: 0.0275 },
+    { min: 4900, max: 7200, rate: 0.0375 },
+    { min: 7200, max: Infinity, rate: 0.0475 },
+  ],
+  head_of_household: [
+    { min: 0, max: 2000, rate: 0.0025 },
+    { min: 2000, max: 5000, rate: 0.0075 },
+    { min: 5000, max: 7500, rate: 0.0175 },
+    { min: 7500, max: 9800, rate: 0.0275 },
+    { min: 9800, max: 12200, rate: 0.0375 },
+    { min: 12200, max: Infinity, rate: 0.0475 },
+  ],
+};
+
+export const OK_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 6350,
+  married_jointly: 12700,
+  married_separately: 6350,
+  head_of_household: 9350,
+};
+
+// ============================================================================
+// OREGON TAX BRACKETS (2026)
+// ============================================================================
+export const OREGON_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 4300, rate: 0.0475 },
+    { min: 4300, max: 10750, rate: 0.0675 },
+    { min: 10750, max: 125000, rate: 0.0875 },
+    { min: 125000, max: Infinity, rate: 0.099 },
+  ],
+  married_jointly: [
+    { min: 0, max: 8600, rate: 0.0475 },
+    { min: 8600, max: 21500, rate: 0.0675 },
+    { min: 21500, max: 250000, rate: 0.0875 },
+    { min: 250000, max: Infinity, rate: 0.099 },
+  ],
+  married_separately: [
+    { min: 0, max: 4300, rate: 0.0475 },
+    { min: 4300, max: 10750, rate: 0.0675 },
+    { min: 10750, max: 125000, rate: 0.0875 },
+    { min: 125000, max: Infinity, rate: 0.099 },
+  ],
+  head_of_household: [
+    { min: 0, max: 8600, rate: 0.0475 },
+    { min: 8600, max: 21500, rate: 0.0675 },
+    { min: 21500, max: 250000, rate: 0.0875 },
+    { min: 250000, max: Infinity, rate: 0.099 },
+  ],
+};
+
+export const OR_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 2605,
+  married_jointly: 5210,
+  married_separately: 2605,
+  head_of_household: 4195,
+};
+
+// ============================================================================
+// RHODE ISLAND TAX BRACKETS (2026)
+// ============================================================================
+export const RHODE_ISLAND_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 77450, rate: 0.0375 },
+    { min: 77450, max: 176050, rate: 0.0475 },
+    { min: 176050, max: Infinity, rate: 0.0599 },
+  ],
+  married_jointly: [
+    { min: 0, max: 77450, rate: 0.0375 },
+    { min: 77450, max: 176050, rate: 0.0475 },
+    { min: 176050, max: Infinity, rate: 0.0599 },
+  ],
+  married_separately: [
+    { min: 0, max: 77450, rate: 0.0375 },
+    { min: 77450, max: 176050, rate: 0.0475 },
+    { min: 176050, max: Infinity, rate: 0.0599 },
+  ],
+  head_of_household: [
+    { min: 0, max: 77450, rate: 0.0375 },
+    { min: 77450, max: 176050, rate: 0.0475 },
+    { min: 176050, max: Infinity, rate: 0.0599 },
+  ],
+};
+
+export const RI_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 10550,
+  married_jointly: 21100,
+  married_separately: 10550,
+  head_of_household: 15825,
+};
+
+// ============================================================================
+// VERMONT TAX BRACKETS (2026)
+// ============================================================================
+export const VERMONT_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 45400, rate: 0.0335 },
+    { min: 45400, max: 110050, rate: 0.066 },
+    { min: 110050, max: 229550, rate: 0.076 },
+    { min: 229550, max: Infinity, rate: 0.0875 },
+  ],
+  married_jointly: [
+    { min: 0, max: 75850, rate: 0.0335 },
+    { min: 75850, max: 183400, rate: 0.066 },
+    { min: 183400, max: 279450, rate: 0.076 },
+    { min: 279450, max: Infinity, rate: 0.0875 },
+  ],
+  married_separately: [
+    { min: 0, max: 37925, rate: 0.0335 },
+    { min: 37925, max: 91700, rate: 0.066 },
+    { min: 91700, max: 139725, rate: 0.076 },
+    { min: 139725, max: Infinity, rate: 0.0875 },
+  ],
+  head_of_household: [
+    { min: 0, max: 60700, rate: 0.0335 },
+    { min: 60700, max: 156700, rate: 0.066 },
+    { min: 156700, max: 254450, rate: 0.076 },
+    { min: 254450, max: Infinity, rate: 0.0875 },
+  ],
+};
+
+export const VT_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 7000,
+  married_jointly: 15700,
+  married_separately: 7850,
+  head_of_household: 11600,
+};
+
+// ============================================================================
+// VIRGINIA TAX BRACKETS (2026)
+// ============================================================================
+export const VIRGINIA_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 3000, rate: 0.02 },
+    { min: 3000, max: 5000, rate: 0.03 },
+    { min: 5000, max: 17000, rate: 0.05 },
+    { min: 17000, max: Infinity, rate: 0.0575 },
+  ],
+  married_jointly: [
+    { min: 0, max: 3000, rate: 0.02 },
+    { min: 3000, max: 5000, rate: 0.03 },
+    { min: 5000, max: 17000, rate: 0.05 },
+    { min: 17000, max: Infinity, rate: 0.0575 },
+  ],
+  married_separately: [
+    { min: 0, max: 3000, rate: 0.02 },
+    { min: 3000, max: 5000, rate: 0.03 },
+    { min: 5000, max: 17000, rate: 0.05 },
+    { min: 17000, max: Infinity, rate: 0.0575 },
+  ],
+  head_of_household: [
+    { min: 0, max: 3000, rate: 0.02 },
+    { min: 3000, max: 5000, rate: 0.03 },
+    { min: 5000, max: 17000, rate: 0.05 },
+    { min: 17000, max: Infinity, rate: 0.0575 },
+  ],
+};
+
+export const VA_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 8500,
+  married_jointly: 17000,
+  married_separately: 8500,
+  head_of_household: 8500,
+};
+
+// ============================================================================
+// WEST VIRGINIA TAX BRACKETS (2026)
+// ============================================================================
+export const WEST_VIRGINIA_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 10000, rate: 0.0236 },
+    { min: 10000, max: 25000, rate: 0.0315 },
+    { min: 25000, max: 40000, rate: 0.0354 },
+    { min: 40000, max: 60000, rate: 0.0472 },
+    { min: 60000, max: Infinity, rate: 0.0512 },
+  ],
+  married_jointly: [
+    { min: 0, max: 10000, rate: 0.0236 },
+    { min: 10000, max: 25000, rate: 0.0315 },
+    { min: 25000, max: 40000, rate: 0.0354 },
+    { min: 40000, max: 60000, rate: 0.0472 },
+    { min: 60000, max: Infinity, rate: 0.0512 },
+  ],
+  married_separately: [
+    { min: 0, max: 10000, rate: 0.0236 },
+    { min: 10000, max: 25000, rate: 0.0315 },
+    { min: 25000, max: 40000, rate: 0.0354 },
+    { min: 40000, max: 60000, rate: 0.0472 },
+    { min: 60000, max: Infinity, rate: 0.0512 },
+  ],
+  head_of_household: [
+    { min: 0, max: 10000, rate: 0.0236 },
+    { min: 10000, max: 25000, rate: 0.0315 },
+    { min: 25000, max: 40000, rate: 0.0354 },
+    { min: 40000, max: 60000, rate: 0.0472 },
+    { min: 60000, max: Infinity, rate: 0.0512 },
+  ],
+};
+
+export const WV_PERSONAL_EXEMPTIONS: Record<FilingStatus, number> = {
+  single: 2000,
+  married_jointly: 4000,
+  married_separately: 2000,
+  head_of_household: 2000,
+};
+
+// ============================================================================
+// WISCONSIN TAX BRACKETS (2026)
+// ============================================================================
+export const WISCONSIN_TAX_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
+  single: [
+    { min: 0, max: 14320, rate: 0.035 },
+    { min: 14320, max: 28640, rate: 0.044 },
+    { min: 28640, max: 315310, rate: 0.053 },
+    { min: 315310, max: Infinity, rate: 0.0765 },
+  ],
+  married_jointly: [
+    { min: 0, max: 19090, rate: 0.035 },
+    { min: 19090, max: 38190, rate: 0.044 },
+    { min: 38190, max: 420420, rate: 0.053 },
+    { min: 420420, max: Infinity, rate: 0.0765 },
+  ],
+  married_separately: [
+    { min: 0, max: 9545, rate: 0.035 },
+    { min: 9545, max: 19095, rate: 0.044 },
+    { min: 19095, max: 210210, rate: 0.053 },
+    { min: 210210, max: Infinity, rate: 0.0765 },
+  ],
+  head_of_household: [
+    { min: 0, max: 14320, rate: 0.035 },
+    { min: 14320, max: 28640, rate: 0.044 },
+    { min: 28640, max: 315310, rate: 0.053 },
+    { min: 315310, max: Infinity, rate: 0.0765 },
+  ],
+};
+
+export const WI_STANDARD_DEDUCTIONS: Record<FilingStatus, number> = {
+  single: 13230,
+  married_jointly: 24480,
+  married_separately: 11510,
+  head_of_household: 16290,
 };
