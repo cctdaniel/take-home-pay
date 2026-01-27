@@ -44,7 +44,7 @@ export function useSalaryCalculator(): UseSalaryCalculatorReturn {
   const [grossSalary, setGrossSalary] = useState(100000);
   const [state, setState] = useState("CA");
   const [filingStatus, setFilingStatus] = useState<FilingStatus>("single");
-  const [payFrequency, setPayFrequency] = useState<PayFrequency>("annual");
+  const [payFrequency, setPayFrequency] = useState<PayFrequency>("monthly");
 
   // Contribution state
   const [traditional401k, setTraditional401k] = useState(0);
