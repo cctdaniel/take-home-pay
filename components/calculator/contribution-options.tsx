@@ -50,7 +50,7 @@ function ContributionSlider({
         value={value}
         onChange={onChange}
         max={max}
-        step={100}
+        step={50}
       />
       <div className="flex justify-between text-xs text-zinc-500">
         <span>$0</span>
