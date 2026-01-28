@@ -65,7 +65,7 @@ export function SalaryInput({ value, onChange, currency = "USD" }: SalaryInputPr
     <div className="space-y-2">
       <Label htmlFor="salary">Annual Gross Salary</Label>
       <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-sm">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-sm pr-2">
           {currencySymbol}
         </span>
         <Input
@@ -75,7 +75,7 @@ export function SalaryInput({ value, onChange, currency = "USD" }: SalaryInputPr
           inputMode="numeric"
           value={displayValue}
           onChange={handleChange}
-          className="pl-7 text-lg font-medium h-12"
+          className="pl-12 text-lg font-medium h-12"
           placeholder="100,000"
         />
       </div>
