@@ -1,31 +1,51 @@
-export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+// ============================================================================
+// FORMATTING UTILITIES
+// This file re-exports from the countries module for backwards compatibility
+// and adds some convenience wrappers
+// ============================================================================
+
+import {
+  formatCurrency as formatCurrencyBase,
+  formatCurrencyWithCents as formatCurrencyWithCentsBase,
+  formatNumber as formatNumberBase,
+  formatPercentage,
+  parseFormattedNumber,
+  type CurrencyCode,
+} from "./countries/currency";
+
+// Re-export everything from currency module
+export {
+  formatPercentage,
+  parseFormattedNumber,
+  type CurrencyCode,
+} from "./countries/currency";
+
+// Default currency for backwards compatibility
+const DEFAULT_CURRENCY: CurrencyCode = "USD";
+
+/**
+ * Format a number as currency
+ * @param amount - The amount to format
+ * @param currencyCode - Optional currency code (defaults to USD for backwards compatibility)
+ */
+export function formatCurrency(amount: number, currencyCode: CurrencyCode = DEFAULT_CURRENCY): string {
+  return formatCurrencyBase(amount, currencyCode);
 }
 
-export function formatCurrencyWithCents(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
+/**
+ * Format a number as currency with cents
+ * @param amount - The amount to format
+ * @param currencyCode - Optional currency code (defaults to USD for backwards compatibility)
+ */
+export function formatCurrencyWithCents(amount: number, currencyCode: CurrencyCode = DEFAULT_CURRENCY): string {
+  return formatCurrencyWithCentsBase(amount, currencyCode);
 }
 
-export function formatPercentage(value: number): string {
-  return `${(value * 100).toFixed(1)}%`;
-}
-
-export function formatNumber(value: number): string {
-  return new Intl.NumberFormat("en-US").format(value);
-}
-
-export function parseFormattedNumber(value: string): number {
-  const cleaned = value.replace(/[^0-9.-]/g, "");
-  const parsed = parseFloat(cleaned);
-  return isNaN(parsed) ? 0 : parsed;
+/**
+ * Format a number with locale-specific formatting
+ * @param value - The value to format
+ * @param currencyCode - Optional currency code for locale (defaults to USD)
+ */
+export function formatNumber(value: number, currencyCode: CurrencyCode = DEFAULT_CURRENCY): string {
+  return formatNumberBase(value, currencyCode);
 }
