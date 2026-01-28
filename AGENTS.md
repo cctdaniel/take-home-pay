@@ -92,6 +92,7 @@ Each country calculator handles:
 5. Register in `lib/countries/registry.ts`
 6. Add UI components in `components/calculator/`
 7. Update `use-multi-country-calculator.ts` hook
+8. **Update documentation:** Update this file (AGENTS.md) and README.md to include the new country
 
 ## Code Style
 
