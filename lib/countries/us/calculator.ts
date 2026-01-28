@@ -45,12 +45,12 @@ function getStateStandardDeduction(
     return 0;
   }
 
+  // Note: NC and AZ are NOT included here because their deductions are already
+  // handled by createFlatTaxCalculator via FLAT_TAX_STATE_DEDUCTIONS
   const stateDeductions: Record<string, Record<USFilingStatus, number>> = {
     CA: { single: 5540, married_jointly: 11080, married_separately: 5540, head_of_household: 11080 },
     NY: { single: 8000, married_jointly: 16050, married_separately: 8000, head_of_household: 11200 },
     GA: { single: 12000, married_jointly: 24000, married_separately: 12000, head_of_household: 18000 },
-    NC: { single: 12750, married_jointly: 25500, married_separately: 12750, head_of_household: 19125 },
-    AZ: { single: 14600, married_jointly: 29200, married_separately: 14600, head_of_household: 21900 },
   };
 
   return stateDeductions[stateCode]?.[filingStatus] ?? 0;
