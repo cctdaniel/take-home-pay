@@ -38,8 +38,8 @@ export function KRAdditionalReliefs({ reliefs, onChange }: KRAdditionalReliefsPr
 
           <div className="flex items-center justify-between">
             <div>
-              <Label className="text-sm">Children (under 20)</Label>
-              <p className="text-xs text-zinc-500 mt-0.5">₩1,500,000 each</p>
+              <Label className="text-sm">Total Children (under 20)</Label>
+              <p className="text-xs text-zinc-500 mt-0.5">₩1,500,000 deduction each</p>
             </div>
             <NumberStepper
               value={reliefs.numberOfChildrenUnder20 || 0}
@@ -52,14 +52,14 @@ export function KRAdditionalReliefs({ reliefs, onChange }: KRAdditionalReliefsPr
 
           <div className="flex items-center justify-between">
             <div>
-              <Label className="text-sm">Children (under 7)</Label>
-              <p className="text-xs text-zinc-500 mt-0.5">Additional ₩1,000,000 each</p>
+              <Label className="text-sm">Of which, under age 7</Label>
+              <p className="text-xs text-zinc-500 mt-0.5">Extra ₩1,000,000 deduction each</p>
             </div>
             <NumberStepper
               value={reliefs.numberOfChildrenUnder7 || 0}
               onChange={(value) => handleChange("numberOfChildrenUnder7", value)}
               min={0}
-              max={10}
+              max={reliefs.numberOfChildrenUnder20 || 0}
               label="Children under 7"
             />
           </div>
@@ -84,12 +84,15 @@ export function KRAdditionalReliefs({ reliefs, onChange }: KRAdditionalReliefsPr
       </div>
 
       <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
-        <p className="text-xs text-zinc-400 font-medium mb-1">Notes:</p>
+        <p className="text-xs text-zinc-400 font-medium mb-2">Example: 2 children (ages 6 and 10)</p>
         <ul className="text-xs text-zinc-500 space-y-1">
-          <li>Basic deduction (₩1,500,000 for taxpayer) is automatically applied</li>
-          <li>Children under 7 must also be counted in &quot;Children under 20&quot;</li>
-          <li>Children for tax credit = children eligible for child tax credit</li>
+          <li>→ Total Children = <span className="text-zinc-300">2</span> (both are under 20)</li>
+          <li>→ Under age 7 = <span className="text-zinc-300">1</span> (only the 6-year-old)</li>
+          <li>→ Children for Tax Credit = <span className="text-zinc-300">2</span> (both qualify)</li>
         </ul>
+        <p className="text-xs text-zinc-500 mt-2">
+          Basic deduction (₩1,500,000) is automatically applied.
+        </p>
       </div>
     </div>
   );
