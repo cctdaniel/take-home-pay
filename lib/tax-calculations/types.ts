@@ -1,13 +1,39 @@
-import type { FilingStatus } from "../constants/tax-brackets-2025";
-import type { HSACoverageType } from "../constants/contribution-limits";
+// ============================================================================
+// TAX CALCULATIONS TYPES
+// Re-exports from the new countries module for backwards compatibility
+// ============================================================================
 
-export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
+// Re-export types from the new countries module
+export type {
+  PayFrequency,
+  TaxBracket,
+  USFilingStatus,
+  USContributionInputs,
+  USTaxBreakdown,
+  CountryCode,
+  CurrencyCode,
+} from "../countries/types";
+
+// Re-export HSACoverageType
+export type { HSACoverageType } from "../countries/us/constants/contribution-limits";
+
+// Legacy type aliases for backwards compatibility
+import type {
+  USFilingStatus,
+  USContributionInputs,
+  USCalculatorInputs,
+  USTaxBreakdown,
+  PayFrequency,
+} from "../countries/types";
+
+// Backwards compatible interfaces (map to US-specific types)
+export type FilingStatus = USFilingStatus;
 
 export interface ContributionInputs {
   traditional401k: number;
   rothIRA: number;
   hsa: number;
-  hsaCoverageType: HSACoverageType;
+  hsaCoverageType: "self" | "family";
 }
 
 export interface CalculatorInputs {

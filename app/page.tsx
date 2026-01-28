@@ -1,4 +1,4 @@
-import { SalaryCalculator } from "@/components/calculator/salary-calculator";
+import { MultiCountryCalculator } from "@/components/calculator/multi-country-calculator";
 import { TaxYearBadge } from "@/components/calculator/tax-year-badge";
 import { TAX_YEAR, LAST_UPDATED } from "@/lib/constants/tax-year";
 
@@ -15,16 +15,18 @@ export default function Home() {
             <TaxYearBadge />
           </div>
           <p className="text-zinc-400 text-base md:text-lg">
-            Calculate your actual salary after taxes for any US state. Includes {TAX_YEAR} federal
-            and state tax brackets, Social Security, Medicare, and retirement contributions.
+            Calculate your actual salary after taxes. Supports the United States (all 50 states + D.C.)
+            and Singapore with {TAX_YEAR} tax brackets, social security contributions, and more.
           </p>
           <p className="text-zinc-500 text-sm mt-2">
-            Supports all 50 US states plus Washington D.C.
+            US: Federal & state taxes, Social Security, Medicare, 401(k), HSA, IRA
+            <br />
+            Singapore: Income tax, CPF contributions (based on age and residency), SRS
           </p>
         </div>
 
         {/* Calculator */}
-        <SalaryCalculator />
+        <MultiCountryCalculator />
 
         {/* SEO Content Section */}
         <section className="mt-16 max-w-3xl">
@@ -32,10 +34,7 @@ export default function Home() {
             How Your Take Home Pay Is Calculated
           </h2>
           <div className="prose prose-invert prose-zinc prose-sm">
-            <p className="text-zinc-400">
-              Your take home pay (also called net pay) is your gross salary minus all tax
-              withholdings and deductions. This calculator accounts for:
-            </p>
+            <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">United States</h3>
             <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
               <li><strong className="text-zinc-300">Federal Income Tax</strong> – Progressive tax brackets from 10% to 37%</li>
               <li><strong className="text-zinc-300">State Income Tax</strong> – Varies by state (0% to 13.3%)</li>
@@ -44,6 +43,16 @@ export default function Home() {
               <li><strong className="text-zinc-300">State Disability Insurance</strong> – Required in CA, HI, NJ, NY, and RI</li>
               <li><strong className="text-zinc-300">Pre-tax Deductions</strong> – 401(k) and HSA contributions reduce taxable income</li>
             </ul>
+
+            <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Singapore</h3>
+            <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+              <li><strong className="text-zinc-300">Income Tax</strong> – Progressive rates from 0% to 24%</li>
+              <li><strong className="text-zinc-300">CPF (Central Provident Fund)</strong> – Mandatory contributions for Citizens/PRs</li>
+              <li><strong className="text-zinc-300">CPF Rates by Age</strong> – Employee: 20% (under 55) to 5% (above 70)</li>
+              <li><strong className="text-zinc-300">Monthly Salary Ceiling</strong> – CPF contributions capped at S$8,000/month</li>
+              <li><strong className="text-zinc-300">Foreigners</strong> – No CPF contributions required</li>
+              <li><strong className="text-zinc-300">Tax Relief</strong> – SRS and voluntary CPF top-ups are tax deductible</li>
+            </ul>
           </div>
         </section>
 
@@ -51,7 +60,7 @@ export default function Home() {
         <footer className="mt-12 pt-8 border-t border-zinc-800">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <p className="text-sm text-zinc-500">
-              This calculator provides estimates based on {TAX_YEAR} federal and state tax brackets.
+              This calculator provides estimates based on {TAX_YEAR} tax rules.
               Actual tax liability may vary. Consult a tax professional for personalized advice.
             </p>
             <p className="text-xs text-zinc-600 whitespace-nowrap">

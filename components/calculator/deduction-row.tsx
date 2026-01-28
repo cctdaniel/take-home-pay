@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { formatCurrency, formatPercentage } from "@/lib/format";
+import { formatCurrency, formatPercentage, type CurrencyCode } from "@/lib/format";
 
 interface DeductionRowProps {
   label: string;
@@ -7,6 +7,7 @@ interface DeductionRowProps {
   grossSalary: number;
   variant?: "default" | "total" | "net";
   showPercentage?: boolean;
+  currency?: CurrencyCode;
 }
 
 export function DeductionRow({
@@ -15,6 +16,7 @@ export function DeductionRow({
   grossSalary,
   variant = "default",
   showPercentage = true,
+  currency = "USD",
 }: DeductionRowProps) {
   const percentage = grossSalary > 0 ? amount / grossSalary : 0;
 
@@ -50,7 +52,7 @@ export function DeductionRow({
             variant === "net" && "text-base font-semibold text-emerald-400"
           )}
         >
-          {variant === "net" ? formatCurrency(amount) : `-${formatCurrency(amount)}`}
+          {variant === "net" ? formatCurrency(amount, currency) : `-${formatCurrency(amount, currency)}`}
         </span>
       </div>
     </div>
