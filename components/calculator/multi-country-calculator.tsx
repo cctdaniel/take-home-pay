@@ -10,6 +10,7 @@ import { KRTaxOptions } from "./kr-tax-options";
 import { ContributionOptions } from "./contribution-options";
 import { SGContributionOptions } from "./sg-contribution-options";
 import { SGAdditionalReliefs } from "./sg-additional-reliefs";
+import { KRAdditionalReliefs } from "./kr-additional-reliefs";
 import { MultiCountryResults } from "./multi-country-results";
 import { SEOTaxInfo } from "./seo-tax-info";
 import { useMultiCountryCalculator } from "@/hooks/use-multi-country-calculator";
@@ -58,6 +59,8 @@ export function MultiCountryCalculator() {
     // KR-specific
     krResidencyType,
     setKrResidencyType,
+    krTaxReliefs,
+    setKrTaxReliefs,
 
     // Results
     result,
@@ -174,23 +177,33 @@ export function MultiCountryCalculator() {
           </Card>
         )}
 
-        {/* Social Insurance Info Card for KR */}
+        {/* Tax Deductions & Credits Card for KR */}
         {country === "KR" && (
           <Card>
             <CardHeader>
-              <CardTitle>Social Insurance</CardTitle>
+              <CardTitle>Tax Deductions &amp; Credits</CardTitle>
               <CardDescription>
-                Mandatory contributions automatically calculated
+                Add dependents and children for additional tax savings
               </CardDescription>
             </CardHeader>
             <CardContent>
+              <KRAdditionalReliefs
+                reliefs={krTaxReliefs}
+                onChange={setKrTaxReliefs}
+              />
+
+              <Separator className="my-6" />
+
               <div className="bg-zinc-800/50 rounded-lg p-4">
-                <p className="text-sm text-zinc-400 mb-3">
-                  South Korea&apos;s &quot;4 Major Social Insurance&quot; contributions are automatically deducted:
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  Social Insurance (4 Major Insurance)
                 </p>
-                <ul className="text-sm text-zinc-500 space-y-1">
-                  <li>National Pension: 4.5% (employee share)</li>
-                  <li>National Health Insurance: 3.545%</li>
+                <p className="text-xs text-zinc-400 mb-2">
+                  Automatically deducted from your salary:
+                </p>
+                <ul className="text-xs text-zinc-500 space-y-1">
+                  <li>National Pension: 4.5% (capped at ₩5.9M/month)</li>
+                  <li>Health Insurance: 3.545%</li>
                   <li>Long-term Care: 12.95% of health insurance</li>
                   <li>Employment Insurance: 0.9%</li>
                 </ul>

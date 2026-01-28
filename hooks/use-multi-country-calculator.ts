@@ -11,6 +11,7 @@ import type {
   SGResidencyType,
   KRResidencyType,
   SGTaxReliefInputs,
+  KRTaxReliefInputs,
   PayFrequency,
   CalculationResult,
   CurrencyCode,
@@ -51,6 +52,7 @@ interface SGState {
 // ============================================================================
 interface KRState {
   residencyType: KRResidencyType;
+  taxReliefs: KRTaxReliefInputs;
 }
 
 const DEFAULT_SG_TAX_RELIEFS: SGTaxReliefInputs = {
@@ -60,6 +62,13 @@ const DEFAULT_SG_TAX_RELIEFS: SGTaxReliefInputs = {
   parentRelief: "none",
   numberOfParents: 0,
   courseFees: 0,
+};
+
+const DEFAULT_KR_TAX_RELIEFS: KRTaxReliefInputs = {
+  numberOfDependents: 0,
+  numberOfChildrenUnder20: 0,
+  numberOfChildrenForCredit: 0,
+  numberOfChildrenUnder7: 0,
 };
 
 // ============================================================================
@@ -106,6 +115,8 @@ export interface UseMultiCountryCalculatorReturn {
   // KR-specific
   krResidencyType: KRResidencyType;
   setKrResidencyType: (value: KRResidencyType) => void;
+  krTaxReliefs: KRTaxReliefInputs;
+  setKrTaxReliefs: (value: KRTaxReliefInputs) => void;
 
   // Limits
   usLimits: {
@@ -150,6 +161,7 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
 
   // KR-specific state
   const [krResidencyType, setKrResidencyType] = useState<KRResidencyType>("resident");
+  const [krTaxReliefs, setKrTaxReliefs] = useState<KRTaxReliefInputs>(DEFAULT_KR_TAX_RELIEFS);
 
   // Currency based on country
   const currency: CurrencyCode = country === "US" ? "USD" : country === "SG" ? "SGD" : "KRW";
@@ -190,6 +202,7 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
       // Reset to KR defaults
       setGrossSalary(50000000); // ₩50M typical salary
       setKrResidencyType("resident");
+      setKrTaxReliefs(DEFAULT_KR_TAX_RELIEFS);
     }
   }, []);
 
@@ -264,6 +277,7 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
         payFrequency,
         residencyType: krResidencyType,
         contributions: {},
+        taxReliefs: krTaxReliefs,
       };
       return krInputs;
     }
@@ -283,6 +297,7 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
     srsContribution,
     sgTaxReliefs,
     krResidencyType,
+    krTaxReliefs,
     usLimits,
     sgLimits,
   ]);
@@ -333,6 +348,8 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
     // KR-specific
     krResidencyType,
     setKrResidencyType,
+    krTaxReliefs,
+    setKrTaxReliefs,
 
     // Limits
     usLimits,

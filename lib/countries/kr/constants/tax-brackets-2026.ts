@@ -65,8 +65,19 @@ export const KR_SOCIAL_INSURANCE = {
 // TAX DEDUCTIONS AND CREDITS (2026)
 // ============================================================================
 export const KR_TAX_DEDUCTIONS = {
-  // Basic deduction (기본공제) - ₩1.5M per person
+  // Basic deduction (기본공제) - ₩1.5M per taxpayer
   basicDeduction: 1500000,
+
+  // Dependent deduction (인적공제) - ₩1.5M per dependent
+  // Includes: spouse, children under 20, parents over 60, siblings
+  dependentDeduction: 1500000,
+
+  // Child deduction (자녀공제) - for children under 20 (or students under 25)
+  // This is included in the dependent deduction, but we track separately
+  childDeduction: 1500000,
+
+  // Additional child deduction for children under 7 (6세 이하 추가공제)
+  childUnder7Deduction: 1000000, // ₩1,000,000 per child
 
   // Employment income deduction (근로소득공제)
   // Tiered deduction based on total employment income
@@ -80,6 +91,32 @@ export const KR_TAX_DEDUCTIONS = {
 
   // Standard deduction for wage earners (표준세액공제)
   standardTaxCredit: 130000, // ₩130,000
+} as const;
+
+// ============================================================================
+// TAX CREDITS (세액공제)
+// ============================================================================
+export const KR_TAX_CREDITS = {
+  // Child tax credit (자녀세액공제)
+  // For children eligible for child deduction
+  childTaxCredit: {
+    firstTwo: 150000, // ₩150,000 per child for first 2 children
+    thirdAndBeyond: 300000, // ₩300,000 per child for 3rd+ children
+  },
+
+  // Wage earner tax credit caps (근로소득세액공제 한도)
+  wageEarnerCredit: {
+    lowIncomeRate: 0.55, // 55% for tax up to ₩1.3M
+    highIncomeRate: 0.30, // 30% for tax above ₩1.3M
+    baseAmount: 715000, // ₩715,000 base for high income
+    threshold: 1300000, // ₩1.3M threshold
+    maxLowIncome: 740000, // Max ₩740,000 for gross tax ≤ ₩33M
+    maxMidIncome: 660000, // Max ₩660,000 for gross tax ₩33M-70M
+    maxHighIncome: 500000, // Max ₩500,000 for gross tax > ₩70M
+  },
+
+  // Standard tax credit (표준세액공제)
+  standardCredit: 130000, // ₩130,000
 } as const;
 
 // ============================================================================
@@ -217,4 +254,23 @@ export function calculateWageEarnerTaxCredit(calculatedTax: number): number {
   }
 
   return Math.round(credit);
+}
+
+/**
+ * Calculate child tax credit (자녀세액공제)
+ * First 2 children: ₩150,000 each
+ * 3rd child and beyond: ₩300,000 each
+ */
+export function calculateChildTaxCredit(numberOfChildren: number): number {
+  if (numberOfChildren <= 0) return 0;
+
+  const { firstTwo, thirdAndBeyond } = KR_TAX_CREDITS.childTaxCredit;
+
+  if (numberOfChildren <= 2) {
+    return numberOfChildren * firstTwo;
+  }
+
+  // First 2 children at ₩150,000 + additional children at ₩300,000
+  const additionalChildren = numberOfChildren - 2;
+  return (2 * firstTwo) + (additionalChildren * thirdAndBeyond);
 }

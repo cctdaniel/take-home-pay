@@ -86,6 +86,20 @@ export interface KRContributionInputs extends BaseContributionInputs {
   // This interface is kept for consistency but currently has no optional contributions
 }
 
+// South Korea additional tax reliefs/deductions (인적공제 및 세액공제)
+export interface KRTaxReliefInputs {
+  // Dependent deductions (인적공제) - ₩1,500,000 each
+  numberOfDependents: number; // Spouse, parents, siblings, etc.
+  numberOfChildrenUnder20: number; // Children under 20 (or students under 25)
+
+  // Child tax credit (자녀세액공제)
+  // First 2 children: ₩150,000 each, 3rd+: ₩300,000 each
+  numberOfChildrenForCredit: number;
+
+  // Additional child deduction for children under 7 (6세 이하 추가공제)
+  numberOfChildrenUnder7: number; // ₩1,000,000 per child
+}
+
 // Singapore additional tax reliefs
 export type SGParentReliefType = "none" | "not_staying" | "staying";
 
@@ -129,6 +143,7 @@ export interface KRCalculatorInputs extends BaseCalculatorInputs {
   country: "KR";
   residencyType: KRResidencyType;
   contributions: KRContributionInputs;
+  taxReliefs: KRTaxReliefInputs;
 }
 
 export type CalculatorInputs = USCalculatorInputs | SGCalculatorInputs | KRCalculatorInputs;
@@ -251,11 +266,25 @@ export interface KRBreakdown {
     employmentInsuranceRate: number;
     totalSocialInsurance: number;
   };
+  // Tax reliefs breakdown
+  taxReliefs: {
+    basicDeduction: number;
+    dependentDeduction: number;
+    childDeduction: number;
+    childUnder7Deduction: number;
+    employmentIncomeDeduction: number;
+    totalDeductions: number;
+  };
+  // Tax credits breakdown
+  taxCredits: {
+    wageEarnerCredit: number;
+    standardCredit: number;
+    childTaxCredit: number;
+    totalCredits: number;
+  };
   // Tax details
   taxDetails: {
     grossIncomeTax: number; // Before tax credits
-    basicDeduction: number;
-    taxCredits: number;
     finalIncomeTax: number;
     localIncomeTax: number;
     totalIncomeTax: number;

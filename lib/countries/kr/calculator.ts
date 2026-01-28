@@ -9,6 +9,7 @@ import type {
   KRCalculatorInputs,
   KRTaxBreakdown,
   KRBreakdown,
+  KRTaxReliefInputs,
   RegionInfo,
   ContributionLimits,
   PayFrequency,
@@ -25,7 +26,16 @@ import {
   calculateLongTermCare,
   calculateEmploymentInsurance,
   calculateWageEarnerTaxCredit,
+  calculateChildTaxCredit,
 } from "./constants/tax-brackets-2026";
+
+// Default tax reliefs (no dependents)
+const DEFAULT_KR_TAX_RELIEFS: KRTaxReliefInputs = {
+  numberOfDependents: 0,
+  numberOfChildrenUnder20: 0,
+  numberOfChildrenForCredit: 0,
+  numberOfChildrenUnder7: 0,
+};
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -47,7 +57,7 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
 // SOUTH KOREA CALCULATOR
 // ============================================================================
 export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
-  const { grossSalary, payFrequency, residencyType } = inputs;
+  const { grossSalary, payFrequency, residencyType, taxReliefs = DEFAULT_KR_TAX_RELIEFS } = inputs;
 
   // Monthly salary for social insurance calculations
   const monthlySalary = grossSalary / 12;
@@ -80,7 +90,7 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
     annualEmploymentInsurance;
 
   // ============================================================================
-  // STEP 2: Calculate Income Tax
+  // STEP 2: Calculate Deductions (소득공제)
   // ============================================================================
 
   // Employment income deduction (근로소득공제)
@@ -89,12 +99,30 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
   // Calculate employment income (근로소득금액) = gross - employment income deduction
   const employmentIncome = Math.max(0, grossSalary - employmentIncomeDeduction);
 
-  // Basic deduction for single taxpayer (can be expanded for dependents)
+  // Basic deduction for taxpayer (기본공제) - ₩1.5M
   const basicDeduction = KR_TAX_DEDUCTIONS.basicDeduction;
 
-  // Taxable income = employment income - basic deduction - social insurance premiums
-  // Social insurance premiums are deductible
-  const taxableIncome = Math.max(0, employmentIncome - basicDeduction - totalSocialInsurance);
+  // Dependent deduction (인적공제) - ₩1.5M per dependent
+  const dependentDeduction = taxReliefs.numberOfDependents * KR_TAX_DEDUCTIONS.dependentDeduction;
+
+  // Child deduction (자녀공제) - ₩1.5M per child under 20
+  const childDeduction = taxReliefs.numberOfChildrenUnder20 * KR_TAX_DEDUCTIONS.childDeduction;
+
+  // Additional child deduction for children under 7 (6세 이하 추가공제) - ₩1M per child
+  const childUnder7Deduction = taxReliefs.numberOfChildrenUnder7 * KR_TAX_DEDUCTIONS.childUnder7Deduction;
+
+  // Total personal deductions
+  const totalPersonalDeductions = basicDeduction + dependentDeduction + childDeduction + childUnder7Deduction;
+
+  // Total deductions including social insurance (which is deductible)
+  const totalDeductionsFromIncome = totalPersonalDeductions + totalSocialInsurance;
+
+  // Taxable income = employment income - deductions
+  const taxableIncome = Math.max(0, employmentIncome - totalDeductionsFromIncome);
+
+  // ============================================================================
+  // STEP 3: Calculate Tax and Credits (세액공제)
+  // ============================================================================
 
   // Calculate gross income tax using progressive brackets
   const grossIncomeTax = calculateProgressiveIncomeTax(taxableIncome);
@@ -102,11 +130,16 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
   // Calculate wage earner tax credit (근로소득세액공제)
   const wageEarnerTaxCredit = calculateWageEarnerTaxCredit(grossIncomeTax);
 
-  // Standard tax credit for wage earners who don't itemize
+  // Standard tax credit for wage earners who don't itemize (표준세액공제)
   const standardTaxCredit = KR_TAX_DEDUCTIONS.standardTaxCredit;
 
+  // Child tax credit (자녀세액공제)
+  const childTaxCredit = calculateChildTaxCredit(taxReliefs.numberOfChildrenForCredit);
+
+  // Total tax credits
+  const totalTaxCredits = wageEarnerTaxCredit + standardTaxCredit + childTaxCredit;
+
   // Final income tax after credits
-  const totalTaxCredits = wageEarnerTaxCredit + standardTaxCredit;
   const finalIncomeTax = Math.max(0, grossIncomeTax - totalTaxCredits);
 
   // Local income tax (10% of national income tax)
@@ -173,10 +206,22 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
       employmentInsuranceRate: KR_SOCIAL_INSURANCE.employmentInsurance.employeeRate,
       totalSocialInsurance,
     },
+    taxReliefs: {
+      basicDeduction,
+      dependentDeduction,
+      childDeduction,
+      childUnder7Deduction,
+      employmentIncomeDeduction,
+      totalDeductions: totalPersonalDeductions + employmentIncomeDeduction,
+    },
+    taxCredits: {
+      wageEarnerCredit: wageEarnerTaxCredit,
+      standardCredit: standardTaxCredit,
+      childTaxCredit,
+      totalCredits: totalTaxCredits,
+    },
     taxDetails: {
       grossIncomeTax,
-      basicDeduction,
-      taxCredits: totalTaxCredits,
       finalIncomeTax,
       localIncomeTax,
       totalIncomeTax: adjustedIncomeTax,
@@ -240,6 +285,7 @@ export const KRCalculator: CountryCalculator = {
       payFrequency: "monthly",
       residencyType: "resident",
       contributions: {},
+      taxReliefs: DEFAULT_KR_TAX_RELIEFS,
     };
   },
 };

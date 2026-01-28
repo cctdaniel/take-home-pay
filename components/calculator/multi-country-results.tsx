@@ -371,6 +371,90 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
           {/* KR Tax Breakdown */}
           {isKR && "nationalPension" in taxes && result.breakdown.type === "KR" && (
             <>
+              {/* Tax Deductions Applied */}
+              {result.breakdown.taxReliefs.totalDeductions > result.breakdown.taxReliefs.basicDeduction && (
+                <>
+                  <p className="text-xs text-zinc-500 pt-2 pb-1">Tax Deductions Applied</p>
+                  {result.breakdown.taxReliefs.employmentIncomeDeduction > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Employment Income Deduction</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxReliefs.employmentIncomeDeduction, currency)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">Basic Deduction</span>
+                    <span className="text-sm text-emerald-400 tabular-nums">
+                      -{formatCurrency(result.breakdown.taxReliefs.basicDeduction, currency)}
+                    </span>
+                  </div>
+                  {result.breakdown.taxReliefs.dependentDeduction > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Dependent Deduction</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxReliefs.dependentDeduction, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.taxReliefs.childDeduction > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Child Deduction</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxReliefs.childDeduction, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.taxReliefs.childUnder7Deduction > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Child Under 7 Deduction</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxReliefs.childUnder7Deduction, currency)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                    <span className="text-sm text-zinc-300">Taxable Income</span>
+                    <span className="text-sm text-zinc-200 tabular-nums">
+                      {formatCurrency(result.breakdown.taxableIncome, currency)}
+                    </span>
+                  </div>
+                  <Separator className="my-2" />
+                </>
+              )}
+
+              {/* Tax Credits Applied */}
+              {result.breakdown.taxCredits.totalCredits > 0 && (
+                <>
+                  <p className="text-xs text-zinc-500 pt-2 pb-1">Tax Credits Applied</p>
+                  {result.breakdown.taxCredits.wageEarnerCredit > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Wage Earner Credit</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxCredits.wageEarnerCredit, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.taxCredits.standardCredit > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Standard Credit</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxCredits.standardCredit, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.taxCredits.childTaxCredit > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Child Tax Credit</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxCredits.childTaxCredit, currency)}
+                      </span>
+                    </div>
+                  )}
+                  <Separator className="my-2" />
+                </>
+              )}
+
               <p className="text-xs text-zinc-500 pt-2 pb-1">Income Tax</p>
               <DeductionRow
                 label="National Income Tax"
@@ -384,16 +468,6 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
                 grossSalary={grossSalary}
                 currency={currency}
               />
-
-              {/* Tax Credits Info */}
-              {result.breakdown.taxDetails.taxCredits > 0 && (
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-sm text-zinc-400">Tax Credits Applied</span>
-                  <span className="text-sm text-emerald-400 tabular-nums">
-                    -{formatCurrency(result.breakdown.taxDetails.taxCredits, currency)}
-                  </span>
-                </div>
-              )}
 
               <Separator className="my-2" />
               <p className="text-xs text-zinc-500 pt-2 pb-1">Social Insurance (4 Major Insurance)</p>
@@ -444,7 +518,7 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
               <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
                 <p className="text-xs text-zinc-400 font-medium mb-1">Note:</p>
                 <p className="text-xs text-zinc-500">
-                  Deductions shown are simplified. Actual tax may vary based on additional credits, dependents, and other factors.
+                  Additional deductions (medical, education, donations) are not included.
                 </p>
               </div>
             </>

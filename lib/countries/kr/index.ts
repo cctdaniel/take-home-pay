@@ -11,6 +11,7 @@ export {
   KR_LOCAL_TAX_RATE,
   KR_SOCIAL_INSURANCE,
   KR_TAX_DEDUCTIONS,
+  KR_TAX_CREDITS,
   calculateEmploymentIncomeDeduction,
   calculateProgressiveIncomeTax,
   calculateNationalPension,
@@ -18,4 +19,5 @@ export {
   calculateLongTermCare,
   calculateEmploymentInsurance,
   calculateWageEarnerTaxCredit,
+  calculateChildTaxCredit,
 } from "./constants/tax-brackets-2026";
