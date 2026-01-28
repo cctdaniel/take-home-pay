@@ -94,12 +94,16 @@ export function SGContributionOptions({
 
       <ContributionSlider
         label="SRS Contribution"
-        description="Supplementary Retirement Scheme - fully tax deductible"
+        description="100% tax deductible - significant savings for high earners"
         value={srsContribution}
         onChange={onSrsContributionChange}
         max={srsContributionLimit}
         currency="SGD"
       />
+
+      <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
+        <span className="text-emerald-400">Tip:</span> At top marginal rate (24%), maxing SRS saves ~S$3,670/year in tax
+      </p>
     </div>
   );
 }

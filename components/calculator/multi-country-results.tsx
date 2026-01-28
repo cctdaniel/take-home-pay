@@ -315,6 +315,18 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
                   />
                 </>
               )}
+
+              {/* Additional reliefs disclaimer */}
+              <Separator className="my-2" />
+              <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
+                <p className="text-xs text-zinc-400 font-medium mb-1">Additional reliefs not included:</p>
+                <p className="text-xs text-zinc-500">
+                  Spouse, child, parent, working mother, course fees, life insurance, donations, NSman relief
+                </p>
+                <p className="text-xs text-emerald-400/80 mt-2">
+                  Your actual tax could be lower with these reliefs. SRS contributions (up to S$15,300/year) can significantly reduce tax for high earners.
+                </p>
+              </div>
             </>
           )}
 
