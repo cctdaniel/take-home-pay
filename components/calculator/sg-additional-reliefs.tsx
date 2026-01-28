@@ -3,6 +3,7 @@
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
+import { NumberStepper } from "@/components/ui/number-stepper";
 import { formatCurrency } from "@/lib/format";
 import type { SGTaxReliefInputs, SGParentReliefType } from "@/lib/countries/types";
 
@@ -48,25 +49,13 @@ export function SGAdditionalReliefs({ reliefs, onChange }: SGAdditionalReliefsPr
               S$4,000 per qualifying child
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => updateRelief("numberOfChildren", Math.max(0, reliefs.numberOfChildren - 1))}
-              className="w-8 h-8 rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-300 flex items-center justify-center"
-            >
-              -
-            </button>
-            <span className="w-8 text-center text-zinc-300 tabular-nums">
-              {reliefs.numberOfChildren}
-            </span>
-            <button
-              type="button"
-              onClick={() => updateRelief("numberOfChildren", Math.min(10, reliefs.numberOfChildren + 1))}
-              className="w-8 h-8 rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-300 flex items-center justify-center"
-            >
-              +
-            </button>
-          </div>
+          <NumberStepper
+            value={reliefs.numberOfChildren}
+            onChange={(value) => updateRelief("numberOfChildren", value)}
+            min={0}
+            max={10}
+            label="Number of Children"
+          />
         </div>
 
         {/* Working Mother's Child Relief */}
@@ -119,25 +108,13 @@ export function SGAdditionalReliefs({ reliefs, onChange }: SGAdditionalReliefsPr
         {reliefs.parentRelief !== "none" && (
           <div className="flex items-center justify-between pl-4 border-l-2 border-zinc-700">
             <Label className="text-sm text-zinc-400">Number of dependants</Label>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => updateRelief("numberOfParents", Math.max(1, reliefs.numberOfParents - 1))}
-                className="w-8 h-8 rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-300 flex items-center justify-center"
-              >
-                -
-              </button>
-              <span className="w-8 text-center text-zinc-300 tabular-nums">
-                {reliefs.numberOfParents || 1}
-              </span>
-              <button
-                type="button"
-                onClick={() => updateRelief("numberOfParents", Math.min(4, (reliefs.numberOfParents || 1) + 1))}
-                className="w-8 h-8 rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-300 flex items-center justify-center"
-              >
-                +
-              </button>
-            </div>
+            <NumberStepper
+              value={reliefs.numberOfParents || 1}
+              onChange={(value) => updateRelief("numberOfParents", value)}
+              min={1}
+              max={4}
+              label="Number of Dependants"
+            />
           </div>
         )}
       </div>
