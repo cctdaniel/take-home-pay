@@ -37,25 +37,6 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
   }
 }
 
-function getStateStandardDeduction(
-  stateCode: string,
-  filingStatus: USFilingStatus
-): number {
-  if (hasNoIncomeTax(stateCode)) {
-    return 0;
-  }
-
-  // Note: NC and AZ are NOT included here because their deductions are already
-  // handled by createFlatTaxCalculator via FLAT_TAX_STATE_DEDUCTIONS
-  const stateDeductions: Record<string, Record<USFilingStatus, number>> = {
-    CA: { single: 5540, married_jointly: 11080, married_separately: 5540, head_of_household: 11080 },
-    NY: { single: 8000, married_jointly: 16050, married_separately: 8000, head_of_household: 11200 },
-    GA: { single: 12000, married_jointly: 24000, married_separately: 12000, head_of_household: 18000 },
-  };
-
-  return stateDeductions[stateCode]?.[filingStatus] ?? 0;
-}
-
 // ============================================================================
 // US CALCULATOR
 // ============================================================================
@@ -68,9 +49,8 @@ export function calculateUS(inputs: USCalculatorInputs): CalculationResult {
   // Calculate federal taxable income
   const taxableIncomeForFederal = getFederalTaxableIncome(grossSalary, filingStatus, preTaxDeductions);
 
-  // Calculate state taxable income
-  const stateDeduction = getStateStandardDeduction(state, filingStatus);
-  const taxableIncomeForState = Math.max(0, grossSalary - preTaxDeductions - stateDeduction);
+  // Calculate state taxable income (state calculators apply their own deductions internally)
+  const taxableIncomeForState = Math.max(0, grossSalary - preTaxDeductions);
 
   // Calculate federal taxes
   const federalIncomeTax = calculateFederalIncomeTax(grossSalary, filingStatus, preTaxDeductions);

@@ -43,8 +43,12 @@ interface StateConfig {
 function createProgressiveCalculator(config: StateConfig): StateCalculator {
   return {
     calculateStateTax: (taxableIncome: number, filingStatus: USFilingStatus) => {
+      // Apply state-specific deductions/exemptions if defined
+      const deduction = config.deductions?.[filingStatus] ?? 0;
+      const exemption = config.exemptions?.[filingStatus] ?? 0;
+      const adjustedIncome = Math.max(0, taxableIncome - deduction - exemption);
       const stateBrackets = config.brackets[filingStatus];
-      return calculateProgressiveTax(taxableIncome, stateBrackets);
+      return calculateProgressiveTax(adjustedIncome, stateBrackets);
     },
     calculateSDI: (grossIncome: number) => {
       if (!config.sdiRate) return 0;
@@ -102,8 +106,10 @@ const arkansasCalculator = createProgressiveCalculator({
 
 const californiaCalculator: StateCalculator = {
   calculateStateTax: (taxableIncome: number, filingStatus: USFilingStatus) => {
+    const deduction = CA_STANDARD_DEDUCTIONS[filingStatus] ?? 0;
+    const adjustedIncome = Math.max(0, taxableIncome - deduction);
     const stateBrackets = CALIFORNIA_TAX_BRACKETS[filingStatus];
-    return calculateProgressiveTax(taxableIncome, stateBrackets);
+    return calculateProgressiveTax(adjustedIncome, stateBrackets);
   },
   calculateSDI: (grossIncome: number) => grossIncome * 0.012,
   getStateName: () => "California",
@@ -129,8 +135,10 @@ const dcCalculator = createProgressiveCalculator({
 
 const georgiaCalculator: StateCalculator = {
   calculateStateTax: (taxableIncome: number, filingStatus: USFilingStatus) => {
+    const deduction = brackets.GA_STANDARD_DEDUCTIONS[filingStatus] ?? 0;
+    const adjustedIncome = Math.max(0, taxableIncome - deduction);
     const stateBrackets = brackets.GEORGIA_TAX_BRACKETS[filingStatus];
-    return calculateProgressiveTax(taxableIncome, stateBrackets);
+    return calculateProgressiveTax(adjustedIncome, stateBrackets);
   },
   calculateSDI: () => 0,
   getStateName: () => "Georgia",
@@ -200,8 +208,10 @@ const nebraskaCalculator = createProgressiveCalculator({
 
 const newJerseyCalculator: StateCalculator = {
   calculateStateTax: (taxableIncome: number, filingStatus: USFilingStatus) => {
+    const exemption = brackets.NJ_PERSONAL_EXEMPTIONS[filingStatus] ?? 0;
+    const adjustedIncome = Math.max(0, taxableIncome - exemption);
     const stateBrackets = brackets.NEW_JERSEY_TAX_BRACKETS[filingStatus];
-    return calculateProgressiveTax(taxableIncome, stateBrackets);
+    return calculateProgressiveTax(adjustedIncome, stateBrackets);
   },
   calculateSDI: (grossIncome: number) => {
     const wageBase = 165800;
@@ -219,8 +229,10 @@ const newMexicoCalculator = createProgressiveCalculator({
 
 const newYorkCalculator: StateCalculator = {
   calculateStateTax: (taxableIncome: number, filingStatus: USFilingStatus) => {
+    const deduction = brackets.NY_STANDARD_DEDUCTIONS[filingStatus] ?? 0;
+    const adjustedIncome = Math.max(0, taxableIncome - deduction);
     const stateBrackets = brackets.NEW_YORK_TAX_BRACKETS[filingStatus];
-    return calculateProgressiveTax(taxableIncome, stateBrackets);
+    return calculateProgressiveTax(adjustedIncome, stateBrackets);
   },
   calculateSDI: (grossIncome: number) => {
     const sdi = Math.min(grossIncome * brackets.NY_ADDITIONAL_TAXES.sdiRate, brackets.NY_ADDITIONAL_TAXES.sdiMaxAnnual);
