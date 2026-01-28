@@ -4,15 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DeductionRow } from "./deduction-row";
 import { formatCurrency, formatCurrencyWithCents, formatPercentage } from "@/lib/format";
-import type {
-  CalculationResult,
-  PayFrequency,
-  CurrencyCode,
-  isUSBreakdown,
-  isSGBreakdown,
-  isUSTaxBreakdown,
-  isSGTaxBreakdown,
-} from "@/lib/countries/types";
+import type { CalculationResult, PayFrequency, CurrencyCode } from "@/lib/countries/types";
 import { getStateCalculator, hasNoIncomeTax } from "@/lib/countries/us/state-tax";
 
 interface MultiCountryResultsProps {
@@ -45,6 +37,7 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
   // Determine which country-specific breakdown to show
   const isUS = country === "US";
   const isSG = country === "SG";
+  const isNL = country === "NL";
 
   // US-specific data
   let stateName = usState || "";
@@ -364,6 +357,22 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
                   Life insurance, donations, NSman, handicapped dependant, grandparent caregiver reliefs
                 </p>
               </div>
+            </>
+          )}
+
+          {/* NL Tax Breakdown */}
+          {isNL && "incomeTax" in taxes && result.breakdown.type === "NL" && (
+            <>
+              <p className="text-xs text-zinc-500 pt-2 pb-1">Income Tax</p>
+              <DeductionRow
+                label="Income Tax & National Insurance"
+                amount={taxes.incomeTax}
+                grossSalary={grossSalary}
+                currency={currency}
+              />
+              <p className="text-xs text-zinc-500 italic mt-1">
+                Rates shown are combined for income tax and national insurance (AOW) and do not include tax credits.
+              </p>
             </>
           )}
 

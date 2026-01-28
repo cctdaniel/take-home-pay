@@ -19,6 +19,12 @@ A multi-country salary calculator that shows your actual take-home pay after all
 - **Tax Reliefs** — Spouse, children, parent, working mother, and course fee reliefs
 - **Voluntary Contributions** — CPF top-up and Supplementary Retirement Scheme (SRS)
 
+### Netherlands
+- **Income Tax** — 2026 progressive brackets with two tiers
+- **National Insurance** — Combined with income tax for most employees under AOW age
+- **Uniform Rates** — National rates apply (no regional tax adjustments)
+- **Credits Not Modeled** — General/labor tax credits are not included yet
+
 ## Getting Started
 
 ```bash
@@ -41,6 +47,7 @@ Open [http://localhost:3000](http://localhost:3000) to use the calculator.
 /lib/countries/          # Country-specific calculators
   /us/                   # US tax calculations
   /sg/                   # Singapore tax calculations
+  /nl/                   # Netherlands tax calculations
   registry.ts            # Country calculator factory
   types.ts               # Shared interfaces
 /components/calculator/  # Calculator UI components
@@ -51,6 +58,7 @@ Open [http://localhost:3000](http://localhost:3000) to use the calculator.
 
 - **US:** Tax brackets and contribution limits based on IRS announcements for 2026
 - **Singapore:** IRAS tax rates and CPF contribution rates for 2026
+- **Netherlands:** Income tax brackets and national insurance rates for 2026
 
 ## Disclaimer
 

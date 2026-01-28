@@ -12,6 +12,7 @@ import type {
 } from "./types";
 import { USCalculator } from "./us";
 import { SGCalculator } from "./sg";
+import { NLCalculator } from "./nl";
 
 // ============================================================================
 // COUNTRY CALCULATORS REGISTRY
@@ -19,16 +20,18 @@ import { SGCalculator } from "./sg";
 const countryCalculators: Record<CountryCode, CountryCalculator> = {
   US: USCalculator,
   SG: SGCalculator,
+  NL: NLCalculator,
 };
 
 // ============================================================================
 // SUPPORTED COUNTRIES
 // ============================================================================
-export const SUPPORTED_COUNTRIES: CountryCode[] = ["US", "SG"];
+export const SUPPORTED_COUNTRIES: CountryCode[] = ["US", "SG", "NL"];
 
 export const COUNTRY_CONFIGS: Record<CountryCode, CountryConfig> = {
   US: USCalculator.config,
   SG: SGCalculator.config,
+  NL: NLCalculator.config,
 };
 
 // ============================================================================

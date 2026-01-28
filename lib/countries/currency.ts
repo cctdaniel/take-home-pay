@@ -23,6 +23,12 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
     name: "Singapore Dollar",
     locale: "en-SG",
   },
+  EUR: {
+    code: "EUR",
+    symbol: "€",
+    name: "Euro",
+    locale: "nl-NL",
+  },
 };
 
 // ============================================================================
@@ -31,6 +37,7 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
 export const COUNTRY_CURRENCY: Record<CountryCode, CurrencyCode> = {
   US: "USD",
   SG: "SGD",
+  NL: "EUR",
 };
 
 // ============================================================================

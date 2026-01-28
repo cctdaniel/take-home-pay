@@ -4,7 +4,7 @@ This file provides guidance for AI coding agents working with this codebase.
 
 ## Project Overview
 
-**Take Home Pay Calculator** — A Next.js web application for calculating take-home salary after taxes and deductions. Supports multiple countries (US and Singapore) with 2026 tax data.
+**Take Home Pay Calculator** — A Next.js web application for calculating take-home salary after taxes and deductions. Supports multiple countries (US, Singapore, and Netherlands) with 2026 tax data.
 
 ## Tech Stack
 
@@ -25,6 +25,7 @@ This file provides guidance for AI coding agents working with this codebase.
   /countries/            # Country-specific calculator implementations
     /us/                 # US tax calculator (federal, state, FICA)
     /sg/                 # Singapore tax calculator (income tax, CPF)
+    /nl/                 # Netherlands tax calculator (income tax, national insurance)
     registry.ts          # Country calculator registry (factory pattern)
     types.ts             # Shared TypeScript interfaces
   /constants/            # Tax brackets, contribution limits, tax year
@@ -81,6 +82,7 @@ Each country calculator handles:
 | `lib/countries/types.ts` | TypeScript interfaces |
 | `lib/countries/us/calculator.ts` | US tax calculation logic |
 | `lib/countries/sg/calculator.ts` | Singapore tax calculation logic |
+| `lib/countries/nl/calculator.ts` | Netherlands tax calculation logic |
 | `lib/constants/tax-year.ts` | Current tax year and build metadata |
 
 ## Adding a New Country

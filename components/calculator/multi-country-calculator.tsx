@@ -6,6 +6,7 @@ import { SalaryInput } from "./salary-input";
 import { CountrySelector } from "./country-selector";
 import { USTaxOptions } from "./us-tax-options";
 import { SGTaxOptions } from "./sg-tax-options";
+import { NLTaxOptions } from "./nl-tax-options";
 import { ContributionOptions } from "./contribution-options";
 import { SGContributionOptions } from "./sg-contribution-options";
 import { SGAdditionalReliefs } from "./sg-additional-reliefs";
@@ -104,6 +105,13 @@ export function MultiCountryCalculator() {
                 onPayFrequencyChange={setPayFrequency}
               />
             )}
+
+            {country === "NL" && (
+              <NLTaxOptions
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+              />
+            )}
           </CardContent>
         </Card>
 
@@ -111,12 +119,18 @@ export function MultiCountryCalculator() {
         <Card>
           <CardHeader>
             <CardTitle>
-              {country === "US" ? "Contributions" : "Voluntary Contributions"}
+              {country === "US"
+                ? "Contributions"
+                : country === "SG"
+                  ? "Voluntary Contributions"
+                  : "Deductions"}
             </CardTitle>
             <CardDescription>
               {country === "US"
                 ? "Adjust your retirement and savings contributions"
-                : "Optional tax-saving contributions (CPF is mandatory)"}
+                : country === "SG"
+                  ? "Optional tax-saving contributions (CPF is mandatory)"
+                  : "No additional deductions modeled for Netherlands payroll taxes"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -154,6 +168,13 @@ export function MultiCountryCalculator() {
                   onChange={setSgTaxReliefs}
                 />
               </div>
+            )}
+
+            {country === "NL" && (
+              <p className="text-sm text-zinc-400">
+                The Netherlands calculator assumes statutory income tax and national insurance rates.
+                Custom deductions and tax credits are not yet modeled.
+              </p>
             )}
           </CardContent>
         </Card>

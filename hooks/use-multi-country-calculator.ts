@@ -13,11 +13,7 @@ import type {
   CalculationResult,
   CurrencyCode,
 } from "@/lib/countries/types";
-import {
-  calculateNetSalary,
-  getDefaultInputs,
-  getCountryCalculator,
-} from "@/lib/countries/registry";
+import { calculateNetSalary, getCountryConfig } from "@/lib/countries/registry";
 import { CONTRIBUTION_LIMITS, getHSALimit, type HSACoverageType } from "@/lib/countries/us/constants/contribution-limits";
 import { getSRSLimit, CPF_VOLUNTARY_TOPUP_LIMIT } from "@/lib/countries/sg/constants/cpf-rates-2026";
 
@@ -136,7 +132,7 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
   const [sgTaxReliefs, setSgTaxReliefs] = useState<SGTaxReliefInputs>(DEFAULT_SG_TAX_RELIEFS);
 
   // Currency based on country
-  const currency: CurrencyCode = country === "US" ? "USD" : "SGD";
+  const currency: CurrencyCode = useMemo(() => getCountryConfig(country).currency.code, [country]);
 
   // Get limits
   const usLimits = useMemo(() => ({
@@ -170,6 +166,8 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
       setVoluntaryCpfTopUpState(0);
       setSrsContributionState(0);
       setSgTaxReliefs(DEFAULT_SG_TAX_RELIEFS);
+    } else if (newCountry === "NL") {
+      setGrossSalary(55000);
     }
   }, []);
 
@@ -223,7 +221,7 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
         },
       };
       return usInputs;
-    } else {
+    } else if (country === "SG") {
       const sgInputs: SGCalculatorInputs = {
         country: "SG",
         grossSalary,
@@ -237,6 +235,12 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
         taxReliefs: sgTaxReliefs,
       };
       return sgInputs;
+    }
+
+    return {
+      country: "NL",
+      grossSalary,
+      payFrequency,
     }
   }, [
     country,
