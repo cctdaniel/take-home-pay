@@ -66,32 +66,14 @@ export function KRAdditionalReliefs({ reliefs, onChange }: KRAdditionalReliefsPr
         </div>
       </div>
 
-      <div>
-        <h4 className="text-sm font-medium text-zinc-300 mb-3">Tax Credits (세액공제)</h4>
-        <div className="flex items-center justify-between">
-          <div>
-            <Label className="text-sm">Children for Tax Credit</Label>
-            <p className="text-xs text-zinc-500 mt-0.5">₩150,000 (1st-2nd), ₩300,000 (3rd+)</p>
-          </div>
-          <NumberStepper
-            value={reliefs.numberOfChildrenForCredit || 0}
-            onChange={(value) => handleChange("numberOfChildrenForCredit", value)}
-            min={0}
-            max={10}
-            label="Children for Tax Credit"
-          />
-        </div>
-      </div>
-
       <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
         <p className="text-xs text-zinc-400 font-medium mb-2">Example: 2 children (ages 6 and 10)</p>
         <ul className="text-xs text-zinc-500 space-y-1">
           <li>→ Total Children = <span className="text-zinc-300">2</span> (both are under 20)</li>
-          <li>→ Under age 7 = <span className="text-zinc-300">1</span> (only the 6-year-old)</li>
-          <li>→ Children for Tax Credit = <span className="text-zinc-300">2</span> (both qualify)</li>
+          <li>→ Of which, under 7 = <span className="text-zinc-300">1</span> (only the 6-year-old)</li>
         </ul>
         <p className="text-xs text-zinc-500 mt-2">
-          Basic deduction (₩1,500,000) is automatically applied.
+          Child tax credit (₩150,000 for 1st-2nd, ₩300,000 for 3rd+) is automatically applied based on total children.
         </p>
       </div>
     </div>

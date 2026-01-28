@@ -90,11 +90,7 @@ export interface KRContributionInputs extends BaseContributionInputs {
 export interface KRTaxReliefInputs {
   // Dependent deductions (인적공제) - ₩1,500,000 each
   numberOfDependents: number; // Spouse, parents, siblings, etc.
-  numberOfChildrenUnder20: number; // Children under 20 (or students under 25)
-
-  // Child tax credit (자녀세액공제)
-  // First 2 children: ₩150,000 each, 3rd+: ₩300,000 each
-  numberOfChildrenForCredit: number;
+  numberOfChildrenUnder20: number; // Children under 20 - also used for child tax credit
 
   // Additional child deduction for children under 7 (6세 이하 추가공제)
   numberOfChildrenUnder7: number; // ₩1,000,000 per child

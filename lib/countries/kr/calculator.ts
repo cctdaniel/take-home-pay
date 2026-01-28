@@ -33,7 +33,6 @@ import {
 const DEFAULT_KR_TAX_RELIEFS: KRTaxReliefInputs = {
   numberOfDependents: 0,
   numberOfChildrenUnder20: 0,
-  numberOfChildrenForCredit: 0,
   numberOfChildrenUnder7: 0,
 };
 
@@ -133,8 +132,8 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
   // Standard tax credit for wage earners who don't itemize (표준세액공제)
   const standardTaxCredit = KR_TAX_DEDUCTIONS.standardTaxCredit;
 
-  // Child tax credit (자녀세액공제)
-  const childTaxCredit = calculateChildTaxCredit(taxReliefs.numberOfChildrenForCredit);
+  // Child tax credit (자녀세액공제) - based on children under 20
+  const childTaxCredit = calculateChildTaxCredit(taxReliefs.numberOfChildrenUnder20);
 
   // Total tax credits
   const totalTaxCredits = wageEarnerTaxCredit + standardTaxCredit + childTaxCredit;

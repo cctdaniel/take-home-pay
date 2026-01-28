@@ -67,7 +67,6 @@ const DEFAULT_SG_TAX_RELIEFS: SGTaxReliefInputs = {
 const DEFAULT_KR_TAX_RELIEFS: KRTaxReliefInputs = {
   numberOfDependents: 0,
   numberOfChildrenUnder20: 0,
-  numberOfChildrenForCredit: 0,
   numberOfChildrenUnder7: 0,
 };
 
