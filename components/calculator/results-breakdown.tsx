@@ -58,7 +58,8 @@ export function ResultsBreakdown({ result, state, contributions }: ResultsBreakd
       });
       const link = document.createElement("a");
       link.href = dataUrl;
-      link.download = "take-home-pay.png";
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      link.download = `take-home-pay-${timestamp}.png`;
       link.click();
     } finally {
       setIsDownloading(false);
