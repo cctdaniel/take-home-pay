@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef, useState } from "react";
+import { toPng } from "html-to-image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DeductionRow } from "./deduction-row";
@@ -33,18 +35,65 @@ function getFrequencyLabel(frequency: PayFrequency): string {
 export function ResultsBreakdown({ result, state, contributions }: ResultsBreakdownProps) {
   const { taxes, grossSalary } = result;
   const frequencyLabel = getFrequencyLabel(result.perPeriod.frequency);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const stateCalculator = getStateCalculator(state);
   const stateName = stateCalculator?.getStateName() ?? state;
   const isNoTaxState = hasNoIncomeTax(state);
   const hasStateTaxes = taxes.stateIncomeTax > 0 || taxes.stateDisabilityInsurance > 0;
 
+  const handleDownload = async () => {
+    if (!cardRef.current || isDownloading) {
+      return;
+    }
+
+    setIsDownloading(true);
+    try {
+      const dataUrl = await toPng(cardRef.current, {
+        cacheBust: true,
+        pixelRatio: 2,
+        filter: (node) =>
+          !(node instanceof HTMLElement && node.dataset.downloadButton === "true"),
+      });
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = "take-home-pay.png";
+      link.click();
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
-    <Card className="sticky top-6">
-      <CardHeader className="pb-4">
+    <Card className="sticky top-6" ref={cardRef}>
+      <CardHeader className="pb-4 flex-row items-center justify-between space-y-0">
         <CardTitle className="text-lg font-medium text-zinc-300">
           Take-Home Pay
         </CardTitle>
+        <button
+          type="button"
+          onClick={handleDownload}
+          disabled={isDownloading}
+          data-download-button="true"
+          aria-label="Download take-home pay section"
+          className="inline-flex items-center justify-center rounded-md border border-zinc-800 bg-zinc-900/80 p-2 text-zinc-300 transition hover:text-zinc-100 hover:border-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            className="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 3v12" />
+            <path d="m7 10 5 5 5-5" />
+            <path d="M5 21h14" />
+          </svg>
+        </button>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Main Net Amount */}
