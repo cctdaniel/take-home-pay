@@ -10,6 +10,7 @@ import { ContributionOptions } from "./contribution-options";
 import { SGContributionOptions } from "./sg-contribution-options";
 import { SGAdditionalReliefs } from "./sg-additional-reliefs";
 import { MultiCountryResults } from "./multi-country-results";
+import { TaxInfoSection } from "./tax-info-section";
 import { useMultiCountryCalculator } from "@/hooks/use-multi-country-calculator";
 
 export function MultiCountryCalculator() {
@@ -173,6 +174,11 @@ export function MultiCountryCalculator() {
               : undefined
           }
         />
+      </div>
+
+      {/* Tax Info Section - spans full width */}
+      <div className="lg:col-span-5">
+        <TaxInfoSection country={country} />
       </div>
     </div>
   );
