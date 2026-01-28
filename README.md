@@ -1,15 +1,23 @@
 # Take Home Pay Calculator
 
-A US salary calculator that shows your actual take-home pay after all taxes and deductions. Built with Next.js and updated for the 2026 tax year.
+A multi-country salary calculator that shows your actual take-home pay after all taxes and deductions. Built with Next.js and updated for the 2026 tax year.
 
-## Features
+## Supported Countries
 
-- **All 50 US States + DC** — Accurate state tax calculations including progressive, flat, and no-income-tax states
+### United States
+- **All 50 States + DC** — Accurate state tax calculations including progressive, flat, and no-income-tax states
 - **Federal Taxes** — 2026 tax brackets (10% to 37%)
 - **FICA Taxes** — Social Security (6.2% up to $181,200) and Medicare (1.45% + 0.9% above $200k)
 - **State Disability Insurance** — Automatically calculated for CA, HI, NJ, NY, and RI
 - **Retirement Contributions** — 401(k), Roth IRA, and HSA with 2026 contribution limits
 - **Filing Status** — Single, Married Filing Jointly, Married Filing Separately, Head of Household
+
+### Singapore
+- **Income Tax** — 2026 progressive tax brackets (0% to 24%)
+- **CPF Contributions** — Mandatory Central Provident Fund with age-dependent rates
+- **CPF Breakdown** — Ordinary Account, Special Account, and MediSave allocations
+- **Tax Reliefs** — Spouse, children, parent, working mother, and course fee reliefs
+- **Voluntary Contributions** — CPF top-up and Supplementary Retirement Scheme (SRS)
 
 ## Getting Started
 
@@ -27,9 +35,22 @@ Open [http://localhost:3000](http://localhost:3000) to use the calculator.
 - TypeScript
 - Tailwind CSS
 
+## Project Structure
+
+```
+/lib/countries/          # Country-specific calculators
+  /us/                   # US tax calculations
+  /sg/                   # Singapore tax calculations
+  registry.ts            # Country calculator factory
+  types.ts               # Shared interfaces
+/components/calculator/  # Calculator UI components
+/hooks/                  # React state management
+```
+
 ## Data Sources
 
-Tax brackets and contribution limits are based on IRS announcements for the 2026 tax year. State tax data is sourced from individual state revenue departments.
+- **US:** Tax brackets and contribution limits based on IRS announcements for 2026
+- **Singapore:** IRAS tax rates and CPF contribution rates for 2026
 
 ## Disclaimer
 
