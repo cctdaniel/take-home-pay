@@ -11,18 +11,17 @@ const gitResult = spawnSync("git", ["log", "-1", "--format=%cs"], {
   encoding: "utf8",
 });
 
-const lastUpdated =
-  gitResult.status === 0
-    ? gitResult.stdout.trim()
-    : new Date().toISOString().split("T")[0];
+const lastUpdated = gitResult.status === 0 ? gitResult.stdout.trim() : "";
+
+const env = {
+  ...process.env,
+  ...(lastUpdated ? { NEXT_PUBLIC_LAST_UPDATED: lastUpdated } : {}),
+};
 
 const child = spawnSync(args[0], args.slice(1), {
   stdio: "inherit",
   shell: true,
-  env: {
-    ...process.env,
-    NEXT_PUBLIC_LAST_UPDATED: lastUpdated,
-  },
+  env,
 });
 
 process.exit(child.status ?? 1);
