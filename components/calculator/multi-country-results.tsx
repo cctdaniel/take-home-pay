@@ -45,6 +45,7 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
   // Determine which country-specific breakdown to show
   const isUS = country === "US";
   const isSG = country === "SG";
+  const isKR = country === "KR";
 
   // US-specific data
   let stateName = usState || "";
@@ -362,6 +363,88 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
                 <p className="text-xs text-zinc-400 font-medium mb-1">Other reliefs not included:</p>
                 <p className="text-xs text-zinc-500">
                   Life insurance, donations, NSman, handicapped dependant, grandparent caregiver reliefs
+                </p>
+              </div>
+            </>
+          )}
+
+          {/* KR Tax Breakdown */}
+          {isKR && "nationalPension" in taxes && result.breakdown.type === "KR" && (
+            <>
+              <p className="text-xs text-zinc-500 pt-2 pb-1">Income Tax</p>
+              <DeductionRow
+                label="National Income Tax"
+                amount={taxes.incomeTax}
+                grossSalary={grossSalary}
+                currency={currency}
+              />
+              <DeductionRow
+                label="Local Income Tax (10%)"
+                amount={taxes.localIncomeTax}
+                grossSalary={grossSalary}
+                currency={currency}
+              />
+
+              {/* Tax Credits Info */}
+              {result.breakdown.taxDetails.taxCredits > 0 && (
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-sm text-zinc-400">Tax Credits Applied</span>
+                  <span className="text-sm text-emerald-400 tabular-nums">
+                    -{formatCurrency(result.breakdown.taxDetails.taxCredits, currency)}
+                  </span>
+                </div>
+              )}
+
+              <Separator className="my-2" />
+              <p className="text-xs text-zinc-500 pt-2 pb-1">Social Insurance (4 Major Insurance)</p>
+
+              <DeductionRow
+                label="National Pension"
+                amount={taxes.nationalPension}
+                grossSalary={grossSalary}
+                currency={currency}
+              />
+              <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                {(result.breakdown.socialInsurance.nationalPensionRate * 100).toFixed(1)}% of monthly income (capped)
+              </p>
+
+              <DeductionRow
+                label="Health Insurance"
+                amount={taxes.nationalHealthInsurance}
+                grossSalary={grossSalary}
+                currency={currency}
+              />
+
+              <DeductionRow
+                label="Long-term Care"
+                amount={taxes.longTermCareInsurance}
+                grossSalary={grossSalary}
+                currency={currency}
+              />
+              <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                {(result.breakdown.socialInsurance.longTermCareRate * 100).toFixed(1)}% of health insurance
+              </p>
+
+              <DeductionRow
+                label="Employment Insurance"
+                amount={taxes.employmentInsurance}
+                grossSalary={grossSalary}
+                currency={currency}
+              />
+
+              {/* Social Insurance Summary */}
+              <div className="flex items-center justify-between py-2 border-t border-zinc-700 mt-2">
+                <span className="text-sm text-zinc-300">Total Social Insurance</span>
+                <span className="text-sm text-zinc-200 tabular-nums">
+                  {formatCurrency(result.breakdown.socialInsurance.totalSocialInsurance, currency)}
+                </span>
+              </div>
+
+              <Separator className="my-2" />
+              <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
+                <p className="text-xs text-zinc-400 font-medium mb-1">Note:</p>
+                <p className="text-xs text-zinc-500">
+                  Deductions shown are simplified. Actual tax may vary based on additional credits, dependents, and other factors.
                 </p>
               </div>
             </>

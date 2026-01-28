@@ -8,7 +8,7 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD";
+export type CurrencyCode = "USD" | "SGD" | "KRW";
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -20,7 +20,7 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG";
+export type CountryCode = "US" | "SG" | "KR";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -53,6 +53,11 @@ export type USFilingStatus = "single" | "married_jointly" | "married_separately"
 export type SGResidencyType = "citizen_pr" | "foreigner";
 
 // ============================================================================
+// RESIDENCY TYPES - South Korea specific
+// ============================================================================
+export type KRResidencyType = "resident" | "non_resident";
+
+// ============================================================================
 // CONTRIBUTION TYPES - Country agnostic base
 // ============================================================================
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -74,6 +79,13 @@ export interface SGContributionInputs extends BaseContributionInputs {
   srsContribution: number; // Supplementary Retirement Scheme
 }
 
+// South Korea-specific contributions (social insurance is mandatory)
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface KRContributionInputs extends BaseContributionInputs {
+  // All social insurance contributions are mandatory and calculated automatically
+  // This interface is kept for consistency but currently has no optional contributions
+}
+
 // Singapore additional tax reliefs
 export type SGParentReliefType = "none" | "not_staying" | "staying";
 
@@ -87,7 +99,7 @@ export interface SGTaxReliefInputs {
 }
 
 // Union type for all contribution inputs
-export type ContributionInputs = USContributionInputs | SGContributionInputs;
+export type ContributionInputs = USContributionInputs | SGContributionInputs | KRContributionInputs;
 
 // ============================================================================
 // CALCULATOR INPUT TYPES
@@ -113,7 +125,13 @@ export interface SGCalculatorInputs extends BaseCalculatorInputs {
   taxReliefs: SGTaxReliefInputs;
 }
 
-export type CalculatorInputs = USCalculatorInputs | SGCalculatorInputs;
+export interface KRCalculatorInputs extends BaseCalculatorInputs {
+  country: "KR";
+  residencyType: KRResidencyType;
+  contributions: KRContributionInputs;
+}
+
+export type CalculatorInputs = USCalculatorInputs | SGCalculatorInputs | KRCalculatorInputs;
 
 // ============================================================================
 // TAX BREAKDOWN TYPES
@@ -138,7 +156,16 @@ export interface SGTaxBreakdown extends BaseTaxBreakdown {
   cpfEmployer: number; // Employer's CPF contribution (informational)
 }
 
-export type TaxBreakdown = USTaxBreakdown | SGTaxBreakdown;
+export interface KRTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number; // National income tax
+  localIncomeTax: number; // Local income tax (10% of national)
+  nationalPension: number; // Employee's share
+  nationalHealthInsurance: number; // Employee's share
+  longTermCareInsurance: number; // Employee's share
+  employmentInsurance: number; // Employee's share
+}
+
+export type TaxBreakdown = USTaxBreakdown | SGTaxBreakdown | KRTaxBreakdown;
 
 // ============================================================================
 // CALCULATION RESULT TYPES
@@ -207,7 +234,35 @@ export interface SGBreakdown {
   grossTaxBeforeReliefs: number; // Tax on gross income (for comparison with IRAS table)
 }
 
-export type CountrySpecificBreakdown = USBreakdown | SGBreakdown;
+export interface KRBreakdown {
+  type: "KR";
+  // Taxable income after deductions
+  taxableIncome: number;
+  // Social insurance details
+  socialInsurance: {
+    nationalPension: number;
+    nationalPensionRate: number;
+    nationalPensionCeiling: number;
+    healthInsurance: number;
+    healthInsuranceRate: number;
+    longTermCare: number;
+    longTermCareRate: number;
+    employmentInsurance: number;
+    employmentInsuranceRate: number;
+    totalSocialInsurance: number;
+  };
+  // Tax details
+  taxDetails: {
+    grossIncomeTax: number; // Before tax credits
+    basicDeduction: number;
+    taxCredits: number;
+    finalIncomeTax: number;
+    localIncomeTax: number;
+    totalIncomeTax: number;
+  };
+}
+
+export type CountrySpecificBreakdown = USBreakdown | SGBreakdown | KRBreakdown;
 
 // ============================================================================
 // COUNTRY CALCULATOR INTERFACE
@@ -277,4 +332,16 @@ export function isUSBreakdown(breakdown: CountrySpecificBreakdown): breakdown is
 
 export function isSGBreakdown(breakdown: CountrySpecificBreakdown): breakdown is SGBreakdown {
   return breakdown.type === "SG";
+}
+
+export function isKRInputs(inputs: CalculatorInputs): inputs is KRCalculatorInputs {
+  return inputs.country === "KR";
+}
+
+export function isKRTaxBreakdown(taxes: TaxBreakdown): taxes is KRTaxBreakdown {
+  return "localIncomeTax" in taxes && "nationalPension" in taxes;
+}
+
+export function isKRBreakdown(breakdown: CountrySpecificBreakdown): breakdown is KRBreakdown {
+  return breakdown.type === "KR";
 }

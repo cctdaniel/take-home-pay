@@ -6,8 +6,10 @@ import type {
   CalculatorInputs,
   USCalculatorInputs,
   SGCalculatorInputs,
+  KRCalculatorInputs,
   USFilingStatus,
   SGResidencyType,
+  KRResidencyType,
   SGTaxReliefInputs,
   PayFrequency,
   CalculationResult,
@@ -42,6 +44,13 @@ interface SGState {
   voluntaryCpfTopUp: number;
   srsContribution: number;
   taxReliefs: SGTaxReliefInputs;
+}
+
+// ============================================================================
+// KR-SPECIFIC STATE
+// ============================================================================
+interface KRState {
+  residencyType: KRResidencyType;
 }
 
 const DEFAULT_SG_TAX_RELIEFS: SGTaxReliefInputs = {
@@ -94,6 +103,10 @@ export interface UseMultiCountryCalculatorReturn {
   sgTaxReliefs: SGTaxReliefInputs;
   setSgTaxReliefs: (value: SGTaxReliefInputs) => void;
 
+  // KR-specific
+  krResidencyType: KRResidencyType;
+  setKrResidencyType: (value: KRResidencyType) => void;
+
   // Limits
   usLimits: {
     traditional401k: number;
@@ -135,8 +148,11 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
   const [srsContribution, setSrsContributionState] = useState(0);
   const [sgTaxReliefs, setSgTaxReliefs] = useState<SGTaxReliefInputs>(DEFAULT_SG_TAX_RELIEFS);
 
+  // KR-specific state
+  const [krResidencyType, setKrResidencyType] = useState<KRResidencyType>("resident");
+
   // Currency based on country
-  const currency: CurrencyCode = country === "US" ? "USD" : "SGD";
+  const currency: CurrencyCode = country === "US" ? "USD" : country === "SG" ? "SGD" : "KRW";
 
   // Get limits
   const usLimits = useMemo(() => ({
@@ -170,6 +186,10 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
       setVoluntaryCpfTopUpState(0);
       setSrsContributionState(0);
       setSgTaxReliefs(DEFAULT_SG_TAX_RELIEFS);
+    } else if (newCountry === "KR") {
+      // Reset to KR defaults
+      setGrossSalary(50000000); // ₩50M typical salary
+      setKrResidencyType("resident");
     }
   }, []);
 
@@ -223,7 +243,7 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
         },
       };
       return usInputs;
-    } else {
+    } else if (country === "SG") {
       const sgInputs: SGCalculatorInputs = {
         country: "SG",
         grossSalary,
@@ -237,6 +257,15 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
         taxReliefs: sgTaxReliefs,
       };
       return sgInputs;
+    } else {
+      const krInputs: KRCalculatorInputs = {
+        country: "KR",
+        grossSalary,
+        payFrequency,
+        residencyType: krResidencyType,
+        contributions: {},
+      };
+      return krInputs;
     }
   }, [
     country,
@@ -253,6 +282,7 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
     voluntaryCpfTopUp,
     srsContribution,
     sgTaxReliefs,
+    krResidencyType,
     usLimits,
     sgLimits,
   ]);
@@ -299,6 +329,10 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
     setSrsContribution,
     sgTaxReliefs,
     setSgTaxReliefs,
+
+    // KR-specific
+    krResidencyType,
+    setKrResidencyType,
 
     // Limits
     usLimits,

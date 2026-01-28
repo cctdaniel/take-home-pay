@@ -6,6 +6,7 @@ import { SalaryInput } from "./salary-input";
 import { CountrySelector } from "./country-selector";
 import { USTaxOptions } from "./us-tax-options";
 import { SGTaxOptions } from "./sg-tax-options";
+import { KRTaxOptions } from "./kr-tax-options";
 import { ContributionOptions } from "./contribution-options";
 import { SGContributionOptions } from "./sg-contribution-options";
 import { SGAdditionalReliefs } from "./sg-additional-reliefs";
@@ -53,6 +54,10 @@ export function MultiCountryCalculator() {
     sgTaxReliefs,
     setSgTaxReliefs,
     sgLimits,
+
+    // KR-specific
+    krResidencyType,
+    setKrResidencyType,
 
     // Results
     result,
@@ -104,59 +109,95 @@ export function MultiCountryCalculator() {
                 onPayFrequencyChange={setPayFrequency}
               />
             )}
-          </CardContent>
-        </Card>
 
-        {/* Contributions Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              {country === "US" ? "Contributions" : "Voluntary Contributions"}
-            </CardTitle>
-            <CardDescription>
-              {country === "US"
-                ? "Adjust your retirement and savings contributions"
-                : "Optional tax-saving contributions (CPF is mandatory)"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {country === "US" && (
-              <ContributionOptions
-                traditional401k={traditional401k}
-                onTraditional401kChange={setTraditional401k}
-                traditional401kLimit={usLimits.traditional401k}
-                rothIRA={rothIRA}
-                onRothIRAChange={setRothIRA}
-                rothIRALimit={usLimits.rothIRA}
-                hsa={hsa}
-                onHsaChange={setHsa}
-                hsaLimit={usLimits.hsa}
-                hsaCoverageType={hsaCoverageType}
-                onHsaCoverageTypeChange={setHsaCoverageType}
+            {country === "KR" && (
+              <KRTaxOptions
+                residencyType={krResidencyType}
+                onResidencyTypeChange={setKrResidencyType}
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
               />
             )}
-
-            {country === "SG" && (
-              <div className="space-y-6">
-                <SGContributionOptions
-                  voluntaryCpfTopUp={voluntaryCpfTopUp}
-                  onVoluntaryCpfTopUpChange={setVoluntaryCpfTopUp}
-                  voluntaryCpfTopUpLimit={sgLimits.voluntaryCpfTopUp}
-                  srsContribution={srsContribution}
-                  onSrsContributionChange={setSrsContribution}
-                  srsContributionLimit={sgLimits.srsContribution}
-                />
-
-                <Separator />
-
-                <SGAdditionalReliefs
-                  reliefs={sgTaxReliefs}
-                  onChange={setSgTaxReliefs}
-                />
-              </div>
-            )}
           </CardContent>
         </Card>
+
+        {/* Contributions Card - Only show for US and SG */}
+        {(country === "US" || country === "SG") && (
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                {country === "US" ? "Contributions" : "Voluntary Contributions"}
+              </CardTitle>
+              <CardDescription>
+                {country === "US"
+                  ? "Adjust your retirement and savings contributions"
+                  : "Optional tax-saving contributions (CPF is mandatory)"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {country === "US" && (
+                <ContributionOptions
+                  traditional401k={traditional401k}
+                  onTraditional401kChange={setTraditional401k}
+                  traditional401kLimit={usLimits.traditional401k}
+                  rothIRA={rothIRA}
+                  onRothIRAChange={setRothIRA}
+                  rothIRALimit={usLimits.rothIRA}
+                  hsa={hsa}
+                  onHsaChange={setHsa}
+                  hsaLimit={usLimits.hsa}
+                  hsaCoverageType={hsaCoverageType}
+                  onHsaCoverageTypeChange={setHsaCoverageType}
+                />
+              )}
+
+              {country === "SG" && (
+                <div className="space-y-6">
+                  <SGContributionOptions
+                    voluntaryCpfTopUp={voluntaryCpfTopUp}
+                    onVoluntaryCpfTopUpChange={setVoluntaryCpfTopUp}
+                    voluntaryCpfTopUpLimit={sgLimits.voluntaryCpfTopUp}
+                    srsContribution={srsContribution}
+                    onSrsContributionChange={setSrsContribution}
+                    srsContributionLimit={sgLimits.srsContribution}
+                  />
+
+                  <Separator />
+
+                  <SGAdditionalReliefs
+                    reliefs={sgTaxReliefs}
+                    onChange={setSgTaxReliefs}
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Social Insurance Info Card for KR */}
+        {country === "KR" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Social Insurance</CardTitle>
+              <CardDescription>
+                Mandatory contributions automatically calculated
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm text-zinc-400 mb-3">
+                  South Korea&apos;s &quot;4 Major Social Insurance&quot; contributions are automatically deducted:
+                </p>
+                <ul className="text-sm text-zinc-500 space-y-1">
+                  <li>National Pension: 4.5% (employee share)</li>
+                  <li>National Health Insurance: 3.545%</li>
+                  <li>Long-term Care: 12.95% of health insurance</li>
+                  <li>Employment Insurance: 0.9%</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Results Section */}

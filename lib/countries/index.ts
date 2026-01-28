@@ -27,6 +27,9 @@ export { USCalculator, calculateUS, US_CONFIG, US_CURRENCY } from "./us";
 // Singapore Calculator
 export { SGCalculator, calculateSG, SG_CONFIG, SG_CURRENCY } from "./sg";
 
+// South Korea Calculator
+export { KRCalculator, calculateKR, KR_CONFIG, KR_CURRENCY } from "./kr";
+
 // Re-export US constants for backwards compatibility
 export {
   FEDERAL_TAX_BRACKETS,
