@@ -172,6 +172,20 @@ export interface SGBreakdown {
   cpfEmployeeTotal: number;
   cpfEmployerTotal: number;
   voluntaryContributions: number;
+  // CPF rate details for clarity
+  cpfEmployeeRate: number; // Actual CPF rate (e.g., 0.20 for 20%)
+  cpfMonthlyCeiling: number; // Monthly wage ceiling (e.g., 8000)
+  cpfContributableWage: number; // Wage subject to CPF (capped at ceiling)
+  // Tax reliefs breakdown
+  taxReliefs: {
+    earnedIncomeRelief: number;
+    cpfRelief: number;
+    srsRelief: number;
+    voluntaryCpfTopUpRelief: number;
+    totalReliefs: number;
+  };
+  chargeableIncome: number; // Income after reliefs
+  grossTaxBeforeReliefs: number; // Tax on gross income (for comparison with IRAS table)
 }
 
 export type CountrySpecificBreakdown = USBreakdown | SGBreakdown;

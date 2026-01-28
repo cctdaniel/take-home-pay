@@ -14,7 +14,7 @@ import type {
   PayFrequency,
 } from "../types";
 import { SG_CONFIG } from "./config";
-import { calculateAnnualCPF, CPF_VOLUNTARY_TOPUP_LIMIT, getSRSLimit } from "./constants/cpf-rates-2026";
+import { calculateAnnualCPF, CPF_VOLUNTARY_TOPUP_LIMIT, getSRSLimit, getCPFRates, CPF_MONTHLY_CEILING } from "./constants/cpf-rates-2026";
 import { calculateSGIncomeTax } from "./constants/tax-brackets-2026";
 
 // ============================================================================
@@ -78,6 +78,11 @@ export function calculateSG(inputs: SGCalculatorInputs): CalculationResult {
 
   const periodsPerYear = getPeriodsPerYear(payFrequency);
 
+  // Get CPF rate info for display
+  const cpfRates = getCPFRates(age, residencyType);
+  const monthlySalary = grossSalary / 12;
+  const cpfContributableWage = Math.min(monthlySalary, CPF_MONTHLY_CEILING) * 12;
+
   const breakdown: SGBreakdown = {
     type: "SG",
     cpfOrdinaryAccount: cpfResult.ordinaryAccount,
@@ -86,6 +91,20 @@ export function calculateSG(inputs: SGCalculatorInputs): CalculationResult {
     cpfEmployeeTotal: cpfResult.employeeContribution,
     cpfEmployerTotal: cpfResult.employerContribution,
     voluntaryContributions,
+    // CPF rate details
+    cpfEmployeeRate: cpfRates.employee,
+    cpfMonthlyCeiling: CPF_MONTHLY_CEILING,
+    cpfContributableWage,
+    // Tax reliefs
+    taxReliefs: {
+      earnedIncomeRelief: taxResult.reliefs.earnedIncomeRelief,
+      cpfRelief: taxResult.reliefs.cpfRelief,
+      srsRelief: taxResult.reliefs.srsRelief,
+      voluntaryCpfTopUpRelief: taxResult.reliefs.voluntaryCpfTopUpRelief,
+      totalReliefs: taxResult.reliefs.totalReliefs,
+    },
+    chargeableIncome: taxResult.chargeableIncome,
+    grossTaxBeforeReliefs: taxResult.grossTaxBeforeReliefs,
   };
 
   return {

@@ -93,6 +93,20 @@ export function getEarnedIncomeRelief(age: number): number {
  * Calculate Singapore income tax
  * For foreigners (non-residents), use flat rate or progressive, whichever is higher
  */
+export interface SGTaxResult {
+  chargeableIncome: number;
+  incomeTax: number;
+  effectiveTaxRate: number;
+  grossTaxBeforeReliefs: number; // Tax on gross income without reliefs
+  reliefs: {
+    earnedIncomeRelief: number;
+    cpfRelief: number;
+    srsRelief: number;
+    voluntaryCpfTopUpRelief: number;
+    totalReliefs: number;
+  };
+}
+
 export function calculateSGIncomeTax(
   annualIncome: number,
   cpfEmployeeContribution: number,
@@ -100,11 +114,7 @@ export function calculateSGIncomeTax(
   voluntaryCpfTopUp: number,
   age: number,
   residencyType: SGResidencyType
-): {
-  chargeableIncome: number;
-  incomeTax: number;
-  effectiveTaxRate: number;
-} {
+): SGTaxResult {
   // Calculate total reliefs/deductions
   const earnedIncomeRelief = getEarnedIncomeRelief(age);
   const cpfRelief = Math.min(cpfEmployeeContribution, SG_TAX_RELIEFS.cpfReliefCap);
@@ -117,6 +127,9 @@ export function calculateSGIncomeTax(
 
   // Calculate chargeable income
   const chargeableIncome = Math.max(0, annualIncome - totalReliefs);
+
+  // Calculate gross tax (on full income, no reliefs) for comparison with IRAS table
+  const grossTaxBeforeReliefs = calculateProgressiveTax(annualIncome);
 
   // Calculate tax
   let incomeTax: number;
@@ -138,5 +151,13 @@ export function calculateSGIncomeTax(
     chargeableIncome,
     incomeTax,
     effectiveTaxRate,
+    grossTaxBeforeReliefs,
+    reliefs: {
+      earnedIncomeRelief,
+      cpfRelief,
+      srsRelief,
+      voluntaryCpfTopUpRelief: cpfTopUpRelief,
+      totalReliefs,
+    },
   };
 }

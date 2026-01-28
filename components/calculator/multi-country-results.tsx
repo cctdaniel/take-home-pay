@@ -207,8 +207,54 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
           )}
 
           {/* SG Tax Breakdown */}
-          {isSG && "cpfEmployee" in taxes && (
+          {isSG && "cpfEmployee" in taxes && result.breakdown.type === "SG" && (
             <>
+              {/* Tax Reliefs Info */}
+              {result.breakdown.taxReliefs.totalReliefs > 0 && (
+                <>
+                  <p className="text-xs text-zinc-500 pt-2 pb-1">Tax Reliefs Applied</p>
+                  {result.breakdown.taxReliefs.earnedIncomeRelief > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Earned Income Relief</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxReliefs.earnedIncomeRelief, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.taxReliefs.cpfRelief > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">CPF Relief</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxReliefs.cpfRelief, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.taxReliefs.srsRelief > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">SRS Relief</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxReliefs.srsRelief, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.taxReliefs.voluntaryCpfTopUpRelief > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">CPF Top-up Relief</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxReliefs.voluntaryCpfTopUpRelief, currency)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                    <span className="text-sm text-zinc-300">Chargeable Income</span>
+                    <span className="text-sm text-zinc-200 tabular-nums">
+                      {formatCurrency(result.breakdown.chargeableIncome, currency)}
+                    </span>
+                  </div>
+                  <Separator className="my-2" />
+                </>
+              )}
+
               <p className="text-xs text-zinc-500 pt-2 pb-1">Income Tax</p>
               <DeductionRow
                 label="Singapore Income Tax"
@@ -216,15 +262,36 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
                 grossSalary={grossSalary}
                 currency={currency}
               />
+              {result.breakdown.grossTaxBeforeReliefs > taxes.incomeTax && (
+                <p className="text-xs text-zinc-500 italic mt-1">
+                  Tax before reliefs: {formatCurrency(result.breakdown.grossTaxBeforeReliefs, currency)} (per IRAS table)
+                </p>
+              )}
 
               <Separator className="my-2" />
               <p className="text-xs text-zinc-500 pt-2 pb-1">CPF Contributions</p>
+
+              {/* Show CPF rate and ceiling info */}
+              {result.breakdown.cpfEmployeeRate > 0 && (
+                <p className="text-xs text-zinc-400 mb-2">
+                  Rate: {(result.breakdown.cpfEmployeeRate * 100).toFixed(0)}% of wages up to S${result.breakdown.cpfMonthlyCeiling.toLocaleString()}/month
+                </p>
+              )}
+
               <DeductionRow
                 label="CPF (Employee)"
                 amount={taxes.cpfEmployee}
                 grossSalary={grossSalary}
                 currency={currency}
               />
+
+              {/* Show effective vs actual rate when ceiling applies */}
+              {grossSalary / 12 > result.breakdown.cpfMonthlyCeiling && result.breakdown.cpfEmployeeRate > 0 && (
+                <p className="text-xs text-zinc-500 italic mt-1">
+                  Effective rate: {formatPercentage(taxes.cpfEmployee / grossSalary)} (capped at S${result.breakdown.cpfMonthlyCeiling.toLocaleString()}/month ceiling)
+                </p>
+              )}
+
               <div className="flex items-center justify-between py-2 opacity-60">
                 <span className="text-sm text-zinc-400">CPF (Employer)</span>
                 <span className="text-sm text-zinc-500 tabular-nums">
@@ -236,7 +303,7 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
               </p>
 
               {/* SG Breakdown Details */}
-              {result.breakdown.type === "SG" && result.breakdown.voluntaryContributions > 0 && (
+              {result.breakdown.voluntaryContributions > 0 && (
                 <>
                   <Separator className="my-2" />
                   <p className="text-xs text-zinc-500 pt-2 pb-1">Voluntary Contributions</p>
