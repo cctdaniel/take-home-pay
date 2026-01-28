@@ -12,9 +12,11 @@ const gitResult = spawnSync("git", ["log", "-1", "--format=%cs"], {
 });
 
 const lastUpdated = gitResult.status === 0 ? gitResult.stdout.trim() : "";
+const buildTimestamp = new Date().toISOString();
 
 const env = {
   ...process.env,
+  NEXT_PUBLIC_BUILD_TIMESTAMP: buildTimestamp,
   ...(lastUpdated ? { NEXT_PUBLIC_LAST_UPDATED: lastUpdated } : {}),
 };
 

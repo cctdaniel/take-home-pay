@@ -54,9 +54,11 @@ export default function Home() {
               This calculator provides estimates based on {TAX_YEAR} federal and state tax brackets.
               Actual tax liability may vary. Consult a tax professional for personalized advice.
             </p>
-            <p className="text-xs text-zinc-600 whitespace-nowrap">
-              Last updated: {LAST_UPDATED}
-            </p>
+            {LAST_UPDATED ? (
+              <p className="text-xs text-zinc-600 whitespace-nowrap">
+                Last updated: {LAST_UPDATED}
+              </p>
+            ) : null}
           </div>
         </footer>
       </main>
