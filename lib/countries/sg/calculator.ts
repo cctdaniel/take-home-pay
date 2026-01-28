@@ -37,19 +37,20 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
 // SINGAPORE CALCULATOR
 // ============================================================================
 export function calculateSG(inputs: SGCalculatorInputs): CalculationResult {
-  const { grossSalary, payFrequency, residencyType, age, contributions } = inputs;
+  const { grossSalary, payFrequency, residencyType, age, contributions, taxReliefs } = inputs;
 
   // Calculate CPF contributions
   const cpfResult = calculateAnnualCPF(grossSalary, age, residencyType);
 
-  // Calculate income tax
+  // Calculate income tax (with additional reliefs if provided)
   const taxResult = calculateSGIncomeTax(
     grossSalary,
     cpfResult.employeeContribution,
     contributions.srsContribution,
     contributions.voluntaryCpfTopUp,
     age,
-    residencyType
+    residencyType,
+    taxReliefs
   );
 
   // Build tax breakdown
@@ -101,6 +102,12 @@ export function calculateSG(inputs: SGCalculatorInputs): CalculationResult {
       cpfRelief: taxResult.reliefs.cpfRelief,
       srsRelief: taxResult.reliefs.srsRelief,
       voluntaryCpfTopUpRelief: taxResult.reliefs.voluntaryCpfTopUpRelief,
+      // Additional reliefs
+      spouseRelief: taxResult.reliefs.spouseRelief,
+      childRelief: taxResult.reliefs.childRelief,
+      workingMotherRelief: taxResult.reliefs.workingMotherRelief,
+      parentRelief: taxResult.reliefs.parentRelief,
+      courseFeesRelief: taxResult.reliefs.courseFeesRelief,
       totalReliefs: taxResult.reliefs.totalReliefs,
     },
     chargeableIncome: taxResult.chargeableIncome,
@@ -175,6 +182,14 @@ export const SGCalculator: CountryCalculator = {
       contributions: {
         voluntaryCpfTopUp: 0,
         srsContribution: 0,
+      },
+      taxReliefs: {
+        hasSpouseRelief: false,
+        numberOfChildren: 0,
+        isWorkingMother: false,
+        parentRelief: "none",
+        numberOfParents: 0,
+        courseFees: 0,
       },
     };
   },

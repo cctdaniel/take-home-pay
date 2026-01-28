@@ -245,6 +245,46 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
                       </span>
                     </div>
                   )}
+                  {result.breakdown.taxReliefs.spouseRelief > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Spouse Relief</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxReliefs.spouseRelief, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.taxReliefs.childRelief > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Child Relief</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxReliefs.childRelief, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.taxReliefs.workingMotherRelief > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Working Mother&apos;s Relief</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxReliefs.workingMotherRelief, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.taxReliefs.parentRelief > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Parent Relief</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxReliefs.parentRelief, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.taxReliefs.courseFeesRelief > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Course Fees Relief</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxReliefs.courseFeesRelief, currency)}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
                     <span className="text-sm text-zinc-300">Chargeable Income</span>
                     <span className="text-sm text-zinc-200 tabular-nums">
@@ -319,12 +359,9 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
               {/* Additional reliefs disclaimer */}
               <Separator className="my-2" />
               <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
-                <p className="text-xs text-zinc-400 font-medium mb-1">Additional reliefs not included:</p>
+                <p className="text-xs text-zinc-400 font-medium mb-1">Other reliefs not included:</p>
                 <p className="text-xs text-zinc-500">
-                  Spouse, child, parent, working mother, course fees, life insurance, donations, NSman relief
-                </p>
-                <p className="text-xs text-emerald-400/80 mt-2">
-                  Your actual tax could be lower with these reliefs. SRS contributions (up to S$15,300/year) can significantly reduce tax for high earners.
+                  Life insurance, donations, NSman, handicapped dependant, grandparent caregiver reliefs
                 </p>
               </div>
             </>

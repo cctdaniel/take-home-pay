@@ -5,7 +5,7 @@
 // Non-residents are taxed at a flat 24% (or progressive, whichever is higher)
 // ============================================================================
 
-import type { TaxBracket, SGResidencyType } from "../../types";
+import type { TaxBracket, SGResidencyType, SGTaxReliefInputs } from "../../types";
 
 // ============================================================================
 // SINGAPORE RESIDENT TAX BRACKETS (2026)
@@ -41,6 +41,21 @@ export const SG_TAX_RELIEFS = {
 
   // CPF Relief (capped at actual CPF contributions)
   cpfReliefCap: 37740, // Maximum CPF OA relief (based on OW ceiling * 37%)
+
+  // Spouse Relief (if spouse income < $4,000)
+  spouseRelief: 2000,
+
+  // Qualifying Child Relief (per child)
+  childRelief: 4000,
+
+  // Working Mother's Child Relief (WMCR) - % of mother's earned income
+  // 1st child: 15%, 2nd child: 20%, 3rd+ child: 25%
+  wmcrRates: [0.15, 0.20, 0.25] as readonly number[],
+  wmcrCap: 50000, // Cap per child
+
+  // Parent Relief
+  parentReliefStaying: 9000, // Living with taxpayer
+  parentReliefNotStaying: 5500, // Not living with taxpayer
 
   // Personal Relief (for specific qualifications)
   handicappedBrother: 5500,
@@ -103,6 +118,12 @@ export interface SGTaxResult {
     cpfRelief: number;
     srsRelief: number;
     voluntaryCpfTopUpRelief: number;
+    // Additional reliefs
+    spouseRelief: number;
+    childRelief: number;
+    workingMotherRelief: number;
+    parentRelief: number;
+    courseFeesRelief: number;
     totalReliefs: number;
   };
 }
@@ -113,9 +134,10 @@ export function calculateSGIncomeTax(
   srsContribution: number,
   voluntaryCpfTopUp: number,
   age: number,
-  residencyType: SGResidencyType
+  residencyType: SGResidencyType,
+  additionalReliefs?: SGTaxReliefInputs
 ): SGTaxResult {
-  // Calculate total reliefs/deductions
+  // Calculate automatic reliefs
   const earnedIncomeRelief = getEarnedIncomeRelief(age);
   const cpfRelief = Math.min(cpfEmployeeContribution, SG_TAX_RELIEFS.cpfReliefCap);
   const srsRelief = residencyType === "foreigner"
@@ -123,7 +145,50 @@ export function calculateSGIncomeTax(
     : Math.min(srsContribution, SG_TAX_RELIEFS.srsReliefCitizen);
   const cpfTopUpRelief = Math.min(voluntaryCpfTopUp, SG_TAX_RELIEFS.voluntaryCpfTopUpReliefCap);
 
-  const totalReliefs = earnedIncomeRelief + cpfRelief + srsRelief + cpfTopUpRelief;
+  // Calculate additional reliefs (if provided)
+  let spouseRelief = 0;
+  let childRelief = 0;
+  let workingMotherRelief = 0;
+  let parentRelief = 0;
+  let courseFeesRelief = 0;
+
+  if (additionalReliefs) {
+    // Spouse Relief
+    if (additionalReliefs.hasSpouseRelief) {
+      spouseRelief = SG_TAX_RELIEFS.spouseRelief;
+    }
+
+    // Qualifying Child Relief
+    if (additionalReliefs.numberOfChildren > 0) {
+      childRelief = additionalReliefs.numberOfChildren * SG_TAX_RELIEFS.childRelief;
+    }
+
+    // Working Mother's Child Relief (WMCR)
+    if (additionalReliefs.isWorkingMother && additionalReliefs.numberOfChildren > 0) {
+      for (let i = 0; i < additionalReliefs.numberOfChildren; i++) {
+        const rateIndex = Math.min(i, SG_TAX_RELIEFS.wmcrRates.length - 1);
+        const rate = SG_TAX_RELIEFS.wmcrRates[rateIndex];
+        const wmcrForChild = Math.min(annualIncome * rate, SG_TAX_RELIEFS.wmcrCap);
+        workingMotherRelief += wmcrForChild;
+      }
+    }
+
+    // Parent Relief
+    if (additionalReliefs.parentRelief !== "none" && additionalReliefs.numberOfParents > 0) {
+      const reliefPerParent = additionalReliefs.parentRelief === "staying"
+        ? SG_TAX_RELIEFS.parentReliefStaying
+        : SG_TAX_RELIEFS.parentReliefNotStaying;
+      parentRelief = reliefPerParent * additionalReliefs.numberOfParents;
+    }
+
+    // Course Fees Relief
+    if (additionalReliefs.courseFees > 0) {
+      courseFeesRelief = Math.min(additionalReliefs.courseFees, SG_TAX_RELIEFS.courseFeesReliefCap);
+    }
+  }
+
+  const totalReliefs = earnedIncomeRelief + cpfRelief + srsRelief + cpfTopUpRelief +
+    spouseRelief + childRelief + workingMotherRelief + parentRelief + courseFeesRelief;
 
   // Calculate chargeable income
   const chargeableIncome = Math.max(0, annualIncome - totalReliefs);
@@ -157,6 +222,11 @@ export function calculateSGIncomeTax(
       cpfRelief,
       srsRelief,
       voluntaryCpfTopUpRelief: cpfTopUpRelief,
+      spouseRelief,
+      childRelief,
+      workingMotherRelief,
+      parentRelief,
+      courseFeesRelief,
       totalReliefs,
     },
   };

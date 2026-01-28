@@ -8,6 +8,7 @@ import type {
   SGCalculatorInputs,
   USFilingStatus,
   SGResidencyType,
+  SGTaxReliefInputs,
   PayFrequency,
   CalculationResult,
   CurrencyCode,
@@ -40,7 +41,17 @@ interface SGState {
   age: number;
   voluntaryCpfTopUp: number;
   srsContribution: number;
+  taxReliefs: SGTaxReliefInputs;
 }
+
+const DEFAULT_SG_TAX_RELIEFS: SGTaxReliefInputs = {
+  hasSpouseRelief: false,
+  numberOfChildren: 0,
+  isWorkingMother: false,
+  parentRelief: "none",
+  numberOfParents: 0,
+  courseFees: 0,
+};
 
 // ============================================================================
 // RETURN TYPE
@@ -80,6 +91,8 @@ export interface UseMultiCountryCalculatorReturn {
   setVoluntaryCpfTopUp: (value: number) => void;
   srsContribution: number;
   setSrsContribution: (value: number) => void;
+  sgTaxReliefs: SGTaxReliefInputs;
+  setSgTaxReliefs: (value: SGTaxReliefInputs) => void;
 
   // Limits
   usLimits: {
@@ -120,6 +133,7 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
   const [age, setAge] = useState(30);
   const [voluntaryCpfTopUp, setVoluntaryCpfTopUpState] = useState(0);
   const [srsContribution, setSrsContributionState] = useState(0);
+  const [sgTaxReliefs, setSgTaxReliefs] = useState<SGTaxReliefInputs>(DEFAULT_SG_TAX_RELIEFS);
 
   // Currency based on country
   const currency: CurrencyCode = country === "US" ? "USD" : "SGD";
@@ -155,6 +169,7 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
       setAge(30);
       setVoluntaryCpfTopUpState(0);
       setSrsContributionState(0);
+      setSgTaxReliefs(DEFAULT_SG_TAX_RELIEFS);
     }
   }, []);
 
@@ -219,6 +234,7 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
           voluntaryCpfTopUp: Math.min(voluntaryCpfTopUp, sgLimits.voluntaryCpfTopUp),
           srsContribution: Math.min(srsContribution, sgLimits.srsContribution),
         },
+        taxReliefs: sgTaxReliefs,
       };
       return sgInputs;
     }
@@ -236,6 +252,7 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
     age,
     voluntaryCpfTopUp,
     srsContribution,
+    sgTaxReliefs,
     usLimits,
     sgLimits,
   ]);
@@ -280,6 +297,8 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
     setVoluntaryCpfTopUp,
     srsContribution,
     setSrsContribution,
+    sgTaxReliefs,
+    setSgTaxReliefs,
 
     // Limits
     usLimits,

@@ -74,6 +74,18 @@ export interface SGContributionInputs extends BaseContributionInputs {
   srsContribution: number; // Supplementary Retirement Scheme
 }
 
+// Singapore additional tax reliefs
+export type SGParentReliefType = "none" | "not_staying" | "staying";
+
+export interface SGTaxReliefInputs {
+  hasSpouseRelief: boolean; // S$2,000 if spouse income < $4,000
+  numberOfChildren: number; // S$4,000 per qualifying child
+  isWorkingMother: boolean; // Working Mother's Child Relief (WMCR)
+  parentRelief: SGParentReliefType; // S$5,500 (not staying) or S$9,000 (staying)
+  numberOfParents: number; // 1 or 2 parents
+  courseFees: number; // Up to S$5,500
+}
+
 // Union type for all contribution inputs
 export type ContributionInputs = USContributionInputs | SGContributionInputs;
 
@@ -98,6 +110,7 @@ export interface SGCalculatorInputs extends BaseCalculatorInputs {
   residencyType: SGResidencyType;
   age: number; // CPF rates depend on age
   contributions: SGContributionInputs;
+  taxReliefs: SGTaxReliefInputs;
 }
 
 export type CalculatorInputs = USCalculatorInputs | SGCalculatorInputs;
@@ -182,6 +195,12 @@ export interface SGBreakdown {
     cpfRelief: number;
     srsRelief: number;
     voluntaryCpfTopUpRelief: number;
+    // Additional reliefs
+    spouseRelief: number;
+    childRelief: number;
+    workingMotherRelief: number;
+    parentRelief: number;
+    courseFeesRelief: number;
     totalReliefs: number;
   };
   chargeableIncome: number; // Income after reliefs

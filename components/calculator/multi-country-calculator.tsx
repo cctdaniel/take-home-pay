@@ -8,6 +8,7 @@ import { USTaxOptions } from "./us-tax-options";
 import { SGTaxOptions } from "./sg-tax-options";
 import { ContributionOptions } from "./contribution-options";
 import { SGContributionOptions } from "./sg-contribution-options";
+import { SGAdditionalReliefs } from "./sg-additional-reliefs";
 import { MultiCountryResults } from "./multi-country-results";
 import { useMultiCountryCalculator } from "@/hooks/use-multi-country-calculator";
 
@@ -48,6 +49,8 @@ export function MultiCountryCalculator() {
     setVoluntaryCpfTopUp,
     srsContribution,
     setSrsContribution,
+    sgTaxReliefs,
+    setSgTaxReliefs,
     sgLimits,
 
     // Results
@@ -133,14 +136,23 @@ export function MultiCountryCalculator() {
             )}
 
             {country === "SG" && (
-              <SGContributionOptions
-                voluntaryCpfTopUp={voluntaryCpfTopUp}
-                onVoluntaryCpfTopUpChange={setVoluntaryCpfTopUp}
-                voluntaryCpfTopUpLimit={sgLimits.voluntaryCpfTopUp}
-                srsContribution={srsContribution}
-                onSrsContributionChange={setSrsContribution}
-                srsContributionLimit={sgLimits.srsContribution}
-              />
+              <div className="space-y-6">
+                <SGContributionOptions
+                  voluntaryCpfTopUp={voluntaryCpfTopUp}
+                  onVoluntaryCpfTopUpChange={setVoluntaryCpfTopUp}
+                  voluntaryCpfTopUpLimit={sgLimits.voluntaryCpfTopUp}
+                  srsContribution={srsContribution}
+                  onSrsContributionChange={setSrsContribution}
+                  srsContributionLimit={sgLimits.srsContribution}
+                />
+
+                <Separator />
+
+                <SGAdditionalReliefs
+                  reliefs={sgTaxReliefs}
+                  onChange={setSgTaxReliefs}
+                />
+              </div>
             )}
           </CardContent>
         </Card>
