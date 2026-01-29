@@ -29,15 +29,11 @@ import {
   calculateChildTaxCredit,
 } from "./constants/tax-brackets-2026";
 
-// Default tax reliefs (no dependents, no spending)
+// Default tax reliefs (no dependents)
 const DEFAULT_KR_TAX_RELIEFS: KRTaxReliefInputs = {
   numberOfDependents: 0,
   numberOfChildrenUnder20: 0,
   numberOfChildrenUnder7: 0,
-  creditCardSpending: 0,
-  debitCardSpending: 0,
-  cashReceiptSpending: 0,
-  traditionalMarketSpending: 0,
   personalPensionContribution: 0,
   insurancePremiums: 0,
   medicalExpenses: 0,
@@ -229,13 +225,6 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
       dependentDeduction,
       childDeduction,
       childUnder7Deduction,
-      spendingDeduction: 0, // Not yet implemented
-      spendingDeductionDetails: {
-        creditCard: 0,
-        debitCard: 0,
-        cashReceipt: 0,
-        traditionalMarket: 0,
-      },
       socialInsuranceDeduction: totalSocialInsurance, // Social insurance is deductible
       totalDeductions: totalPersonalDeductions + employmentIncomeDeduction + totalSocialInsurance,
     },

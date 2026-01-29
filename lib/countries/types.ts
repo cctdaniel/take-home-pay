@@ -94,15 +94,6 @@ export interface KRTaxReliefInputs {
   numberOfChildrenUnder7: number; // Additional ₩1,000,000 per child under 7
 
   // ============================================================================
-  // SPENDING DEDUCTIONS (신용카드 등 소득공제) - Income deductions
-  // Deduction on spending above 25% of salary
-  // ============================================================================
-  creditCardSpending: number; // 15% deduction rate
-  debitCardSpending: number; // 30% deduction rate
-  cashReceiptSpending: number; // 30% deduction rate
-  traditionalMarketSpending: number; // 40% deduction rate
-
-  // ============================================================================
   // VOLUNTARY PENSION (연금저축/IRP) - Tax credit
   // ============================================================================
   personalPensionContribution: number; // Up to ₩9,000,000/year - 13.2% or 16.5% credit
@@ -318,14 +309,6 @@ export interface KRBreakdown {
     dependentDeduction: number;
     childDeduction: number;
     childUnder7Deduction: number;
-    // Spending deduction (신용카드 등)
-    spendingDeduction: number;
-    spendingDeductionDetails: {
-      creditCard: number;
-      debitCard: number;
-      cashReceipt: number;
-      traditionalMarket: number;
-    };
     // Social insurance is also deductible
     socialInsuranceDeduction: number;
     totalDeductions: number;
