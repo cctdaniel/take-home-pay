@@ -26,10 +26,17 @@ export function SalaryInput({
   );
   const inputRef = useRef<HTMLInputElement>(null);
   const cursorPosRef = useRef<number | null>(null);
+  const isUserClearingRef = useRef(false);
   const currencySymbol = getCurrencySymbol(currency);
 
   // Sync display value when external value changes
+  // Skip sync if user just cleared the input to empty
   useEffect(() => {
+    if (isUserClearingRef.current && value === 0) {
+      // User cleared the input, keep it empty
+      isUserClearingRef.current = false;
+      return;
+    }
     setDisplayValue(formatNumber(value, currency));
   }, [value, currency]);
 
@@ -52,6 +59,9 @@ export function SalaryInput({
     // Parse and format the new value
     const parsed = parseFormattedNumber(rawValue, currency);
     const formatted = parsed > 0 ? formatNumber(parsed, currency) : "";
+
+    // Track if user is clearing the input to empty
+    isUserClearingRef.current = rawValue === "" || parsed === 0;
 
     // Count digits before cursor in raw input (excluding commas)
     const digitsBeforeCursor = rawValue
