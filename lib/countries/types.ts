@@ -218,7 +218,8 @@ export interface KRTaxBreakdown extends BaseTaxBreakdown {
 }
 
 export interface NLTaxBreakdown extends BaseTaxBreakdown {
-  incomeTax: number;
+  incomeTax: number; // Pure income tax (payroll tax)
+  socialSecurityTax: number; // Volksverzekeringen (AOW, Anw, Wlz)
 }
 
 export type TaxBreakdown =
@@ -363,13 +364,29 @@ export interface NLBreakdown {
     rate: number;
     tax: number;
   }>;
+  // Social security breakdown (volksverzekeringen)
+  socialSecurity: {
+    aow: number; // General Old Age Pensions Act (17.90%)
+    anw: number; // National Survivor Benefits Act (0.10%)
+    wlz: number; // Long-term Care Act (9.65%)
+    total: number; // Total social security
+    ceiling: number; // Income cap for social security
+    taxableForSocialSecurity: number; // Income subject to social security (capped)
+  };
+  // Income tax breakdown (pure income tax portion)
+  incomeTaxBreakdown: {
+    bracket1Tax: number; // 8.10% of income up to €38,883
+    bracket2Tax: number; // 37.56% of income €38,883 to €78,426
+    bracket3Tax: number; // 49.50% of income above €78,426
+    total: number; // Total income tax before credits
+  };
   taxCredits: {
     generalTaxCredit: number;
     laborTaxCredit: number;
     iackCredit: number; // Income-related combination credit (children under 12)
     totalCredits: number;
   };
-  taxBeforeCredits: number;
+  taxBeforeCredits: number; // Combined tax before credits
   taxableIncome: number;
   thirtyPercentRulingApplied: boolean;
   taxExemptAllowance: number;
