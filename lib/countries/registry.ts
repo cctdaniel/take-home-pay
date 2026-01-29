@@ -3,17 +3,17 @@
 // Central registry for all country calculators
 // ============================================================================
 
-import type {
-  CountryCode,
-  CountryConfig,
-  CountryCalculator,
-  CalculatorInputs,
-  CalculationResult,
-} from "./types";
-import { USCalculator } from "./us";
-import { SGCalculator } from "./sg";
 import { KRCalculator } from "./kr";
 import { NLCalculator } from "./nl";
+import { SGCalculator } from "./sg";
+import type {
+  CalculationResult,
+  CalculatorInputs,
+  CountryCalculator,
+  CountryCode,
+  CountryConfig,
+} from "./types";
+import { USCalculator } from "./us";
 
 // ============================================================================
 // COUNTRY CALCULATORS REGISTRY
@@ -28,7 +28,8 @@ const countryCalculators: Record<CountryCode, CountryCalculator> = {
 // ============================================================================
 // SUPPORTED COUNTRIES
 // ============================================================================
-export const SUPPORTED_COUNTRIES: CountryCode[] = ["US", "SG", "KR", "NL"];
+// US first, then alphabetical by country name: Netherlands, Singapore, South Korea
+export const SUPPORTED_COUNTRIES: CountryCode[] = ["US", "NL", "SG", "KR"];
 
 export const COUNTRY_CONFIGS: Record<CountryCode, CountryConfig> = {
   US: USCalculator.config,
@@ -44,7 +45,9 @@ export const COUNTRY_CONFIGS: Record<CountryCode, CountryConfig> = {
 /**
  * Get a country calculator by country code
  */
-export function getCountryCalculator(countryCode: CountryCode): CountryCalculator {
+export function getCountryCalculator(
+  countryCode: CountryCode,
+): CountryCalculator {
   const calculator = countryCalculators[countryCode];
   if (!calculator) {
     throw new Error(`Unsupported country: ${countryCode}`);
@@ -55,7 +58,9 @@ export function getCountryCalculator(countryCode: CountryCode): CountryCalculato
 /**
  * Calculate net salary for any supported country
  */
-export function calculateNetSalary(inputs: CalculatorInputs): CalculationResult {
+export function calculateNetSalary(
+  inputs: CalculatorInputs,
+): CalculationResult {
   const calculator = getCountryCalculator(inputs.country);
   return calculator.calculate(inputs);
 }
@@ -78,7 +83,9 @@ export function getCountryConfig(countryCode: CountryCode): CountryConfig {
 /**
  * Check if a country is supported
  */
-export function isCountrySupported(countryCode: string): countryCode is CountryCode {
+export function isCountrySupported(
+  countryCode: string,
+): countryCode is CountryCode {
   return SUPPORTED_COUNTRIES.includes(countryCode as CountryCode);
 }
 
@@ -86,7 +93,7 @@ export function isCountrySupported(countryCode: string): countryCode is CountryC
  * Get list of all supported countries with their names
  */
 export function getSupportedCountries(): { code: CountryCode; name: string }[] {
-  return SUPPORTED_COUNTRIES.map(code => ({
+  return SUPPORTED_COUNTRIES.map((code) => ({
     code,
     name: COUNTRY_CONFIGS[code].name,
   }));

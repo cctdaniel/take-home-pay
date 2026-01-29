@@ -108,7 +108,7 @@ export function MultiCountryResults({
           disabled={isDownloading}
           data-download-button="true"
           aria-label="Download take-home pay section"
-          className="inline-flex items-center justify-center rounded-md border border-zinc-800 bg-zinc-900/80 p-2 text-zinc-300 transition hover:text-zinc-100 hover:border-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center justify-center rounded-md border border-zinc-800 bg-zinc-900/80 p-2 text-zinc-300 transition cursor-pointer hover:text-zinc-100 hover:border-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <svg
             aria-hidden="true"
@@ -806,106 +806,124 @@ export function MultiCountryResults({
             )}
 
           {/* NL Tax Breakdown */}
-          {isNL && "incomeTax" in taxes && result.breakdown.type === "NL" && (
-            <>
-              {result.breakdown.thirtyPercentRulingApplied && (
-                <>
-                  <p className="text-xs text-zinc-500 pt-2 pb-1">30% Ruling</p>
-                  <div className="flex items-center justify-between py-1">
-                    <span className="text-sm text-zinc-400">
-                      Tax-Exempt Allowance
-                    </span>
-                    <span className="text-sm text-emerald-400 tabular-nums">
-                      -
-                      {formatCurrency(
-                        result.breakdown.taxExemptAllowance,
-                        currency,
-                      )}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
-                    <span className="text-sm text-zinc-300">
-                      Taxable Income
-                    </span>
-                    <span className="text-sm text-zinc-200 tabular-nums">
-                      {formatCurrency(result.breakdown.taxableIncome, currency)}
-                    </span>
-                  </div>
-                  <Separator className="my-2" />
-                </>
-              )}
-              {result.breakdown.taxCredits.totalCredits > 0 && (
-                <>
-                  <p className="text-xs text-zinc-500 pt-2 pb-1">Tax Credits</p>
-                  {result.breakdown.taxCredits.generalTaxCredit > 0 && (
+          {isNL &&
+            "incomeTax" in taxes &&
+            "socialSecurityTax" in taxes &&
+            result.breakdown.type === "NL" && (
+              <>
+                {result.breakdown.thirtyPercentRulingApplied && (
+                  <>
+                    <p className="text-xs text-zinc-500 pt-2 pb-1">
+                      30% Ruling
+                    </p>
                     <div className="flex items-center justify-between py-1">
                       <span className="text-sm text-zinc-400">
-                        General Tax Credit
+                        Tax-Exempt Allowance
                       </span>
                       <span className="text-sm text-emerald-400 tabular-nums">
                         -
                         {formatCurrency(
-                          result.breakdown.taxCredits.generalTaxCredit,
+                          result.breakdown.taxExemptAllowance,
                           currency,
                         )}
                       </span>
                     </div>
-                  )}
-                  {result.breakdown.taxCredits.laborTaxCredit > 0 && (
-                    <div className="flex items-center justify-between py-1">
-                      <span className="text-sm text-zinc-400">
-                        Labor Tax Credit
+                    <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                      <span className="text-sm text-zinc-300">
+                        Taxable Income
                       </span>
-                      <span className="text-sm text-emerald-400 tabular-nums">
-                        -
+                      <span className="text-sm text-zinc-200 tabular-nums">
                         {formatCurrency(
-                          result.breakdown.taxCredits.laborTaxCredit,
+                          result.breakdown.taxableIncome,
                           currency,
                         )}
                       </span>
                     </div>
-                  )}
-                  {result.breakdown.taxCredits.iackCredit > 0 && (
-                    <div className="flex items-center justify-between py-1">
-                      <span className="text-sm text-zinc-400">
-                        IACK (Child Credit)
-                      </span>
-                      <span className="text-sm text-emerald-400 tabular-nums">
-                        -
-                        {formatCurrency(
-                          result.breakdown.taxCredits.iackCredit,
-                          currency,
-                        )}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
-                    <span className="text-sm text-zinc-300">
-                      Tax Before Credits
-                    </span>
-                    <span className="text-sm text-zinc-200 tabular-nums">
-                      {formatCurrency(
-                        result.breakdown.taxBeforeCredits,
-                        currency,
-                      )}
-                    </span>
-                  </div>
-                  <Separator className="my-2" />
-                </>
-              )}
-              <p className="text-xs text-zinc-500 pt-2 pb-1">Income Tax</p>
-              <DeductionRow
-                label="Income Tax & National Insurance"
-                amount={taxes.incomeTax}
-                grossSalary={grossSalary}
-                currency={currency}
-              />
-              <p className="text-xs text-zinc-500 italic mt-1">
-                Rates shown are combined for income tax and national insurance
-                (AOW).
-              </p>
-            </>
-          )}
+                    <Separator className="my-2" />
+                  </>
+                )}
+
+                {/* Income Tax (Payroll Tax) - show GROSS amount before credits */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Income Tax (Inkomstenbelasting)
+                </p>
+                <DeductionRow
+                  label="Payroll Tax"
+                  amount={result.breakdown.incomeTaxBreakdown.total}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+
+                <Separator className="my-2" />
+
+                {/* Social Security (Volksverzekeringen) - show GROSS amount */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Social Security (Volksverzekeringen)
+                </p>
+                <DeductionRow
+                  label="Social Security Tax"
+                  amount={result.breakdown.socialSecurity.total}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                <p className="text-xs text-zinc-500 italic mt-1">
+                  AOW, Anw, Wlz — capped at €
+                  {result.breakdown.socialSecurity.ceiling.toLocaleString()}
+                </p>
+
+                {/* Tax Credits - shown as positive values that reduce total tax */}
+                {result.breakdown.taxCredits.totalCredits > 0 && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="text-xs text-zinc-500 pt-2 pb-1">
+                      Tax Credits
+                    </p>
+                    {result.breakdown.taxCredits.generalTaxCredit > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          General Tax Credit
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          +
+                          {formatCurrency(
+                            result.breakdown.taxCredits.generalTaxCredit,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.taxCredits.laborTaxCredit > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Labour Tax Credit
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          +
+                          {formatCurrency(
+                            result.breakdown.taxCredits.laborTaxCredit,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.taxCredits.iackCredit > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          IACK (Child Credit)
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          +
+                          {formatCurrency(
+                            result.breakdown.taxCredits.iackCredit,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                )}
+              </>
+            )}
 
           {/* Totals */}
           <DeductionRow
