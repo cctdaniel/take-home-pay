@@ -76,7 +76,7 @@ export interface SGContributionInputs {
 
 // South Korea-specific contributions (social insurance is mandatory)
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface KRContributionInputs extends BaseContributionInputs {
+export interface KRContributionInputs {
   // All social insurance contributions are mandatory and calculated automatically
   // This interface is kept for consistency but currently has no optional contributions
 }

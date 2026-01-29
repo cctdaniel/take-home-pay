@@ -29,11 +29,24 @@ import {
   calculateChildTaxCredit,
 } from "./constants/tax-brackets-2026";
 
-// Default tax reliefs (no dependents)
+// Default tax reliefs (no dependents, no spending)
 const DEFAULT_KR_TAX_RELIEFS: KRTaxReliefInputs = {
   numberOfDependents: 0,
   numberOfChildrenUnder20: 0,
   numberOfChildrenUnder7: 0,
+  creditCardSpending: 0,
+  debitCardSpending: 0,
+  cashReceiptSpending: 0,
+  traditionalMarketSpending: 0,
+  personalPensionContribution: 0,
+  insurancePremiums: 0,
+  medicalExpenses: 0,
+  educationExpenses: 0,
+  donations: 0,
+  monthlyRent: 0,
+  isHomeowner: false,
+  hasMealAllowance: false,
+  hasChildcareAllowance: false,
 };
 
 // ============================================================================
@@ -193,6 +206,11 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
   const breakdown: KRBreakdown = {
     type: "KR",
     taxableIncome,
+    nonTaxableIncome: {
+      mealAllowance: 0, // Not yet implemented
+      childcareAllowance: 0, // Not yet implemented
+      total: 0,
+    },
     socialInsurance: {
       nationalPension: annualNationalPension,
       nationalPensionRate: KR_SOCIAL_INSURANCE.nationalPension.employeeRate,
@@ -205,18 +223,32 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
       employmentInsuranceRate: KR_SOCIAL_INSURANCE.employmentInsurance.employeeRate,
       totalSocialInsurance,
     },
-    taxReliefs: {
+    incomeDeductions: {
+      employmentIncomeDeduction,
       basicDeduction,
       dependentDeduction,
       childDeduction,
       childUnder7Deduction,
-      employmentIncomeDeduction,
-      totalDeductions: totalPersonalDeductions + employmentIncomeDeduction,
+      spendingDeduction: 0, // Not yet implemented
+      spendingDeductionDetails: {
+        creditCard: 0,
+        debitCard: 0,
+        cashReceipt: 0,
+        traditionalMarket: 0,
+      },
+      socialInsuranceDeduction: totalSocialInsurance, // Social insurance is deductible
+      totalDeductions: totalPersonalDeductions + employmentIncomeDeduction + totalSocialInsurance,
     },
     taxCredits: {
       wageEarnerCredit: wageEarnerTaxCredit,
       standardCredit: standardTaxCredit,
       childTaxCredit,
+      pensionCredit: 0, // Not yet implemented
+      insuranceCredit: 0, // Not yet implemented
+      medicalCredit: 0, // Not yet implemented
+      educationCredit: 0, // Not yet implemented
+      donationCredit: 0, // Not yet implemented
+      rentCredit: 0, // Not yet implemented
       totalCredits: totalTaxCredits,
     },
     taxDetails: {
