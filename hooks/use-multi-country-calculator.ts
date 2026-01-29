@@ -40,6 +40,13 @@ interface SGState {
   taxReliefs: SGTaxReliefInputs;
 }
 
+// ============================================================================
+// NL-SPECIFIC STATE
+// ============================================================================
+interface NLState {
+  hasThirtyPercentRuling: boolean;
+}
+
 const DEFAULT_SG_TAX_RELIEFS: SGTaxReliefInputs = {
   hasSpouseRelief: false,
   numberOfChildren: 0,
@@ -90,6 +97,10 @@ export interface UseMultiCountryCalculatorReturn {
   sgTaxReliefs: SGTaxReliefInputs;
   setSgTaxReliefs: (value: SGTaxReliefInputs) => void;
 
+  // NL-specific
+  hasThirtyPercentRuling: boolean;
+  setHasThirtyPercentRuling: (value: boolean) => void;
+
   // Limits
   usLimits: {
     traditional401k: number;
@@ -131,6 +142,9 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
   const [srsContribution, setSrsContributionState] = useState(0);
   const [sgTaxReliefs, setSgTaxReliefs] = useState<SGTaxReliefInputs>(DEFAULT_SG_TAX_RELIEFS);
 
+  // NL-specific state
+  const [hasThirtyPercentRuling, setHasThirtyPercentRuling] = useState(false);
+
   // Currency based on country
   const currency: CurrencyCode = useMemo(() => getCountryConfig(country).currency.code, [country]);
 
@@ -168,6 +182,7 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
       setSgTaxReliefs(DEFAULT_SG_TAX_RELIEFS);
     } else if (newCountry === "NL") {
       setGrossSalary(55000);
+      setHasThirtyPercentRuling(false);
     }
   }, []);
 
@@ -241,7 +256,8 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
       country: "NL",
       grossSalary,
       payFrequency,
-    }
+      hasThirtyPercentRuling,
+    };
   }, [
     country,
     grossSalary,
@@ -257,6 +273,7 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
     voluntaryCpfTopUp,
     srsContribution,
     sgTaxReliefs,
+    hasThirtyPercentRuling,
     usLimits,
     sgLimits,
   ]);
@@ -303,6 +320,10 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
     setSrsContribution,
     sgTaxReliefs,
     setSgTaxReliefs,
+
+    // NL-specific
+    hasThirtyPercentRuling,
+    setHasThirtyPercentRuling,
 
     // Limits
     usLimits,

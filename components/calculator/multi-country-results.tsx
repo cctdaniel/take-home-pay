@@ -363,6 +363,24 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
           {/* NL Tax Breakdown */}
           {isNL && "incomeTax" in taxes && result.breakdown.type === "NL" && (
             <>
+              {result.breakdown.thirtyPercentRulingApplied && (
+                <>
+                  <p className="text-xs text-zinc-500 pt-2 pb-1">30% Ruling</p>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">Tax-Exempt Allowance</span>
+                    <span className="text-sm text-emerald-400 tabular-nums">
+                      -{formatCurrency(result.breakdown.taxExemptAllowance, currency)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                    <span className="text-sm text-zinc-300">Taxable Income</span>
+                    <span className="text-sm text-zinc-200 tabular-nums">
+                      {formatCurrency(result.breakdown.taxableIncome, currency)}
+                    </span>
+                  </div>
+                  <Separator className="my-2" />
+                </>
+              )}
               {result.breakdown.taxCredits.totalCredits > 0 && (
                 <>
                   <p className="text-xs text-zinc-500 pt-2 pb-1">Tax Credits</p>

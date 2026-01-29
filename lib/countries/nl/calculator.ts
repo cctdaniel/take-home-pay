@@ -51,11 +51,14 @@ function calculateProgressiveTax(income: number) {
 // NETHERLANDS CALCULATOR
 // ============================================================================
 export function calculateNL(inputs: NLCalculatorInputs): CalculationResult {
-  const { grossSalary, payFrequency } = inputs;
+  const { grossSalary, payFrequency, hasThirtyPercentRuling } = inputs;
 
-  const { totalTax: taxBeforeCredits, bracketTaxes } = calculateProgressiveTax(grossSalary);
-  const generalTaxCredit = calculateGeneralTaxCredit(grossSalary);
-  const laborTaxCredit = calculateLaborTaxCredit(grossSalary);
+  const taxExemptAllowance = hasThirtyPercentRuling ? grossSalary * 0.3 : 0;
+  const taxableIncome = grossSalary - taxExemptAllowance;
+
+  const { totalTax: taxBeforeCredits, bracketTaxes } = calculateProgressiveTax(taxableIncome);
+  const generalTaxCredit = calculateGeneralTaxCredit(taxableIncome);
+  const laborTaxCredit = calculateLaborTaxCredit(taxableIncome);
   const totalCredits = generalTaxCredit + laborTaxCredit;
   const totalTax = Math.max(0, taxBeforeCredits - totalCredits);
 
@@ -78,13 +81,16 @@ export function calculateNL(inputs: NLCalculatorInputs): CalculationResult {
       totalCredits,
     },
     taxBeforeCredits,
+    taxableIncome,
+    thirtyPercentRulingApplied: hasThirtyPercentRuling,
+    taxExemptAllowance,
   };
 
   return {
     country: "NL",
     currency: "EUR",
     grossSalary,
-    taxableIncome: grossSalary,
+    taxableIncome,
     taxes,
     totalTax,
     totalDeductions,
@@ -126,6 +132,7 @@ export const NLCalculator: CountryCalculator = {
       country: "NL",
       grossSalary: 55000,
       payFrequency: "monthly",
+      hasThirtyPercentRuling: false,
     };
   },
 };

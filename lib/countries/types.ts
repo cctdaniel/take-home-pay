@@ -118,6 +118,7 @@ export interface SGCalculatorInputs extends BaseCalculatorInputs {
 
 export interface NLCalculatorInputs extends BaseCalculatorInputs {
   country: "NL";
+  hasThirtyPercentRuling: boolean;
 }
 
 export type CalculatorInputs = USCalculatorInputs | SGCalculatorInputs | NLCalculatorInputs;
@@ -232,6 +233,9 @@ export interface NLBreakdown {
     totalCredits: number;
   };
   taxBeforeCredits: number;
+  taxableIncome: number;
+  thirtyPercentRulingApplied: boolean;
+  taxExemptAllowance: number;
 }
 
 export type CountrySpecificBreakdown = USBreakdown | SGBreakdown | NLBreakdown;

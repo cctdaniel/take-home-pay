@@ -45,6 +45,7 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
           <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
             <li><strong className="text-zinc-300">Income Tax</strong> – Two progressive brackets for 2026</li>
             <li><strong className="text-zinc-300">National Insurance</strong> – Combined with income tax for most taxpayers under AOW age</li>
+            <li><strong className="text-zinc-300">30% Ruling</strong> – Optional tax-exempt allowance (30% of salary)</li>
             <li><strong className="text-zinc-300">Tax Credits</strong> – General and labor tax credits are estimated</li>
             <li><strong className="text-zinc-300">No Regional Taxes</strong> – National rates apply uniformly</li>
           </ul>

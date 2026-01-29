@@ -55,6 +55,10 @@ export function MultiCountryCalculator() {
     setSgTaxReliefs,
     sgLimits,
 
+    // NL-specific
+    hasThirtyPercentRuling,
+    setHasThirtyPercentRuling,
+
     // Results
     result,
   } = useMultiCountryCalculator();
@@ -110,6 +114,8 @@ export function MultiCountryCalculator() {
               <NLTaxOptions
                 payFrequency={payFrequency}
                 onPayFrequencyChange={setPayFrequency}
+                hasThirtyPercentRuling={hasThirtyPercentRuling}
+                onThirtyPercentRulingChange={setHasThirtyPercentRuling}
               />
             )}
           </CardContent>
@@ -172,8 +178,8 @@ export function MultiCountryCalculator() {
 
             {country === "NL" && (
               <p className="text-sm text-zinc-400">
-                The Netherlands calculator applies estimated general and labor tax credits to the
-                statutory income tax and national insurance rates. Additional deductions are not modeled.
+                The Netherlands calculator applies estimated general and labor tax credits and supports
+                the optional 30% ruling. Additional deductions are not modeled.
               </p>
             )}
           </CardContent>
