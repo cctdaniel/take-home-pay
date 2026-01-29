@@ -130,7 +130,7 @@ export function MultiCountryCalculator() {
                 ? "Adjust your retirement and savings contributions"
                 : country === "SG"
                   ? "Optional tax-saving contributions (CPF is mandatory)"
-                  : "No additional deductions modeled for Netherlands payroll taxes"}
+                  : "Includes estimated general and labor tax credits"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -172,8 +172,8 @@ export function MultiCountryCalculator() {
 
             {country === "NL" && (
               <p className="text-sm text-zinc-400">
-                The Netherlands calculator assumes statutory income tax and national insurance rates.
-                Custom deductions and tax credits are not yet modeled.
+                The Netherlands calculator applies estimated general and labor tax credits to the
+                statutory income tax and national insurance rates. Additional deductions are not modeled.
               </p>
             )}
           </CardContent>

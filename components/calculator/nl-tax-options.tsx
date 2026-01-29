@@ -26,7 +26,7 @@ export function NLTaxOptions({ payFrequency, onPayFrequencyChange }: NLTaxOption
         </Select>
       </div>
       <div className="flex items-end text-xs text-zinc-500">
-        Rates shown include combined income tax and national insurance for those under AOW age.
+        Includes estimated general and labor tax credits for 2026.
       </div>
     </div>
   );

@@ -23,7 +23,7 @@ A multi-country salary calculator that shows your actual take-home pay after all
 - **Income Tax** — 2026 progressive brackets with two tiers
 - **National Insurance** — Combined with income tax for most employees under AOW age
 - **Uniform Rates** — National rates apply (no regional tax adjustments)
-- **Credits Not Modeled** — General/labor tax credits are not included yet
+- **Tax Credits** — Includes estimated general and labor tax credits
 
 ## Getting Started
 

@@ -363,6 +363,30 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
           {/* NL Tax Breakdown */}
           {isNL && "incomeTax" in taxes && result.breakdown.type === "NL" && (
             <>
+              {result.breakdown.taxCredits.totalCredits > 0 && (
+                <>
+                  <p className="text-xs text-zinc-500 pt-2 pb-1">Tax Credits</p>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">General Tax Credit</span>
+                    <span className="text-sm text-emerald-400 tabular-nums">
+                      -{formatCurrency(result.breakdown.taxCredits.generalTaxCredit, currency)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">Labor Tax Credit</span>
+                    <span className="text-sm text-emerald-400 tabular-nums">
+                      -{formatCurrency(result.breakdown.taxCredits.laborTaxCredit, currency)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                    <span className="text-sm text-zinc-300">Tax Before Credits</span>
+                    <span className="text-sm text-zinc-200 tabular-nums">
+                      {formatCurrency(result.breakdown.taxBeforeCredits, currency)}
+                    </span>
+                  </div>
+                  <Separator className="my-2" />
+                </>
+              )}
               <p className="text-xs text-zinc-500 pt-2 pb-1">Income Tax</p>
               <DeductionRow
                 label="Income Tax & National Insurance"
@@ -371,7 +395,7 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
                 currency={currency}
               />
               <p className="text-xs text-zinc-500 italic mt-1">
-                Rates shown are combined for income tax and national insurance (AOW) and do not include tax credits.
+                Rates shown are combined for income tax and national insurance (AOW).
               </p>
             </>
           )}

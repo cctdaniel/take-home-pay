@@ -15,6 +15,7 @@ import type {
 } from "../types";
 import { NL_CONFIG } from "./config";
 import { NETHERLANDS_TAX_BRACKETS_2026 } from "./constants/tax-brackets-2026";
+import { calculateGeneralTaxCredit, calculateLaborTaxCredit } from "./constants/tax-credits-2026";
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -52,7 +53,11 @@ function calculateProgressiveTax(income: number) {
 export function calculateNL(inputs: NLCalculatorInputs): CalculationResult {
   const { grossSalary, payFrequency } = inputs;
 
-  const { totalTax, bracketTaxes } = calculateProgressiveTax(grossSalary);
+  const { totalTax: taxBeforeCredits, bracketTaxes } = calculateProgressiveTax(grossSalary);
+  const generalTaxCredit = calculateGeneralTaxCredit(grossSalary);
+  const laborTaxCredit = calculateLaborTaxCredit(grossSalary);
+  const totalCredits = generalTaxCredit + laborTaxCredit;
+  const totalTax = Math.max(0, taxBeforeCredits - totalCredits);
 
   const taxes: NLTaxBreakdown = {
     totalIncomeTax: totalTax,
@@ -67,6 +72,12 @@ export function calculateNL(inputs: NLCalculatorInputs): CalculationResult {
   const breakdown: NLBreakdown = {
     type: "NL",
     bracketTaxes,
+    taxCredits: {
+      generalTaxCredit,
+      laborTaxCredit,
+      totalCredits,
+    },
+    taxBeforeCredits,
   };
 
   return {

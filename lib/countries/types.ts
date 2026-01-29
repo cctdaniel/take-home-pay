@@ -226,6 +226,12 @@ export interface NLBreakdown {
     rate: number;
     tax: number;
   }>;
+  taxCredits: {
+    generalTaxCredit: number;
+    laborTaxCredit: number;
+    totalCredits: number;
+  };
+  taxBeforeCredits: number;
 }
 
 export type CountrySpecificBreakdown = USBreakdown | SGBreakdown | NLBreakdown;
