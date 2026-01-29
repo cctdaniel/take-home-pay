@@ -20,6 +20,7 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "SG" && <SGTaxInfo />}
         {country === "KR" && <KRTaxInfo />}
         {country === "NL" && <NLTaxInfo />}
+        {country === "AU" && <AUTaxInfo />}
       </div>
     </section>
   );
@@ -225,6 +226,63 @@ function NLTaxInfo() {
           <strong className="text-zinc-300">No Regional Taxes</strong> –
           National rates apply uniformly
         </li>
+      </ul>
+    </div>
+  );
+}
+
+// ============================================================================
+// AUSTRALIA TAX INFO
+// ============================================================================
+function AUTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Australia</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li>
+          <strong className="text-zinc-300">Income Tax</strong> – Progressive
+          brackets from 0% to 45% (Stage 3 tax cuts applied)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Tax-Free Threshold</strong> – First
+          A$18,200 is tax-free for residents
+        </li>
+        <li>
+          <strong className="text-zinc-300">Low Income Tax Offset (LITO)</strong>{" "}
+          – Up to A$700 for incomes under A$66,667
+        </li>
+        <li>
+          <strong className="text-zinc-300">Medicare Levy</strong> – 2% of
+          taxable income (with low-income reduction)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Medicare Levy Surcharge</strong> –
+          1-1.5% if no private health insurance and income above A$101,000
+        </li>
+        <li>
+          <strong className="text-zinc-300">Superannuation</strong> – 12%
+          employer contribution (not deducted from salary)
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Tax Brackets 2025-26 (Residents)
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>$0 – $18,200: 0% (tax-free)</li>
+        <li>$18,201 – $45,000: 16%</li>
+        <li>$45,001 – $135,000: 30%</li>
+        <li>$135,001 – $190,000: 37%</li>
+        <li>$190,001+: 45%</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Foreign Residents
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>No tax-free threshold – taxed from first dollar</li>
+        <li>32.5% on first $135,000</li>
+        <li>No LITO or Medicare levy</li>
       </ul>
     </div>
   );

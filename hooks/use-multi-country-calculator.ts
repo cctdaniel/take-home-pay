@@ -6,6 +6,8 @@ import {
   getSRSLimit,
 } from "@/lib/countries/sg/constants/cpf-rates-2026";
 import type {
+  AUCalculatorInputs,
+  AUResidencyType,
   CalculationResult,
   CalculatorInputs,
   CountryCode,
@@ -61,6 +63,7 @@ const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
   SG: 60000,
   KR: 50000000, // ₩50M typical salary
   NL: 55000,
+  AU: 100000, // A$100k typical Australian salary
 };
 
 // ============================================================================
@@ -113,6 +116,12 @@ export interface UseMultiCountryCalculatorReturn {
   setHasThirtyPercentRuling: (value: boolean) => void;
   hasYoungChildren: boolean;
   setHasYoungChildren: (value: boolean) => void;
+
+  // AU-specific
+  auResidencyType: AUResidencyType;
+  setAuResidencyType: (value: AUResidencyType) => void;
+  hasPrivateHealthInsurance: boolean;
+  setHasPrivateHealthInsurance: (value: boolean) => void;
 
   // Limits
   usLimits: {
@@ -173,6 +182,12 @@ export function useMultiCountryCalculator(
   const [hasThirtyPercentRuling, setHasThirtyPercentRuling] = useState(false);
   const [hasYoungChildren, setHasYoungChildren] = useState(false);
 
+  // AU-specific state
+  const [auResidencyType, setAuResidencyType] =
+    useState<AUResidencyType>("resident");
+  const [hasPrivateHealthInsurance, setHasPrivateHealthInsurance] =
+    useState(true);
+
   // Reset defaults when country changes (e.g., navigating to a different country page)
   useEffect(() => {
     setGrossSalary(DEFAULT_GROSS_SALARY[country]);
@@ -197,6 +212,9 @@ export function useMultiCountryCalculator(
     } else if (country === "NL") {
       setHasThirtyPercentRuling(false);
       setHasYoungChildren(false);
+    } else if (country === "AU") {
+      setAuResidencyType("resident");
+      setHasPrivateHealthInsurance(true);
     }
   }, [country]);
 
@@ -312,7 +330,7 @@ export function useMultiCountryCalculator(
         taxReliefs: krTaxReliefs,
       };
       return krInputs;
-    } else {
+    } else if (country === "NL") {
       const nlInputs: NLCalculatorInputs = {
         country: "NL",
         grossSalary,
@@ -321,6 +339,15 @@ export function useMultiCountryCalculator(
         hasYoungChildren,
       };
       return nlInputs;
+    } else {
+      const auInputs: AUCalculatorInputs = {
+        country: "AU",
+        grossSalary,
+        payFrequency,
+        residencyType: auResidencyType,
+        hasPrivateHealthInsurance,
+      };
+      return auInputs;
     }
   }, [
     country,
@@ -341,6 +368,8 @@ export function useMultiCountryCalculator(
     krTaxReliefs,
     hasThirtyPercentRuling,
     hasYoungChildren,
+    auResidencyType,
+    hasPrivateHealthInsurance,
     usLimits,
     sgLimits,
   ]);
@@ -397,6 +426,12 @@ export function useMultiCountryCalculator(
     setHasThirtyPercentRuling,
     hasYoungChildren,
     setHasYoungChildren,
+
+    // AU-specific
+    auResidencyType,
+    setAuResidencyType,
+    hasPrivateHealthInsurance,
+    setHasPrivateHealthInsurance,
 
     // Limits
     usLimits,

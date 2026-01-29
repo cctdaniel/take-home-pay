@@ -35,6 +35,12 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
     name: "Euro",
     locale: "nl-NL",
   },
+  AUD: {
+    code: "AUD",
+    symbol: "A$",
+    name: "Australian Dollar",
+    locale: "en-AU",
+  },
 };
 
 // ============================================================================
@@ -45,6 +51,7 @@ export const COUNTRY_CURRENCY: Record<CountryCode, CurrencyCode> = {
   SG: "SGD",
   KR: "KRW",
   NL: "EUR",
+  AU: "AUD",
 };
 
 // ============================================================================

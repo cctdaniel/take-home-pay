@@ -10,6 +10,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useMultiCountryCalculator } from "@/hooks/use-multi-country-calculator";
 import type { CountryCode } from "@/lib/countries/types";
+import { AUTaxOptions } from "./au-tax-options";
 import { ContributionOptions } from "./contribution-options";
 import { CountrySelector } from "./country-selector";
 import { KRAdditionalReliefs } from "./kr-additional-reliefs";
@@ -80,6 +81,12 @@ export function MultiCountryCalculator({
     hasYoungChildren,
     setHasYoungChildren,
 
+    // AU-specific
+    auResidencyType,
+    setAuResidencyType,
+    hasPrivateHealthInsurance,
+    setHasPrivateHealthInsurance,
+
     // Results
     result,
   } = useMultiCountryCalculator(country);
@@ -148,6 +155,17 @@ export function MultiCountryCalculator({
                 onThirtyPercentRulingChange={setHasThirtyPercentRuling}
                 hasYoungChildren={hasYoungChildren}
                 onYoungChildrenChange={setHasYoungChildren}
+              />
+            )}
+
+            {country === "AU" && (
+              <AUTaxOptions
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+                residencyType={auResidencyType}
+                onResidencyTypeChange={setAuResidencyType}
+                hasPrivateHealthInsurance={hasPrivateHealthInsurance}
+                onPrivateHealthInsuranceChange={setHasPrivateHealthInsurance}
               />
             )}
           </CardContent>
@@ -256,6 +274,41 @@ export function MultiCountryCalculator({
                 (child) tax credits and supports the optional 30% ruling.
                 Additional deductions are not modeled.
               </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* AU Deductions Info Card */}
+        {country === "AU" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Tax &amp; Levies</CardTitle>
+              <CardDescription>
+                Income tax, Medicare levy, and superannuation
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-zinc-800/50 rounded-lg p-4 mb-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  What&apos;s Included
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-1">
+                  <li>Income Tax (with Stage 3 tax cuts)</li>
+                  <li>Low Income Tax Offset (LITO) for residents</li>
+                  <li>Medicare Levy (2%)</li>
+                  <li>Medicare Levy Surcharge (if no PHI)</li>
+                </ul>
+              </div>
+              <div className="bg-emerald-900/20 border border-emerald-800/30 rounded-lg p-4">
+                <p className="text-sm font-medium text-emerald-400 mb-2">
+                  Superannuation (12%)
+                </p>
+                <p className="text-xs text-zinc-400">
+                  Your employer pays 12% superannuation ON TOP of your salary.
+                  This is not deducted from your take-home pay but is shown
+                  below for reference.
+                </p>
+              </div>
             </CardContent>
           </Card>
         )}

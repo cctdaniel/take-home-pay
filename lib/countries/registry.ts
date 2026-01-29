@@ -3,6 +3,7 @@
 // Central registry for all country calculators
 // ============================================================================
 
+import { AUCalculator } from "./au";
 import { KRCalculator } from "./kr";
 import { NLCalculator } from "./nl";
 import { SGCalculator } from "./sg";
@@ -23,19 +24,21 @@ const countryCalculators: Record<CountryCode, CountryCalculator> = {
   SG: SGCalculator,
   KR: KRCalculator,
   NL: NLCalculator,
+  AU: AUCalculator,
 };
 
 // ============================================================================
 // SUPPORTED COUNTRIES
 // ============================================================================
-// US first, then alphabetical by country name: Netherlands, Singapore, South Korea
-export const SUPPORTED_COUNTRIES: CountryCode[] = ["US", "NL", "SG", "KR"];
+// US first, then alphabetical by country name: Australia, Netherlands, Singapore, South Korea
+export const SUPPORTED_COUNTRIES: CountryCode[] = ["US", "AU", "NL", "SG", "KR"];
 
 export const COUNTRY_CONFIGS: Record<CountryCode, CountryConfig> = {
   US: USCalculator.config,
   SG: SGCalculator.config,
   KR: KRCalculator.config,
   NL: NLCalculator.config,
+  AU: AUCalculator.config,
 };
 
 // ============================================================================

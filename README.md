@@ -9,6 +9,7 @@ Each country has its own page for better SEO and shareability:
 | Country       | URL                             |
 | ------------- | ------------------------------- |
 | United States | [/us](http://localhost:3000/us) |
+| Australia     | [/au](http://localhost:3000/au) |
 | Singapore     | [/sg](http://localhost:3000/sg) |
 | South Korea   | [/kr](http://localhost:3000/kr) |
 | Netherlands   | [/nl](http://localhost:3000/nl) |
@@ -50,6 +51,16 @@ Root `/` redirects to `/us` by default.
 - **Uniform Rates** — National rates apply (no regional tax adjustments)
 - **Tax Credits** — Includes general, labor, and IACK (child) tax credits
 
+### Australia
+
+- **Income Tax** — 2025-26 progressive brackets with Stage 3 tax cuts (0% to 45%)
+- **Tax-Free Threshold** — First A$18,200 is tax-free for residents
+- **Low Income Tax Offset (LITO)** — Up to A$700 for incomes under A$66,667
+- **Medicare Levy** — 2% of taxable income (with low-income reduction)
+- **Medicare Levy Surcharge** — 1-1.5% if no private health insurance above A$101,000
+- **Superannuation** — 12% employer contribution (shown as info, not deducted)
+- **Residency** — Different tax brackets for Australian residents vs foreign residents
+
 ## Getting Started
 
 ```bash
@@ -70,10 +81,11 @@ Open [http://localhost:3000](http://localhost:3000) to use the calculator. You'l
 
 ```
 /app/
-  [country]/page.tsx     # Dynamic country pages (/us, /sg, /kr, /nl)
+  [country]/page.tsx     # Dynamic country pages (/us, /au, /sg, /kr, /nl)
   page.tsx               # Redirect to /us
 /lib/countries/          # Country-specific calculators
   /us/                   # US tax calculations
+  /au/                   # Australia tax calculations
   /sg/                   # Singapore tax calculations
   /kr/                   # South Korea tax calculations
   /nl/                   # Netherlands tax calculations
@@ -89,6 +101,7 @@ Open [http://localhost:3000](http://localhost:3000) to use the calculator. You'l
 - **Singapore:** IRAS tax rates and CPF contribution rates for 2026
 - **South Korea:** NTS tax rates and social insurance rates for 2026
 - **Netherlands:** Income tax brackets and national insurance rates for 2026
+- **Australia:** ATO tax rates for 2025-26, Medicare levy rates, and superannuation guarantee
 
 ## Disclaimer
 
