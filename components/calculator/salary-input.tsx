@@ -36,11 +36,8 @@ export function SalaryInput({ value, onChange, currency = "USD" }: SalaryInputPr
     const rawValue = input.value;
     const cursorPos = input.selectionStart ?? 0;
 
-    // Count commas before cursor in the old value
-    const commasBefore = (displayValue.slice(0, cursorPos).match(/,/g) || []).length;
-
     // Parse and format the new value
-    const parsed = parseFormattedNumber(rawValue);
+    const parsed = parseFormattedNumber(rawValue, currency);
     const formatted = parsed > 0 ? formatNumber(parsed, currency) : "";
 
     // Count digits before cursor in raw input (excluding commas)

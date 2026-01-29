@@ -8,7 +8,7 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD";
+export type CurrencyCode = "USD" | "SGD" | "EUR";
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -20,7 +20,7 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG";
+export type CountryCode = "US" | "SG" | "NL";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -53,15 +53,10 @@ export type USFilingStatus = "single" | "married_jointly" | "married_separately"
 export type SGResidencyType = "citizen_pr" | "foreigner";
 
 // ============================================================================
-// CONTRIBUTION TYPES - Country agnostic base
+// CONTRIBUTION TYPES
 // ============================================================================
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface BaseContributionInputs {
-  // Each country will extend this with their specific contribution types
-}
-
 // US-specific contributions
-export interface USContributionInputs extends BaseContributionInputs {
+export interface USContributionInputs {
   traditional401k: number;
   rothIRA: number;
   hsa: number;
@@ -69,10 +64,14 @@ export interface USContributionInputs extends BaseContributionInputs {
 }
 
 // Singapore-specific contributions (CPF is mandatory, not voluntary)
-export interface SGContributionInputs extends BaseContributionInputs {
+export interface SGContributionInputs {
   voluntaryCpfTopUp: number; // Voluntary top-up to CPF
   srsContribution: number; // Supplementary Retirement Scheme
 }
+
+// Netherlands-specific contributions (none modeled yet)
+export type NLContributionInputs = Record<never, never>;
+
 
 // Singapore additional tax reliefs
 export type SGParentReliefType = "none" | "not_staying" | "staying";
@@ -87,7 +86,7 @@ export interface SGTaxReliefInputs {
 }
 
 // Union type for all contribution inputs
-export type ContributionInputs = USContributionInputs | SGContributionInputs;
+export type ContributionInputs = USContributionInputs | SGContributionInputs | NLContributionInputs;
 
 // ============================================================================
 // CALCULATOR INPUT TYPES
@@ -113,7 +112,12 @@ export interface SGCalculatorInputs extends BaseCalculatorInputs {
   taxReliefs: SGTaxReliefInputs;
 }
 
-export type CalculatorInputs = USCalculatorInputs | SGCalculatorInputs;
+export interface NLCalculatorInputs extends BaseCalculatorInputs {
+  country: "NL";
+  hasThirtyPercentRuling: boolean;
+}
+
+export type CalculatorInputs = USCalculatorInputs | SGCalculatorInputs | NLCalculatorInputs;
 
 // ============================================================================
 // TAX BREAKDOWN TYPES
@@ -138,7 +142,11 @@ export interface SGTaxBreakdown extends BaseTaxBreakdown {
   cpfEmployer: number; // Employer's CPF contribution (informational)
 }
 
-export type TaxBreakdown = USTaxBreakdown | SGTaxBreakdown;
+export interface NLTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number;
+}
+
+export type TaxBreakdown = USTaxBreakdown | SGTaxBreakdown | NLTaxBreakdown;
 
 // ============================================================================
 // CALCULATION RESULT TYPES
@@ -207,7 +215,26 @@ export interface SGBreakdown {
   grossTaxBeforeReliefs: number; // Tax on gross income (for comparison with IRAS table)
 }
 
-export type CountrySpecificBreakdown = USBreakdown | SGBreakdown;
+export interface NLBreakdown {
+  type: "NL";
+  bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }>;
+  taxCredits: {
+    generalTaxCredit: number;
+    laborTaxCredit: number;
+    totalCredits: number;
+  };
+  taxBeforeCredits: number;
+  taxableIncome: number;
+  thirtyPercentRulingApplied: boolean;
+  taxExemptAllowance: number;
+}
+
+export type CountrySpecificBreakdown = USBreakdown | SGBreakdown | NLBreakdown;
 
 // ============================================================================
 // COUNTRY CALCULATOR INTERFACE
@@ -263,6 +290,10 @@ export function isSGInputs(inputs: CalculatorInputs): inputs is SGCalculatorInpu
   return inputs.country === "SG";
 }
 
+export function isNLInputs(inputs: CalculatorInputs): inputs is NLCalculatorInputs {
+  return inputs.country === "NL";
+}
+
 export function isUSTaxBreakdown(taxes: TaxBreakdown): taxes is USTaxBreakdown {
   return "federalIncomeTax" in taxes;
 }
@@ -271,10 +302,18 @@ export function isSGTaxBreakdown(taxes: TaxBreakdown): taxes is SGTaxBreakdown {
   return "cpfEmployee" in taxes;
 }
 
+export function isNLTaxBreakdown(taxes: TaxBreakdown): taxes is NLTaxBreakdown {
+  return "incomeTax" in taxes && !("cpfEmployee" in taxes) && !("federalIncomeTax" in taxes);
+}
+
 export function isUSBreakdown(breakdown: CountrySpecificBreakdown): breakdown is USBreakdown {
   return breakdown.type === "US";
 }
 
 export function isSGBreakdown(breakdown: CountrySpecificBreakdown): breakdown is SGBreakdown {
   return breakdown.type === "SG";
+}
+
+export function isNLBreakdown(breakdown: CountrySpecificBreakdown): breakdown is NLBreakdown {
+  return breakdown.type === "NL";
 }

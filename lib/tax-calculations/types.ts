@@ -20,9 +20,6 @@ export type { HSACoverageType } from "../countries/us/constants/contribution-lim
 // Legacy type aliases for backwards compatibility
 import type {
   USFilingStatus,
-  USContributionInputs,
-  USCalculatorInputs,
-  USTaxBreakdown,
   PayFrequency,
 } from "../countries/types";
 

@@ -4,15 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DeductionRow } from "./deduction-row";
 import { formatCurrency, formatCurrencyWithCents, formatPercentage } from "@/lib/format";
-import type {
-  CalculationResult,
-  PayFrequency,
-  CurrencyCode,
-  isUSBreakdown,
-  isSGBreakdown,
-  isUSTaxBreakdown,
-  isSGTaxBreakdown,
-} from "@/lib/countries/types";
+import type { CalculationResult, PayFrequency } from "@/lib/countries/types";
 import { getStateCalculator, hasNoIncomeTax } from "@/lib/countries/us/state-tax";
 
 interface MultiCountryResultsProps {
@@ -45,6 +37,7 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
   // Determine which country-specific breakdown to show
   const isUS = country === "US";
   const isSG = country === "SG";
+  const isNL = country === "NL";
 
   // US-specific data
   let stateName = usState || "";
@@ -364,6 +357,64 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
                   Life insurance, donations, NSman, handicapped dependant, grandparent caregiver reliefs
                 </p>
               </div>
+            </>
+          )}
+
+          {/* NL Tax Breakdown */}
+          {isNL && "incomeTax" in taxes && result.breakdown.type === "NL" && (
+            <>
+              {result.breakdown.thirtyPercentRulingApplied && (
+                <>
+                  <p className="text-xs text-zinc-500 pt-2 pb-1">30% Ruling</p>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">Tax-Exempt Allowance</span>
+                    <span className="text-sm text-emerald-400 tabular-nums">
+                      -{formatCurrency(result.breakdown.taxExemptAllowance, currency)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                    <span className="text-sm text-zinc-300">Taxable Income</span>
+                    <span className="text-sm text-zinc-200 tabular-nums">
+                      {formatCurrency(result.breakdown.taxableIncome, currency)}
+                    </span>
+                  </div>
+                  <Separator className="my-2" />
+                </>
+              )}
+              {result.breakdown.taxCredits.totalCredits > 0 && (
+                <>
+                  <p className="text-xs text-zinc-500 pt-2 pb-1">Tax Credits</p>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">General Tax Credit</span>
+                    <span className="text-sm text-emerald-400 tabular-nums">
+                      -{formatCurrency(result.breakdown.taxCredits.generalTaxCredit, currency)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">Labor Tax Credit</span>
+                    <span className="text-sm text-emerald-400 tabular-nums">
+                      -{formatCurrency(result.breakdown.taxCredits.laborTaxCredit, currency)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                    <span className="text-sm text-zinc-300">Tax Before Credits</span>
+                    <span className="text-sm text-zinc-200 tabular-nums">
+                      {formatCurrency(result.breakdown.taxBeforeCredits, currency)}
+                    </span>
+                  </div>
+                  <Separator className="my-2" />
+                </>
+              )}
+              <p className="text-xs text-zinc-500 pt-2 pb-1">Income Tax</p>
+              <DeductionRow
+                label="Income Tax & National Insurance"
+                amount={taxes.incomeTax}
+                grossSalary={grossSalary}
+                currency={currency}
+              />
+              <p className="text-xs text-zinc-500 italic mt-1">
+                Rates shown are combined for income tax and national insurance (AOW).
+              </p>
             </>
           )}
 

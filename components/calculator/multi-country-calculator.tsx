@@ -6,6 +6,7 @@ import { SalaryInput } from "./salary-input";
 import { CountrySelector } from "./country-selector";
 import { USTaxOptions } from "./us-tax-options";
 import { SGTaxOptions } from "./sg-tax-options";
+import { NLTaxOptions } from "./nl-tax-options";
 import { ContributionOptions } from "./contribution-options";
 import { SGContributionOptions } from "./sg-contribution-options";
 import { SGAdditionalReliefs } from "./sg-additional-reliefs";
@@ -53,6 +54,10 @@ export function MultiCountryCalculator() {
     sgTaxReliefs,
     setSgTaxReliefs,
     sgLimits,
+
+    // NL-specific
+    hasThirtyPercentRuling,
+    setHasThirtyPercentRuling,
 
     // Results
     result,
@@ -104,6 +109,15 @@ export function MultiCountryCalculator() {
                 onPayFrequencyChange={setPayFrequency}
               />
             )}
+
+            {country === "NL" && (
+              <NLTaxOptions
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+                hasThirtyPercentRuling={hasThirtyPercentRuling}
+                onThirtyPercentRulingChange={setHasThirtyPercentRuling}
+              />
+            )}
           </CardContent>
         </Card>
 
@@ -111,12 +125,18 @@ export function MultiCountryCalculator() {
         <Card>
           <CardHeader>
             <CardTitle>
-              {country === "US" ? "Contributions" : "Voluntary Contributions"}
+              {country === "US"
+                ? "Contributions"
+                : country === "SG"
+                  ? "Voluntary Contributions"
+                  : "Deductions"}
             </CardTitle>
             <CardDescription>
               {country === "US"
                 ? "Adjust your retirement and savings contributions"
-                : "Optional tax-saving contributions (CPF is mandatory)"}
+                : country === "SG"
+                  ? "Optional tax-saving contributions (CPF is mandatory)"
+                  : "Includes estimated general and labor tax credits"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -154,6 +174,13 @@ export function MultiCountryCalculator() {
                   onChange={setSgTaxReliefs}
                 />
               </div>
+            )}
+
+            {country === "NL" && (
+              <p className="text-sm text-zinc-400">
+                The Netherlands calculator applies estimated general and labor tax credits and supports
+                the optional 30% ruling. Additional deductions are not modeled.
+              </p>
             )}
           </CardContent>
         </Card>
