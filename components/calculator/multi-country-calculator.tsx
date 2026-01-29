@@ -6,10 +6,12 @@ import { SalaryInput } from "./salary-input";
 import { CountrySelector } from "./country-selector";
 import { USTaxOptions } from "./us-tax-options";
 import { SGTaxOptions } from "./sg-tax-options";
+import { KRTaxOptions } from "./kr-tax-options";
 import { NLTaxOptions } from "./nl-tax-options";
 import { ContributionOptions } from "./contribution-options";
 import { SGContributionOptions } from "./sg-contribution-options";
 import { SGAdditionalReliefs } from "./sg-additional-reliefs";
+import { KRAdditionalReliefs } from "./kr-additional-reliefs";
 import { MultiCountryResults } from "./multi-country-results";
 import { SEOTaxInfo } from "./seo-tax-info";
 import { useMultiCountryCalculator } from "@/hooks/use-multi-country-calculator";
@@ -54,6 +56,12 @@ export function MultiCountryCalculator() {
     sgTaxReliefs,
     setSgTaxReliefs,
     sgLimits,
+
+    // KR-specific
+    krResidencyType,
+    setKrResidencyType,
+    krTaxReliefs,
+    setKrTaxReliefs,
 
     // NL-specific
     hasThirtyPercentRuling,
@@ -110,6 +118,15 @@ export function MultiCountryCalculator() {
               />
             )}
 
+            {country === "KR" && (
+              <KRTaxOptions
+                residencyType={krResidencyType}
+                onResidencyTypeChange={setKrResidencyType}
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+              />
+            )}
+
             {country === "NL" && (
               <NLTaxOptions
                 payFrequency={payFrequency}
@@ -121,69 +138,111 @@ export function MultiCountryCalculator() {
           </CardContent>
         </Card>
 
-        {/* Contributions Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              {country === "US"
-                ? "Contributions"
-                : country === "SG"
-                  ? "Voluntary Contributions"
-                  : "Deductions"}
-            </CardTitle>
-            <CardDescription>
-              {country === "US"
-                ? "Adjust your retirement and savings contributions"
-                : country === "SG"
-                  ? "Optional tax-saving contributions (CPF is mandatory)"
-                  : "Includes estimated general and labor tax credits"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {country === "US" && (
-              <ContributionOptions
-                traditional401k={traditional401k}
-                onTraditional401kChange={setTraditional401k}
-                traditional401kLimit={usLimits.traditional401k}
-                rothIRA={rothIRA}
-                onRothIRAChange={setRothIRA}
-                rothIRALimit={usLimits.rothIRA}
-                hsa={hsa}
-                onHsaChange={setHsa}
-                hsaLimit={usLimits.hsa}
-                hsaCoverageType={hsaCoverageType}
-                onHsaCoverageTypeChange={setHsaCoverageType}
+        {/* Contributions Card - US and SG */}
+        {(country === "US" || country === "SG") && (
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                {country === "US" ? "Contributions" : "Voluntary Contributions"}
+              </CardTitle>
+              <CardDescription>
+                {country === "US"
+                  ? "Adjust your retirement and savings contributions"
+                  : "Optional tax-saving contributions (CPF is mandatory)"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {country === "US" && (
+                <ContributionOptions
+                  traditional401k={traditional401k}
+                  onTraditional401kChange={setTraditional401k}
+                  traditional401kLimit={usLimits.traditional401k}
+                  rothIRA={rothIRA}
+                  onRothIRAChange={setRothIRA}
+                  rothIRALimit={usLimits.rothIRA}
+                  hsa={hsa}
+                  onHsaChange={setHsa}
+                  hsaLimit={usLimits.hsa}
+                  hsaCoverageType={hsaCoverageType}
+                  onHsaCoverageTypeChange={setHsaCoverageType}
+                />
+              )}
+
+              {country === "SG" && (
+                <div className="space-y-6">
+                  <SGContributionOptions
+                    voluntaryCpfTopUp={voluntaryCpfTopUp}
+                    onVoluntaryCpfTopUpChange={setVoluntaryCpfTopUp}
+                    voluntaryCpfTopUpLimit={sgLimits.voluntaryCpfTopUp}
+                    srsContribution={srsContribution}
+                    onSrsContributionChange={setSrsContribution}
+                    srsContributionLimit={sgLimits.srsContribution}
+                  />
+
+                  <Separator />
+
+                  <SGAdditionalReliefs
+                    reliefs={sgTaxReliefs}
+                    onChange={setSgTaxReliefs}
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Tax Deductions & Credits Card for KR */}
+        {country === "KR" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Tax Deductions &amp; Credits</CardTitle>
+              <CardDescription>
+                Add dependents and children for additional tax savings
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <KRAdditionalReliefs
+                reliefs={krTaxReliefs}
+                onChange={setKrTaxReliefs}
               />
-            )}
 
-            {country === "SG" && (
-              <div className="space-y-6">
-                <SGContributionOptions
-                  voluntaryCpfTopUp={voluntaryCpfTopUp}
-                  onVoluntaryCpfTopUpChange={setVoluntaryCpfTopUp}
-                  voluntaryCpfTopUpLimit={sgLimits.voluntaryCpfTopUp}
-                  srsContribution={srsContribution}
-                  onSrsContributionChange={setSrsContribution}
-                  srsContributionLimit={sgLimits.srsContribution}
-                />
+              <Separator className="my-6" />
 
-                <Separator />
-
-                <SGAdditionalReliefs
-                  reliefs={sgTaxReliefs}
-                  onChange={setSgTaxReliefs}
-                />
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  Social Insurance (4 Major Insurance)
+                </p>
+                <p className="text-xs text-zinc-400 mb-2">
+                  Automatically deducted from your salary:
+                </p>
+                <ul className="text-xs text-zinc-500 space-y-1">
+                  <li>National Pension: 4.5% (capped at ₩5.9M/month)</li>
+                  <li>Health Insurance: 3.545%</li>
+                  <li>Long-term Care: 12.95% of health insurance</li>
+                  <li>Employment Insurance: 0.8%</li>
+                </ul>
               </div>
-            )}
+            </CardContent>
+          </Card>
+        )}
 
-            {country === "NL" && (
+        {/* NL Deductions Info Card */}
+        {country === "NL" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Deductions</CardTitle>
+              <CardDescription>
+                Includes estimated general and labor tax credits
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
               <p className="text-sm text-zinc-400">
                 The Netherlands calculator applies estimated general and labor tax credits and supports
                 the optional 30% ruling. Additional deductions are not modeled.
               </p>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Results Section */}

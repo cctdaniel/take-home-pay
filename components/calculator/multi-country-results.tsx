@@ -41,6 +41,7 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
   // Determine which country-specific breakdown to show
   const isUS = country === "US";
   const isSG = country === "SG";
+  const isKR = country === "KR";
   const isNL = country === "NL";
 
   // US-specific data
@@ -405,6 +406,194 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
                 <p className="text-xs text-zinc-400 font-medium mb-1">Other reliefs not included:</p>
                 <p className="text-xs text-zinc-500">
                   Life insurance, donations, NSman, handicapped dependant, grandparent caregiver reliefs
+                </p>
+              </div>
+            </>
+          )}
+
+          {/* KR Tax Breakdown */}
+          {isKR && "nationalPension" in taxes && result.breakdown.type === "KR" && (
+            <>
+              {/* Non-Taxable Income */}
+              {result.breakdown.nonTaxableIncome.total > 0 && (
+                <>
+                  <p className="text-xs text-zinc-500 pt-2 pb-1">Non-Taxable Income</p>
+                  {result.breakdown.nonTaxableIncome.mealAllowance > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Meal Allowance (식대)</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.nonTaxableIncome.mealAllowance, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.nonTaxableIncome.childcareAllowance > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Childcare Allowance (자녀보육수당)</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.nonTaxableIncome.childcareAllowance, currency)}
+                      </span>
+                    </div>
+                  )}
+                  <Separator className="my-2" />
+                </>
+              )}
+
+              {/* Tax Deductions Applied */}
+              {result.breakdown.incomeDeductions.totalDeductions > result.breakdown.incomeDeductions.basicDeduction && (
+                <>
+                  <p className="text-xs text-zinc-500 pt-2 pb-1">Tax Deductions Applied</p>
+                  {result.breakdown.incomeDeductions.employmentIncomeDeduction > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Employment Income Deduction</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.incomeDeductions.employmentIncomeDeduction, currency)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">Basic Deduction</span>
+                    <span className="text-sm text-emerald-400 tabular-nums">
+                      -{formatCurrency(result.breakdown.incomeDeductions.basicDeduction, currency)}
+                    </span>
+                  </div>
+                  {result.breakdown.incomeDeductions.dependentDeduction > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Dependent Deduction</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.incomeDeductions.dependentDeduction, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.incomeDeductions.childDeduction > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Child Deduction</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.incomeDeductions.childDeduction, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.incomeDeductions.childUnder7Deduction > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Child Under 7 Deduction</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.incomeDeductions.childUnder7Deduction, currency)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                    <span className="text-sm text-zinc-300">Taxable Income</span>
+                    <span className="text-sm text-zinc-200 tabular-nums">
+                      {formatCurrency(result.breakdown.taxableIncome, currency)}
+                    </span>
+                  </div>
+                  <Separator className="my-2" />
+                </>
+              )}
+
+              {/* Tax Credits Applied */}
+              {result.breakdown.taxCredits.totalCredits > 0 && (
+                <>
+                  <p className="text-xs text-zinc-500 pt-2 pb-1">Tax Credits Applied</p>
+                  {result.breakdown.taxCredits.wageEarnerCredit > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Wage Earner Credit</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxCredits.wageEarnerCredit, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.taxCredits.standardCredit > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Standard Credit</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxCredits.standardCredit, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.taxCredits.childTaxCredit > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Child Tax Credit</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxCredits.childTaxCredit, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.taxCredits.pensionCredit > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Pension Credit (IRP)</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxCredits.pensionCredit, currency)}
+                      </span>
+                    </div>
+                  )}
+                  <Separator className="my-2" />
+                </>
+              )}
+
+              <p className="text-xs text-zinc-500 pt-2 pb-1">Income Tax</p>
+              <DeductionRow
+                label="National Income Tax"
+                amount={taxes.incomeTax}
+                grossSalary={grossSalary}
+                currency={currency}
+              />
+              <DeductionRow
+                label="Local Income Tax (10%)"
+                amount={taxes.localIncomeTax}
+                grossSalary={grossSalary}
+                currency={currency}
+              />
+
+              <Separator className="my-2" />
+              <p className="text-xs text-zinc-500 pt-2 pb-1">Social Insurance (4 Major Insurance)</p>
+
+              <DeductionRow
+                label="National Pension"
+                amount={taxes.nationalPension}
+                grossSalary={grossSalary}
+                currency={currency}
+              />
+              <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                {(result.breakdown.socialInsurance.nationalPensionRate * 100).toFixed(1)}% of monthly income (capped)
+              </p>
+
+              <DeductionRow
+                label="Health Insurance"
+                amount={taxes.nationalHealthInsurance}
+                grossSalary={grossSalary}
+                currency={currency}
+              />
+
+              <DeductionRow
+                label="Long-term Care"
+                amount={taxes.longTermCareInsurance}
+                grossSalary={grossSalary}
+                currency={currency}
+              />
+              <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                {(result.breakdown.socialInsurance.longTermCareRate * 100).toFixed(2)}% of health insurance
+              </p>
+
+              <DeductionRow
+                label="Employment Insurance"
+                amount={taxes.employmentInsurance}
+                grossSalary={grossSalary}
+                currency={currency}
+              />
+
+              {/* Social Insurance Summary */}
+              <div className="flex items-center justify-between py-2 border-t border-zinc-700 mt-2">
+                <span className="text-sm text-zinc-300">Total Social Insurance</span>
+                <span className="text-sm text-zinc-200 tabular-nums">
+                  {formatCurrency(result.breakdown.socialInsurance.totalSocialInsurance, currency)}
+                </span>
+              </div>
+
+              <Separator className="my-2" />
+              <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
+                <p className="text-xs text-zinc-400 font-medium mb-1">Note:</p>
+                <p className="text-xs text-zinc-500">
+                  Additional credits (insurance, medical, education, donations, rent) are not included.
                 </p>
               </div>
             </>

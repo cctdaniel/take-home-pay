@@ -6,9 +6,13 @@ import type {
   CalculatorInputs,
   USCalculatorInputs,
   SGCalculatorInputs,
+  KRCalculatorInputs,
+  NLCalculatorInputs,
   USFilingStatus,
   SGResidencyType,
+  KRResidencyType,
   SGTaxReliefInputs,
+  KRTaxReliefInputs,
   PayFrequency,
   CalculationResult,
   CurrencyCode,
@@ -24,6 +28,21 @@ const DEFAULT_SG_TAX_RELIEFS: SGTaxReliefInputs = {
   parentRelief: "none",
   numberOfParents: 0,
   courseFees: 0,
+};
+
+const DEFAULT_KR_TAX_RELIEFS: KRTaxReliefInputs = {
+  numberOfDependents: 0,
+  numberOfChildrenUnder20: 0,
+  numberOfChildrenUnder7: 0,
+  personalPensionContribution: 0,
+  insurancePremiums: 0,
+  medicalExpenses: 0,
+  educationExpenses: 0,
+  donations: 0,
+  monthlyRent: 0,
+  isHomeowner: false,
+  hasMealAllowance: false,
+  hasChildcareAllowance: false,
 };
 
 // ============================================================================
@@ -66,6 +85,12 @@ export interface UseMultiCountryCalculatorReturn {
   setSrsContribution: (value: number) => void;
   sgTaxReliefs: SGTaxReliefInputs;
   setSgTaxReliefs: (value: SGTaxReliefInputs) => void;
+
+  // KR-specific
+  krResidencyType: KRResidencyType;
+  setKrResidencyType: (value: KRResidencyType) => void;
+  krTaxReliefs: KRTaxReliefInputs;
+  setKrTaxReliefs: (value: KRTaxReliefInputs) => void;
 
   // NL-specific
   hasThirtyPercentRuling: boolean;
@@ -112,6 +137,10 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
   const [srsContribution, setSrsContributionState] = useState(0);
   const [sgTaxReliefs, setSgTaxReliefs] = useState<SGTaxReliefInputs>(DEFAULT_SG_TAX_RELIEFS);
 
+  // KR-specific state
+  const [krResidencyType, setKrResidencyType] = useState<KRResidencyType>("resident");
+  const [krTaxReliefs, setKrTaxReliefs] = useState<KRTaxReliefInputs>(DEFAULT_KR_TAX_RELIEFS);
+
   // NL-specific state
   const [hasThirtyPercentRuling, setHasThirtyPercentRuling] = useState(false);
 
@@ -150,6 +179,11 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
       setVoluntaryCpfTopUpState(0);
       setSrsContributionState(0);
       setSgTaxReliefs(DEFAULT_SG_TAX_RELIEFS);
+    } else if (newCountry === "KR") {
+      // Reset to KR defaults
+      setGrossSalary(50000000); // ₩50M typical salary
+      setKrResidencyType("resident");
+      setKrTaxReliefs(DEFAULT_KR_TAX_RELIEFS);
     } else if (newCountry === "NL") {
       setGrossSalary(55000);
       setHasThirtyPercentRuling(false);
@@ -220,14 +254,25 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
         taxReliefs: sgTaxReliefs,
       };
       return sgInputs;
+    } else if (country === "KR") {
+      const krInputs: KRCalculatorInputs = {
+        country: "KR",
+        grossSalary,
+        payFrequency,
+        residencyType: krResidencyType,
+        contributions: {},
+        taxReliefs: krTaxReliefs,
+      };
+      return krInputs;
+    } else {
+      const nlInputs: NLCalculatorInputs = {
+        country: "NL",
+        grossSalary,
+        payFrequency,
+        hasThirtyPercentRuling,
+      };
+      return nlInputs;
     }
-
-    return {
-      country: "NL",
-      grossSalary,
-      payFrequency,
-      hasThirtyPercentRuling,
-    };
   }, [
     country,
     grossSalary,
@@ -243,6 +288,8 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
     voluntaryCpfTopUp,
     srsContribution,
     sgTaxReliefs,
+    krResidencyType,
+    krTaxReliefs,
     hasThirtyPercentRuling,
     usLimits,
     sgLimits,
@@ -290,6 +337,12 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
     setSrsContribution,
     sgTaxReliefs,
     setSgTaxReliefs,
+
+    // KR-specific
+    krResidencyType,
+    setKrResidencyType,
+    krTaxReliefs,
+    setKrTaxReliefs,
 
     // NL-specific
     hasThirtyPercentRuling,

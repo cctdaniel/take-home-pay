@@ -39,6 +39,41 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
           </ul>
         </div>
 
+        {/* KR Section - rendered for SEO, shown/hidden via CSS */}
+        <div className={country === "KR" ? "block" : "hidden"}>
+          <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">South Korea</h3>
+          <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+            <li><strong className="text-zinc-300">Income Tax</strong> – Progressive rates from 6% to 45% (8 brackets)</li>
+            <li><strong className="text-zinc-300">Local Income Tax</strong> – 10% of national income tax</li>
+            <li><strong className="text-zinc-300">National Pension</strong> – 4.5% employee share (capped at ₩5.9M monthly income)</li>
+            <li><strong className="text-zinc-300">Health Insurance</strong> – 3.545% of income</li>
+            <li><strong className="text-zinc-300">Long-term Care</strong> – 12.95% of health insurance premium</li>
+            <li><strong className="text-zinc-300">Employment Insurance</strong> – 0.8% of income</li>
+          </ul>
+
+          <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">Deductions &amp; Credits Applied</h4>
+          <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside">
+            <li><strong className="text-zinc-300">Employment Income Deduction</strong> – Tiered deduction up to 70% for lower incomes</li>
+            <li><strong className="text-zinc-300">Basic Deduction</strong> – ₩1,500,000 per taxpayer</li>
+            <li><strong className="text-zinc-300">Dependent Deduction</strong> – ₩1,500,000 per dependent (spouse, parents)</li>
+            <li><strong className="text-zinc-300">Child Deduction</strong> – ₩1,500,000 per child under 20, +₩1,000,000 if under 7</li>
+            <li><strong className="text-zinc-300">Wage Earner Tax Credit</strong> – Up to 55% of tax for lower earners</li>
+            <li><strong className="text-zinc-300">Standard Tax Credit</strong> – ₩130,000 for simplified filers</li>
+            <li><strong className="text-zinc-300">Child Tax Credit</strong> – ₩150,000 per child (₩300,000 for 3rd+)</li>
+            <li><strong className="text-zinc-300">Personal Pension Credit</strong> – 13.2-16.5% on contributions up to ₩9,000,000</li>
+            <li><strong className="text-zinc-300">Non-Taxable Allowances</strong> – Meal (₩200,000/mo), Childcare (₩100,000/mo)</li>
+          </ul>
+
+          <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">Additional Reliefs (Not Included)</h4>
+          <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+            <li>Insurance premium credit (12%)</li>
+            <li>Medical expense credit (15% above 3% income)</li>
+            <li>Education expense credit (15%)</li>
+            <li>Donation credit (15-30%)</li>
+            <li>Rent credit (15-17% for non-homeowners)</li>
+          </ul>
+        </div>
+
         {/* NL Section - rendered for SEO, shown/hidden via CSS */}
         <div className={country === "NL" ? "block" : "hidden"}>
           <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Netherlands</h3>

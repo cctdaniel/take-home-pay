@@ -8,7 +8,7 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD" | "EUR";
+export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR";
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -20,7 +20,7 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG" | "NL";
+export type CountryCode = "US" | "SG" | "KR" | "NL";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -53,6 +53,11 @@ export type USFilingStatus = "single" | "married_jointly" | "married_separately"
 export type SGResidencyType = "citizen_pr" | "foreigner";
 
 // ============================================================================
+// RESIDENCY TYPES - South Korea specific
+// ============================================================================
+export type KRResidencyType = "resident" | "non_resident";
+
+// ============================================================================
 // CONTRIBUTION TYPES
 // ============================================================================
 // US-specific contributions
@@ -69,9 +74,50 @@ export interface SGContributionInputs {
   srsContribution: number; // Supplementary Retirement Scheme
 }
 
+// South Korea-specific contributions (social insurance is mandatory)
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface KRContributionInputs {
+  // All social insurance contributions are mandatory and calculated automatically
+  // This interface is kept for consistency but currently has no optional contributions
+}
+
 // Netherlands-specific contributions (none modeled yet)
 export type NLContributionInputs = Record<never, never>;
 
+// South Korea additional tax reliefs/deductions (인적공제 및 세액공제)
+export interface KRTaxReliefInputs {
+  // ============================================================================
+  // DEPENDENT DEDUCTIONS (인적공제) - Income deductions
+  // ============================================================================
+  numberOfDependents: number; // Spouse, parents, siblings - ₩1,500,000 each
+  numberOfChildrenUnder20: number; // Children under 20 - ₩1,500,000 each, also used for child tax credit
+  numberOfChildrenUnder7: number; // Additional ₩1,000,000 per child under 7
+
+  // ============================================================================
+  // VOLUNTARY PENSION (연금저축/IRP) - Tax credit
+  // ============================================================================
+  personalPensionContribution: number; // Up to ₩9,000,000/year - 13.2% or 16.5% credit
+
+  // ============================================================================
+  // OTHER TAX CREDITS (세액공제)
+  // ============================================================================
+  insurancePremiums: number; // 12% credit, capped at ₩1,000,000
+  medicalExpenses: number; // 15% credit on amount exceeding 3% of income
+  educationExpenses: number; // 15% credit
+  donations: number; // 15% credit (up to ₩10M), 30% above
+
+  // ============================================================================
+  // HOUSING (주거 관련)
+  // ============================================================================
+  monthlyRent: number; // 15-17% credit for renters (income threshold applies)
+  isHomeowner: boolean; // If true, not eligible for rent credit
+
+  // ============================================================================
+  // NON-TAXABLE INCOME (비과세)
+  // ============================================================================
+  hasMealAllowance: boolean; // ₩200,000/month not taxed
+  hasChildcareAllowance: boolean; // ₩100,000/month not taxed
+}
 
 // Singapore additional tax reliefs
 export type SGParentReliefType = "none" | "not_staying" | "staying";
@@ -86,7 +132,7 @@ export interface SGTaxReliefInputs {
 }
 
 // Union type for all contribution inputs
-export type ContributionInputs = USContributionInputs | SGContributionInputs | NLContributionInputs;
+export type ContributionInputs = USContributionInputs | SGContributionInputs | KRContributionInputs | NLContributionInputs;
 
 // ============================================================================
 // CALCULATOR INPUT TYPES
@@ -112,12 +158,19 @@ export interface SGCalculatorInputs extends BaseCalculatorInputs {
   taxReliefs: SGTaxReliefInputs;
 }
 
+export interface KRCalculatorInputs extends BaseCalculatorInputs {
+  country: "KR";
+  residencyType: KRResidencyType;
+  contributions: KRContributionInputs;
+  taxReliefs: KRTaxReliefInputs;
+}
+
 export interface NLCalculatorInputs extends BaseCalculatorInputs {
   country: "NL";
   hasThirtyPercentRuling: boolean;
 }
 
-export type CalculatorInputs = USCalculatorInputs | SGCalculatorInputs | NLCalculatorInputs;
+export type CalculatorInputs = USCalculatorInputs | SGCalculatorInputs | KRCalculatorInputs | NLCalculatorInputs;
 
 // ============================================================================
 // TAX BREAKDOWN TYPES
@@ -142,11 +195,20 @@ export interface SGTaxBreakdown extends BaseTaxBreakdown {
   cpfEmployer: number; // Employer's CPF contribution (informational)
 }
 
+export interface KRTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number; // National income tax
+  localIncomeTax: number; // Local income tax (10% of national)
+  nationalPension: number; // Employee's share
+  nationalHealthInsurance: number; // Employee's share
+  longTermCareInsurance: number; // Employee's share
+  employmentInsurance: number; // Employee's share
+}
+
 export interface NLTaxBreakdown extends BaseTaxBreakdown {
   incomeTax: number;
 }
 
-export type TaxBreakdown = USTaxBreakdown | SGTaxBreakdown | NLTaxBreakdown;
+export type TaxBreakdown = USTaxBreakdown | SGTaxBreakdown | KRTaxBreakdown | NLTaxBreakdown;
 
 // ============================================================================
 // CALCULATION RESULT TYPES
@@ -215,6 +277,67 @@ export interface SGBreakdown {
   grossTaxBeforeReliefs: number; // Tax on gross income (for comparison with IRAS table)
 }
 
+export interface KRBreakdown {
+  type: "KR";
+  // Taxable income after deductions
+  taxableIncome: number;
+  // Non-taxable income
+  nonTaxableIncome: {
+    mealAllowance: number;
+    childcareAllowance: number;
+    total: number;
+  };
+  // Social insurance details
+  socialInsurance: {
+    nationalPension: number;
+    nationalPensionRate: number;
+    nationalPensionCeiling: number;
+    healthInsurance: number;
+    healthInsuranceRate: number;
+    longTermCare: number;
+    longTermCareRate: number;
+    employmentInsurance: number;
+    employmentInsuranceRate: number;
+    totalSocialInsurance: number;
+  };
+  // Income deductions (소득공제) - reduces taxable income
+  incomeDeductions: {
+    // Employment income deduction (근로소득공제)
+    employmentIncomeDeduction: number;
+    // Personal deductions (인적공제)
+    basicDeduction: number;
+    dependentDeduction: number;
+    childDeduction: number;
+    childUnder7Deduction: number;
+    // Social insurance is also deductible
+    socialInsuranceDeduction: number;
+    totalDeductions: number;
+  };
+  // Tax credits (세액공제) - reduces tax directly
+  taxCredits: {
+    // Automatic credits
+    wageEarnerCredit: number;
+    standardCredit: number;
+    // Family credits
+    childTaxCredit: number;
+    // Voluntary credits
+    pensionCredit: number;
+    insuranceCredit: number;
+    medicalCredit: number;
+    educationCredit: number;
+    donationCredit: number;
+    rentCredit: number;
+    totalCredits: number;
+  };
+  // Tax details
+  taxDetails: {
+    grossIncomeTax: number; // Before tax credits
+    finalIncomeTax: number;
+    localIncomeTax: number;
+    totalIncomeTax: number;
+  };
+}
+
 export interface NLBreakdown {
   type: "NL";
   bracketTaxes: Array<{
@@ -234,7 +357,7 @@ export interface NLBreakdown {
   taxExemptAllowance: number;
 }
 
-export type CountrySpecificBreakdown = USBreakdown | SGBreakdown | NLBreakdown;
+export type CountrySpecificBreakdown = USBreakdown | SGBreakdown | KRBreakdown | NLBreakdown;
 
 // ============================================================================
 // COUNTRY CALCULATOR INTERFACE
@@ -312,6 +435,18 @@ export function isUSBreakdown(breakdown: CountrySpecificBreakdown): breakdown is
 
 export function isSGBreakdown(breakdown: CountrySpecificBreakdown): breakdown is SGBreakdown {
   return breakdown.type === "SG";
+}
+
+export function isKRInputs(inputs: CalculatorInputs): inputs is KRCalculatorInputs {
+  return inputs.country === "KR";
+}
+
+export function isKRTaxBreakdown(taxes: TaxBreakdown): taxes is KRTaxBreakdown {
+  return "localIncomeTax" in taxes && "nationalPension" in taxes;
+}
+
+export function isKRBreakdown(breakdown: CountrySpecificBreakdown): breakdown is KRBreakdown {
+  return breakdown.type === "KR";
 }
 
 export function isNLBreakdown(breakdown: CountrySpecificBreakdown): breakdown is NLBreakdown {
