@@ -10,7 +10,6 @@ import {
   DC_TAX_BRACKETS,
   DC_STANDARD_DEDUCTIONS,
   GEORGIA_TAX_BRACKETS,
-  GA_STANDARD_DEDUCTIONS,
   HAWAII_TAX_BRACKETS,
   HI_STANDARD_DEDUCTIONS,
   IOWA_TAX_BRACKETS,
@@ -32,11 +31,9 @@ import {
   NEBRASKA_TAX_BRACKETS,
   NE_STANDARD_DEDUCTIONS,
   NEW_JERSEY_TAX_BRACKETS,
-  NJ_PERSONAL_EXEMPTIONS,
   NEW_MEXICO_TAX_BRACKETS,
   NM_STANDARD_DEDUCTIONS,
   NEW_YORK_TAX_BRACKETS,
-  NY_STANDARD_DEDUCTIONS,
   NY_ADDITIONAL_TAXES,
   OHIO_TAX_BRACKETS,
   OH_PERSONAL_EXEMPTIONS,
@@ -57,7 +54,6 @@ import {
 } from "../constants/state-tax-brackets-2025";
 import {
   CALIFORNIA_TAX_BRACKETS,
-  CA_STANDARD_DEDUCTIONS,
 } from "../constants/tax-brackets-2026";
 import type { FilingStatus, TaxBracket } from "../constants/tax-brackets-2025";
 import type { StateCalculator } from "./types";

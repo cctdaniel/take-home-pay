@@ -8,7 +8,7 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD" | "KRW";
+export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR";
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -20,7 +20,7 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG" | "KR";
+export type CountryCode = "US" | "SG" | "KR" | "NL";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -58,15 +58,10 @@ export type SGResidencyType = "citizen_pr" | "foreigner";
 export type KRResidencyType = "resident" | "non_resident";
 
 // ============================================================================
-// CONTRIBUTION TYPES - Country agnostic base
+// CONTRIBUTION TYPES
 // ============================================================================
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface BaseContributionInputs {
-  // Each country will extend this with their specific contribution types
-}
-
 // US-specific contributions
-export interface USContributionInputs extends BaseContributionInputs {
+export interface USContributionInputs {
   traditional401k: number;
   rothIRA: number;
   hsa: number;
@@ -74,7 +69,7 @@ export interface USContributionInputs extends BaseContributionInputs {
 }
 
 // Singapore-specific contributions (CPF is mandatory, not voluntary)
-export interface SGContributionInputs extends BaseContributionInputs {
+export interface SGContributionInputs {
   voluntaryCpfTopUp: number; // Voluntary top-up to CPF
   srsContribution: number; // Supplementary Retirement Scheme
 }
@@ -86,14 +81,51 @@ export interface KRContributionInputs extends BaseContributionInputs {
   // This interface is kept for consistency but currently has no optional contributions
 }
 
+// Netherlands-specific contributions (none modeled yet)
+export type NLContributionInputs = Record<never, never>;
+
 // South Korea additional tax reliefs/deductions (인적공제 및 세액공제)
 export interface KRTaxReliefInputs {
-  // Dependent deductions (인적공제) - ₩1,500,000 each
-  numberOfDependents: number; // Spouse, parents, siblings, etc.
-  numberOfChildrenUnder20: number; // Children under 20 - also used for child tax credit
+  // ============================================================================
+  // DEPENDENT DEDUCTIONS (인적공제) - Income deductions
+  // ============================================================================
+  numberOfDependents: number; // Spouse, parents, siblings - ₩1,500,000 each
+  numberOfChildrenUnder20: number; // Children under 20 - ₩1,500,000 each, also used for child tax credit
+  numberOfChildrenUnder7: number; // Additional ₩1,000,000 per child under 7
 
-  // Additional child deduction for children under 7 (6세 이하 추가공제)
-  numberOfChildrenUnder7: number; // ₩1,000,000 per child
+  // ============================================================================
+  // SPENDING DEDUCTIONS (신용카드 등 소득공제) - Income deductions
+  // Deduction on spending above 25% of salary
+  // ============================================================================
+  creditCardSpending: number; // 15% deduction rate
+  debitCardSpending: number; // 30% deduction rate
+  cashReceiptSpending: number; // 30% deduction rate
+  traditionalMarketSpending: number; // 40% deduction rate
+
+  // ============================================================================
+  // VOLUNTARY PENSION (연금저축/IRP) - Tax credit
+  // ============================================================================
+  personalPensionContribution: number; // Up to ₩9,000,000/year - 13.2% or 16.5% credit
+
+  // ============================================================================
+  // OTHER TAX CREDITS (세액공제)
+  // ============================================================================
+  insurancePremiums: number; // 12% credit, capped at ₩1,000,000
+  medicalExpenses: number; // 15% credit on amount exceeding 3% of income
+  educationExpenses: number; // 15% credit
+  donations: number; // 15% credit (up to ₩10M), 30% above
+
+  // ============================================================================
+  // HOUSING (주거 관련)
+  // ============================================================================
+  monthlyRent: number; // 15-17% credit for renters (income threshold applies)
+  isHomeowner: boolean; // If true, not eligible for rent credit
+
+  // ============================================================================
+  // NON-TAXABLE INCOME (비과세)
+  // ============================================================================
+  hasMealAllowance: boolean; // ₩200,000/month not taxed
+  hasChildcareAllowance: boolean; // ₩100,000/month not taxed
 }
 
 // Singapore additional tax reliefs
@@ -109,7 +141,7 @@ export interface SGTaxReliefInputs {
 }
 
 // Union type for all contribution inputs
-export type ContributionInputs = USContributionInputs | SGContributionInputs | KRContributionInputs;
+export type ContributionInputs = USContributionInputs | SGContributionInputs | KRContributionInputs | NLContributionInputs;
 
 // ============================================================================
 // CALCULATOR INPUT TYPES
@@ -142,7 +174,12 @@ export interface KRCalculatorInputs extends BaseCalculatorInputs {
   taxReliefs: KRTaxReliefInputs;
 }
 
-export type CalculatorInputs = USCalculatorInputs | SGCalculatorInputs | KRCalculatorInputs;
+export interface NLCalculatorInputs extends BaseCalculatorInputs {
+  country: "NL";
+  hasThirtyPercentRuling: boolean;
+}
+
+export type CalculatorInputs = USCalculatorInputs | SGCalculatorInputs | KRCalculatorInputs | NLCalculatorInputs;
 
 // ============================================================================
 // TAX BREAKDOWN TYPES
@@ -176,7 +213,11 @@ export interface KRTaxBreakdown extends BaseTaxBreakdown {
   employmentInsurance: number; // Employee's share
 }
 
-export type TaxBreakdown = USTaxBreakdown | SGTaxBreakdown | KRTaxBreakdown;
+export interface NLTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number;
+}
+
+export type TaxBreakdown = USTaxBreakdown | SGTaxBreakdown | KRTaxBreakdown | NLTaxBreakdown;
 
 // ============================================================================
 // CALCULATION RESULT TYPES
@@ -249,6 +290,12 @@ export interface KRBreakdown {
   type: "KR";
   // Taxable income after deductions
   taxableIncome: number;
+  // Non-taxable income
+  nonTaxableIncome: {
+    mealAllowance: number;
+    childcareAllowance: number;
+    total: number;
+  };
   // Social insurance details
   socialInsurance: {
     nationalPension: number;
@@ -262,20 +309,41 @@ export interface KRBreakdown {
     employmentInsuranceRate: number;
     totalSocialInsurance: number;
   };
-  // Tax reliefs breakdown
-  taxReliefs: {
+  // Income deductions (소득공제) - reduces taxable income
+  incomeDeductions: {
+    // Employment income deduction (근로소득공제)
+    employmentIncomeDeduction: number;
+    // Personal deductions (인적공제)
     basicDeduction: number;
     dependentDeduction: number;
     childDeduction: number;
     childUnder7Deduction: number;
-    employmentIncomeDeduction: number;
+    // Spending deduction (신용카드 등)
+    spendingDeduction: number;
+    spendingDeductionDetails: {
+      creditCard: number;
+      debitCard: number;
+      cashReceipt: number;
+      traditionalMarket: number;
+    };
+    // Social insurance is also deductible
+    socialInsuranceDeduction: number;
     totalDeductions: number;
   };
-  // Tax credits breakdown
+  // Tax credits (세액공제) - reduces tax directly
   taxCredits: {
+    // Automatic credits
     wageEarnerCredit: number;
     standardCredit: number;
+    // Family credits
     childTaxCredit: number;
+    // Voluntary credits
+    pensionCredit: number;
+    insuranceCredit: number;
+    medicalCredit: number;
+    educationCredit: number;
+    donationCredit: number;
+    rentCredit: number;
     totalCredits: number;
   };
   // Tax details
@@ -287,7 +355,26 @@ export interface KRBreakdown {
   };
 }
 
-export type CountrySpecificBreakdown = USBreakdown | SGBreakdown | KRBreakdown;
+export interface NLBreakdown {
+  type: "NL";
+  bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }>;
+  taxCredits: {
+    generalTaxCredit: number;
+    laborTaxCredit: number;
+    totalCredits: number;
+  };
+  taxBeforeCredits: number;
+  taxableIncome: number;
+  thirtyPercentRulingApplied: boolean;
+  taxExemptAllowance: number;
+}
+
+export type CountrySpecificBreakdown = USBreakdown | SGBreakdown | KRBreakdown | NLBreakdown;
 
 // ============================================================================
 // COUNTRY CALCULATOR INTERFACE
@@ -343,12 +430,20 @@ export function isSGInputs(inputs: CalculatorInputs): inputs is SGCalculatorInpu
   return inputs.country === "SG";
 }
 
+export function isNLInputs(inputs: CalculatorInputs): inputs is NLCalculatorInputs {
+  return inputs.country === "NL";
+}
+
 export function isUSTaxBreakdown(taxes: TaxBreakdown): taxes is USTaxBreakdown {
   return "federalIncomeTax" in taxes;
 }
 
 export function isSGTaxBreakdown(taxes: TaxBreakdown): taxes is SGTaxBreakdown {
   return "cpfEmployee" in taxes;
+}
+
+export function isNLTaxBreakdown(taxes: TaxBreakdown): taxes is NLTaxBreakdown {
+  return "incomeTax" in taxes && !("cpfEmployee" in taxes) && !("federalIncomeTax" in taxes);
 }
 
 export function isUSBreakdown(breakdown: CountrySpecificBreakdown): breakdown is USBreakdown {
@@ -369,4 +464,8 @@ export function isKRTaxBreakdown(taxes: TaxBreakdown): taxes is KRTaxBreakdown {
 
 export function isKRBreakdown(breakdown: CountrySpecificBreakdown): breakdown is KRBreakdown {
   return breakdown.type === "KR";
+}
+
+export function isNLBreakdown(breakdown: CountrySpecificBreakdown): breakdown is NLBreakdown {
+  return breakdown.type === "NL";
 }

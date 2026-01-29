@@ -7,6 +7,7 @@ import { CountrySelector } from "./country-selector";
 import { USTaxOptions } from "./us-tax-options";
 import { SGTaxOptions } from "./sg-tax-options";
 import { KRTaxOptions } from "./kr-tax-options";
+import { NLTaxOptions } from "./nl-tax-options";
 import { ContributionOptions } from "./contribution-options";
 import { SGContributionOptions } from "./sg-contribution-options";
 import { SGAdditionalReliefs } from "./sg-additional-reliefs";
@@ -61,6 +62,10 @@ export function MultiCountryCalculator() {
     setKrResidencyType,
     krTaxReliefs,
     setKrTaxReliefs,
+
+    // NL-specific
+    hasThirtyPercentRuling,
+    setHasThirtyPercentRuling,
 
     // Results
     result,
@@ -121,10 +126,19 @@ export function MultiCountryCalculator() {
                 onPayFrequencyChange={setPayFrequency}
               />
             )}
+
+            {country === "NL" && (
+              <NLTaxOptions
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+                hasThirtyPercentRuling={hasThirtyPercentRuling}
+                onThirtyPercentRulingChange={setHasThirtyPercentRuling}
+              />
+            )}
           </CardContent>
         </Card>
 
-        {/* Contributions Card - Only show for US and SG */}
+        {/* Contributions Card - US and SG */}
         {(country === "US" || country === "SG") && (
           <Card>
             <CardHeader>
@@ -205,9 +219,27 @@ export function MultiCountryCalculator() {
                   <li>National Pension: 4.5% (capped at ₩5.9M/month)</li>
                   <li>Health Insurance: 3.545%</li>
                   <li>Long-term Care: 12.95% of health insurance</li>
-                  <li>Employment Insurance: 0.9%</li>
+                  <li>Employment Insurance: 0.8%</li>
                 </ul>
               </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* NL Deductions Info Card */}
+        {country === "NL" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Deductions</CardTitle>
+              <CardDescription>
+                Includes estimated general and labor tax credits
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-zinc-400">
+                The Netherlands calculator applies estimated general and labor tax credits and supports
+                the optional 30% ruling. Additional deductions are not modeled.
+              </p>
             </CardContent>
           </Card>
         )}

@@ -56,8 +56,8 @@ export const KR_SOCIAL_INSURANCE = {
   // Employment Insurance (고용보험)
   // Employee rate is fixed, employer rate varies by company size
   employmentInsurance: {
-    employeeRate: 0.009, // 0.9%
-    employerRate: 0.009, // 0.9% (minimum, can be higher)
+    employeeRate: 0.008, // 0.8% for standard employees
+    employerRate: 0.008, // 0.8% (minimum, can be higher)
   },
 } as const;
 

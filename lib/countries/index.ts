@@ -30,6 +30,9 @@ export { SGCalculator, calculateSG, SG_CONFIG, SG_CURRENCY } from "./sg";
 // South Korea Calculator
 export { KRCalculator, calculateKR, KR_CONFIG, KR_CURRENCY } from "./kr";
 
+// Netherlands Calculator
+export { NLCalculator, calculateNL, NL_CONFIG, NL_CURRENCY } from "./nl";
+
 // Re-export US constants for backwards compatibility
 export {
   FEDERAL_TAX_BRACKETS,

@@ -12,14 +12,12 @@ import type {
   RegionInfo,
   ContributionLimits,
   PayFrequency,
-  USFilingStatus,
-  isUSInputs,
 } from "../types";
 import { US_CONFIG } from "./config";
-import { calculateFederalIncomeTax, getFederalTaxableIncome, getStandardDeduction } from "./federal-tax";
+import { calculateFederalIncomeTax, getFederalTaxableIncome } from "./federal-tax";
 import { calculatePayrollTaxes } from "./payroll-tax";
-import { getStateCalculator, hasNoIncomeTax, getSupportedStates } from "./state-tax";
-import { getUSContributionLimits, CONTRIBUTION_LIMITS, type HSACoverageType } from "./constants/contribution-limits";
+import { getStateCalculator, getSupportedStates } from "./state-tax";
+import { getUSContributionLimits } from "./constants/contribution-limits";
 
 // ============================================================================
 // HELPER FUNCTIONS

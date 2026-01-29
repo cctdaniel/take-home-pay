@@ -48,7 +48,7 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
             <li><strong className="text-zinc-300">National Pension</strong> – 4.5% employee share (capped at ₩5.9M monthly income)</li>
             <li><strong className="text-zinc-300">Health Insurance</strong> – 3.545% of income</li>
             <li><strong className="text-zinc-300">Long-term Care</strong> – 12.95% of health insurance premium</li>
-            <li><strong className="text-zinc-300">Employment Insurance</strong> – 0.9% of income</li>
+            <li><strong className="text-zinc-300">Employment Insurance</strong> – 0.8% of income</li>
           </ul>
 
           <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">Deductions &amp; Credits Applied</h4>
@@ -69,6 +69,18 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
             <li>Donation deductions</li>
             <li>Credit card usage deduction</li>
             <li>Child tax credit</li>
+          </ul>
+        </div>
+
+        {/* NL Section - rendered for SEO, shown/hidden via CSS */}
+        <div className={country === "NL" ? "block" : "hidden"}>
+          <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Netherlands</h3>
+          <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+            <li><strong className="text-zinc-300">Income Tax</strong> – Two progressive brackets for 2026</li>
+            <li><strong className="text-zinc-300">National Insurance</strong> – Combined with income tax for most taxpayers under AOW age</li>
+            <li><strong className="text-zinc-300">30% Ruling</strong> – Optional tax-exempt allowance (30% of salary)</li>
+            <li><strong className="text-zinc-300">Tax Credits</strong> – General and labor tax credits are estimated</li>
+            <li><strong className="text-zinc-300">No Regional Taxes</strong> – National rates apply uniformly</li>
           </ul>
         </div>
       </div>
