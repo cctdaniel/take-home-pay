@@ -3,26 +3,12 @@
 // This file provides backwards compatibility while using the new country system
 // ============================================================================
 
-import type { CalculatorInputs, CalculationResult, PayFrequency } from "./types";
-import type { FilingStatus } from "../constants/tax-brackets-2025";
+import type { CalculatorInputs, CalculationResult } from "./types";
 import { calculateUS } from "../countries/us";
-import type { USCalculatorInputs, USContributionInputs } from "../countries/types";
+import type { USCalculatorInputs } from "../countries/types";
 
 // Re-export the new multi-country calculator
 export { calculateNetSalary as calculateNetSalaryMultiCountry } from "../countries/registry";
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
 
 /**
  * Calculate net salary - backwards compatible wrapper

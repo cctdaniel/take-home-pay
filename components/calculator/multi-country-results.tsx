@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DeductionRow } from "./deduction-row";
 import { formatCurrency, formatCurrencyWithCents, formatPercentage } from "@/lib/format";
-import type { CalculationResult, PayFrequency, CurrencyCode } from "@/lib/countries/types";
+import type { CalculationResult, PayFrequency } from "@/lib/countries/types";
 import { getStateCalculator, hasNoIncomeTax } from "@/lib/countries/us/state-tax";
 
 interface MultiCountryResultsProps {

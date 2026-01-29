@@ -17,36 +17,6 @@ import { calculateNetSalary, getCountryConfig } from "@/lib/countries/registry";
 import { CONTRIBUTION_LIMITS, getHSALimit, type HSACoverageType } from "@/lib/countries/us/constants/contribution-limits";
 import { getSRSLimit, CPF_VOLUNTARY_TOPUP_LIMIT } from "@/lib/countries/sg/constants/cpf-rates-2026";
 
-// ============================================================================
-// US-SPECIFIC STATE
-// ============================================================================
-interface USState {
-  state: string;
-  filingStatus: USFilingStatus;
-  traditional401k: number;
-  rothIRA: number;
-  hsa: number;
-  hsaCoverageType: HSACoverageType;
-}
-
-// ============================================================================
-// SG-SPECIFIC STATE
-// ============================================================================
-interface SGState {
-  residencyType: SGResidencyType;
-  age: number;
-  voluntaryCpfTopUp: number;
-  srsContribution: number;
-  taxReliefs: SGTaxReliefInputs;
-}
-
-// ============================================================================
-// NL-SPECIFIC STATE
-// ============================================================================
-interface NLState {
-  hasThirtyPercentRuling: boolean;
-}
-
 const DEFAULT_SG_TAX_RELIEFS: SGTaxReliefInputs = {
   hasSpouseRelief: false,
   numberOfChildren: 0,

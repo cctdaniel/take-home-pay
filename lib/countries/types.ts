@@ -55,10 +55,7 @@ export type SGResidencyType = "citizen_pr" | "foreigner";
 // ============================================================================
 // CONTRIBUTION TYPES - Country agnostic base
 // ============================================================================
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface BaseContributionInputs {
-  // Each country will extend this with their specific contribution types
-}
+export type BaseContributionInputs = Record<string, never>;
 
 // US-specific contributions
 export interface USContributionInputs extends BaseContributionInputs {
@@ -75,7 +72,7 @@ export interface SGContributionInputs extends BaseContributionInputs {
 }
 
 // Netherlands-specific contributions (none modeled yet)
-export interface NLContributionInputs extends BaseContributionInputs {}
+export type NLContributionInputs = BaseContributionInputs;
 
 // Singapore additional tax reliefs
 export type SGParentReliefType = "none" | "not_staying" | "staying";

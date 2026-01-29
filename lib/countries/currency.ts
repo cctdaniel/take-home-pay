@@ -83,8 +83,21 @@ export function formatPercentage(value: number): string {
   return `${(value * 100).toFixed(1)}%`;
 }
 
-export function parseFormattedNumber(value: string): number {
-  const cleaned = value.replace(/[^0-9.-]/g, "");
-  const parsed = parseFloat(cleaned);
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+export function parseFormattedNumber(value: string, currencyCode: CurrencyCode = "USD"): number {
+  const config = CURRENCIES[currencyCode];
+  const parts = new Intl.NumberFormat(config.locale).formatToParts(12345.6);
+  const group = parts.find((part) => part.type === "group")?.value ?? ",";
+  const decimal = parts.find((part) => part.type === "decimal")?.value ?? ".";
+
+  const withoutGroups = value.replace(new RegExp(escapeRegExp(group), "g"), "");
+  const normalized = withoutGroups
+    .replace(new RegExp(escapeRegExp(decimal), "g"), ".")
+    .replace(/[^0-9.-]/g, "");
+
+  const parsed = parseFloat(normalized);
   return isNaN(parsed) ? 0 : parsed;
 }
