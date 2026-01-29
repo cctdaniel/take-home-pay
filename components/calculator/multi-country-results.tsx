@@ -414,6 +414,30 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
           {/* KR Tax Breakdown */}
           {isKR && "nationalPension" in taxes && result.breakdown.type === "KR" && (
             <>
+              {/* Non-Taxable Income */}
+              {result.breakdown.nonTaxableIncome.total > 0 && (
+                <>
+                  <p className="text-xs text-zinc-500 pt-2 pb-1">Non-Taxable Income</p>
+                  {result.breakdown.nonTaxableIncome.mealAllowance > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Meal Allowance (식대)</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.nonTaxableIncome.mealAllowance, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {result.breakdown.nonTaxableIncome.childcareAllowance > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Childcare Allowance (자녀보육수당)</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.nonTaxableIncome.childcareAllowance, currency)}
+                      </span>
+                    </div>
+                  )}
+                  <Separator className="my-2" />
+                </>
+              )}
+
               {/* Tax Deductions Applied */}
               {result.breakdown.incomeDeductions.totalDeductions > result.breakdown.incomeDeductions.basicDeduction && (
                 <>
@@ -494,6 +518,14 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
                       </span>
                     </div>
                   )}
+                  {result.breakdown.taxCredits.pensionCredit > 0 && (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">Pension Credit (IRP)</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.taxCredits.pensionCredit, currency)}
+                      </span>
+                    </div>
+                  )}
                   <Separator className="my-2" />
                 </>
               )}
@@ -561,7 +593,7 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
               <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
                 <p className="text-xs text-zinc-400 font-medium mb-1">Note:</p>
                 <p className="text-xs text-zinc-500">
-                  Additional deductions (medical, education, donations) are not included.
+                  Additional credits (insurance, medical, education, donations, rent) are not included.
                 </p>
               </div>
             </>

@@ -55,20 +55,22 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
           <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside">
             <li><strong className="text-zinc-300">Employment Income Deduction</strong> – Tiered deduction up to 70% for lower incomes</li>
             <li><strong className="text-zinc-300">Basic Deduction</strong> – ₩1,500,000 per taxpayer</li>
+            <li><strong className="text-zinc-300">Dependent Deduction</strong> – ₩1,500,000 per dependent (spouse, parents)</li>
+            <li><strong className="text-zinc-300">Child Deduction</strong> – ₩1,500,000 per child under 20, +₩1,000,000 if under 7</li>
             <li><strong className="text-zinc-300">Wage Earner Tax Credit</strong> – Up to 55% of tax for lower earners</li>
             <li><strong className="text-zinc-300">Standard Tax Credit</strong> – ₩130,000 for simplified filers</li>
+            <li><strong className="text-zinc-300">Child Tax Credit</strong> – ₩150,000 per child (₩300,000 for 3rd+)</li>
+            <li><strong className="text-zinc-300">Personal Pension Credit</strong> – 13.2-16.5% on contributions up to ₩9,000,000</li>
+            <li><strong className="text-zinc-300">Non-Taxable Allowances</strong> – Meal (₩200,000/mo), Childcare (₩100,000/mo)</li>
           </ul>
 
           <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">Additional Reliefs (Not Included)</h4>
           <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
-            <li>Dependent deductions (spouse, children, parents)</li>
-            <li>Insurance premium deductions</li>
-            <li>Medical expense deductions</li>
-            <li>Education expense deductions</li>
-            <li>Housing fund deductions</li>
-            <li>Donation deductions</li>
-            <li>Credit card usage deduction</li>
-            <li>Child tax credit</li>
+            <li>Insurance premium credit (12%)</li>
+            <li>Medical expense credit (15% above 3% income)</li>
+            <li>Education expense credit (15%)</li>
+            <li>Donation credit (15-30%)</li>
+            <li>Rent credit (15-17% for non-homeowners)</li>
           </ul>
         </div>
 
