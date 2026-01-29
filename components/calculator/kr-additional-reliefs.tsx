@@ -2,8 +2,8 @@
 
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
 import { NumberStepper } from "@/components/ui/number-stepper";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
 import { formatCurrency } from "@/lib/format";
 import type { KRTaxReliefInputs } from "@/lib/countries/types";
 import { KR_TAX_CREDITS, KR_NON_TAXABLE_ALLOWANCES } from "@/lib/countries/kr/constants/tax-brackets-2026";
@@ -14,7 +14,6 @@ interface KRAdditionalReliefsProps {
 }
 
 const PENSION_MAX = KR_TAX_CREDITS.pensionCredit.maxContribution;
-const PENSION_STEP = 100000; // ₩100,000 steps
 
 export function KRAdditionalReliefs({ reliefs, onChange }: KRAdditionalReliefsProps) {
   const handleChange = <K extends keyof KRTaxReliefInputs>(
@@ -122,42 +121,15 @@ export function KRAdditionalReliefs({ reliefs, onChange }: KRAdditionalReliefsPr
       {/* Personal Pension */}
       <div className="pt-4 border-t border-zinc-700">
         <h4 className="text-sm font-medium text-zinc-300 mb-3">Personal Pension (연금저축/IRP)</h4>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label className="text-sm">Contribute Max</Label>
-              <p className="text-xs text-zinc-500 mt-0.5">
-                {formatCurrency(PENSION_MAX, "KRW")}/year
-              </p>
-            </div>
-            <Switch
-              checked={reliefs.personalPensionContribution === PENSION_MAX}
-              onCheckedChange={(checked) =>
-                handleChange("personalPensionContribution", checked ? PENSION_MAX : 0)
-              }
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <Label className="text-sm">Annual Contribution</Label>
-            <span className="text-sm font-medium text-zinc-300">
-              {formatCurrency(reliefs.personalPensionContribution || 0, "KRW")}
-            </span>
-          </div>
-          <Slider
-            value={reliefs.personalPensionContribution || 0}
-            onChange={(value) => handleChange("personalPensionContribution", value)}
-            min={0}
-            max={PENSION_MAX}
-            step={PENSION_STEP}
-          />
-          <div className="flex justify-between text-xs text-zinc-500">
-            <span>₩0</span>
-            <span>{formatCurrency(PENSION_MAX, "KRW")} limit</span>
-          </div>
-          <p className="text-xs text-zinc-500">
-            Tax credit: 16.5% (income ≤ ₩55M) or 13.2% (income &gt; ₩55M)
-          </p>
-        </div>
+        <ContributionSlider
+          label="Annual Contribution"
+          description="Tax credit: 16.5% (income ≤ ₩55M) or 13.2% (income > ₩55M)"
+          value={reliefs.personalPensionContribution || 0}
+          onChange={(value) => handleChange("personalPensionContribution", value)}
+          max={PENSION_MAX}
+          step={100000}
+          currency="KRW"
+        />
       </div>
     </div>
   );
