@@ -111,6 +111,8 @@ export interface UseMultiCountryCalculatorReturn {
   // NL-specific
   hasThirtyPercentRuling: boolean;
   setHasThirtyPercentRuling: (value: boolean) => void;
+  hasYoungChildren: boolean;
+  setHasYoungChildren: (value: boolean) => void;
 
   // Limits
   usLimits: {
@@ -169,6 +171,7 @@ export function useMultiCountryCalculator(
 
   // NL-specific state
   const [hasThirtyPercentRuling, setHasThirtyPercentRuling] = useState(false);
+  const [hasYoungChildren, setHasYoungChildren] = useState(false);
 
   // Reset defaults when country changes (e.g., navigating to a different country page)
   useEffect(() => {
@@ -193,6 +196,7 @@ export function useMultiCountryCalculator(
       setKrTaxReliefs(DEFAULT_KR_TAX_RELIEFS);
     } else if (country === "NL") {
       setHasThirtyPercentRuling(false);
+      setHasYoungChildren(false);
     }
   }, [country]);
 
@@ -314,6 +318,7 @@ export function useMultiCountryCalculator(
         grossSalary,
         payFrequency,
         hasThirtyPercentRuling,
+        hasYoungChildren,
       };
       return nlInputs;
     }
@@ -335,6 +340,7 @@ export function useMultiCountryCalculator(
     krResidencyType,
     krTaxReliefs,
     hasThirtyPercentRuling,
+    hasYoungChildren,
     usLimits,
     sgLimits,
   ]);
@@ -389,6 +395,8 @@ export function useMultiCountryCalculator(
     // NL-specific
     hasThirtyPercentRuling,
     setHasThirtyPercentRuling,
+    hasYoungChildren,
+    setHasYoungChildren,
 
     // Limits
     usLimits,

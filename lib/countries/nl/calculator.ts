@@ -3,19 +3,23 @@
 // ============================================================================
 
 import type {
-  CountryCalculator,
-  CalculatorInputs,
   CalculationResult,
+  CalculatorInputs,
+  ContributionLimits,
+  CountryCalculator,
+  NLBreakdown,
   NLCalculatorInputs,
   NLTaxBreakdown,
-  NLBreakdown,
-  RegionInfo,
-  ContributionLimits,
   PayFrequency,
+  RegionInfo,
 } from "../types";
 import { NL_CONFIG } from "./config";
 import { NETHERLANDS_TAX_BRACKETS_2026 } from "./constants/tax-brackets-2026";
-import { calculateGeneralTaxCredit, calculateLaborTaxCredit } from "./constants/tax-credits-2026";
+import {
+  calculateGeneralTaxCredit,
+  calculateIACK,
+  calculateLaborTaxCredit,
+} from "./constants/tax-credits-2026";
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -35,12 +39,15 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
 
 function calculateProgressiveTax(income: number) {
   const bracketTaxes = NETHERLANDS_TAX_BRACKETS_2026.map((bracket) => {
-    const taxableAmount = Math.max(0, Math.min(income, bracket.max) - bracket.min);
+    const taxableAmount = Math.max(
+      0,
+      Math.min(income, bracket.max) - bracket.min,
+    );
     return {
       ...bracket,
       tax: taxableAmount * bracket.rate,
     };
-  }).filter(bracket => bracket.tax > 0);
+  }).filter((bracket) => bracket.tax > 0);
 
   const totalTax = bracketTaxes.reduce((sum, bracket) => sum + bracket.tax, 0);
 
@@ -51,15 +58,28 @@ function calculateProgressiveTax(income: number) {
 // NETHERLANDS CALCULATOR
 // ============================================================================
 export function calculateNL(inputs: NLCalculatorInputs): CalculationResult {
-  const { grossSalary, payFrequency, hasThirtyPercentRuling } = inputs;
+  const {
+    grossSalary,
+    payFrequency,
+    hasThirtyPercentRuling,
+    hasYoungChildren,
+  } = inputs;
 
+  // Apply 30% ruling if applicable (reduces taxable base)
   const taxExemptAllowance = hasThirtyPercentRuling ? grossSalary * 0.3 : 0;
   const taxableIncome = grossSalary - taxExemptAllowance;
 
-  const { totalTax: taxBeforeCredits, bracketTaxes } = calculateProgressiveTax(taxableIncome);
+  // Calculate progressive tax across 3 brackets
+  const { totalTax: taxBeforeCredits, bracketTaxes } =
+    calculateProgressiveTax(taxableIncome);
+
+  // Calculate tax credits (all based on taxable income, not gross)
   const generalTaxCredit = calculateGeneralTaxCredit(taxableIncome);
   const laborTaxCredit = calculateLaborTaxCredit(taxableIncome);
-  const totalCredits = generalTaxCredit + laborTaxCredit;
+  const iackCredit = calculateIACK(taxableIncome, hasYoungChildren);
+  const totalCredits = generalTaxCredit + laborTaxCredit + iackCredit;
+
+  // Final tax cannot be negative
   const totalTax = Math.max(0, taxBeforeCredits - totalCredits);
 
   const taxes: NLTaxBreakdown = {
@@ -78,6 +98,7 @@ export function calculateNL(inputs: NLCalculatorInputs): CalculationResult {
     taxCredits: {
       generalTaxCredit,
       laborTaxCredit,
+      iackCredit,
       totalCredits,
     },
     taxBeforeCredits,
@@ -133,6 +154,7 @@ export const NLCalculator: CountryCalculator = {
       grossSalary: 55000,
       payFrequency: "monthly",
       hasThirtyPercentRuling: false,
+      hasYoungChildren: false,
     };
   },
 };

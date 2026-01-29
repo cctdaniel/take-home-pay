@@ -48,7 +48,7 @@ Root `/` redirects to `/us` by default.
 - **National Insurance** — Combined with income tax for most employees under AOW age
 - **30% Ruling** — Optional tax-exempt allowance for eligible expats
 - **Uniform Rates** — National rates apply (no regional tax adjustments)
-- **Tax Credits** — Includes estimated general and labor tax credits
+- **Tax Credits** — Includes general, labor, and IACK (child) tax credits
 
 ## Getting Started
 
