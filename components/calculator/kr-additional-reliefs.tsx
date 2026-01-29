@@ -124,6 +124,20 @@ export function KRAdditionalReliefs({ reliefs, onChange }: KRAdditionalReliefsPr
         <h4 className="text-sm font-medium text-zinc-300 mb-3">Personal Pension (연금저축/IRP)</h4>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
+            <div>
+              <Label className="text-sm">Contribute Max</Label>
+              <p className="text-xs text-zinc-500 mt-0.5">
+                {formatCurrency(PENSION_MAX, "KRW")}/year
+              </p>
+            </div>
+            <Switch
+              checked={reliefs.personalPensionContribution === PENSION_MAX}
+              onCheckedChange={(checked) =>
+                handleChange("personalPensionContribution", checked ? PENSION_MAX : 0)
+              }
+            />
+          </div>
+          <div className="flex items-center justify-between">
             <Label className="text-sm">Annual Contribution</Label>
             <span className="text-sm font-medium text-zinc-300">
               {formatCurrency(reliefs.personalPensionContribution || 0, "KRW")}

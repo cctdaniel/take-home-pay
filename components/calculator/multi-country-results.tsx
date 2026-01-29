@@ -539,7 +539,7 @@ export function MultiCountryResults({ result, usState, usContributions }: MultiC
                 currency={currency}
               />
               <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
-                {(result.breakdown.socialInsurance.longTermCareRate * 100).toFixed(1)}% of health insurance
+                {(result.breakdown.socialInsurance.longTermCareRate * 100).toFixed(2)}% of health insurance
               </p>
 
               <DeductionRow
