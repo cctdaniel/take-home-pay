@@ -1,26 +1,37 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { SalaryInput } from "./salary-input";
-import { CountrySelector } from "./country-selector";
-import { USTaxOptions } from "./us-tax-options";
-import { SGTaxOptions } from "./sg-tax-options";
-import { KRTaxOptions } from "./kr-tax-options";
-import { NLTaxOptions } from "./nl-tax-options";
-import { ContributionOptions } from "./contribution-options";
-import { SGContributionOptions } from "./sg-contribution-options";
-import { SGAdditionalReliefs } from "./sg-additional-reliefs";
-import { KRAdditionalReliefs } from "./kr-additional-reliefs";
-import { MultiCountryResults } from "./multi-country-results";
-import { SEOTaxInfo } from "./seo-tax-info";
 import { useMultiCountryCalculator } from "@/hooks/use-multi-country-calculator";
+import type { CountryCode } from "@/lib/countries/types";
+import { ContributionOptions } from "./contribution-options";
+import { CountrySelector } from "./country-selector";
+import { KRAdditionalReliefs } from "./kr-additional-reliefs";
+import { KRTaxOptions } from "./kr-tax-options";
+import { MultiCountryResults } from "./multi-country-results";
+import { NLTaxOptions } from "./nl-tax-options";
+import { SalaryInput } from "./salary-input";
+import { SEOTaxInfo } from "./seo-tax-info";
+import { SGAdditionalReliefs } from "./sg-additional-reliefs";
+import { SGContributionOptions } from "./sg-contribution-options";
+import { SGTaxOptions } from "./sg-tax-options";
+import { USTaxOptions } from "./us-tax-options";
 
-export function MultiCountryCalculator() {
+interface MultiCountryCalculatorProps {
+  country: CountryCode;
+}
+
+export function MultiCountryCalculator({
+  country,
+}: MultiCountryCalculatorProps) {
   const {
-    // Country
-    country,
-    setCountry,
+    // Currency (derived from country)
     currency,
 
     // Common
@@ -69,7 +80,7 @@ export function MultiCountryCalculator() {
 
     // Results
     result,
-  } = useMultiCountryCalculator();
+  } = useMultiCountryCalculator(country);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
@@ -85,7 +96,7 @@ export function MultiCountryCalculator() {
           <CardContent className="space-y-6">
             {/* Country Selection */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <CountrySelector value={country} onChange={setCountry} />
+              <CountrySelector value={country} />
               <SalaryInput
                 value={grossSalary}
                 onChange={setGrossSalary}
@@ -237,8 +248,9 @@ export function MultiCountryCalculator() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-zinc-400">
-                The Netherlands calculator applies estimated general and labor tax credits and supports
-                the optional 30% ruling. Additional deductions are not modeled.
+                The Netherlands calculator applies estimated general and labor
+                tax credits and supports the optional 30% ruling. Additional
+                deductions are not modeled.
               </p>
             </CardContent>
           </Card>
@@ -262,7 +274,7 @@ export function MultiCountryCalculator() {
         />
       </div>
 
-      {/* SEO Tax Info - both rendered for SEO, CSS shows relevant one */}
+      {/* SEO Tax Info - only renders content for the active country */}
       <div className="lg:col-span-5">
         <SEOTaxInfo country={country} />
       </div>

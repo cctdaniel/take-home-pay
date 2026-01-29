@@ -1,26 +1,36 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
-import type {
-  CountryCode,
-  CalculatorInputs,
-  USCalculatorInputs,
-  SGCalculatorInputs,
-  KRCalculatorInputs,
-  NLCalculatorInputs,
-  USFilingStatus,
-  SGResidencyType,
-  KRResidencyType,
-  SGTaxReliefInputs,
-  KRTaxReliefInputs,
-  PayFrequency,
-  CalculationResult,
-  CurrencyCode,
-} from "@/lib/countries/types";
 import { calculateNetSalary, getCountryConfig } from "@/lib/countries/registry";
-import { CONTRIBUTION_LIMITS, getHSALimit, type HSACoverageType } from "@/lib/countries/us/constants/contribution-limits";
-import { getSRSLimit, CPF_VOLUNTARY_TOPUP_LIMIT } from "@/lib/countries/sg/constants/cpf-rates-2026";
+import {
+  CPF_VOLUNTARY_TOPUP_LIMIT,
+  getSRSLimit,
+} from "@/lib/countries/sg/constants/cpf-rates-2026";
+import type {
+  CalculationResult,
+  CalculatorInputs,
+  CountryCode,
+  CurrencyCode,
+  KRCalculatorInputs,
+  KRResidencyType,
+  KRTaxReliefInputs,
+  NLCalculatorInputs,
+  PayFrequency,
+  SGCalculatorInputs,
+  SGResidencyType,
+  SGTaxReliefInputs,
+  USCalculatorInputs,
+  USFilingStatus,
+} from "@/lib/countries/types";
+import {
+  CONTRIBUTION_LIMITS,
+  getHSALimit,
+  type HSACoverageType,
+} from "@/lib/countries/us/constants/contribution-limits";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
+// ============================================================================
+// DEFAULT VALUES
+// ============================================================================
 const DEFAULT_SG_TAX_RELIEFS: SGTaxReliefInputs = {
   hasSpouseRelief: false,
   numberOfChildren: 0,
@@ -45,13 +55,19 @@ const DEFAULT_KR_TAX_RELIEFS: KRTaxReliefInputs = {
   hasChildcareAllowance: false,
 };
 
+// Default gross salaries per country
+const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
+  US: 100000,
+  SG: 60000,
+  KR: 50000000, // ₩50M typical salary
+  NL: 55000,
+};
+
 // ============================================================================
 // RETURN TYPE
 // ============================================================================
 export interface UseMultiCountryCalculatorReturn {
-  // Country selection
-  country: CountryCode;
-  setCountry: (country: CountryCode) => void;
+  // Currency (derived from country prop)
   currency: CurrencyCode;
 
   // Common inputs
@@ -114,12 +130,15 @@ export interface UseMultiCountryCalculatorReturn {
 // ============================================================================
 // HOOK IMPLEMENTATION
 // ============================================================================
-export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
-  // Country selection
-  const [country, setCountryState] = useState<CountryCode>("US");
-
-  // Common inputs
-  const [grossSalary, setGrossSalary] = useState(100000);
+/**
+ * Calculator hook that manages state for a specific country.
+ * Country is passed as a prop (from URL) rather than managed internally.
+ */
+export function useMultiCountryCalculator(
+  country: CountryCode,
+): UseMultiCountryCalculatorReturn {
+  // Common inputs - initialize with country-specific defaults
+  const [grossSalary, setGrossSalary] = useState(DEFAULT_GROSS_SALARY[country]);
   const [payFrequency, setPayFrequency] = useState<PayFrequency>("monthly");
 
   // US-specific state
@@ -128,100 +147,122 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
   const [traditional401k, setTraditional401kState] = useState(0);
   const [rothIRA, setRothIRAState] = useState(0);
   const [hsa, setHsaState] = useState(0);
-  const [hsaCoverageType, setHsaCoverageTypeState] = useState<HSACoverageType>("self");
+  const [hsaCoverageType, setHsaCoverageTypeState] =
+    useState<HSACoverageType>("self");
 
   // SG-specific state
-  const [residencyType, setResidencyType] = useState<SGResidencyType>("citizen_pr");
+  const [residencyType, setResidencyType] =
+    useState<SGResidencyType>("citizen_pr");
   const [age, setAge] = useState(30);
   const [voluntaryCpfTopUp, setVoluntaryCpfTopUpState] = useState(0);
   const [srsContribution, setSrsContributionState] = useState(0);
-  const [sgTaxReliefs, setSgTaxReliefs] = useState<SGTaxReliefInputs>(DEFAULT_SG_TAX_RELIEFS);
+  const [sgTaxReliefs, setSgTaxReliefs] = useState<SGTaxReliefInputs>(
+    DEFAULT_SG_TAX_RELIEFS,
+  );
 
   // KR-specific state
-  const [krResidencyType, setKrResidencyType] = useState<KRResidencyType>("resident");
-  const [krTaxReliefs, setKrTaxReliefs] = useState<KRTaxReliefInputs>(DEFAULT_KR_TAX_RELIEFS);
+  const [krResidencyType, setKrResidencyType] =
+    useState<KRResidencyType>("resident");
+  const [krTaxReliefs, setKrTaxReliefs] = useState<KRTaxReliefInputs>(
+    DEFAULT_KR_TAX_RELIEFS,
+  );
 
   // NL-specific state
   const [hasThirtyPercentRuling, setHasThirtyPercentRuling] = useState(false);
 
-  // Currency based on country
-  const currency: CurrencyCode = useMemo(() => getCountryConfig(country).currency.code, [country]);
+  // Reset defaults when country changes (e.g., navigating to a different country page)
+  useEffect(() => {
+    setGrossSalary(DEFAULT_GROSS_SALARY[country]);
+    setPayFrequency("monthly");
 
-  // Get limits
-  const usLimits = useMemo(() => ({
-    traditional401k: CONTRIBUTION_LIMITS.traditional401k,
-    rothIRA: CONTRIBUTION_LIMITS.rothIRA,
-    hsa: getHSALimit(hsaCoverageType),
-  }), [hsaCoverageType]);
-
-  const sgLimits = useMemo(() => ({
-    voluntaryCpfTopUp: CPF_VOLUNTARY_TOPUP_LIMIT,
-    srsContribution: getSRSLimit(residencyType),
-  }), [residencyType]);
-
-  // Country change handler - reset to defaults for new country
-  const setCountry = useCallback((newCountry: CountryCode) => {
-    setCountryState(newCountry);
-
-    if (newCountry === "US") {
-      // Reset to US defaults
-      setGrossSalary(100000);
+    // Reset country-specific fields
+    if (country === "US") {
       setUsState("CA");
       setFilingStatus("single");
       setTraditional401kState(0);
       setRothIRAState(0);
       setHsaState(0);
-    } else if (newCountry === "SG") {
-      // Reset to SG defaults
-      setGrossSalary(60000);
+    } else if (country === "SG") {
       setResidencyType("citizen_pr");
       setAge(30);
       setVoluntaryCpfTopUpState(0);
       setSrsContributionState(0);
       setSgTaxReliefs(DEFAULT_SG_TAX_RELIEFS);
-    } else if (newCountry === "KR") {
-      // Reset to KR defaults
-      setGrossSalary(50000000); // ₩50M typical salary
+    } else if (country === "KR") {
       setKrResidencyType("resident");
       setKrTaxReliefs(DEFAULT_KR_TAX_RELIEFS);
-    } else if (newCountry === "NL") {
-      setGrossSalary(55000);
+    } else if (country === "NL") {
       setHasThirtyPercentRuling(false);
     }
-  }, []);
+  }, [country]);
+
+  // Currency based on country
+  const currency: CurrencyCode = useMemo(
+    () => getCountryConfig(country).currency.code,
+    [country],
+  );
+
+  // Get limits
+  const usLimits = useMemo(
+    () => ({
+      traditional401k: CONTRIBUTION_LIMITS.traditional401k,
+      rothIRA: CONTRIBUTION_LIMITS.rothIRA,
+      hsa: getHSALimit(hsaCoverageType),
+    }),
+    [hsaCoverageType],
+  );
+
+  const sgLimits = useMemo(
+    () => ({
+      voluntaryCpfTopUp: CPF_VOLUNTARY_TOPUP_LIMIT,
+      srsContribution: getSRSLimit(residencyType),
+    }),
+    [residencyType],
+  );
 
   // US contribution handlers with validation
   const setTraditional401k = useCallback((value: number) => {
-    setTraditional401kState(Math.min(value, CONTRIBUTION_LIMITS.traditional401k));
+    setTraditional401kState(
+      Math.min(value, CONTRIBUTION_LIMITS.traditional401k),
+    );
   }, []);
 
   const setRothIRA = useCallback((value: number) => {
     setRothIRAState(Math.min(value, CONTRIBUTION_LIMITS.rothIRA));
   }, []);
 
-  const setHsa = useCallback((value: number) => {
-    const limit = getHSALimit(hsaCoverageType);
-    setHsaState(Math.min(value, limit));
-  }, [hsaCoverageType]);
+  const setHsa = useCallback(
+    (value: number) => {
+      const limit = getHSALimit(hsaCoverageType);
+      setHsaState(Math.min(value, limit));
+    },
+    [hsaCoverageType],
+  );
 
-  const setHsaCoverageType = useCallback((value: HSACoverageType) => {
-    setHsaCoverageTypeState(value);
-    // Adjust HSA if new limit is lower
-    const newLimit = getHSALimit(value);
-    if (hsa > newLimit) {
-      setHsaState(newLimit);
-    }
-  }, [hsa]);
+  const setHsaCoverageType = useCallback(
+    (value: HSACoverageType) => {
+      setHsaCoverageTypeState(value);
+      // Adjust HSA if new limit is lower
+      const newLimit = getHSALimit(value);
+      if (hsa > newLimit) {
+        setHsaState(newLimit);
+      }
+    },
+    [hsa],
+  );
 
   // SG contribution handlers with validation
   const setVoluntaryCpfTopUp = useCallback((value: number) => {
     setVoluntaryCpfTopUpState(Math.min(value, CPF_VOLUNTARY_TOPUP_LIMIT));
   }, []);
 
-  const setSrsContribution = useCallback((value: number) => {
-    const limit = getSRSLimit(residencyType);
-    setSrsContributionState(Math.min(value, limit));
-  }, [residencyType]);
+  const setSrsContribution = useCallback(
+    (value: number) => {
+      const limit = getSRSLimit(residencyType);
+      setSrsContributionState(Math.min(value, limit));
+    },
+    [residencyType],
+  );
 
   // Build inputs based on country
   const inputs: CalculatorInputs = useMemo(() => {
@@ -248,7 +289,10 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
         residencyType,
         age,
         contributions: {
-          voluntaryCpfTopUp: Math.min(voluntaryCpfTopUp, sgLimits.voluntaryCpfTopUp),
+          voluntaryCpfTopUp: Math.min(
+            voluntaryCpfTopUp,
+            sgLimits.voluntaryCpfTopUp,
+          ),
           srsContribution: Math.min(srsContribution, sgLimits.srsContribution),
         },
         taxReliefs: sgTaxReliefs,
@@ -301,9 +345,7 @@ export function useMultiCountryCalculator(): UseMultiCountryCalculatorReturn {
   }, [inputs]);
 
   return {
-    // Country selection
-    country,
-    setCountry,
+    // Currency (derived from country prop)
     currency,
 
     // Common inputs
