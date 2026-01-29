@@ -19,6 +19,7 @@ import {
   KR_SOCIAL_INSURANCE,
   KR_LOCAL_TAX_RATE,
   KR_TAX_DEDUCTIONS,
+  KR_TAX_CREDITS,
   calculateEmploymentIncomeDeduction,
   calculateProgressiveIncomeTax,
   calculateNationalPension,
@@ -27,6 +28,8 @@ import {
   calculateEmploymentInsurance,
   calculateWageEarnerTaxCredit,
   calculateChildTaxCredit,
+  calculatePensionCredit,
+  calculateNonTaxableAllowances,
 } from "./constants/tax-brackets-2026";
 
 // Default tax reliefs (no dependents)
@@ -67,7 +70,19 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
 export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
   const { grossSalary, payFrequency, residencyType, taxReliefs = DEFAULT_KR_TAX_RELIEFS } = inputs;
 
-  // Monthly salary for social insurance calculations
+  // ============================================================================
+  // STEP 0: Calculate Non-Taxable Allowances (비과세 소득)
+  // These amounts are excluded from taxable income
+  // ============================================================================
+  const nonTaxableAllowances = calculateNonTaxableAllowances(
+    taxReliefs.hasMealAllowance,
+    taxReliefs.hasChildcareAllowance
+  );
+
+  // Taxable gross salary = gross salary - non-taxable allowances
+  const taxableGrossSalary = Math.max(0, grossSalary - nonTaxableAllowances.total);
+
+  // Monthly salary for social insurance calculations (based on full gross, not taxable)
   const monthlySalary = grossSalary / 12;
 
   // ============================================================================
@@ -101,11 +116,11 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
   // STEP 2: Calculate Deductions (소득공제)
   // ============================================================================
 
-  // Employment income deduction (근로소득공제)
-  const employmentIncomeDeduction = calculateEmploymentIncomeDeduction(grossSalary);
+  // Employment income deduction (근로소득공제) - based on taxable gross (after non-taxable)
+  const employmentIncomeDeduction = calculateEmploymentIncomeDeduction(taxableGrossSalary);
 
-  // Calculate employment income (근로소득금액) = gross - employment income deduction
-  const employmentIncome = Math.max(0, grossSalary - employmentIncomeDeduction);
+  // Calculate employment income (근로소득금액) = taxable gross - employment income deduction
+  const employmentIncome = Math.max(0, taxableGrossSalary - employmentIncomeDeduction);
 
   // Basic deduction for taxpayer (기본공제) - ₩1.5M
   const basicDeduction = KR_TAX_DEDUCTIONS.basicDeduction;
@@ -144,8 +159,15 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
   // Child tax credit (자녀세액공제) - based on children under 20
   const childTaxCredit = calculateChildTaxCredit(taxReliefs.numberOfChildrenUnder20);
 
+  // Personal pension credit (연금저축/IRP 세액공제)
+  // Rate depends on income: 16.5% if ≤ ₩55M, 13.2% if > ₩55M
+  const pensionCredit = calculatePensionCredit(
+    taxReliefs.personalPensionContribution,
+    grossSalary
+  );
+
   // Total tax credits
-  const totalTaxCredits = wageEarnerTaxCredit + standardTaxCredit + childTaxCredit;
+  const totalTaxCredits = wageEarnerTaxCredit + standardTaxCredit + childTaxCredit + pensionCredit;
 
   // Final income tax after credits
   const finalIncomeTax = Math.max(0, grossIncomeTax - totalTaxCredits);
@@ -204,9 +226,9 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
     type: "KR",
     taxableIncome,
     nonTaxableIncome: {
-      mealAllowance: 0, // Not yet implemented
-      childcareAllowance: 0, // Not yet implemented
-      total: 0,
+      mealAllowance: nonTaxableAllowances.mealAllowance,
+      childcareAllowance: nonTaxableAllowances.childcareAllowance,
+      total: nonTaxableAllowances.total,
     },
     socialInsurance: {
       nationalPension: annualNationalPension,
@@ -233,7 +255,7 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
       wageEarnerCredit: wageEarnerTaxCredit,
       standardCredit: standardTaxCredit,
       childTaxCredit,
-      pensionCredit: 0, // Not yet implemented
+      pensionCredit, // Personal pension credit (연금저축/IRP)
       insuranceCredit: 0, // Not yet implemented
       medicalCredit: 0, // Not yet implemented
       educationCredit: 0, // Not yet implemented

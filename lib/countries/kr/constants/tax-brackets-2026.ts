@@ -107,6 +107,30 @@ export const KR_TAX_CREDITS = {
 
   // Standard tax credit (표준세액공제)
   standardCredit: 130000, // ₩130,000
+
+  // Personal pension credit (연금저축/IRP 세액공제)
+  pensionCredit: {
+    maxContribution: 9000000, // ₩9,000,000 annual limit
+    lowIncomeRate: 0.165, // 16.5% for income ≤ ₩55M
+    highIncomeRate: 0.132, // 13.2% for income > ₩55M
+    incomeThreshold: 55000000, // ₩55M threshold
+  },
+} as const;
+
+// ============================================================================
+// NON-TAXABLE ALLOWANCES (비과세 소득)
+// ============================================================================
+export const KR_NON_TAXABLE_ALLOWANCES = {
+  // Meal allowance (식대) - ₩200,000/month not taxed
+  mealAllowance: {
+    monthlyLimit: 200000,
+    annualLimit: 2400000, // ₩200,000 × 12
+  },
+  // Childcare allowance (자녀보육수당) - ₩100,000/month for children under 6
+  childcareAllowance: {
+    monthlyLimit: 100000,
+    annualLimit: 1200000, // ₩100,000 × 12
+  },
 } as const;
 
 // ============================================================================
@@ -263,4 +287,41 @@ export function calculateChildTaxCredit(numberOfChildren: number): number {
   // First 2 children at ₩150,000 + additional children at ₩300,000
   const additionalChildren = numberOfChildren - 2;
   return (2 * firstTwo) + (additionalChildren * thirdAndBeyond);
+}
+
+/**
+ * Calculate personal pension credit (연금저축/IRP 세액공제)
+ * 16.5% for income ≤ ₩55M, 13.2% for income > ₩55M
+ * Maximum contribution: ₩9,000,000/year
+ */
+export function calculatePensionCredit(contribution: number, totalIncome: number): number {
+  if (contribution <= 0) return 0;
+
+  const { maxContribution, lowIncomeRate, highIncomeRate, incomeThreshold } = KR_TAX_CREDITS.pensionCredit;
+
+  // Cap contribution at maximum
+  const cappedContribution = Math.min(contribution, maxContribution);
+
+  // Apply rate based on income level
+  const rate = totalIncome <= incomeThreshold ? lowIncomeRate : highIncomeRate;
+
+  return Math.round(cappedContribution * rate);
+}
+
+/**
+ * Calculate non-taxable allowances (비과세 소득)
+ * Returns the total annual non-taxable amount
+ */
+export function calculateNonTaxableAllowances(
+  hasMealAllowance: boolean,
+  hasChildcareAllowance: boolean
+): { mealAllowance: number; childcareAllowance: number; total: number } {
+  const mealAllowance = hasMealAllowance ? KR_NON_TAXABLE_ALLOWANCES.mealAllowance.annualLimit : 0;
+  const childcareAllowance = hasChildcareAllowance ? KR_NON_TAXABLE_ALLOWANCES.childcareAllowance.annualLimit : 0;
+
+  return {
+    mealAllowance,
+    childcareAllowance,
+    total: mealAllowance + childcareAllowance,
+  };
 }
