@@ -79,16 +79,6 @@ export const KR_TAX_DEDUCTIONS = {
   // Additional child deduction for children under 7 (6세 이하 추가공제)
   childUnder7Deduction: 1000000, // ₩1,000,000 per child
 
-  // Employment income deduction (근로소득공제)
-  // Tiered deduction based on total employment income
-  employmentIncomeDeduction: [
-    { threshold: 5000000, rate: 0.70, maxDeduction: 3500000 },        // Up to ₩5M: 70%
-    { threshold: 15000000, rate: 0.40, maxDeduction: 4000000 },       // ₩5M-15M: 40%
-    { threshold: 45000000, rate: 0.15, maxDeduction: 4500000 },       // ₩15M-45M: 15%
-    { threshold: 100000000, rate: 0.05, maxDeduction: 2750000 },      // ₩45M-100M: 5%
-    { threshold: Infinity, rate: 0.02, maxDeduction: Infinity },      // Above ₩100M: 2%
-  ],
-
   // Standard deduction for wage earners (표준세액공제)
   standardTaxCredit: 130000, // ₩130,000
 } as const;

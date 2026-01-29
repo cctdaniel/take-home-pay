@@ -174,9 +174,10 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
   // ============================================================================
 
   // Tax breakdown
+  // Note: For non-residents, incomeTax equals adjustedIncomeTax since there's no separate local tax
   const taxes: KRTaxBreakdown = {
     totalIncomeTax: adjustedIncomeTax,
-    incomeTax: residencyType === "non_resident" ? adjustedIncomeTax - localIncomeTax : finalIncomeTax,
+    incomeTax: residencyType === "non_resident" ? adjustedIncomeTax : finalIncomeTax,
     localIncomeTax: residencyType === "non_resident" ? 0 : localIncomeTax,
     nationalPension: annualNationalPension,
     nationalHealthInsurance: annualHealthInsurance,
