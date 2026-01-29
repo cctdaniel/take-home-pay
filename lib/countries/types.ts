@@ -45,7 +45,11 @@ export interface TaxBracket {
 // ============================================================================
 // FILING STATUS - US Specific but exported for compatibility
 // ============================================================================
-export type USFilingStatus = "single" | "married_jointly" | "married_separately" | "head_of_household";
+export type USFilingStatus =
+  | "single"
+  | "married_jointly"
+  | "married_separately"
+  | "head_of_household";
 
 // ============================================================================
 // RESIDENCY TYPES - Singapore specific
@@ -132,7 +136,11 @@ export interface SGTaxReliefInputs {
 }
 
 // Union type for all contribution inputs
-export type ContributionInputs = USContributionInputs | SGContributionInputs | KRContributionInputs | NLContributionInputs;
+export type ContributionInputs =
+  | USContributionInputs
+  | SGContributionInputs
+  | KRContributionInputs
+  | NLContributionInputs;
 
 // ============================================================================
 // CALCULATOR INPUT TYPES
@@ -168,9 +176,14 @@ export interface KRCalculatorInputs extends BaseCalculatorInputs {
 export interface NLCalculatorInputs extends BaseCalculatorInputs {
   country: "NL";
   hasThirtyPercentRuling: boolean;
+  hasYoungChildren: boolean; // For IACK (children under 12)
 }
 
-export type CalculatorInputs = USCalculatorInputs | SGCalculatorInputs | KRCalculatorInputs | NLCalculatorInputs;
+export type CalculatorInputs =
+  | USCalculatorInputs
+  | SGCalculatorInputs
+  | KRCalculatorInputs
+  | NLCalculatorInputs;
 
 // ============================================================================
 // TAX BREAKDOWN TYPES
@@ -208,7 +221,11 @@ export interface NLTaxBreakdown extends BaseTaxBreakdown {
   incomeTax: number;
 }
 
-export type TaxBreakdown = USTaxBreakdown | SGTaxBreakdown | KRTaxBreakdown | NLTaxBreakdown;
+export type TaxBreakdown =
+  | USTaxBreakdown
+  | SGTaxBreakdown
+  | KRTaxBreakdown
+  | NLTaxBreakdown;
 
 // ============================================================================
 // CALCULATION RESULT TYPES
@@ -349,6 +366,7 @@ export interface NLBreakdown {
   taxCredits: {
     generalTaxCredit: number;
     laborTaxCredit: number;
+    iackCredit: number; // Income-related combination credit (children under 12)
     totalCredits: number;
   };
   taxBeforeCredits: number;
@@ -357,7 +375,11 @@ export interface NLBreakdown {
   taxExemptAllowance: number;
 }
 
-export type CountrySpecificBreakdown = USBreakdown | SGBreakdown | KRBreakdown | NLBreakdown;
+export type CountrySpecificBreakdown =
+  | USBreakdown
+  | SGBreakdown
+  | KRBreakdown
+  | NLBreakdown;
 
 // ============================================================================
 // COUNTRY CALCULATOR INTERFACE
@@ -405,15 +427,21 @@ export interface ContributionLimits {
 // ============================================================================
 // TYPE GUARDS
 // ============================================================================
-export function isUSInputs(inputs: CalculatorInputs): inputs is USCalculatorInputs {
+export function isUSInputs(
+  inputs: CalculatorInputs,
+): inputs is USCalculatorInputs {
   return inputs.country === "US";
 }
 
-export function isSGInputs(inputs: CalculatorInputs): inputs is SGCalculatorInputs {
+export function isSGInputs(
+  inputs: CalculatorInputs,
+): inputs is SGCalculatorInputs {
   return inputs.country === "SG";
 }
 
-export function isNLInputs(inputs: CalculatorInputs): inputs is NLCalculatorInputs {
+export function isNLInputs(
+  inputs: CalculatorInputs,
+): inputs is NLCalculatorInputs {
   return inputs.country === "NL";
 }
 
@@ -426,18 +454,28 @@ export function isSGTaxBreakdown(taxes: TaxBreakdown): taxes is SGTaxBreakdown {
 }
 
 export function isNLTaxBreakdown(taxes: TaxBreakdown): taxes is NLTaxBreakdown {
-  return "incomeTax" in taxes && !("cpfEmployee" in taxes) && !("federalIncomeTax" in taxes);
+  return (
+    "incomeTax" in taxes &&
+    !("cpfEmployee" in taxes) &&
+    !("federalIncomeTax" in taxes)
+  );
 }
 
-export function isUSBreakdown(breakdown: CountrySpecificBreakdown): breakdown is USBreakdown {
+export function isUSBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is USBreakdown {
   return breakdown.type === "US";
 }
 
-export function isSGBreakdown(breakdown: CountrySpecificBreakdown): breakdown is SGBreakdown {
+export function isSGBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is SGBreakdown {
   return breakdown.type === "SG";
 }
 
-export function isKRInputs(inputs: CalculatorInputs): inputs is KRCalculatorInputs {
+export function isKRInputs(
+  inputs: CalculatorInputs,
+): inputs is KRCalculatorInputs {
   return inputs.country === "KR";
 }
 
@@ -445,10 +483,14 @@ export function isKRTaxBreakdown(taxes: TaxBreakdown): taxes is KRTaxBreakdown {
   return "localIncomeTax" in taxes && "nationalPension" in taxes;
 }
 
-export function isKRBreakdown(breakdown: CountrySpecificBreakdown): breakdown is KRBreakdown {
+export function isKRBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is KRBreakdown {
   return breakdown.type === "KR";
 }
 
-export function isNLBreakdown(breakdown: CountrySpecificBreakdown): breakdown is NLBreakdown {
+export function isNLBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is NLBreakdown {
   return breakdown.type === "NL";
 }

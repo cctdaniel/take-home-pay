@@ -77,6 +77,8 @@ export function MultiCountryCalculator({
     // NL-specific
     hasThirtyPercentRuling,
     setHasThirtyPercentRuling,
+    hasYoungChildren,
+    setHasYoungChildren,
 
     // Results
     result,
@@ -144,6 +146,8 @@ export function MultiCountryCalculator({
                 onPayFrequencyChange={setPayFrequency}
                 hasThirtyPercentRuling={hasThirtyPercentRuling}
                 onThirtyPercentRulingChange={setHasThirtyPercentRuling}
+                hasYoungChildren={hasYoungChildren}
+                onYoungChildrenChange={setHasYoungChildren}
               />
             )}
           </CardContent>
@@ -243,14 +247,14 @@ export function MultiCountryCalculator({
             <CardHeader>
               <CardTitle>Deductions</CardTitle>
               <CardDescription>
-                Includes estimated general and labor tax credits
+                Includes general, labor, and IACK tax credits
               </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-zinc-400">
-                The Netherlands calculator applies estimated general and labor
-                tax credits and supports the optional 30% ruling. Additional
-                deductions are not modeled.
+                The Netherlands calculator applies general, labor, and IACK
+                (child) tax credits and supports the optional 30% ruling.
+                Additional deductions are not modeled.
               </p>
             </CardContent>
           </Card>

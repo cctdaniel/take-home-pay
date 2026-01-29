@@ -218,8 +218,8 @@ function NLTaxInfo() {
           tax-exempt allowance (30% of salary)
         </li>
         <li>
-          <strong className="text-zinc-300">Tax Credits</strong> – General and
-          labor tax credits are estimated
+          <strong className="text-zinc-300">Tax Credits</strong> – General,
+          labor, and IACK (child) credits included
         </li>
         <li>
           <strong className="text-zinc-300">No Regional Taxes</strong> –
