@@ -2,9 +2,13 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatNumber, parseFormattedNumber, type CurrencyCode } from "@/lib/format";
 import { getCurrencySymbol } from "@/lib/countries/currency";
-import { useState, useEffect, useRef } from "react";
+import {
+  formatNumber,
+  parseFormattedNumber,
+  type CurrencyCode,
+} from "@/lib/format";
+import { useEffect, useRef, useState } from "react";
 
 interface SalaryInputProps {
   value: number;
@@ -12,8 +16,14 @@ interface SalaryInputProps {
   currency?: CurrencyCode;
 }
 
-export function SalaryInput({ value, onChange, currency = "USD" }: SalaryInputProps) {
-  const [displayValue, setDisplayValue] = useState(formatNumber(value, currency));
+export function SalaryInput({
+  value,
+  onChange,
+  currency = "USD",
+}: SalaryInputProps) {
+  const [displayValue, setDisplayValue] = useState(
+    formatNumber(value, currency),
+  );
   const inputRef = useRef<HTMLInputElement>(null);
   const cursorPosRef = useRef<number | null>(null);
   const currencySymbol = getCurrencySymbol(currency);
@@ -26,7 +36,10 @@ export function SalaryInput({ value, onChange, currency = "USD" }: SalaryInputPr
   // Restore cursor position after formatting
   useEffect(() => {
     if (cursorPosRef.current !== null && inputRef.current) {
-      inputRef.current.setSelectionRange(cursorPosRef.current, cursorPosRef.current);
+      inputRef.current.setSelectionRange(
+        cursorPosRef.current,
+        cursorPosRef.current,
+      );
       cursorPosRef.current = null;
     }
   }, [displayValue]);
@@ -41,12 +54,18 @@ export function SalaryInput({ value, onChange, currency = "USD" }: SalaryInputPr
     const formatted = parsed > 0 ? formatNumber(parsed, currency) : "";
 
     // Count digits before cursor in raw input (excluding commas)
-    const digitsBeforeCursor = rawValue.slice(0, cursorPos).replace(/,/g, "").length;
+    const digitsBeforeCursor = rawValue
+      .slice(0, cursorPos)
+      .replace(/,/g, "").length;
 
     // Find new cursor position: count through formatted string until we've passed the same number of digits
     let newCursorPos = 0;
     let digitCount = 0;
-    for (let i = 0; i < formatted.length && digitCount < digitsBeforeCursor; i++) {
+    for (
+      let i = 0;
+      i < formatted.length && digitCount < digitsBeforeCursor;
+      i++
+    ) {
       newCursorPos = i + 1;
       if (formatted[i] !== ",") {
         digitCount++;
@@ -72,7 +91,7 @@ export function SalaryInput({ value, onChange, currency = "USD" }: SalaryInputPr
           inputMode="numeric"
           value={displayValue}
           onChange={handleChange}
-          className="pl-12 text-lg font-medium h-12"
+          className="pl-12 text-lg font-medium h-10"
           placeholder="100,000"
         />
       </div>
