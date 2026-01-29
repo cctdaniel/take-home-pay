@@ -53,12 +53,10 @@ export type USFilingStatus = "single" | "married_jointly" | "married_separately"
 export type SGResidencyType = "citizen_pr" | "foreigner";
 
 // ============================================================================
-// CONTRIBUTION TYPES - Country agnostic base
+// CONTRIBUTION TYPES
 // ============================================================================
-export type BaseContributionInputs = Record<string, never>;
-
 // US-specific contributions
-export interface USContributionInputs extends BaseContributionInputs {
+export interface USContributionInputs {
   traditional401k: number;
   rothIRA: number;
   hsa: number;
@@ -66,13 +64,14 @@ export interface USContributionInputs extends BaseContributionInputs {
 }
 
 // Singapore-specific contributions (CPF is mandatory, not voluntary)
-export interface SGContributionInputs extends BaseContributionInputs {
+export interface SGContributionInputs {
   voluntaryCpfTopUp: number; // Voluntary top-up to CPF
   srsContribution: number; // Supplementary Retirement Scheme
 }
 
 // Netherlands-specific contributions (none modeled yet)
-export type NLContributionInputs = BaseContributionInputs;
+export type NLContributionInputs = Record<never, never>;
+
 
 // Singapore additional tax reliefs
 export type SGParentReliefType = "none" | "not_staying" | "staying";
