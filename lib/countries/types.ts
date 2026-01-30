@@ -8,7 +8,7 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB";
+export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD";
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -20,7 +20,7 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH";
+export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -111,6 +111,11 @@ export interface PTContributionInputs {
 // ============================================================================
 export type THResidencyType = "resident" | "non_resident";
 
+// ============================================================================
+// RESIDENCY TYPES - Hong Kong specific
+// ============================================================================
+export type HKResidencyType = "resident" | "non_resident";
+
 // Thailand-specific contributions (voluntary retirement savings)
 export interface THContributionInputs {
   providentFundContribution: number; // Provident Fund (tax deductible, max 15% of income or 500,000 THB)
@@ -118,6 +123,11 @@ export interface THContributionInputs {
   ssfContribution: number; // Super Savings Fund (tax deductible, max 30% of income or 200,000 THB)
   esgContribution: number; // Thai ESG Fund (tax deductible, max 30% of income or 300,000 THB in 2024-2026)
   nationalSavingsFundContribution: number; // National Savings Fund (tax deductible, max 30,000 THB)
+}
+
+// Hong Kong-specific contributions (voluntary MPF/annuity)
+export interface HKContributionInputs {
+  taxDeductibleVoluntaryContributions: number; // MPF TVC + QDAP (combined cap)
 }
 
 // Thailand additional tax reliefs/allowances
@@ -151,6 +161,24 @@ export interface THTaxReliefInputs {
   mortgageInterest: number; // Home mortgage interest, up to 100,000 THB
   donations: number; // Charitable donations, up to 10% of net income
   politicalDonation: number; // Political party donations, up to 10,000 THB
+}
+
+// Hong Kong tax reliefs/allowances/deductions
+export interface HKTaxReliefInputs {
+  hasMarriedAllowance: boolean;
+  hasSingleParentAllowance: boolean;
+  numberOfChildren: number;
+  numberOfNewbornChildren: number; // Additional allowance in year of birth
+  numberOfDependentParents: number;
+  numberOfDependentParentsLivingWith: number;
+  numberOfDependentSiblings: number;
+  hasDisabilityAllowance: boolean;
+  numberOfDisabledDependents: number;
+  selfEducationExpenses: number;
+  homeLoanInterest: number;
+  domesticRent: number;
+  charitableDonations: number;
+  elderlyResidentialCareExpenses: number;
 }
 
 // South Korea additional tax reliefs/deductions (인적공제 및 세액공제)
@@ -207,7 +235,8 @@ export type ContributionInputs =
   | KRContributionInputs
   | NLContributionInputs
   | AUContributionInputs
-  | PTContributionInputs;
+  | PTContributionInputs
+  | HKContributionInputs;
 
 // ============================================================================
 // CALCULATOR INPUT TYPES
@@ -272,6 +301,13 @@ export interface THCalculatorInputs extends BaseCalculatorInputs {
   taxReliefs: THTaxReliefInputs;
 }
 
+export interface HKCalculatorInputs extends BaseCalculatorInputs {
+  country: "HK";
+  residencyType: HKResidencyType;
+  contributions: HKContributionInputs;
+  taxReliefs: HKTaxReliefInputs;
+}
+
 export type CalculatorInputs =
   | USCalculatorInputs
   | SGCalculatorInputs
@@ -279,7 +315,8 @@ export type CalculatorInputs =
   | NLCalculatorInputs
   | AUCalculatorInputs
   | PTCalculatorInputs
-  | THCalculatorInputs;
+  | THCalculatorInputs
+  | HKCalculatorInputs;
 
 // ============================================================================
 // TAX BREAKDOWN TYPES
@@ -337,6 +374,11 @@ export interface THTaxBreakdown extends BaseTaxBreakdown {
   socialSecurity: number; // Social Security Fund contribution
 }
 
+export interface HKTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number; // Salaries Tax
+  mpfEmployee: number; // MPF mandatory contribution (employee)
+}
+
 export type TaxBreakdown =
   | USTaxBreakdown
   | SGTaxBreakdown
@@ -344,7 +386,8 @@ export type TaxBreakdown =
   | NLTaxBreakdown
   | AUTaxBreakdown
   | PTTaxBreakdown
-  | THTaxBreakdown;
+  | THTaxBreakdown
+  | HKTaxBreakdown;
 
 // ============================================================================
 // CALCULATION RESULT TYPES
@@ -635,6 +678,55 @@ export interface THBreakdown {
   }>;
 }
 
+export interface HKBreakdown {
+  type: "HK";
+  assessableIncome: number;
+  netIncome: number;
+  netChargeableIncome: number;
+  isResident: boolean;
+  mpf: {
+    employeeContribution: number;
+    rate: number;
+    minRelevantIncomeMonthly: number;
+    maxRelevantIncomeMonthly: number;
+    monthlyRelevantIncome: number;
+    monthlyCap: number;
+  };
+  deductions: {
+    mandatoryMpf: number;
+    voluntaryMpfAnnuity: number;
+    selfEducation: number;
+    homeLoanInterest: number;
+    domesticRent: number;
+    elderlyResidentialCare: number;
+    charitableDonations: number;
+    totalDeductions: number;
+  };
+  allowances: {
+    basic: number;
+    married: number;
+    singleParent: number;
+    child: number;
+    newbornChild: number;
+    dependentParent: number;
+    dependentParentLivingWith: number;
+    dependentSibling: number;
+    disability: number;
+    disabledDependent: number;
+    totalAllowances: number;
+  };
+  taxComparison: {
+    progressiveTax: number;
+    standardTax: number;
+    standardRateThreshold: number;
+    standardRate: number;
+    higherStandardRate: number;
+  };
+  voluntaryContributions: {
+    taxDeductibleVoluntaryContributions: number;
+  };
+}
+
 export type CountrySpecificBreakdown =
   | USBreakdown
   | SGBreakdown
@@ -642,7 +734,8 @@ export type CountrySpecificBreakdown =
   | NLBreakdown
   | AUBreakdown
   | PTBreakdown
-  | THBreakdown;
+  | THBreakdown
+  | HKBreakdown;
 
 // ============================================================================
 // COUNTRY CALCULATOR INTERFACE
@@ -720,7 +813,8 @@ export function isNLTaxBreakdown(taxes: TaxBreakdown): taxes is NLTaxBreakdown {
   return (
     "incomeTax" in taxes &&
     !("cpfEmployee" in taxes) &&
-    !("federalIncomeTax" in taxes)
+    !("federalIncomeTax" in taxes) &&
+    !("mpfEmployee" in taxes)
   );
 }
 
@@ -804,4 +898,24 @@ export function isTHBreakdown(
   breakdown: CountrySpecificBreakdown,
 ): breakdown is THBreakdown {
   return breakdown.type === "TH";
+}
+
+export function isHKInputs(
+  inputs: CalculatorInputs,
+): inputs is HKCalculatorInputs {
+  return inputs.country === "HK";
+}
+
+export function isHKTaxBreakdown(taxes: TaxBreakdown): taxes is HKTaxBreakdown {
+  return (
+    "mpfEmployee" in taxes &&
+    "incomeTax" in taxes &&
+    !("socialSecurity" in taxes)
+  );
+}
+
+export function isHKBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is HKBreakdown {
+  return breakdown.type === "HK";
 }

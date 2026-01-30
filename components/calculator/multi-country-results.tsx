@@ -57,6 +57,7 @@ export function MultiCountryResults({
   const isAU = country === "AU";
   const isPT = country === "PT";
   const isTH = country === "TH";
+  const isHK = country === "HK";
 
   // US-specific data
   let stateName = usState || "";
@@ -918,6 +919,349 @@ export function MultiCountryResults({
                     social insurance contributions).
                   </p>
                 </div>
+              </>
+            )}
+
+          {/* HK Tax Breakdown */}
+          {isHK &&
+            "mpfEmployee" in taxes &&
+            result.breakdown.type === "HK" && (
+              <>
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Allowances &amp; Deductions
+                </p>
+                {result.breakdown.deductions.totalDeductions > 0 && (
+                  <>
+                    {result.breakdown.deductions.mandatoryMpf > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          MPF Mandatory Contributions
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.deductions.mandatoryMpf,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.deductions.voluntaryMpfAnnuity > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          MPF TVC + QDAP
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.deductions.voluntaryMpfAnnuity,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.deductions.selfEducation > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Self-education Expenses
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.deductions.selfEducation,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.deductions.homeLoanInterest > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Home Loan Interest
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.deductions.homeLoanInterest,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.deductions.domesticRent > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Domestic Rent
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.deductions.domesticRent,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.deductions.elderlyResidentialCare > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Elderly Residential Care
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.deductions.elderlyResidentialCare,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.deductions.charitableDonations > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Charitable Donations
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.deductions.charitableDonations,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                )}
+                {result.breakdown.allowances.totalAllowances > 0 && (
+                  <>
+                    <p className="text-xs text-zinc-500 pt-3 pb-1">
+                      Allowances Applied
+                    </p>
+                    {result.breakdown.allowances.basic > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Basic Allowance
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.allowances.basic,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.married > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Married Person&apos;s Allowance
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.allowances.married,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.singleParent > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Single Parent Allowance
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.allowances.singleParent,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.child > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Child Allowance
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.allowances.child,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.newbornChild > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Newborn Child Allowance
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.allowances.newbornChild,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.dependentParent > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Dependent Parent/Grandparent
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.allowances.dependentParent,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.dependentParentLivingWith > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Parent Living With You
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.allowances.dependentParentLivingWith,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.dependentSibling > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Dependent Sibling
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.allowances.dependentSibling,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.disability > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Personal Disability
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.allowances.disability,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.disabledDependent > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Disabled Dependent
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.allowances.disabledDependent,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                )}
+                <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-2">
+                  <span className="text-sm text-zinc-300">
+                    Net Chargeable Income
+                  </span>
+                  <span className="text-sm text-zinc-200 tabular-nums">
+                    {formatCurrency(
+                      result.breakdown.netChargeableIncome,
+                      currency,
+                    )}
+                  </span>
+                </div>
+                <Separator className="my-2" />
+
+                <p className="text-xs text-zinc-500 pt-2 pb-1">Salaries Tax</p>
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-sm text-zinc-400">
+                    Progressive Tax
+                  </span>
+                  <span className="text-sm text-zinc-300 tabular-nums">
+                    {formatCurrency(
+                      result.breakdown.taxComparison.progressiveTax,
+                      currency,
+                    )}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-sm text-zinc-400">
+                    Standard Rate Tax
+                  </span>
+                  <span className="text-sm text-zinc-300 tabular-nums">
+                    {formatCurrency(
+                      result.breakdown.taxComparison.standardTax,
+                      currency,
+                    )}
+                  </span>
+                </div>
+                <DeductionRow
+                  label="Final Salaries Tax"
+                  amount={taxes.incomeTax}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+
+                <Separator className="my-2" />
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  MPF Contributions
+                </p>
+                <DeductionRow
+                  label="MPF (Employee)"
+                  amount={taxes.mpfEmployee}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                {result.breakdown.mpf.monthlyRelevantIncome > 0 && (
+                  <p className="text-xs text-zinc-500 italic mt-1">
+                    {(
+                      result.breakdown.mpf.rate * 100
+                    ).toFixed(1)}
+                    % of monthly income up to HK$
+                    {result.breakdown.mpf.maxRelevantIncomeMonthly.toLocaleString()}
+                    /month (max HK$
+                    {result.breakdown.mpf.monthlyCap.toLocaleString()})
+                  </p>
+                )}
+
+                {result.breakdown.voluntaryContributions
+                  .taxDeductibleVoluntaryContributions > 0 && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="text-xs text-zinc-500 pt-2 pb-1">
+                      Voluntary Contributions
+                    </p>
+                    <DeductionRow
+                      label="MPF TVC + QDAP"
+                      amount={
+                        result.breakdown.voluntaryContributions
+                          .taxDeductibleVoluntaryContributions
+                      }
+                      grossSalary={grossSalary}
+                      currency={currency}
+                    />
+                  </>
+                )}
               </>
             )}
 

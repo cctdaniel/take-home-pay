@@ -23,6 +23,7 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "AU" && <AUTaxInfo />}
         {country === "PT" && <PTTaxInfo />}
         {country === "TH" && <THTaxInfo />}
+        {country === "HK" && <HKTaxInfo />}
       </div>
     </section>
   );
@@ -534,6 +535,41 @@ function THTaxInfo() {
         Tax returns must be filed by March 31 of the following year. Employers 
         are required to withhold tax from salaries and remit it to the Revenue Department monthly.
       </p>
+    </div>
+  );
+}
+
+// ============================================================================
+// HONG KONG TAX INFO
+// ============================================================================
+function HKTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">
+        Hong Kong
+      </h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li>
+          <strong className="text-zinc-300">Salaries Tax</strong> – Progressive
+          rates from 2% to 17%
+        </li>
+        <li>
+          <strong className="text-zinc-300">Standard Rate</strong> – 15% on net
+          income (16% above HK$5,000,000)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Allowances</strong> – Basic, married,
+          single parent, child, and dependent allowances reduce chargeable income
+        </li>
+        <li>
+          <strong className="text-zinc-300">Deductions</strong> – MPF, self-education,
+          home loan interest, domestic rent, and approved charitable donations
+        </li>
+        <li>
+          <strong className="text-zinc-300">MPF Contributions</strong> – 5% of
+          monthly income between HK$7,100 and HK$30,000 (max HK$1,500/month)
+        </li>
+      </ul>
     </div>
   );
 }
