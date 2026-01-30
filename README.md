@@ -99,10 +99,10 @@ Open [http://localhost:3000](http://localhost:3000) to use the calculator. You'l
 ## Data Sources
 
 - **US:** Tax brackets and contribution limits based on IRS announcements for 2026
+- **Australia:** ATO tax rates for 2025-26, Medicare levy rates, Division 293 tax, and superannuation guarantee
+- **Netherlands:** Income tax brackets and national insurance rates for 2026
 - **Singapore:** IRAS tax rates and CPF contribution rates for 2026
 - **South Korea:** NTS tax rates and social insurance rates for 2026
-- **Netherlands:** Income tax brackets and national insurance rates for 2026
-- **Australia:** ATO tax rates for 2025-26, Medicare levy rates, Division 293 tax, and superannuation guarantee
 
 ## Disclaimer
 
