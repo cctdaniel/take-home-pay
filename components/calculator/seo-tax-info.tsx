@@ -21,6 +21,7 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "KR" && <KRTaxInfo />}
         {country === "NL" && <NLTaxInfo />}
         {country === "AU" && <AUTaxInfo />}
+        {country === "PT" && <PTTaxInfo />}
       </div>
     </section>
   );
@@ -289,6 +290,84 @@ function AUTaxInfo() {
         <li>32.5% on first $135,000</li>
         <li>No LITO or Medicare levy</li>
       </ul>
+    </div>
+  );
+}
+
+// ============================================================================
+// PORTUGAL TAX INFO
+// ============================================================================
+function PTTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Portugal</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li>
+          <strong className="text-zinc-300">IRS (Income Tax)</strong> –
+          Progressive rates from 13% to 48% (9 brackets for residents)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Social Security</strong> – 11%
+          employee contribution (Segurança Social)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Specific Deduction</strong> – Minimum
+          €4,104 or actual SS contributions (whichever is higher)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Solidarity Surcharge</strong> –
+          Additional 2.5% (€80k-€250k) and 5% (above €250k)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Non-Residents</strong> – Flat 25%
+          rate on Portuguese-source income
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        IRS Tax Brackets 2026 (Residents)
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>€0 – €7,703: 13%</li>
+        <li>€7,703 – €11,623: 16.5%</li>
+        <li>€11,623 – €16,472: 22%</li>
+        <li>€16,472 – €21,321: 25%</li>
+        <li>€21,321 – €27,146: 32%</li>
+        <li>€27,146 – €39,791: 35.5%</li>
+        <li>€39,791 – €43,081: 43.5%</li>
+        <li>€43,081 – €58,528: 45%</li>
+        <li>€58,528+: 48%</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Solidarity Surcharge (Adicional de Solidariedade)
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Income €80,000 – €250,000: 2.5%</li>
+        <li>Income above €250,000: 5%</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Tax Benefits & Deductions
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>
+          <strong className="text-zinc-300">PPR (Retirement Savings Plan)</strong> –
+          20% tax credit on contributions. Limits: €2,000 (under 35), €1,750 (35-50), €1,500 (over 50)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Dependent Deductions</strong> –
+          €600 per dependent deducted from tax assessed
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Employer Contributions
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Employers contribute an additional 23.75% for Social Security.
+        This is not deducted from your salary but is shown for reference.
+      </p>
     </div>
   );
 }

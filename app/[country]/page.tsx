@@ -33,6 +33,7 @@ const COUNTRY_DESCRIPTIONS: Record<CountryCode, string> = {
   KR: `Free ${TAX_YEAR} take home pay calculator for South Korea. Calculate your salary after taxes including income tax, local tax, national pension, health insurance, and employment insurance.`,
   NL: `Free ${TAX_YEAR} take home pay calculator for the Netherlands. Calculate your salary after taxes including income tax, national insurance, and the 30% ruling for expats.`,
   AU: `Free ${TAX_YEAR} take home pay calculator for Australia. Calculate your salary after taxes including income tax (Stage 3 cuts), Medicare levy, Medicare levy surcharge, Division 293 tax (high income earners), LITO, and superannuation.`,
+  PT: `Free ${TAX_YEAR} take home pay calculator for Portugal. Calculate your salary after taxes including IRS income tax, Social Security contributions (Segurança Social), and solidarity surcharge for high incomes.`,
 };
 
 // Country-specific keywords for SEO
@@ -83,6 +84,15 @@ const COUNTRY_KEYWORDS: Record<CountryCode, string[]> = {
     "lito calculator",
     "division 293 tax calculator",
     "high income super tax",
+  ],
+  PT: [
+    "portugal take home pay calculator",
+    "portuguese salary after tax",
+    `${TAX_YEAR} portugal tax calculator`,
+    "irs portugal calculator",
+    "seguranca social calculator",
+    "portugal income tax calculator",
+    "portugal paycheck calculator",
   ],
 };
 
@@ -167,6 +177,11 @@ const COUNTRY_HEADER_INFO: Record<
     tagline: "Calculate your actual salary after taxes in Australia.",
     details:
       "Income tax (Stage 3 cuts), LITO, Medicare levy, Medicare levy surcharge, Division 293 tax, superannuation",
+  },
+  PT: {
+    tagline: "Calculate your actual salary after taxes in Portugal.",
+    details:
+      "IRS income tax, Social Security (Segurança Social), solidarity surcharge, PPR tax credits, dependent deductions",
   },
 };
 

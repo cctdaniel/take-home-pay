@@ -52,6 +52,7 @@ export const COUNTRY_CURRENCY: Record<CountryCode, CurrencyCode> = {
   KR: "KRW",
   NL: "EUR",
   AU: "AUD",
+  PT: "EUR",
 };
 
 // ============================================================================
@@ -87,7 +88,17 @@ export function getCurrencySymbol(currencyCode: CurrencyCode): string {
 }
 
 export function getCurrencyForCountry(countryCode: CountryCode): CurrencyConfig {
-  return CURRENCIES[COUNTRY_CURRENCY[countryCode]];
+  const baseConfig = CURRENCIES[COUNTRY_CURRENCY[countryCode]];
+  
+  // Return country-specific locale for shared currencies
+  if (countryCode === "PT") {
+    return { ...baseConfig, locale: "pt-PT" };
+  }
+  if (countryCode === "NL") {
+    return { ...baseConfig, locale: "nl-NL" };
+  }
+  
+  return baseConfig;
 }
 
 // ============================================================================

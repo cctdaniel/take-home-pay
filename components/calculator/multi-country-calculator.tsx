@@ -7,10 +7,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
 import { Separator } from "@/components/ui/separator";
 import { useMultiCountryCalculator } from "@/hooks/use-multi-country-calculator";
 import type { CountryCode } from "@/lib/countries/types";
 import { AUTaxOptions } from "./au-tax-options";
+import { PTTaxOptions } from "./pt-tax-options";
 import { ContributionOptions } from "./contribution-options";
 import { CountrySelector } from "./country-selector";
 import { KRAdditionalReliefs } from "./kr-additional-reliefs";
@@ -86,6 +88,19 @@ export function MultiCountryCalculator({
     setAuResidencyType,
     hasPrivateHealthInsurance,
     setHasPrivateHealthInsurance,
+
+    // PT-specific
+    ptResidencyType,
+    setPtResidencyType,
+    ptMaritalStatus,
+    setPtMaritalStatus,
+    ptNumberOfDependents,
+    setPtNumberOfDependents,
+    ptAge,
+    setPtAge,
+    ptPprContribution,
+    setPtPprContribution,
+    ptLimits,
 
     // Results
     result,
@@ -168,11 +183,26 @@ export function MultiCountryCalculator({
                 onPrivateHealthInsuranceChange={setHasPrivateHealthInsurance}
               />
             )}
+
+            {country === "PT" && (
+              <PTTaxOptions
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+                residencyType={ptResidencyType}
+                onResidencyTypeChange={setPtResidencyType}
+                maritalStatus={ptMaritalStatus}
+                onMaritalStatusChange={setPtMaritalStatus}
+                numberOfDependents={ptNumberOfDependents}
+                onNumberOfDependentsChange={setPtNumberOfDependents}
+                age={ptAge}
+                onAgeChange={setPtAge}
+              />
+            )}
           </CardContent>
         </Card>
 
-        {/* Contributions Card - US and SG */}
-        {(country === "US" || country === "SG") && (
+        {/* Contributions Card - US, SG, and PT */}
+        {(country === "US" || country === "SG" || country === "PT") && (
           <Card>
             <CardHeader>
               <CardTitle>
@@ -181,7 +211,9 @@ export function MultiCountryCalculator({
               <CardDescription>
                 {country === "US"
                   ? "Adjust your retirement and savings contributions"
-                  : "Optional tax-saving contributions (CPF is mandatory)"}
+                  : country === "PT"
+                    ? "Optional tax-saving contributions to PPR (Retirement Savings Plan)"
+                    : "Optional tax-saving contributions (CPF is mandatory)"}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -218,6 +250,24 @@ export function MultiCountryCalculator({
                     reliefs={sgTaxReliefs}
                     onChange={setSgTaxReliefs}
                   />
+                </div>
+              )}
+
+              {country === "PT" && (
+                <div className="space-y-6">
+                  <ContributionSlider
+                    label="PPR Contribution (Retirement Savings Plan)"
+                    description={`20% tax credit on contributions - age-based limit: €${ptLimits.pprMaxContribution.toLocaleString()} max (€${ptLimits.pprMaxTaxCredit.toLocaleString()} tax credit)`}
+                    value={ptPprContribution}
+                    onChange={setPtPprContribution}
+                    max={ptLimits.pprMaxContribution}
+                    currency="EUR"
+                  />
+                  <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
+                    <span className="text-emerald-400">Tip:</span> PPR (Plano de Poupança Reforma) 
+                    contributions qualify for a 20% tax credit. Limits vary by age: 
+                    Under 35: €2,000, 35-50: €1,750, Over 50: €1,500.
+                  </p>
                 </div>
               )}
             </CardContent>
@@ -303,6 +353,36 @@ export function MultiCountryCalculator({
                     deducted from take-home (shown below for reference)
                   </li>
                 </ul>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* PT Deductions Info Card */}
+        {country === "PT" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Tax &amp; Contributions</CardTitle>
+              <CardDescription>
+                IRS income tax, Social Security, and tax-saving options
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  What&apos;s Included
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-1">
+                  <li>IRS (Imposto sobre o Rendimento) — progressive tax brackets</li>
+                  <li>Specific deduction (€4,104 minimum or SS contributions)</li>
+                  <li>Social Security — 11% employee contribution</li>
+                  <li>Solidarity Surcharge (Adicional de Solidariedade) for high incomes</li>
+                  <li>PPR contributions — 20% tax credit (age-based limits)</li>
+                  <li>Dependent deductions — €600 per dependent</li>
+                </ul>
+                <p className="text-xs text-zinc-500 mt-3">
+                  Note: Non-residents pay a flat 25% rate. Marital status and dependents affect deductions.
+                </p>
               </div>
             </CardContent>
           </Card>

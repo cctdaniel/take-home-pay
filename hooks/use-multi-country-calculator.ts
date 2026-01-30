@@ -1,6 +1,7 @@
 "use client";
 
 import { calculateNetSalary, getCountryConfig } from "@/lib/countries/registry";
+import { PTCalculator } from "@/lib/countries/pt/calculator";
 import {
   CPF_VOLUNTARY_TOPUP_LIMIT,
   getSRSLimit,
@@ -16,6 +17,7 @@ import type {
   KRResidencyType,
   KRTaxReliefInputs,
   NLCalculatorInputs,
+  PTCalculatorInputs,
   PayFrequency,
   SGCalculatorInputs,
   SGResidencyType,
@@ -64,6 +66,7 @@ const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
   KR: 50000000, // ₩50M typical salary
   NL: 55000,
   AU: 100000, // A$100k typical Australian salary
+  PT: 35000, // €35k typical Portuguese salary
 };
 
 // ============================================================================
@@ -122,6 +125,22 @@ export interface UseMultiCountryCalculatorReturn {
   setAuResidencyType: (value: AUResidencyType) => void;
   hasPrivateHealthInsurance: boolean;
   setHasPrivateHealthInsurance: (value: boolean) => void;
+
+  // PT-specific
+  ptResidencyType: "resident" | "non_resident";
+  setPtResidencyType: (value: "resident" | "non_resident") => void;
+  ptMaritalStatus: "single" | "married";
+  setPtMaritalStatus: (value: "single" | "married") => void;
+  ptNumberOfDependents: number;
+  setPtNumberOfDependents: (value: number) => void;
+  ptAge: number;
+  setPtAge: (value: number) => void;
+  ptPprContribution: number;
+  setPtPprContribution: (value: number) => void;
+  ptLimits: {
+    pprMaxContribution: number;
+    pprMaxTaxCredit: number;
+  };
 
   // Limits
   usLimits: {
@@ -188,6 +207,15 @@ export function useMultiCountryCalculator(
   const [hasPrivateHealthInsurance, setHasPrivateHealthInsurance] =
     useState(true);
 
+  // PT-specific state
+  const [ptResidencyType, setPtResidencyType] =
+    useState<"resident" | "non_resident">("resident");
+  const [ptMaritalStatus, setPtMaritalStatus] =
+    useState<"single" | "married">("single");
+  const [ptNumberOfDependents, setPtNumberOfDependents] = useState(0);
+  const [ptAge, setPtAge] = useState(30);
+  const [ptPprContribution, setPtPprContributionState] = useState(0);
+
   // Track previous country using state (React docs pattern for adjusting state when props change)
   const [prevCountry, setPrevCountry] = useState(country);
 
@@ -219,6 +247,12 @@ export function useMultiCountryCalculator(
     } else if (country === "AU") {
       setAuResidencyType("resident");
       setHasPrivateHealthInsurance(true);
+    } else if (country === "PT") {
+      setPtResidencyType("resident");
+      setPtMaritalStatus("single");
+      setPtNumberOfDependents(0);
+      setPtAge(30);
+      setPtPprContributionState(0);
     }
   }
 
@@ -245,6 +279,17 @@ export function useMultiCountryCalculator(
     }),
     [residencyType],
   );
+
+  const ptLimits = useMemo(() => {
+    const limits = PTCalculator.getContributionLimits({ age: ptAge });
+    // PPR limits: Under 35: €2,000 (€400 credit), 35-50: €1,750 (€350 credit), Over 50: €1,500 (€300 credit)
+    const maxContribution = limits.ppr?.limit ?? 2000;
+    const maxTaxCredit = maxContribution * 0.2; // 20% tax credit
+    return {
+      pprMaxContribution: maxContribution,
+      pprMaxTaxCredit: maxTaxCredit,
+    };
+  }, [ptAge]);
 
   // US contribution handlers with validation
   const setTraditional401k = useCallback((value: number) => {
@@ -288,6 +333,14 @@ export function useMultiCountryCalculator(
       setSrsContributionState(Math.min(value, limit));
     },
     [residencyType],
+  );
+
+  // PT PPR contribution handler with validation
+  const setPtPprContribution = useCallback(
+    (value: number) => {
+      setPtPprContributionState(Math.min(value, ptLimits.pprMaxContribution));
+    },
+    [ptLimits.pprMaxContribution],
   );
 
   // Build inputs based on country
@@ -343,7 +396,7 @@ export function useMultiCountryCalculator(
         hasYoungChildren,
       };
       return nlInputs;
-    } else {
+    } else if (country === "AU") {
       const auInputs: AUCalculatorInputs = {
         country: "AU",
         grossSalary,
@@ -352,6 +405,20 @@ export function useMultiCountryCalculator(
         hasPrivateHealthInsurance,
       };
       return auInputs;
+    } else {
+      const ptInputs: PTCalculatorInputs = {
+        country: "PT",
+        grossSalary,
+        payFrequency,
+        residencyType: ptResidencyType,
+        maritalStatus: ptMaritalStatus,
+        numberOfDependents: ptNumberOfDependents,
+        age: ptAge,
+        contributions: {
+          pprContribution: Math.min(ptPprContribution, ptLimits.pprMaxContribution),
+        },
+      };
+      return ptInputs;
     }
   }, [
     country,
@@ -374,8 +441,14 @@ export function useMultiCountryCalculator(
     hasYoungChildren,
     auResidencyType,
     hasPrivateHealthInsurance,
+    ptResidencyType,
+    ptMaritalStatus,
+    ptNumberOfDependents,
+    ptAge,
+    ptPprContribution,
     usLimits,
     sgLimits,
+    ptLimits,
   ]);
 
   // Calculate result
@@ -437,9 +510,22 @@ export function useMultiCountryCalculator(
     hasPrivateHealthInsurance,
     setHasPrivateHealthInsurance,
 
+    // PT-specific
+    ptResidencyType,
+    setPtResidencyType,
+    ptMaritalStatus,
+    setPtMaritalStatus,
+    ptNumberOfDependents,
+    setPtNumberOfDependents,
+    ptAge,
+    setPtAge,
+    ptPprContribution,
+    setPtPprContribution,
+
     // Limits
     usLimits,
     sgLimits,
+    ptLimits,
 
     // Results
     result,
