@@ -54,6 +54,7 @@ export function MultiCountryResults({
   const isSG = country === "SG";
   const isKR = country === "KR";
   const isNL = country === "NL";
+  const isAU = country === "AU";
 
   // US-specific data
   let stateName = usState || "";
@@ -922,6 +923,115 @@ export function MultiCountryResults({
                     )}
                   </>
                 )}
+              </>
+            )}
+
+          {/* AU Tax Breakdown */}
+          {isAU &&
+            "medicareLevy" in taxes &&
+            result.breakdown.type === "AU" && (
+              <>
+                {/* Residency Status */}
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-zinc-400">Tax Residency</span>
+                  <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
+                    {result.breakdown.isResident
+                      ? "Australian Resident"
+                      : "Foreign Resident"}
+                  </span>
+                </div>
+
+                <Separator className="my-2" />
+
+                {/* Income Tax */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">Income Tax</p>
+                <DeductionRow
+                  label="Gross Income Tax"
+                  amount={result.breakdown.grossIncomeTax}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+
+                {/* LITO (only for residents with non-zero LITO) */}
+                {result.breakdown.isResident && result.breakdown.lito > 0 && (
+                  <>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">
+                        Low Income Tax Offset (LITO)
+                      </span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.lito, currency)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1 border-t border-zinc-700/50 mt-1 pt-1">
+                      <span className="text-sm text-zinc-300 font-medium">
+                        Net Income Tax
+                      </span>
+                      <span className="text-sm text-zinc-100 tabular-nums font-medium">
+                        {formatCurrency(taxes.incomeTax, currency)}
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                <Separator className="my-2" />
+
+                {/* Medicare */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">Medicare</p>
+                {result.breakdown.isResident ? (
+                  <>
+                    <DeductionRow
+                      label="Medicare Levy (2%)"
+                      amount={taxes.medicareLevy}
+                      grossSalary={grossSalary}
+                      currency={currency}
+                    />
+                    {taxes.medicareLevySurcharge > 0 && (
+                      <DeductionRow
+                        label="Medicare Levy Surcharge"
+                        amount={taxes.medicareLevySurcharge}
+                        grossSalary={grossSalary}
+                        currency={currency}
+                      />
+                    )}
+                    {taxes.medicareLevySurcharge === 0 &&
+                      result.breakdown.hasPrivateHealthInsurance && (
+                        <p className="text-xs text-emerald-400 italic mt-1">
+                          No surcharge - private health insurance held
+                        </p>
+                      )}
+                  </>
+                ) : (
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">Medicare Levy</span>
+                    <span className="text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded">
+                      Exempt (Non-Resident)
+                    </span>
+                  </div>
+                )}
+
+                {/* Superannuation (Informational) */}
+                <Separator className="my-2" />
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Superannuation (Employer Contribution)
+                </p>
+                <div className="flex items-center justify-between py-2 opacity-60">
+                  <span className="text-sm text-zinc-400">
+                    Super Guarantee (
+                    {(result.breakdown.superannuation.rate * 100).toFixed(0)}%)
+                  </span>
+                  <span className="text-sm text-zinc-500 tabular-nums">
+                    +
+                    {formatCurrency(
+                      result.breakdown.superannuation.employerContribution,
+                      currency,
+                    )}
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-500 italic">
+                  Employer pays this on top of your salary - not deducted from
+                  take-home pay
+                </p>
               </>
             )}
 

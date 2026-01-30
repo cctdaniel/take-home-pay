@@ -8,7 +8,7 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR";
+export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD";
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -20,7 +20,7 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG" | "KR" | "NL";
+export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -62,6 +62,11 @@ export type SGResidencyType = "citizen_pr" | "foreigner";
 export type KRResidencyType = "resident" | "non_resident";
 
 // ============================================================================
+// RESIDENCY TYPES - Australia specific
+// ============================================================================
+export type AUResidencyType = "resident" | "non_resident";
+
+// ============================================================================
 // CONTRIBUTION TYPES
 // ============================================================================
 // US-specific contributions
@@ -87,6 +92,13 @@ export interface KRContributionInputs {
 
 // Netherlands-specific contributions (none modeled yet)
 export type NLContributionInputs = Record<never, never>;
+
+// Australia-specific contributions (superannuation is employer-paid, not deducted)
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface AUContributionInputs {
+  // Superannuation is mandatory and paid by employer on top of salary
+  // This interface is kept for consistency
+}
 
 // South Korea additional tax reliefs/deductions (인적공제 및 세액공제)
 export interface KRTaxReliefInputs {
@@ -140,7 +152,8 @@ export type ContributionInputs =
   | USContributionInputs
   | SGContributionInputs
   | KRContributionInputs
-  | NLContributionInputs;
+  | NLContributionInputs
+  | AUContributionInputs;
 
 // ============================================================================
 // CALCULATOR INPUT TYPES
@@ -179,11 +192,18 @@ export interface NLCalculatorInputs extends BaseCalculatorInputs {
   hasYoungChildren: boolean; // For IACK (children under 12)
 }
 
+export interface AUCalculatorInputs extends BaseCalculatorInputs {
+  country: "AU";
+  residencyType: AUResidencyType;
+  hasPrivateHealthInsurance: boolean; // Affects Medicare Levy Surcharge
+}
+
 export type CalculatorInputs =
   | USCalculatorInputs
   | SGCalculatorInputs
   | KRCalculatorInputs
-  | NLCalculatorInputs;
+  | NLCalculatorInputs
+  | AUCalculatorInputs;
 
 // ============================================================================
 // TAX BREAKDOWN TYPES
@@ -222,11 +242,18 @@ export interface NLTaxBreakdown extends BaseTaxBreakdown {
   socialSecurityTax: number; // Volksverzekeringen (AOW, Anw, Wlz)
 }
 
+export interface AUTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number; // Income tax after LITO
+  medicareLevy: number; // 2% Medicare levy
+  medicareLevySurcharge: number; // Additional surcharge if no PHI
+}
+
 export type TaxBreakdown =
   | USTaxBreakdown
   | SGTaxBreakdown
   | KRTaxBreakdown
-  | NLTaxBreakdown;
+  | NLTaxBreakdown
+  | AUTaxBreakdown;
 
 // ============================================================================
 // CALCULATION RESULT TYPES
@@ -392,11 +419,38 @@ export interface NLBreakdown {
   taxExemptAllowance: number;
 }
 
+export interface AUBreakdown {
+  type: "AU";
+  taxableIncome: number;
+  // Tax bracket breakdown
+  bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }>;
+  // Income tax details
+  grossIncomeTax: number; // Before LITO
+  lito: number; // Low Income Tax Offset
+  incomeTax: number; // After LITO
+  // Medicare
+  medicareLevy: number;
+  medicareLevySurcharge: number;
+  hasPrivateHealthInsurance: boolean;
+  // Superannuation (informational - paid by employer)
+  superannuation: {
+    employerContribution: number;
+    rate: number; // 12% for 2025-26
+  };
+  isResident: boolean;
+}
+
 export type CountrySpecificBreakdown =
   | USBreakdown
   | SGBreakdown
   | KRBreakdown
-  | NLBreakdown;
+  | NLBreakdown
+  | AUBreakdown;
 
 // ============================================================================
 // COUNTRY CALCULATOR INTERFACE
@@ -510,4 +564,20 @@ export function isNLBreakdown(
   breakdown: CountrySpecificBreakdown,
 ): breakdown is NLBreakdown {
   return breakdown.type === "NL";
+}
+
+export function isAUInputs(
+  inputs: CalculatorInputs,
+): inputs is AUCalculatorInputs {
+  return inputs.country === "AU";
+}
+
+export function isAUTaxBreakdown(taxes: TaxBreakdown): taxes is AUTaxBreakdown {
+  return "medicareLevy" in taxes && "medicareLevySurcharge" in taxes;
+}
+
+export function isAUBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is AUBreakdown {
+  return breakdown.type === "AU";
 }
