@@ -946,22 +946,32 @@ export function MultiCountryResults({
                 {/* Income Tax */}
                 <p className="text-xs text-zinc-500 pt-2 pb-1">Income Tax</p>
                 <DeductionRow
-                  label="Income Tax"
-                  amount={taxes.incomeTax}
+                  label="Gross Income Tax"
+                  amount={result.breakdown.grossIncomeTax}
                   grossSalary={grossSalary}
                   currency={currency}
                 />
 
-                {/* LITO (only for residents) */}
+                {/* LITO (only for residents with non-zero LITO) */}
                 {result.breakdown.isResident && result.breakdown.lito > 0 && (
-                  <div className="flex items-center justify-between py-1">
-                    <span className="text-sm text-zinc-400">
-                      Low Income Tax Offset (LITO)
-                    </span>
-                    <span className="text-sm text-emerald-400 tabular-nums">
-                      -{formatCurrency(result.breakdown.lito, currency)}
-                    </span>
-                  </div>
+                  <>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">
+                        Low Income Tax Offset (LITO)
+                      </span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.lito, currency)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1 border-t border-zinc-700/50 mt-1 pt-1">
+                      <span className="text-sm text-zinc-300 font-medium">
+                        Net Income Tax
+                      </span>
+                      <span className="text-sm text-zinc-100 tabular-nums font-medium">
+                        {formatCurrency(taxes.incomeTax, currency)}
+                      </span>
+                    </div>
+                  </>
                 )}
 
                 <Separator className="my-2" />
