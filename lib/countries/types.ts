@@ -8,7 +8,7 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD";
+export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB";
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -20,7 +20,7 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT";
+export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -104,6 +104,53 @@ export interface AUContributionInputs {
 export interface PTContributionInputs {
   // Social Security contributions are mandatory and calculated automatically
   pprContribution: number; // Retirement Savings Plan contribution (20% tax credit)
+}
+
+// ============================================================================
+// RESIDENCY TYPES - Thailand specific
+// ============================================================================
+export type THResidencyType = "resident" | "non_resident";
+
+// Thailand-specific contributions (voluntary retirement savings)
+export interface THContributionInputs {
+  providentFundContribution: number; // Provident Fund (tax deductible, max 15% of income or 500,000 THB)
+  rmfContribution: number; // Retirement Mutual Fund (tax deductible, max 30% of income or 500,000 THB)
+  ssfContribution: number; // Super Savings Fund (tax deductible, max 30% of income or 200,000 THB)
+  esgContribution: number; // Thai ESG Fund (tax deductible, max 30% of income or 300,000 THB in 2024-2026)
+  nationalSavingsFundContribution: number; // National Savings Fund (tax deductible, max 30,000 THB)
+}
+
+// Thailand additional tax reliefs/allowances
+export interface THTaxReliefInputs {
+  // Personal allowances
+  hasSpouse: boolean; // Has spouse (for spousal allowance)
+  spouseHasNoIncome: boolean; // Spouse has no income (required for spousal allowance)
+  numberOfChildren: number; // Child allowance: 30,000 THB per child
+  numberOfChildrenBornAfter2018: number; // Additional 30,000 THB per child born >= 2018 (60,000 total)
+  numberOfParents: number; // Parent allowance: 30,000 THB per parent (age >= 60, income <= 30,000)
+  numberOfDisabledDependents: number; // Disabled person allowance: 60,000 THB per person
+  isElderlyOrDisabled: boolean; // Taxpayer is elderly (>=65) or disabled: 190,000 THB exemption
+
+  // Insurance deductions
+  lifeInsurancePremium: number; // Up to 100,000 THB (10+ year policy)
+  lifeInsuranceSpousePremium: number; // Up to 10,000 THB for spouse with no income
+  healthInsurancePremium: number; // Up to 25,000 THB for self
+  healthInsuranceParentsPremium: number; // Up to 15,000 THB for parents
+
+  // Social Security (mandatory for most employees)
+  hasSocialSecurity: boolean; // Deduct actual SS contributions (5% capped at 750 THB/month)
+
+  // Retirement savings (shared 500,000 THB cap)
+  providentFundContribution: number; // Up to 15% of income, max 500,000 THB
+  rmfContribution: number; // Up to 30% of income, max 500,000 THB
+  ssfContribution: number; // Up to 30% of income, max 200,000 THB
+  esgContribution: number; // Up to 30% of income, max 300,000 THB (special period 2024-2026)
+  nationalSavingsFundContribution: number; // Up to 30,000 THB
+
+  // Other deductions
+  mortgageInterest: number; // Home mortgage interest, up to 100,000 THB
+  donations: number; // Charitable donations, up to 10% of net income
+  politicalDonation: number; // Political party donations, up to 10,000 THB
 }
 
 // South Korea additional tax reliefs/deductions (인적공제 및 세액공제)
@@ -216,13 +263,21 @@ export interface PTCalculatorInputs extends BaseCalculatorInputs {
   contributions: PTContributionInputs;
 }
 
+export interface THCalculatorInputs extends BaseCalculatorInputs {
+  country: "TH";
+  residencyType: THResidencyType;
+  contributions: THContributionInputs;
+  taxReliefs: THTaxReliefInputs;
+}
+
 export type CalculatorInputs =
   | USCalculatorInputs
   | SGCalculatorInputs
   | KRCalculatorInputs
   | NLCalculatorInputs
   | AUCalculatorInputs
-  | PTCalculatorInputs;
+  | PTCalculatorInputs
+  | THCalculatorInputs;
 
 // ============================================================================
 // TAX BREAKDOWN TYPES
@@ -275,13 +330,19 @@ export interface PTTaxBreakdown extends BaseTaxBreakdown {
   socialSecurity: number; // Segurança Social - 11%
 }
 
+export interface THTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number; // Personal Income Tax
+  socialSecurity: number; // Social Security Fund contribution
+}
+
 export type TaxBreakdown =
   | USTaxBreakdown
   | SGTaxBreakdown
   | KRTaxBreakdown
   | NLTaxBreakdown
   | AUTaxBreakdown
-  | PTTaxBreakdown;
+  | PTTaxBreakdown
+  | THTaxBreakdown;
 
 // ============================================================================
 // CALCULATION RESULT TYPES
@@ -515,13 +576,67 @@ export interface PTBreakdown {
   jointFilingSavings?: number; // Savings from joint filing
 }
 
+export interface THBreakdown {
+  type: "TH";
+  assessableIncome: number; // Gross income
+  standardDeduction: number; // 50% capped at 100,000 THB
+  netIncome: number; // Income after standard deduction
+  totalAllowances: number; // Total personal allowances
+  taxableIncome: number; // Income subject to tax
+  isResident: boolean;
+  // Allowances breakdown
+  allowances: {
+    personalAllowance: number;
+    spouseAllowance: number;
+    childAllowance: number;
+    parentAllowance: number;
+    disabledPersonAllowance: number;
+    lifeInsurance: number;
+    healthInsurance: number;
+    socialSecurity: number;
+    providentFund: number;
+    rmf: number;
+    ssf: number;
+    esg: number;
+    mortgageInterest: number;
+    donations: number;
+    politicalDonation: number;
+    elderlyDisabledAllowance: number;
+  };
+  // Voluntary contributions
+  voluntaryContributions: {
+    providentFund: number;
+    rmf: number;
+    ssf: number;
+    esg: number;
+    nationalSavingsFund: number;
+    total: number;
+  };
+  // Social Security details
+  socialSecurity: {
+    employeeContribution: number;
+    employerContribution: number;
+    rate: number;
+    cap: number; // Monthly cap
+    annualCap: number;
+  };
+  // Tax bracket breakdown
+  bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }>;
+}
+
 export type CountrySpecificBreakdown =
   | USBreakdown
   | SGBreakdown
   | KRBreakdown
   | NLBreakdown
   | AUBreakdown
-  | PTBreakdown;
+  | PTBreakdown
+  | THBreakdown;
 
 // ============================================================================
 // COUNTRY CALCULATOR INTERFACE
@@ -667,4 +782,20 @@ export function isPTBreakdown(
   breakdown: CountrySpecificBreakdown,
 ): breakdown is PTBreakdown {
   return breakdown.type === "PT";
+}
+
+export function isTHInputs(
+  inputs: CalculatorInputs,
+): inputs is THCalculatorInputs {
+  return inputs.country === "TH";
+}
+
+export function isTHTaxBreakdown(taxes: TaxBreakdown): taxes is THTaxBreakdown {
+  return "incomeTax" in taxes && "socialSecurity" in taxes && !("cpfEmployee" in taxes) && !("federalIncomeTax" in taxes);
+}
+
+export function isTHBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is THBreakdown {
+  return breakdown.type === "TH";
 }

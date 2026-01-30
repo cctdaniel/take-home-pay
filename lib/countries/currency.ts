@@ -41,6 +41,12 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
     name: "Australian Dollar",
     locale: "en-AU",
   },
+  THB: {
+    code: "THB",
+    symbol: "฿",
+    name: "Thai Baht",
+    locale: "th-TH",
+  },
 };
 
 // ============================================================================
@@ -53,6 +59,7 @@ export const COUNTRY_CURRENCY: Record<CountryCode, CurrencyCode> = {
   NL: "EUR",
   AU: "AUD",
   PT: "EUR",
+  TH: "THB",
 };
 
 // ============================================================================
@@ -96,6 +103,9 @@ export function getCurrencyForCountry(countryCode: CountryCode): CurrencyConfig 
   }
   if (countryCode === "NL") {
     return { ...baseConfig, locale: "nl-NL" };
+  }
+  if (countryCode === "TH") {
+    return { ...baseConfig, locale: "th-TH" };
   }
   
   return baseConfig;

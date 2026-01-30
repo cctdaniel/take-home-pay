@@ -4,7 +4,7 @@ This file provides guidance for AI coding agents working with this codebase.
 
 ## Project Overview
 
-**Take Home Pay Calculator** — A Next.js web application for calculating take-home salary after taxes and deductions. Supports multiple countries (US, Australia, Singapore, South Korea, Netherlands, and Portugal) with 2026 tax data.
+**Take Home Pay Calculator** — A Next.js web application for calculating take-home salary after taxes and deductions. Supports multiple countries (US, Australia, Netherlands, Portugal, Singapore, South Korea, and Thailand) with 2026 tax data.
 
 ## Tech Stack
 
@@ -33,6 +33,7 @@ This file provides guidance for AI coding agents working with this codebase.
     /kr/                  # South Korea tax calculator (income tax, social insurance)
     /nl/                  # Netherlands tax calculator (income tax, national insurance)
     /pt/                  # Portugal tax calculator (IRS, Social Security)
+    /th/                  # Thailand tax calculator (PIT, SSF, Provident Fund)
     registry.ts           # Country calculator registry (factory pattern)
     types.ts              # Shared TypeScript interfaces
   /constants/             # Tax brackets, contribution limits, tax year
@@ -53,6 +54,7 @@ Each country has its own route for better SEO:
 | South Korea   | `/kr` | Yes (static)       |
 | Netherlands   | `/nl` | Yes (static)       |
 | Portugal      | `/pt` | Yes (static)       |
+| Thailand      | `/th` | Yes (static)       |
 
 - Root `/` redirects to `/us` (default country)
 - Country selector navigates to the selected country's route
@@ -94,7 +96,7 @@ URL (/us, /sg, etc.) → Country Page → MultiCountryCalculator → Country Cal
 Each country calculator handles:
 
 - Income tax (federal/national)
-- Payroll taxes (FICA for US, CPF for Singapore, 4 Major Insurance for Korea)
+- Payroll taxes (FICA for US, CPF for Singapore, 4 Major Insurance for Korea, SSF for Thailand)
 - Deductions and contributions
 - Tax reliefs (country-specific)
 
@@ -121,6 +123,7 @@ Each country calculator handles:
 | `lib/countries/kr/calculator.ts`             | South Korea tax calculation logic      |
 | `lib/countries/nl/calculator.ts`             | Netherlands tax calculation logic      |
 | `lib/countries/pt/calculator.ts`             | Portugal tax calculation logic         |
+| `lib/countries/th/calculator.ts`             | Thailand tax calculation logic         |
 | `lib/constants/tax-year.ts`                  | Current tax year and build metadata    |
 | `components/calculator/country-selector.tsx` | Country dropdown (navigates on change) |
 

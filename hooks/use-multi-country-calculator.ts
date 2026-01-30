@@ -2,6 +2,7 @@
 
 import { calculateNetSalary, getCountryConfig } from "@/lib/countries/registry";
 import { PTCalculator } from "@/lib/countries/pt/calculator";
+import { THCalculator } from "@/lib/countries/th/calculator";
 import {
   CPF_VOLUNTARY_TOPUP_LIMIT,
   getSRSLimit,
@@ -22,6 +23,9 @@ import type {
   SGCalculatorInputs,
   SGResidencyType,
   SGTaxReliefInputs,
+  THCalculatorInputs,
+  THResidencyType,
+  THTaxReliefInputs,
   USCalculatorInputs,
   USFilingStatus,
 } from "@/lib/countries/types";
@@ -59,6 +63,29 @@ const DEFAULT_KR_TAX_RELIEFS: KRTaxReliefInputs = {
   hasChildcareAllowance: false,
 };
 
+const DEFAULT_TH_TAX_RELIEFS: THTaxReliefInputs = {
+  hasSpouse: false,
+  spouseHasNoIncome: false,
+  numberOfChildren: 0,
+  numberOfChildrenBornAfter2018: 0,
+  numberOfParents: 0,
+  numberOfDisabledDependents: 0,
+  isElderlyOrDisabled: false,
+  lifeInsurancePremium: 0,
+  lifeInsuranceSpousePremium: 0,
+  healthInsurancePremium: 0,
+  healthInsuranceParentsPremium: 0,
+  hasSocialSecurity: true,
+  providentFundContribution: 0,
+  rmfContribution: 0,
+  ssfContribution: 0,
+  esgContribution: 0,
+  nationalSavingsFundContribution: 0,
+  mortgageInterest: 0,
+  donations: 0,
+  politicalDonation: 0,
+};
+
 // Default gross salaries per country
 const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
   US: 100000,
@@ -67,6 +94,7 @@ const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
   NL: 55000,
   AU: 100000, // A$100k typical Australian salary
   PT: 35000, // €35k typical Portuguese salary
+  TH: 600000, // ฿600k typical Thai middle income
 };
 
 // ============================================================================
@@ -140,6 +168,29 @@ export interface UseMultiCountryCalculatorReturn {
   ptLimits: {
     pprMaxContribution: number;
     pprMaxTaxCredit: number;
+  };
+
+  // TH-specific
+  thResidencyType: THResidencyType;
+  setThResidencyType: (value: THResidencyType) => void;
+  thTaxReliefs: THTaxReliefInputs;
+  setThTaxReliefs: (value: THTaxReliefInputs) => void;
+  thProvidentFund: number;
+  setThProvidentFund: (value: number) => void;
+  thRmf: number;
+  setThRmf: (value: number) => void;
+  thSsf: number;
+  setThSsf: (value: number) => void;
+  thEsg: number;
+  setThEsg: (value: number) => void;
+  thNsf: number;
+  setThNsf: (value: number) => void;
+  thLimits: {
+    providentFund: number;
+    rmf: number;
+    ssf: number;
+    esg: number;
+    nsf: number;
   };
 
   // Limits
@@ -216,6 +267,15 @@ export function useMultiCountryCalculator(
   const [ptAge, setPtAge] = useState(30);
   const [ptPprContribution, setPtPprContributionState] = useState(0);
 
+  // TH-specific state
+  const [thResidencyType, setThResidencyType] = useState<THResidencyType>("resident");
+  const [thTaxReliefs, setThTaxReliefs] = useState<THTaxReliefInputs>(DEFAULT_TH_TAX_RELIEFS);
+  const [thProvidentFund, setThProvidentFundState] = useState(0);
+  const [thRmf, setThRmfState] = useState(0);
+  const [thSsf, setThSsfState] = useState(0);
+  const [thEsg, setThEsgState] = useState(0);
+  const [thNsf, setThNsfState] = useState(0);
+
   // Track previous country using state (React docs pattern for adjusting state when props change)
   const [prevCountry, setPrevCountry] = useState(country);
 
@@ -253,6 +313,14 @@ export function useMultiCountryCalculator(
       setPtNumberOfDependents(0);
       setPtAge(30);
       setPtPprContributionState(0);
+    } else if (country === "TH") {
+      setThResidencyType("resident");
+      setThTaxReliefs(DEFAULT_TH_TAX_RELIEFS);
+      setThProvidentFundState(0);
+      setThRmfState(0);
+      setThSsfState(0);
+      setThEsgState(0);
+      setThNsfState(0);
     }
   }
 
@@ -290,6 +358,19 @@ export function useMultiCountryCalculator(
       pprMaxTaxCredit: maxTaxCredit,
     };
   }, [ptAge]);
+
+  // TH limits
+  const thLimits = useMemo(() => {
+    // Get limits from calculator based on income
+    const limits = THCalculator.getContributionLimits({ grossSalary });
+    return {
+      providentFund: limits.providentFundContribution?.limit ?? 500000,
+      rmf: limits.rmfContribution?.limit ?? 500000,
+      ssf: limits.ssfContribution?.limit ?? 200000,
+      esg: limits.esgContribution?.limit ?? 300000,
+      nsf: limits.nationalSavingsFundContribution?.limit ?? 30000,
+    };
+  }, [grossSalary]);
 
   // US contribution handlers with validation
   const setTraditional401k = useCallback((value: number) => {
@@ -341,6 +422,32 @@ export function useMultiCountryCalculator(
       setPtPprContributionState(Math.min(value, ptLimits.pprMaxContribution));
     },
     [ptLimits.pprMaxContribution],
+  );
+
+  // TH contribution handlers with validation
+  const setThProvidentFund = useCallback(
+    (value: number) => setThProvidentFundState(Math.min(value, thLimits.providentFund)),
+    [thLimits.providentFund],
+  );
+
+  const setThRmf = useCallback(
+    (value: number) => setThRmfState(Math.min(value, thLimits.rmf)),
+    [thLimits.rmf],
+  );
+
+  const setThSsf = useCallback(
+    (value: number) => setThSsfState(Math.min(value, thLimits.ssf)),
+    [thLimits.ssf],
+  );
+
+  const setThEsg = useCallback(
+    (value: number) => setThEsgState(Math.min(value, thLimits.esg)),
+    [thLimits.esg],
+  );
+
+  const setThNsf = useCallback(
+    (value: number) => setThNsfState(Math.min(value, thLimits.nsf)),
+    [thLimits.nsf],
   );
 
   // Build inputs based on country
@@ -405,7 +512,7 @@ export function useMultiCountryCalculator(
         hasPrivateHealthInsurance,
       };
       return auInputs;
-    } else {
+    } else if (country === "PT") {
       const ptInputs: PTCalculatorInputs = {
         country: "PT",
         grossSalary,
@@ -419,6 +526,31 @@ export function useMultiCountryCalculator(
         },
       };
       return ptInputs;
+    } else {
+      // TH
+      const thInputs: THCalculatorInputs = {
+        country: "TH",
+        grossSalary,
+        payFrequency,
+        residencyType: thResidencyType,
+        contributions: {
+          providentFundContribution: Math.min(thProvidentFund, thLimits.providentFund),
+          rmfContribution: Math.min(thRmf, thLimits.rmf),
+          ssfContribution: Math.min(thSsf, thLimits.ssf),
+          esgContribution: Math.min(thEsg, thLimits.esg),
+          nationalSavingsFundContribution: Math.min(thNsf, thLimits.nsf),
+        },
+        taxReliefs: {
+          ...thTaxReliefs,
+          // Include contribution amounts in taxReliefs for allowance calculations
+          providentFundContribution: Math.min(thProvidentFund, thLimits.providentFund),
+          rmfContribution: Math.min(thRmf, thLimits.rmf),
+          ssfContribution: Math.min(thSsf, thLimits.ssf),
+          esgContribution: Math.min(thEsg, thLimits.esg),
+          nationalSavingsFundContribution: Math.min(thNsf, thLimits.nsf),
+        },
+      };
+      return thInputs;
     }
   }, [
     country,
@@ -446,9 +578,17 @@ export function useMultiCountryCalculator(
     ptNumberOfDependents,
     ptAge,
     ptPprContribution,
+    thResidencyType,
+    thTaxReliefs,
+    thProvidentFund,
+    thRmf,
+    thSsf,
+    thEsg,
+    thNsf,
     usLimits,
     sgLimits,
     ptLimits,
+    thLimits,
   ]);
 
   // Calculate result
@@ -522,10 +662,27 @@ export function useMultiCountryCalculator(
     ptPprContribution,
     setPtPprContribution,
 
+    // TH-specific
+    thResidencyType,
+    setThResidencyType,
+    thTaxReliefs,
+    setThTaxReliefs,
+    thProvidentFund,
+    setThProvidentFund,
+    thRmf,
+    setThRmf,
+    thSsf,
+    setThSsf,
+    thEsg,
+    setThEsg,
+    thNsf,
+    setThNsf,
+
     // Limits
     usLimits,
     sgLimits,
     ptLimits,
+    thLimits,
 
     // Results
     result,

@@ -56,6 +56,7 @@ export function MultiCountryResults({
   const isNL = country === "NL";
   const isAU = country === "AU";
   const isPT = country === "PT";
+  const isTH = country === "TH";
 
   // US-specific data
   let stateName = usState || "";
@@ -1060,8 +1061,7 @@ export function MultiCountryResults({
 
           {/* PT Tax Breakdown */}
           {isPT &&
-            "incomeTax" in taxes &&
-            "socialSecurity" in taxes &&
+            "solidaritySurcharge" in taxes &&
             result.breakdown.type === "PT" && (
               <>
                 {/* Residency Status */}
@@ -1298,6 +1298,290 @@ export function MultiCountryResults({
                   <p className="text-xs text-zinc-500 mt-2">
                     Note: Additional deductions for health, education, housing,
                     and other expenses are not included.
+                  </p>
+                </div>
+              </>
+            )}
+
+          {/* TH Tax Breakdown */}
+          {isTH &&
+            "incomeTax" in taxes &&
+            "socialSecurity" in taxes &&
+            result.breakdown.type === "TH" && (
+              <>
+                {/* Residency Status */}
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-zinc-400">Tax Residency</span>
+                  <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
+                    {result.breakdown.isResident
+                      ? "Thai Resident"
+                      : "Non-Resident (15% flat)"}
+                  </span>
+                </div>
+
+                {/* Standard Deduction */}
+                <Separator className="my-2" />
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Standard Deduction
+                </p>
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-sm text-zinc-400">
+                    Employment Income (50%)
+                  </span>
+                  <span className="text-sm text-emerald-400 tabular-nums">
+                    -{formatCurrency(result.breakdown.standardDeduction, currency)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-1 border-t border-zinc-700/50 mt-1">
+                  <span className="text-sm text-zinc-300">Net Income</span>
+                  <span className="text-sm text-zinc-200 tabular-nums">
+                    {formatCurrency(result.breakdown.netIncome, currency)}
+                  </span>
+                </div>
+
+                {/* Allowances Applied */}
+                {result.breakdown.totalAllowances > 0 && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="text-xs text-zinc-500 pt-2 pb-1">
+                      Personal Allowances
+                    </p>
+                    {result.breakdown.allowances.personalAllowance > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Personal Allowance
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -{formatCurrency(result.breakdown.allowances.personalAllowance, currency)}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.spouseAllowance > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Spouse Allowance
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -{formatCurrency(result.breakdown.allowances.spouseAllowance, currency)}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.childAllowance > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Child Allowance
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -{formatCurrency(result.breakdown.allowances.childAllowance, currency)}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.parentAllowance > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Parent Allowance
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -{formatCurrency(result.breakdown.allowances.parentAllowance, currency)}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.lifeInsurance > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Life Insurance
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -{formatCurrency(result.breakdown.allowances.lifeInsurance, currency)}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.healthInsurance > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Health Insurance
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -{formatCurrency(result.breakdown.allowances.healthInsurance, currency)}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.socialSecurity > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Social Security
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -{formatCurrency(result.breakdown.allowances.socialSecurity, currency)}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.providentFund > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Provident Fund
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -{formatCurrency(result.breakdown.allowances.providentFund, currency)}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.rmf > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Retirement Mutual Fund (RMF)
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -{formatCurrency(result.breakdown.allowances.rmf, currency)}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.ssf > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Super Savings Fund (SSF)
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -{formatCurrency(result.breakdown.allowances.ssf, currency)}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.mortgageInterest > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Mortgage Interest
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -{formatCurrency(result.breakdown.allowances.mortgageInterest, currency)}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.allowances.donations > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Donations
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -{formatCurrency(result.breakdown.allowances.donations, currency)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                      <span className="text-sm text-zinc-300">Taxable Income</span>
+                      <span className="text-sm text-zinc-200 tabular-nums">
+                        {formatCurrency(result.breakdown.taxableIncome, currency)}
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                {/* Income Tax */}
+                <Separator className="my-2" />
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Personal Income Tax (Progressive Rates)
+                </p>
+                
+                {/* Tax Bracket Breakdown */}
+                {result.breakdown.bracketTaxes.map((bracket, index) => (
+                  <div key={index} className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">
+                      {(bracket.rate * 100).toFixed(0)}% on {formatCurrency(bracket.min, currency)}
+                      {bracket.max === Infinity ? "+" : ` - ${formatCurrency(bracket.max, currency)}`}
+                    </span>
+                    <span className="text-sm text-zinc-200 tabular-nums">
+                      {formatCurrency(bracket.tax, currency)}
+                    </span>
+                  </div>
+                ))}
+
+                <Separator className="my-2" />
+
+                {/* Social Security */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Social Security Fund (SSF)
+                </p>
+                <DeductionRow
+                  label="Employee Contribution (5%)"
+                  amount={taxes.socialSecurity}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                <p className="text-xs text-zinc-500 italic mt-1">
+                  Capped at ฿750/month (฿9,000/year)
+                </p>
+
+                {/* Employer Contribution (informational) */}
+                <div className="flex items-center justify-between py-2 opacity-60">
+                  <span className="text-sm text-zinc-400">
+                    Employer Contribution (5%)
+                  </span>
+                  <span className="text-sm text-zinc-500 tabular-nums">
+                    +{formatCurrency(taxes.socialSecurity, currency)}
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-500 italic">
+                  Employer matches your contribution - not deducted from take-home pay
+                </p>
+
+                {/* Voluntary Contributions Summary */}
+                {result.breakdown.voluntaryContributions.total > 0 && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="text-xs text-zinc-500 pt-2 pb-1">
+                      Voluntary Contributions
+                    </p>
+                    {result.breakdown.voluntaryContributions.providentFund > 0 && (
+                      <DeductionRow
+                        label="Provident Fund"
+                        amount={result.breakdown.voluntaryContributions.providentFund}
+                        grossSalary={grossSalary}
+                        currency={currency}
+                      />
+                    )}
+                    {result.breakdown.voluntaryContributions.rmf > 0 && (
+                      <DeductionRow
+                        label="Retirement Mutual Fund (RMF)"
+                        amount={result.breakdown.voluntaryContributions.rmf}
+                        grossSalary={grossSalary}
+                        currency={currency}
+                      />
+                    )}
+                    {result.breakdown.voluntaryContributions.ssf > 0 && (
+                      <DeductionRow
+                        label="Super Savings Fund (SSF)"
+                        amount={result.breakdown.voluntaryContributions.ssf}
+                        grossSalary={grossSalary}
+                        currency={currency}
+                      />
+                    )}
+                    {result.breakdown.voluntaryContributions.esg > 0 && (
+                      <DeductionRow
+                        label="Thai ESG Fund"
+                        amount={result.breakdown.voluntaryContributions.esg}
+                        grossSalary={grossSalary}
+                        currency={currency}
+                      />
+                    )}
+                    {result.breakdown.voluntaryContributions.nationalSavingsFund > 0 && (
+                      <DeductionRow
+                        label="National Savings Fund"
+                        amount={result.breakdown.voluntaryContributions.nationalSavingsFund}
+                        grossSalary={grossSalary}
+                        currency={currency}
+                      />
+                    )}
+                  </>
+                )}
+
+                {/* Note */}
+                <Separator className="my-2" />
+                <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
+                  <p className="text-xs text-zinc-400 font-medium mb-1">
+                    Other deductions not included:
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    ESG fund contributions (held 5+ years), pension life insurance,
+                    prenatal care expenses, disabled dependent care, elderly taxpayer allowance.
                   </p>
                 </div>
               </>
