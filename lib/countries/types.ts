@@ -8,7 +8,7 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "EUR";
+export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD";
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -205,10 +205,12 @@ export interface AUCalculatorInputs extends BaseCalculatorInputs {
   hasPrivateHealthInsurance: boolean; // Affects Medicare Levy Surcharge
 }
 
+export type PTFilingStatus = "single" | "married_jointly" | "married_separately";
+
 export interface PTCalculatorInputs extends BaseCalculatorInputs {
   country: "PT";
   residencyType: "resident" | "non_resident";
-  maritalStatus: "single" | "married";
+  filingStatus: PTFilingStatus;
   numberOfDependents: number; // For tax benefits
   age: number; // For PPR contribution limits
   contributions: PTContributionInputs;
@@ -267,6 +269,7 @@ export interface AUTaxBreakdown extends BaseTaxBreakdown {
 }
 
 export interface PTTaxBreakdown extends BaseTaxBreakdown {
+  type: "PT"; // Discriminant for type-safe narrowing
   incomeTax: number; // IRS - Imposto sobre o Rendimento
   solidaritySurcharge: number; // Adicional de Solidariedade for high incomes
   socialSecurity: number; // Segurança Social - 11%
@@ -493,7 +496,7 @@ export interface PTBreakdown {
   specificDeduction: number; // Dedução específica mínima (or SS contribution)
   // Taxpayer info
   isResident: boolean;
-  maritalStatus: "single" | "married";
+  filingStatus: PTFilingStatus;
   numberOfDependents: number;
   // Employer SS contribution (informational)
   employerSocialSecurity: number;
@@ -507,6 +510,9 @@ export interface PTBreakdown {
   dependentDeduction: number; // €600 per dependent
   totalTaxCredits: number; // Total credits and deductions
   grossTaxBeforeCredits: number; // Tax before credits applied
+  // Joint filing info (for comparison)
+  incomeTaxBeforeJointFiling?: number; // Tax if filed separately (for comparison)
+  jointFilingSavings?: number; // Savings from joint filing
 }
 
 export type CountrySpecificBreakdown =
@@ -654,7 +660,7 @@ export function isPTInputs(
 }
 
 export function isPTTaxBreakdown(taxes: TaxBreakdown): taxes is PTTaxBreakdown {
-  return "solidaritySurcharge" in taxes && "socialSecurity" in taxes;
+  return "type" in taxes && (taxes as PTTaxBreakdown).type === "PT";
 }
 
 export function isPTBreakdown(

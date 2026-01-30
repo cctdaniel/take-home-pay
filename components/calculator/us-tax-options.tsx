@@ -72,20 +72,6 @@ export function USTaxOptions({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="filing-status">Filing Status</Label>
-        <Select
-          id="filing-status"
-          value={filingStatus}
-          onChange={(e) => onFilingStatusChange(e.target.value as USFilingStatus)}
-        >
-          <option value="single">Single</option>
-          <option value="married_jointly">Married Filing Jointly</option>
-          <option value="married_separately">Married Filing Separately</option>
-          <option value="head_of_household">Head of Household</option>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
         <Label htmlFor="pay-frequency">Pay Frequency</Label>
         <Select
           id="pay-frequency"
@@ -96,6 +82,20 @@ export function USTaxOptions({
           <option value="monthly">Monthly</option>
           <option value="biweekly">Bi-weekly</option>
           <option value="weekly">Weekly</option>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="filing-status">Filing Status</Label>
+        <Select
+          id="filing-status"
+          value={filingStatus}
+          onChange={(e) => onFilingStatusChange(e.target.value as USFilingStatus)}
+        >
+          <option value="single">Single</option>
+          <option value="married_jointly">Married Filing Jointly</option>
+          <option value="married_separately">Married Filing Separately</option>
+          <option value="head_of_household">Head of Household</option>
         </Select>
       </div>
     </div>

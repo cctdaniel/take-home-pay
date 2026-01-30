@@ -12,10 +12,10 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
+  PayFrequency,
   PTBreakdown,
   PTCalculatorInputs,
   PTTaxBreakdown,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { PT_CONFIG } from "./config";
@@ -37,7 +37,10 @@ const PPR_LIMITS_2026 = {
   over50: { maxCredit: 300, maxContribution: 1500 }, // 20% of 1500 = 300
 };
 
-function getPPRLimit(age: number): { maxCredit: number; maxContribution: number } {
+function getPPRLimit(age: number): {
+  maxCredit: number;
+  maxContribution: number;
+} {
   if (age < 35) return PPR_LIMITS_2026.under35;
   if (age <= 50) return PPR_LIMITS_2026.age35to50;
   return PPR_LIMITS_2026.over50;
@@ -77,7 +80,7 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
     grossSalary,
     payFrequency,
     residencyType,
-    maritalStatus,
+    filingStatus,
     numberOfDependents,
     age,
     contributions,
@@ -86,9 +89,7 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
   const isResident = residencyType === "resident";
 
   // Step 1: Calculate Social Security contribution (always applies to residents)
-  const socialSecurity = isResident
-    ? calculateSocialSecurity(grossSalary)
-    : 0;
+  const socialSecurity = isResident ? calculateSocialSecurity(grossSalary) : 0;
 
   // Employer Social Security (informational only)
   const employerSocialSecurity =
@@ -109,6 +110,7 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
 
   // Step 4: Calculate IRS tax
   let incomeTax: number;
+  let incomeTaxBeforeJointFiling: number | undefined; // Store original tax for comparison
   let bracketTaxes: Array<{
     min: number;
     max: number;
@@ -118,9 +120,25 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
 
   if (isResident) {
     // Residents: progressive tax brackets
-    const irsResult = calculateIRS(taxableIncome);
-    incomeTax = irsResult.totalTax;
-    bracketTaxes = irsResult.bracketTaxes;
+    if (filingStatus === "married_jointly") {
+      // Joint filing (aggregado): divide income by 2, calculate tax, multiply by 2
+      // This usually results in lower tax due to progressive brackets
+      const halfIncome = taxableIncome / 2;
+      const irsResultHalf = calculateIRS(halfIncome);
+      const irsResultFull = calculateIRS(taxableIncome);
+      incomeTaxBeforeJointFiling = irsResultFull.totalTax;
+      incomeTax = irsResultHalf.totalTax * 2;
+      // Scale bracket taxes for display
+      bracketTaxes = irsResultHalf.bracketTaxes.map((b) => ({
+        ...b,
+        tax: b.tax * 2,
+      }));
+    } else {
+      // Separate filing (single or married_separately)
+      const irsResult = calculateIRS(taxableIncome);
+      incomeTax = irsResult.totalTax;
+      bracketTaxes = irsResult.bracketTaxes;
+    }
   } else {
     // Non-residents: flat 25% rate
     incomeTax = taxableIncome * 0.25;
@@ -162,6 +180,7 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
 
   // Step 9: Build tax breakdown
   const taxes: PTTaxBreakdown = {
+    type: "PT",
     totalIncomeTax: finalTax,
     incomeTax,
     solidaritySurcharge,
@@ -191,7 +210,7 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
     socialSecurity,
     specificDeduction,
     isResident,
-    maritalStatus,
+    filingStatus,
     numberOfDependents,
     employerSocialSecurity,
     effectiveIRSRate,
@@ -203,6 +222,9 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
     dependentDeduction,
     totalTaxCredits,
     grossTaxBeforeCredits: grossTax,
+    // Joint filing info
+    incomeTaxBeforeJointFiling,
+    jointFilingSavings: incomeTaxBeforeJointFiling ? incomeTaxBeforeJointFiling - incomeTax : undefined,
   };
 
   return {
@@ -243,7 +265,9 @@ export const PTCalculator: CountryCalculator = {
     return [];
   },
 
-  getContributionLimits(inputs?: Partial<PTCalculatorInputs>): ContributionLimits {
+  getContributionLimits(
+    inputs?: Partial<PTCalculatorInputs>,
+  ): ContributionLimits {
     const age = inputs?.age ?? 30;
     const limit = getPPRLimit(age);
     return {
@@ -262,7 +286,7 @@ export const PTCalculator: CountryCalculator = {
       grossSalary: 35000, // €35,000 - typical Portuguese salary
       payFrequency: "monthly",
       residencyType: "resident",
-      maritalStatus: "single",
+      filingStatus: "single",
       numberOfDependents: 0,
       age: 30,
       contributions: {

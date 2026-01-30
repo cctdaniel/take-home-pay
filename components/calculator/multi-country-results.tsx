@@ -1074,6 +1074,16 @@ export function MultiCountryResults({
                   </span>
                 </div>
 
+                {/* Filing Status */}
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-zinc-400">Filing Status</span>
+                  <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
+                    {result.breakdown.filingStatus === "single" && "Single"}
+                    {result.breakdown.filingStatus === "married_jointly" && "Married Filing Jointly"}
+                    {result.breakdown.filingStatus === "married_separately" && "Married Filing Separately"}
+                  </span>
+                </div>
+
                 {/* Specific Deduction */}
                 {result.breakdown.specificDeduction > 0 && (
                   <>
@@ -1110,12 +1120,48 @@ export function MultiCountryResults({
                 <p className="text-xs text-zinc-500 pt-2 pb-1">
                   IRS (Imposto sobre o Rendimento)
                 </p>
-                <DeductionRow
-                  label="Income Tax"
-                  amount={taxes.incomeTax}
-                  grossSalary={grossSalary}
-                  currency={currency}
-                />
+                
+                {/* Show joint filing comparison if applicable */}
+                {result.breakdown.jointFilingSavings && result.breakdown.jointFilingSavings > 0 && (
+                  <>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">
+                        Tax (Separate Filing)
+                      </span>
+                      <span className="text-sm text-zinc-500 tabular-nums line-through">
+                        {formatCurrency(
+                          result.breakdown.incomeTaxBeforeJointFiling ?? 0,
+                          currency,
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">
+                        Tax (Joint Filing)
+                      </span>
+                      <span className="text-sm text-zinc-200 tabular-nums">
+                        {formatCurrency(taxes.incomeTax, currency)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-emerald-400">
+                        Joint Filing Savings
+                      </span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.jointFilingSavings, currency)}
+                      </span>
+                    </div>
+                  </>
+                )}
+                
+                {!result.breakdown.jointFilingSavings && (
+                  <DeductionRow
+                    label="Income Tax"
+                    amount={taxes.incomeTax}
+                    grossSalary={grossSalary}
+                    currency={currency}
+                  />
+                )}
 
                 {/* Solidarity Surcharge for high incomes */}
                 {taxes.solidaritySurcharge > 0 && (
@@ -1238,9 +1284,9 @@ export function MultiCountryResults({
                   </p>
                   <div className="flex flex-wrap gap-2 mt-2">
                     <span className="text-xs text-zinc-500 bg-zinc-700/50 px-2 py-1 rounded">
-                      {result.breakdown.maritalStatus === "married"
-                        ? "Married"
-                        : "Single"}
+                      {result.breakdown.filingStatus === "single"
+                        ? "Single"
+                        : "Married"}
                     </span>
                     {result.breakdown.numberOfDependents > 0 && (
                       <span className="text-xs text-zinc-500 bg-zinc-700/50 px-2 py-1 rounded">

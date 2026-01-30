@@ -129,8 +129,8 @@ export interface UseMultiCountryCalculatorReturn {
   // PT-specific
   ptResidencyType: "resident" | "non_resident";
   setPtResidencyType: (value: "resident" | "non_resident") => void;
-  ptMaritalStatus: "single" | "married";
-  setPtMaritalStatus: (value: "single" | "married") => void;
+  ptFilingStatus: "single" | "married_jointly" | "married_separately";
+  setPtFilingStatus: (value: "single" | "married_jointly" | "married_separately") => void;
   ptNumberOfDependents: number;
   setPtNumberOfDependents: (value: number) => void;
   ptAge: number;
@@ -210,8 +210,8 @@ export function useMultiCountryCalculator(
   // PT-specific state
   const [ptResidencyType, setPtResidencyType] =
     useState<"resident" | "non_resident">("resident");
-  const [ptMaritalStatus, setPtMaritalStatus] =
-    useState<"single" | "married">("single");
+  const [ptFilingStatus, setPtFilingStatus] =
+    useState<"single" | "married_jointly" | "married_separately">("single");
   const [ptNumberOfDependents, setPtNumberOfDependents] = useState(0);
   const [ptAge, setPtAge] = useState(30);
   const [ptPprContribution, setPtPprContributionState] = useState(0);
@@ -249,7 +249,7 @@ export function useMultiCountryCalculator(
       setHasPrivateHealthInsurance(true);
     } else if (country === "PT") {
       setPtResidencyType("resident");
-      setPtMaritalStatus("single");
+      setPtFilingStatus("single");
       setPtNumberOfDependents(0);
       setPtAge(30);
       setPtPprContributionState(0);
@@ -411,7 +411,7 @@ export function useMultiCountryCalculator(
         grossSalary,
         payFrequency,
         residencyType: ptResidencyType,
-        maritalStatus: ptMaritalStatus,
+        filingStatus: ptFilingStatus,
         numberOfDependents: ptNumberOfDependents,
         age: ptAge,
         contributions: {
@@ -442,7 +442,7 @@ export function useMultiCountryCalculator(
     auResidencyType,
     hasPrivateHealthInsurance,
     ptResidencyType,
-    ptMaritalStatus,
+    ptFilingStatus,
     ptNumberOfDependents,
     ptAge,
     ptPprContribution,
@@ -513,8 +513,8 @@ export function useMultiCountryCalculator(
     // PT-specific
     ptResidencyType,
     setPtResidencyType,
-    ptMaritalStatus,
-    setPtMaritalStatus,
+    ptFilingStatus,
+    setPtFilingStatus,
     ptNumberOfDependents,
     setPtNumberOfDependents,
     ptAge,

@@ -92,8 +92,8 @@ export function MultiCountryCalculator({
     // PT-specific
     ptResidencyType,
     setPtResidencyType,
-    ptMaritalStatus,
-    setPtMaritalStatus,
+    ptFilingStatus,
+    setPtFilingStatus,
     ptNumberOfDependents,
     setPtNumberOfDependents,
     ptAge,
@@ -190,8 +190,8 @@ export function MultiCountryCalculator({
                 onPayFrequencyChange={setPayFrequency}
                 residencyType={ptResidencyType}
                 onResidencyTypeChange={setPtResidencyType}
-                maritalStatus={ptMaritalStatus}
-                onMaritalStatusChange={setPtMaritalStatus}
+                filingStatus={ptFilingStatus}
+                onFilingStatusChange={setPtFilingStatus}
                 numberOfDependents={ptNumberOfDependents}
                 onNumberOfDependentsChange={setPtNumberOfDependents}
                 age={ptAge}
