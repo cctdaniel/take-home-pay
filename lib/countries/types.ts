@@ -246,6 +246,7 @@ export interface AUTaxBreakdown extends BaseTaxBreakdown {
   incomeTax: number; // Income tax after LITO
   medicareLevy: number; // 2% Medicare levy
   medicareLevySurcharge: number; // Additional surcharge if no PHI
+  division293Tax: number; // Additional tax on super for high income earners
 }
 
 export type TaxBreakdown =
@@ -437,10 +438,15 @@ export interface AUBreakdown {
   medicareLevy: number;
   medicareLevySurcharge: number;
   hasPrivateHealthInsurance: boolean;
+  // Division 293 tax (high income earners)
+  division293Tax: number;
+  division293Income: number; // Income + super for Division 293 purposes
+  division293Threshold: number; // $250,000 threshold
   // Superannuation (informational - paid by employer)
   superannuation: {
     employerContribution: number;
     rate: number; // 12% for 2025-26
+    concessionalContributions: number; // Used for Division 293 calc
   };
   isResident: boolean;
 }

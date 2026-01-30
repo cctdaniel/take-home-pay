@@ -127,6 +127,16 @@ export const AU_SUPERANNUATION_2026 = {
 };
 
 // ============================================================================
+// DIVISION 293 TAX 2025-26
+// Source: https://www.ato.gov.au/individuals-and-families/super-for-individuals-and-families/super/growing-and-keeping-track-of-your-super/caps-limits-and-tax-on-super-contributions/division-293-tax-on-concessional-contributions-by-high-income-earners
+// Additional 15% tax on concessional super contributions for high income earners
+// ============================================================================
+export const AU_DIVISION_293_2026 = {
+  threshold: 250000, // Income + super contributions threshold
+  rate: 0.15, // 15% additional tax
+};
+
+// ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
 
@@ -219,4 +229,52 @@ export function calculateSuperannuation(grossSalary: number): number {
   const maxAnnualBase = maxContributionBase * 4;
   const contributableIncome = Math.min(grossSalary, maxAnnualBase);
   return contributableIncome * rate;
+}
+
+/**
+ * Calculate Division 293 tax on concessional super contributions
+ * Applies when income + concessional contributions exceed $250,000
+ * Tax is 15% of the lesser of:
+ *   - The concessional super contributions, OR
+ *   - The amount exceeding the $250,000 threshold
+ * 
+ * Note: This is a personal tax liability, not deducted from salary,
+ * but it affects the employee's overall tax position
+ */
+export function calculateDivision293Tax(
+  taxableIncome: number,
+  concessionalSuperContributions: number,
+): {
+  division293Tax: number;
+  division293Income: number;
+  taxableContributions: number;
+} {
+  const { threshold, rate } = AU_DIVISION_293_2026;
+
+  // Division 293 income is similar to Medicare Levy Surcharge income
+  // For simplicity, we use taxable income (ATO uses a more complex calculation)
+  const division293Income = taxableIncome;
+  const total = division293Income + concessionalSuperContributions;
+
+  // Check if over threshold
+  if (total <= threshold) {
+    return {
+      division293Tax: 0,
+      division293Income,
+      taxableContributions: 0,
+    };
+  }
+
+  // Taxable contributions is the lesser of:
+  // - The concessional super contributions, OR
+  // - The amount exceeding the threshold
+  const excessOverThreshold = total - threshold;
+  const taxableContributions = Math.min(concessionalSuperContributions, excessOverThreshold);
+  const division293Tax = taxableContributions * rate;
+
+  return {
+    division293Tax,
+    division293Income,
+    taxableContributions,
+  };
 }

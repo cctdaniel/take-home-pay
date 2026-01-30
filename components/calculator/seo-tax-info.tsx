@@ -260,6 +260,11 @@ function AUTaxInfo() {
           1-1.5% if no private health insurance and income above A$101,000
         </li>
         <li>
+          <strong className="text-zinc-300">Division 293 Tax</strong> –
+          Additional 15% on concessional super contributions when income + super
+          exceeds A$250,000 (high income earners)
+        </li>
+        <li>
           <strong className="text-zinc-300">Superannuation</strong> – 12%
           employer contribution (not deducted from salary)
         </li>

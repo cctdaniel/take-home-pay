@@ -32,7 +32,7 @@ const COUNTRY_DESCRIPTIONS: Record<CountryCode, string> = {
   SG: `Free ${TAX_YEAR} take home pay calculator for Singapore. Calculate your salary after taxes including income tax, CPF contributions based on age and residency, and SRS deductions.`,
   KR: `Free ${TAX_YEAR} take home pay calculator for South Korea. Calculate your salary after taxes including income tax, local tax, national pension, health insurance, and employment insurance.`,
   NL: `Free ${TAX_YEAR} take home pay calculator for the Netherlands. Calculate your salary after taxes including income tax, national insurance, and the 30% ruling for expats.`,
-  AU: `Free ${TAX_YEAR} take home pay calculator for Australia. Calculate your salary after taxes including income tax (Stage 3 cuts), Medicare levy, Medicare levy surcharge, LITO, and superannuation.`,
+  AU: `Free ${TAX_YEAR} take home pay calculator for Australia. Calculate your salary after taxes including income tax (Stage 3 cuts), Medicare levy, Medicare levy surcharge, Division 293 tax (high income earners), LITO, and superannuation.`,
 };
 
 // Country-specific keywords for SEO
@@ -81,6 +81,8 @@ const COUNTRY_KEYWORDS: Record<CountryCode, string[]> = {
     "superannuation calculator",
     "stage 3 tax cuts calculator",
     "lito calculator",
+    "division 293 tax calculator",
+    "high income super tax",
   ],
 };
 
@@ -164,7 +166,7 @@ const COUNTRY_HEADER_INFO: Record<
   AU: {
     tagline: "Calculate your actual salary after taxes in Australia.",
     details:
-      "Income tax (Stage 3 cuts), LITO, Medicare levy, Medicare levy surcharge, superannuation",
+      "Income tax (Stage 3 cuts), LITO, Medicare levy, Medicare levy surcharge, Division 293 tax, superannuation",
   },
 };
 

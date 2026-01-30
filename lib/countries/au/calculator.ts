@@ -20,6 +20,7 @@ import { AU_CONFIG } from "./config";
 import {
   AU_NON_RESIDENT_TAX_BRACKETS_2026,
   AU_RESIDENT_TAX_BRACKETS_2026,
+  calculateDivision293Tax,
   calculateLITO,
   calculateMedicareLevy,
   calculateMedicareLevySurcharge,
@@ -105,22 +106,32 @@ export function calculateAU(inputs: AUCalculatorInputs): CalculationResult {
   // Step 7: Calculate superannuation (employer contribution - informational)
   const superannuation = calculateSuperannuation(grossSalary);
 
-  // Step 8: Build tax breakdown
+  // Step 8: Calculate Division 293 tax (for high income earners)
+  // Concessional contributions = employer super (for most employees)
+  const concessionalContributions = superannuation;
+  const {
+    division293Tax,
+    division293Income,
+    taxableContributions,
+  } = calculateDivision293Tax(taxableIncome, concessionalContributions);
+
+  // Step 9: Build tax breakdown
   const taxes: AUTaxBreakdown = {
-    totalIncomeTax: incomeTax + medicareLevy + medicareLevySurcharge,
+    totalIncomeTax: incomeTax + medicareLevy + medicareLevySurcharge + division293Tax,
     incomeTax,
     medicareLevy,
     medicareLevySurcharge,
+    division293Tax,
   };
 
-  // Step 9: Calculate totals
-  const totalTax = incomeTax + medicareLevy + medicareLevySurcharge;
+  // Step 10: Calculate totals
+  const totalTax = incomeTax + medicareLevy + medicareLevySurcharge + division293Tax;
   const totalDeductions = totalTax;
   const netSalary = grossSalary - totalDeductions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(payFrequency);
 
-  // Step 10: Build detailed breakdown
+  // Step 11: Build detailed breakdown
   const breakdown: AUBreakdown = {
     type: "AU",
     taxableIncome,
@@ -131,9 +142,13 @@ export function calculateAU(inputs: AUCalculatorInputs): CalculationResult {
     medicareLevy,
     medicareLevySurcharge,
     hasPrivateHealthInsurance,
+    division293Tax,
+    division293Income,
+    division293Threshold: 250000,
     superannuation: {
       employerContribution: superannuation,
       rate: 0.12,
+      concessionalContributions: taxableContributions,
     },
     isResident,
   };

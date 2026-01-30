@@ -58,6 +58,7 @@ Root `/` redirects to `/us` by default.
 - **Low Income Tax Offset (LITO)** — Up to A$700 for incomes under A$66,667
 - **Medicare Levy** — 2% of taxable income (with low-income reduction)
 - **Medicare Levy Surcharge** — 1-1.5% if no private health insurance above A$101,000
+- **Division 293 Tax** — Additional 15% on concessional super contributions when income + super exceeds A$250,000
 - **Superannuation** — 12% employer contribution (shown as info, not deducted)
 - **Residency** — Different tax brackets for Australian residents vs foreign residents
 
@@ -101,7 +102,7 @@ Open [http://localhost:3000](http://localhost:3000) to use the calculator. You'l
 - **Singapore:** IRAS tax rates and CPF contribution rates for 2026
 - **South Korea:** NTS tax rates and social insurance rates for 2026
 - **Netherlands:** Income tax brackets and national insurance rates for 2026
-- **Australia:** ATO tax rates for 2025-26, Medicare levy rates, and superannuation guarantee
+- **Australia:** ATO tax rates for 2025-26, Medicare levy rates, Division 293 tax, and superannuation guarantee
 
 ## Disclaimer
 

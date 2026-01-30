@@ -1010,6 +1010,28 @@ export function MultiCountryResults({
                   </div>
                 )}
 
+                {/* Division 293 Tax (High Income Earners) */}
+                {taxes.division293Tax > 0 && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="text-xs text-zinc-500 pt-2 pb-1">
+                      Division 293 Tax (High Income Earners)
+                    </p>
+                    <DeductionRow
+                      label="Additional Tax on Super"
+                      amount={taxes.division293Tax}
+                      grossSalary={grossSalary}
+                      currency={currency}
+                    />
+                    <p className="text-xs text-zinc-500 italic mt-1">
+                      Applies when income + super exceeds $250,000
+                    </p>
+                    <p className="text-xs text-zinc-500 italic">
+                      15% on lesser of super contributions or excess over threshold
+                    </p>
+                  </>
+                )}
+
                 {/* Superannuation (Informational) */}
                 <Separator className="my-2" />
                 <p className="text-xs text-zinc-500 pt-2 pb-1">
