@@ -46,7 +46,7 @@ export function PTTaxOptions({
           <option value="non_resident">Non-Resident (25% flat)</option>
         </Select>
         {residencyType === "nhr_2" && (
-          <p className="text-xs text-emerald-400">
+          <p className="text-xs text-zinc-500">
             NHR 2.0: 20% flat tax rate for new residents (10-year regime)
           </p>
         )}
