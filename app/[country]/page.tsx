@@ -49,6 +49,35 @@ const COUNTRY_KEYWORDS: Record<CountryCode, string[]> = {
     "new york salary calculator",
     "texas take home pay",
   ],
+  AU: [
+    "australia take home pay calculator",
+    "australian salary after tax",
+    `${TAX_YEAR} australia tax calculator`,
+    "ato tax calculator",
+    "medicare levy calculator",
+    "superannuation calculator",
+    "stage 3 tax cuts calculator",
+    "lito calculator",
+    "division 293 tax calculator",
+    "high income super tax",
+  ],
+  NL: [
+    "netherlands take home pay calculator",
+    "dutch salary after tax",
+    `${TAX_YEAR} netherlands tax calculator`,
+    "30 percent ruling calculator",
+    "dutch income tax calculator",
+    "loonbelasting calculator",
+  ],
+  PT: [
+    "portugal take home pay calculator",
+    "portuguese salary after tax",
+    `${TAX_YEAR} portugal tax calculator`,
+    "irs portugal calculator",
+    "seguranca social calculator",
+    "portugal income tax calculator",
+    "portugal paycheck calculator",
+  ],
   SG: [
     "singapore take home pay calculator",
     "sg salary after tax",
@@ -64,35 +93,6 @@ const COUNTRY_KEYWORDS: Record<CountryCode, string[]> = {
     "korean income tax calculator",
     "national pension korea",
     "4 major insurance korea",
-  ],
-  NL: [
-    "netherlands take home pay calculator",
-    "dutch salary after tax",
-    `${TAX_YEAR} netherlands tax calculator`,
-    "30 percent ruling calculator",
-    "dutch income tax calculator",
-    "loonbelasting calculator",
-  ],
-  AU: [
-    "australia take home pay calculator",
-    "australian salary after tax",
-    `${TAX_YEAR} australia tax calculator`,
-    "ato tax calculator",
-    "medicare levy calculator",
-    "superannuation calculator",
-    "stage 3 tax cuts calculator",
-    "lito calculator",
-    "division 293 tax calculator",
-    "high income super tax",
-  ],
-  PT: [
-    "portugal take home pay calculator",
-    "portuguese salary after tax",
-    `${TAX_YEAR} portugal tax calculator`,
-    "irs portugal calculator",
-    "seguranca social calculator",
-    "portugal income tax calculator",
-    "portugal paycheck calculator",
   ],
 };
 
@@ -160,6 +160,20 @@ const COUNTRY_HEADER_INFO: Record<
     details:
       "Federal & state taxes, Social Security, Medicare, 401(k), HSA, IRA",
   },
+  AU: {
+    tagline: "Calculate your actual salary after taxes in Australia.",
+    details:
+      "Income tax (Stage 3 cuts), LITO, Medicare levy, Medicare levy surcharge, Division 293 tax, superannuation",
+  },
+  NL: {
+    tagline: "Calculate your actual salary after taxes in the Netherlands.",
+    details: "Income tax, national insurance, 30% ruling for expats",
+  },
+  PT: {
+    tagline: "Calculate your actual salary after taxes in Portugal.",
+    details:
+      "IRS income tax, Social Security (Segurança Social), solidarity surcharge, PPR tax credits, dependent deductions",
+  },
   SG: {
     tagline: "Calculate your actual salary after taxes in Singapore.",
     details: "Income tax, CPF contributions (based on age and residency), SRS",
@@ -168,20 +182,6 @@ const COUNTRY_HEADER_INFO: Record<
     tagline: "Calculate your actual salary after taxes in South Korea.",
     details:
       "Income tax, local tax, national pension, health insurance, employment insurance",
-  },
-  NL: {
-    tagline: "Calculate your actual salary after taxes in the Netherlands.",
-    details: "Income tax, national insurance, 30% ruling for expats",
-  },
-  AU: {
-    tagline: "Calculate your actual salary after taxes in Australia.",
-    details:
-      "Income tax (Stage 3 cuts), LITO, Medicare levy, Medicare levy surcharge, Division 293 tax, superannuation",
-  },
-  PT: {
-    tagline: "Calculate your actual salary after taxes in Portugal.",
-    details:
-      "IRS income tax, Social Security (Segurança Social), solidarity surcharge, PPR tax credits, dependent deductions",
   },
 };
 
