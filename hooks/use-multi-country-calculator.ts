@@ -28,7 +28,7 @@ import {
   getHSALimit,
   type HSACoverageType,
 } from "@/lib/countries/us/constants/contribution-limits";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 // ============================================================================
 // DEFAULT VALUES
@@ -188,8 +188,12 @@ export function useMultiCountryCalculator(
   const [hasPrivateHealthInsurance, setHasPrivateHealthInsurance] =
     useState(true);
 
-  // Reset defaults when country changes (e.g., navigating to a different country page)
-  useEffect(() => {
+  // Track previous country using state (React docs pattern for adjusting state when props change)
+  const [prevCountry, setPrevCountry] = useState(country);
+
+  // Reset defaults when country changes (during render, not in effect)
+  if (prevCountry !== country) {
+    setPrevCountry(country);
     setGrossSalary(DEFAULT_GROSS_SALARY[country]);
     setPayFrequency("monthly");
 
@@ -216,7 +220,7 @@ export function useMultiCountryCalculator(
       setAuResidencyType("resident");
       setHasPrivateHealthInsurance(true);
     }
-  }, [country]);
+  }
 
   // Currency based on country
   const currency: CurrencyCode = useMemo(

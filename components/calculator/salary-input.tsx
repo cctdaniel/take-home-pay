@@ -26,19 +26,23 @@ export function SalaryInput({
   );
   const inputRef = useRef<HTMLInputElement>(null);
   const cursorPosRef = useRef<number | null>(null);
-  const isUserClearingRef = useRef(false);
+  const [isUserClearing, setIsUserClearing] = useState(false);
   const currencySymbol = getCurrencySymbol(currency);
 
-  // Sync display value when external value changes
-  // Skip sync if user just cleared the input to empty
-  useEffect(() => {
-    if (isUserClearingRef.current && value === 0) {
-      // User cleared the input, keep it empty
-      isUserClearingRef.current = false;
-      return;
+  // Track previous props using state (React docs pattern for adjusting state when props change)
+  const [prevProps, setPrevProps] = useState({ value, currency });
+
+  // Sync display value when external value/currency changes (during render, not effect)
+  if (prevProps.value !== value || prevProps.currency !== currency) {
+    setPrevProps({ value, currency });
+    // Skip sync if user just cleared the input to empty
+    if (!(isUserClearing && value === 0)) {
+      setDisplayValue(formatNumber(value, currency));
     }
-    setDisplayValue(formatNumber(value, currency));
-  }, [value, currency]);
+    if (value !== 0) {
+      setIsUserClearing(false);
+    }
+  }
 
   // Restore cursor position after formatting
   useEffect(() => {
@@ -61,7 +65,7 @@ export function SalaryInput({
     const formatted = parsed > 0 ? formatNumber(parsed, currency) : "";
 
     // Track if user is clearing the input to empty
-    isUserClearingRef.current = rawValue === "" || parsed === 0;
+    setIsUserClearing(rawValue === "" || parsed === 0);
 
     // Count digits before cursor in raw input (excluding commas)
     const digitsBeforeCursor = rawValue
