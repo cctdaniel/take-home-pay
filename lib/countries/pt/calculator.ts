@@ -142,12 +142,12 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
       : 0;
 
   // Step 6: Calculate PPR tax credit (20% of contribution, age-based limit)
+  // Only residents can claim PPR tax credits - non-residents pay flat 25% rate
   const pprLimit = getPPRLimit(age);
-  const pprContribution = Math.min(
-    contributions?.pprContribution ?? 0,
-    pprLimit.maxContribution
-  );
-  const pprTaxCredit = pprContribution * 0.2; // 20% tax credit
+  const pprContribution = isResident
+    ? Math.min(contributions?.pprContribution ?? 0, pprLimit.maxContribution)
+    : 0;
+  const pprTaxCredit = isResident ? pprContribution * 0.2 : 0; // 20% tax credit for residents only
 
   // Step 7: Calculate dependent deductions (from tax assessed)
   const dependentDeduction = isResident
