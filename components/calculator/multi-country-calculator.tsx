@@ -439,9 +439,10 @@ export function MultiCountryCalculator({
                   <li>Solidarity Surcharge (Adicional de Solidariedade) for high incomes</li>
                   <li>PPR contributions — 20% tax credit (age-based limits)</li>
                   <li>Dependent deductions — €600 per dependent</li>
+                  <li className="text-emerald-400">NHR 2.0 — 20% flat rate for new residents (10-year regime)</li>
                 </ul>
                 <p className="text-xs text-zinc-500 mt-3">
-                  Note: Non-residents pay a flat 25% rate. Marital status and dependents affect deductions.
+                  Note: Non-residents pay a flat 25% rate. NHR 2.0 offers 20% flat rate for eligible new residents. Marital status and dependents affect deductions.
                 </p>
               </div>
             </CardContent>

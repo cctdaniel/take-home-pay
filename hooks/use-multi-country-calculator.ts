@@ -19,6 +19,7 @@ import type {
   KRTaxReliefInputs,
   NLCalculatorInputs,
   PTCalculatorInputs,
+  PTResidencyType,
   PayFrequency,
   SGCalculatorInputs,
   SGResidencyType,
@@ -155,8 +156,8 @@ export interface UseMultiCountryCalculatorReturn {
   setHasPrivateHealthInsurance: (value: boolean) => void;
 
   // PT-specific
-  ptResidencyType: "resident" | "non_resident";
-  setPtResidencyType: (value: "resident" | "non_resident") => void;
+  ptResidencyType: PTResidencyType;
+  setPtResidencyType: (value: PTResidencyType) => void;
   ptFilingStatus: "single" | "married_jointly" | "married_separately";
   setPtFilingStatus: (value: "single" | "married_jointly" | "married_separately") => void;
   ptNumberOfDependents: number;
@@ -260,7 +261,7 @@ export function useMultiCountryCalculator(
 
   // PT-specific state
   const [ptResidencyType, setPtResidencyType] =
-    useState<"resident" | "non_resident">("resident");
+    useState<PTResidencyType>("resident");
   const [ptFilingStatus, setPtFilingStatus] =
     useState<"single" | "married_jointly" | "married_separately">("single");
   const [ptNumberOfDependents, setPtNumberOfDependents] = useState(0);

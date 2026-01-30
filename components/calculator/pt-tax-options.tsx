@@ -3,13 +3,13 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import type { PayFrequency } from "@/lib/countries/types";
+import type { PayFrequency, PTResidencyType } from "@/lib/countries/types";
 
 interface PTTaxOptionsProps {
   payFrequency: PayFrequency;
   onPayFrequencyChange: (value: PayFrequency) => void;
-  residencyType: "resident" | "non_resident";
-  onResidencyTypeChange: (value: "resident" | "non_resident") => void;
+  residencyType: PTResidencyType;
+  onResidencyTypeChange: (value: PTResidencyType) => void;
   filingStatus: "single" | "married_jointly" | "married_separately";
   onFilingStatusChange: (value: "single" | "married_jointly" | "married_separately") => void;
   numberOfDependents: number;
@@ -38,12 +38,18 @@ export function PTTaxOptions({
           id="residency-type"
           value={residencyType}
           onChange={(e) =>
-            onResidencyTypeChange(e.target.value as "resident" | "non_resident")
+            onResidencyTypeChange(e.target.value as PTResidencyType)
           }
         >
           <option value="resident">Portuguese Resident</option>
+          <option value="nhr_2">NHR 2.0 (20% flat rate)</option>
           <option value="non_resident">Non-Resident (25% flat)</option>
         </Select>
+        {residencyType === "nhr_2" && (
+          <p className="text-xs text-emerald-400">
+            NHR 2.0: 20% flat tax rate for new residents (10-year regime)
+          </p>
+        )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="pt-age">Age</Label>

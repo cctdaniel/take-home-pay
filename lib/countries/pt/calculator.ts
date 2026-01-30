@@ -72,6 +72,9 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
   }
 }
 
+// NHR 2.0 flat tax rate (20% for eligible employment income)
+const NHR2_FLAT_RATE = 0.20;
+
 // ============================================================================
 // PORTUGAL CALCULATOR
 // ============================================================================
@@ -86,9 +89,10 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
     contributions,
   } = inputs;
 
-  const isResident = residencyType === "resident";
+  const isResident = residencyType === "resident" || residencyType === "nhr_2";
+  const isNhr2 = residencyType === "nhr_2";
 
-  // Step 1: Calculate Social Security contribution (always applies to residents)
+  // Step 1: Calculate Social Security contribution (applies to residents and NHR 2.0)
   const socialSecurity = isResident ? calculateSocialSecurity(grossSalary) : 0;
 
   // Employer Social Security (informational only)
@@ -97,20 +101,23 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
 
   // Step 2: Calculate specific deduction
   // The deduction is the greater of minimum specific deduction or SS contributions
-  const specificDeduction = isResident
+  // NOTE: NHR 2.0 does NOT apply the specific deduction - 20% flat rate applies to gross
+  const specificDeduction = isResident && !isNhr2
     ? calculateSpecificDeduction(grossSalary, socialSecurity)
     : 0;
 
   // Step 3: Calculate taxable income
-  // For residents: gross - specific deduction
+  // For standard residents: gross - specific deduction
   // For non-residents: full gross income (flat 25% rate applies)
-  const taxableIncome = isResident
+  // For NHR 2.0: full gross income (20% flat rate applies to gross, no deduction)
+  const taxableIncome = isResident && !isNhr2
     ? Math.max(0, grossSalary - specificDeduction)
     : grossSalary;
 
   // Step 4: Calculate IRS tax
   let incomeTax: number;
   let incomeTaxBeforeJointFiling: number | undefined; // Store original tax for comparison
+  let incomeTaxStandardRegime: number | undefined; // For NHR 2.0 comparison
   let bracketTaxes: Array<{
     min: number;
     max: number;
@@ -118,7 +125,27 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
     tax: number;
   }>;
 
-  if (isResident) {
+  if (isNhr2) {
+    // NHR 2.0: 20% flat rate on employment income
+    incomeTax = taxableIncome * NHR2_FLAT_RATE;
+    bracketTaxes = [
+      {
+        min: 0,
+        max: Infinity,
+        rate: NHR2_FLAT_RATE,
+        tax: incomeTax,
+      },
+    ];
+    // Calculate what tax would be under standard regime for comparison
+    if (filingStatus === "married_jointly") {
+      const halfIncome = taxableIncome / 2;
+      const irsResultHalf = calculateIRS(halfIncome);
+      incomeTaxStandardRegime = irsResultHalf.totalTax * 2;
+    } else {
+      const irsResult = calculateIRS(taxableIncome);
+      incomeTaxStandardRegime = irsResult.totalTax;
+    }
+  } else if (isResident) {
     // Residents: progressive tax brackets
     if (filingStatus === "married_jointly") {
       // Joint filing (aggregado): divide income by 2, calculate tax, multiply by 2
@@ -154,8 +181,9 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
 
   // Step 5: Calculate solidarity surcharge (for high incomes)
   // Applied to gross income, not taxable income
+  // NHR 2.0: Exempt from solidarity surcharge
   const solidaritySurcharge =
-    isResident && grossSalary > 80000
+    isResident && !isNhr2 && grossSalary > 80000
       ? calculateSolidaritySurcharge(grossSalary)
       : 0;
 
@@ -191,7 +219,9 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
   // Total deductions include: Final IRS tax + Social Security + PPR contribution
   const totalDeductions = finalTax + socialSecurity + pprContribution;
   const netSalary = grossSalary - totalDeductions;
-  const effectiveTaxRate = grossSalary > 0 ? finalTax / grossSalary : 0;
+  // Effective tax rate includes income tax + social security (mandatory contributions)
+  // PPR contribution is voluntary savings, not a tax, so excluded from this rate
+  const effectiveTaxRate = grossSalary > 0 ? (finalTax + socialSecurity) / grossSalary : 0;
 
   // Effective rates for display
   const effectiveIRSRate = grossSalary > 0 ? incomeTax / grossSalary : 0;
@@ -210,6 +240,7 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
     socialSecurity,
     specificDeduction,
     isResident,
+    isNhr2,
     filingStatus,
     numberOfDependents,
     employerSocialSecurity,
@@ -225,6 +256,9 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
     // Joint filing info
     incomeTaxBeforeJointFiling,
     jointFilingSavings: incomeTaxBeforeJointFiling ? incomeTaxBeforeJointFiling - incomeTax : undefined,
+    // NHR 2.0 info
+    nhr2FlatRate: isNhr2 ? NHR2_FLAT_RATE : undefined,
+    nhr2TaxSavings: isNhr2 && incomeTaxStandardRegime ? incomeTaxStandardRegime - finalTax : undefined,
   };
 
   return {

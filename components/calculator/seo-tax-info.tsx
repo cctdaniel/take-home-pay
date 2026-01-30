@@ -365,6 +365,36 @@ function PTTaxInfo() {
       </ul>
 
       <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        NHR 2.0 (Non-Habitual Resident) Regime
+      </h4>
+      <p className="text-zinc-400 text-sm mb-2">
+        The NHR 2.0 tax regime, introduced in 2024, offers significant tax benefits 
+        for new residents who have not been tax residents in Portugal for the previous 5 years.
+      </p>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>
+          <strong className="text-zinc-300">20% Flat Tax Rate</strong> –
+          On Portuguese-source employment and self-employment income (vs progressive rates up to 48%)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Duration</strong> –
+          10 consecutive years from the year of registration
+        </li>
+        <li>
+          <strong className="text-zinc-300">Exemptions</strong> –
+          Exempt from solidarity surcharge on high incomes
+        </li>
+        <li>
+          <strong className="text-zinc-300">Social Security</strong> –
+          Still applies at 11% (mandatory contributions)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Eligibility</strong> –
+          Must not have been a Portuguese tax resident in the 5 years prior to application
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
         Tax Benefits & Deductions
       </h4>
       <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
