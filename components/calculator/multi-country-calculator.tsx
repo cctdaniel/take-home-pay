@@ -288,7 +288,7 @@ export function MultiCountryCalculator({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="bg-zinc-800/50 rounded-lg p-4 mb-4">
+              <div className="bg-zinc-800/50 rounded-lg p-4">
                 <p className="text-sm font-medium text-zinc-300 mb-2">
                   What&apos;s Included
                 </p>
@@ -297,17 +297,12 @@ export function MultiCountryCalculator({
                   <li>Low Income Tax Offset (LITO) for residents</li>
                   <li>Medicare Levy (2%)</li>
                   <li>Medicare Levy Surcharge (if no PHI)</li>
+                  <li>Division 293 Tax (High Income Earners)</li>
+                  <li>
+                    Superannuation (12%) — employer-paid on top of salary, not
+                    deducted from take-home (shown below for reference)
+                  </li>
                 </ul>
-              </div>
-              <div className="bg-emerald-900/20 border border-emerald-800/30 rounded-lg p-4">
-                <p className="text-sm font-medium text-emerald-400 mb-2">
-                  Superannuation (12%)
-                </p>
-                <p className="text-xs text-zinc-400">
-                  Your employer pays 12% superannuation ON TOP of your salary.
-                  This is not deducted from your take-home pay but is shown
-                  below for reference.
-                </p>
               </div>
             </CardContent>
           </Card>
