@@ -215,6 +215,7 @@ export interface THTaxResult {
     donations: number;
     politicalDonation: number;
     elderlyDisabledAllowance: number;
+    nationalSavingsFund: number;
   };
 }
 
@@ -247,6 +248,7 @@ export function calculateTHIncomeTax(
   let donations = 0;
   let politicalDonation = 0;
   let elderlyDisabledAllowance = 0;
+  let nationalSavingsFund = 0;
 
   if (taxReliefs) {
     // Spouse allowance (if spouse has no income)
@@ -373,6 +375,14 @@ export function calculateTHIncomeTax(
     if (taxReliefs.isElderlyOrDisabled) {
       elderlyDisabledAllowance = TH_TAX_ALLOWANCES.elderlyDisabledAllowance;
     }
+
+    // National Savings Fund (NSF) contribution
+    if (taxReliefs.nationalSavingsFundContribution > 0) {
+      nationalSavingsFund = Math.min(
+        taxReliefs.nationalSavingsFundContribution,
+        TH_TAX_ALLOWANCES.nationalSavingsFundMax
+      );
+    }
   }
 
   // Calculate total allowances
@@ -392,7 +402,8 @@ export function calculateTHIncomeTax(
     mortgageInterest +
     donations +
     politicalDonation +
-    elderlyDisabledAllowance;
+    elderlyDisabledAllowance +
+    nationalSavingsFund;
 
   // Calculate taxable income
   const taxableIncome = Math.max(0, netIncome - totalAllowances);
@@ -436,6 +447,7 @@ export function calculateTHIncomeTax(
       donations,
       politicalDonation,
       elderlyDisabledAllowance,
+      nationalSavingsFund,
     },
   };
 }
