@@ -27,6 +27,25 @@ Root `/` redirects to `/us` by default.
 - **Retirement Contributions** — 401(k), Roth IRA, and HSA with 2026 contribution limits
 - **Filing Status** — Single, Married Filing Jointly, Married Filing Separately, Head of Household
 
+### Australia
+
+- **Income Tax** — 2025-26 progressive brackets with Stage 3 tax cuts (0% to 45%)
+- **Tax-Free Threshold** — First A$18,200 is tax-free for residents
+- **Low Income Tax Offset (LITO)** — Up to A$700 for incomes under A$66,667
+- **Medicare Levy** — 2% of taxable income (with low-income reduction)
+- **Medicare Levy Surcharge** — 1-1.5% if no private health insurance above A$101,000
+- **Division 293 Tax** — Additional 15% on concessional super contributions when income + super exceeds A$250,000
+- **Superannuation** — 12% employer contribution (shown as info, not deducted)
+- **Residency** — Different tax brackets for Australian residents vs foreign residents
+
+### Netherlands
+
+- **Income Tax** — 2026 progressive brackets with two tiers
+- **National Insurance** — Combined with income tax for most employees under AOW age
+- **30% Ruling** — Optional tax-exempt allowance for eligible expats
+- **Uniform Rates** — National rates apply (no regional tax adjustments)
+- **Tax Credits** — Includes general, labor, and IACK (child) tax credits
+
 ### Singapore
 
 - **Income Tax** — 2026 progressive tax brackets (0% to 24%)
@@ -42,25 +61,6 @@ Root `/` redirects to `/us` by default.
 - **4 Major Insurance** — National Pension, Health Insurance, Long-term Care, Employment Insurance
 - **Tax Deductions** — Employment income, basic, dependent, and child deductions
 - **Tax Credits** — Wage earner credit, child tax credit, pension credit
-
-### Netherlands
-
-- **Income Tax** — 2026 progressive brackets with two tiers
-- **National Insurance** — Combined with income tax for most employees under AOW age
-- **30% Ruling** — Optional tax-exempt allowance for eligible expats
-- **Uniform Rates** — National rates apply (no regional tax adjustments)
-- **Tax Credits** — Includes general, labor, and IACK (child) tax credits
-
-### Australia
-
-- **Income Tax** — 2025-26 progressive brackets with Stage 3 tax cuts (0% to 45%)
-- **Tax-Free Threshold** — First A$18,200 is tax-free for residents
-- **Low Income Tax Offset (LITO)** — Up to A$700 for incomes under A$66,667
-- **Medicare Levy** — 2% of taxable income (with low-income reduction)
-- **Medicare Levy Surcharge** — 1-1.5% if no private health insurance above A$101,000
-- **Division 293 Tax** — Additional 15% on concessional super contributions when income + super exceeds A$250,000
-- **Superannuation** — 12% employer contribution (shown as info, not deducted)
-- **Residency** — Different tax brackets for Australian residents vs foreign residents
 
 ## Getting Started
 
