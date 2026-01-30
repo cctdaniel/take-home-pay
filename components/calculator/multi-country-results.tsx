@@ -1204,17 +1204,21 @@ export function MultiCountryResults({
                     )}
                   </span>
                 </div>
-                <div className="flex items-center justify-between py-1">
+                <div className="flex items-center justify-between py-1 opacity-60">
                   <span className="text-sm text-zinc-400">
-                    Standard Rate Tax
+                    Standard Rate Tax (comparison)
                   </span>
-                  <span className="text-sm text-zinc-300 tabular-nums">
+                  <span className="text-sm text-zinc-500 tabular-nums">
                     {formatCurrency(
                       result.breakdown.taxComparison.standardTax,
                       currency,
                     )}
                   </span>
                 </div>
+                <p className="text-xs text-zinc-500 italic">
+                  Hong Kong salaries tax uses the lower of progressive tax or
+                  the standard rate on net income.
+                </p>
                 <DeductionRow
                   label="Final Salaries Tax"
                   amount={taxes.incomeTax}
