@@ -22,6 +22,7 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "NL" && <NLTaxInfo />}
         {country === "AU" && <AUTaxInfo />}
         {country === "PT" && <PTTaxInfo />}
+        {country === "TH" && <THTaxInfo />}
       </div>
     </section>
   );
@@ -383,6 +384,125 @@ function PTTaxInfo() {
       <p className="text-zinc-400 text-sm">
         Employers contribute an additional 23.75% for Social Security.
         This is not deducted from your salary but is shown for reference.
+      </p>
+    </div>
+  );
+}
+
+// ============================================================================
+// THAILAND TAX INFO
+// ============================================================================
+function THTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Thailand</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li>
+          <strong className="text-zinc-300">Personal Income Tax</strong> –
+          Progressive rates from 0% to 35% (8 brackets)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Standard Deduction</strong> –
+          50% of employment income, capped at ฿100,000
+        </li>
+        <li>
+          <strong className="text-zinc-300">Personal Allowance</strong> –
+          ฿60,000 per taxpayer
+        </li>
+        <li>
+          <strong className="text-zinc-300">Social Security Fund</strong> –
+          5% employee contribution (capped at ฿750/month)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Provident Fund (PVD)</strong> –
+          Voluntary contribution up to 15% of income (max ฿500,000 deduction)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Retirement Mutual Fund (RMF)</strong> –
+          Tax deductible up to 30% of income (max ฿500,000)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Super Savings Fund (SSF)</strong> –
+          Tax deductible up to 30% of income (max ฿200,000)
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Tax Brackets 2026 (Residents)
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>฿0 – ฿150,000: 0% (exempt)</li>
+        <li>฿150,001 – ฿300,000: 5%</li>
+        <li>฿300,001 – ฿500,000: 10%</li>
+        <li>฿500,001 – ฿750,000: 15%</li>
+        <li>฿750,001 – ฿1,000,000: 20%</li>
+        <li>฿1,000,001 – ฿2,000,000: 25%</li>
+        <li>฿2,000,001 – ฿5,000,000: 30%</li>
+        <li>฿5,000,001+: 35%</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Personal Allowances & Deductions
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Personal allowance: ฿60,000</li>
+        <li>Spouse allowance: ฿60,000 (if no income)</li>
+        <li>Child allowance: ฿30,000 per child (฿60,000 if born 2018+)</li>
+        <li>Parent allowance: ฿30,000 per parent (age 60+, income ≤฿30,000)</li>
+        <li>Disabled person: ฿60,000 per person</li>
+        <li>Life insurance: Up to ฿100,000 (10+ year policy)</li>
+        <li>Health insurance (self): Up to ฿25,000</li>
+        <li>Health insurance (parents): Up to ฿15,000</li>
+        <li>Home mortgage interest: Up to ฿100,000</li>
+        <li>Donations: Up to 10% of net income</li>
+        <li>Elderly/disabled taxpayer: ฿190,000 exemption</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Retirement Savings (Combined ฿500,000 Limit)
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Provident Fund (PVD): Up to 15% of income</li>
+        <li>Retirement Mutual Fund (RMF): Up to 30% of income</li>
+        <li>Super Savings Fund (SSF): Up to 30% of income</li>
+        <li>Pension life insurance: Up to 15% of income (max ฿200,000)</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Thai ESG Fund (2024-2026 Special Period)
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Tax deductible up to 30% of income (max ฿300,000)</li>
+        <li>Must hold units for at least 5 years (normally 8 years)</li>
+        <li>Supports environmental, social, and governance investments</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Non-Residents
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Non-residents are subject to tax on Thai-sourced income only. 
+        Employment income is taxed at a flat 15% or progressive rates, 
+        whichever is higher. The standard deduction and personal allowances 
+        generally do not apply to non-residents.
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Employer Contributions
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Employers match the employee&apos;s Social Security contribution (5% up to ฿750/month).
+        For Provident Fund, employers typically match employee contributions (2-15%).
+        These employer contributions are not deducted from your salary but are shown for reference.
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Tax Filing
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        The tax year in Thailand follows the calendar year (January 1 – December 31).
+        Tax returns must be filed by March 31 of the following year. Employers 
+        are required to withhold tax from salaries and remit it to the Revenue Department monthly.
       </p>
     </div>
   );

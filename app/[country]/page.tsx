@@ -34,6 +34,7 @@ const COUNTRY_DESCRIPTIONS: Record<CountryCode, string> = {
   NL: `Free ${TAX_YEAR} take home pay calculator for the Netherlands. Calculate your salary after taxes including income tax, national insurance, and the 30% ruling for expats.`,
   AU: `Free ${TAX_YEAR} take home pay calculator for Australia. Calculate your salary after taxes including income tax (Stage 3 cuts), Medicare levy, Medicare levy surcharge, Division 293 tax (high income earners), LITO, and superannuation.`,
   PT: `Free ${TAX_YEAR} take home pay calculator for Portugal. Calculate your salary after taxes including IRS income tax, Social Security contributions (Segurança Social), and solidarity surcharge for high incomes.`,
+  TH: `Free ${TAX_YEAR} take home pay calculator for Thailand. Calculate your salary after taxes including personal income tax (progressive rates 0-35%), Social Security Fund contributions, and tax-saving options like Provident Fund, RMF, SSF, and ESG funds.`,
 };
 
 // Country-specific keywords for SEO
@@ -93,6 +94,20 @@ const COUNTRY_KEYWORDS: Record<CountryCode, string[]> = {
     "korean income tax calculator",
     "national pension korea",
     "4 major insurance korea",
+  ],
+  TH: [
+    "thailand take home pay calculator",
+    "thai salary after tax",
+    `${TAX_YEAR} thailand tax calculator`,
+    "thai income tax calculator",
+    "personal income tax thailand",
+    "social security thailand",
+    "provident fund thailand",
+    "rmf thailand calculator",
+    "ssf thailand calculator",
+    "thailand paycheck calculator",
+    "rd go th tax calculator",
+    "thai revenue department tax",
   ],
 };
 
@@ -182,6 +197,11 @@ const COUNTRY_HEADER_INFO: Record<
     tagline: "Calculate your actual salary after taxes in South Korea.",
     details:
       "Income tax, local tax, national pension, health insurance, employment insurance",
+  },
+  TH: {
+    tagline: "Calculate your actual salary after taxes in Thailand.",
+    details:
+      "Personal income tax (0-35% progressive), Social Security Fund (5%), Provident Fund, RMF, SSF, ESG funds, allowances & deductions",
   },
 };
 

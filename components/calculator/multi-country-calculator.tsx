@@ -24,6 +24,9 @@ import { SEOTaxInfo } from "./seo-tax-info";
 import { SGAdditionalReliefs } from "./sg-additional-reliefs";
 import { SGContributionOptions } from "./sg-contribution-options";
 import { SGTaxOptions } from "./sg-tax-options";
+import { THAdditionalReliefs } from "./th-additional-reliefs";
+import { THContributionOptions } from "./th-contribution-options";
+import { THTaxOptions } from "./th-tax-options";
 import { USTaxOptions } from "./us-tax-options";
 
 interface MultiCountryCalculatorProps {
@@ -101,6 +104,23 @@ export function MultiCountryCalculator({
     ptPprContribution,
     setPtPprContribution,
     ptLimits,
+
+    // TH-specific
+    thResidencyType,
+    setThResidencyType,
+    thTaxReliefs,
+    setThTaxReliefs,
+    thProvidentFund,
+    setThProvidentFund,
+    thRmf,
+    setThRmf,
+    thSsf,
+    setThSsf,
+    thEsg,
+    setThEsg,
+    thNsf,
+    setThNsf,
+    thLimits,
 
     // Results
     result,
@@ -198,11 +218,20 @@ export function MultiCountryCalculator({
                 onAgeChange={setPtAge}
               />
             )}
+
+            {country === "TH" && (
+              <THTaxOptions
+                residencyType={thResidencyType}
+                onResidencyTypeChange={setThResidencyType}
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+              />
+            )}
           </CardContent>
         </Card>
 
-        {/* Contributions Card - US, SG, and PT */}
-        {(country === "US" || country === "SG" || country === "PT") && (
+        {/* Contributions Card - US, SG, PT, and TH */}
+        {(country === "US" || country === "SG" || country === "PT" || country === "TH") && (
           <Card>
             <CardHeader>
               <CardTitle>
@@ -213,7 +242,9 @@ export function MultiCountryCalculator({
                   ? "Adjust your retirement and savings contributions"
                   : country === "PT"
                     ? "Optional tax-saving contributions to PPR (Retirement Savings Plan)"
-                    : "Optional tax-saving contributions (CPF is mandatory)"}
+                    : country === "SG"
+                      ? "Optional tax-saving contributions (CPF is mandatory)"
+                      : "Optional tax-saving contributions (Social Security is mandatory)"}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -268,6 +299,35 @@ export function MultiCountryCalculator({
                     contributions qualify for a 20% tax credit. Limits vary by age: 
                     Under 35: €2,000, 35-50: €1,750, Over 50: €1,500.
                   </p>
+                </div>
+              )}
+
+              {country === "TH" && (
+                <div className="space-y-6">
+                  <THContributionOptions
+                    providentFund={thProvidentFund}
+                    onProvidentFundChange={setThProvidentFund}
+                    providentFundLimit={thLimits.providentFund}
+                    rmf={thRmf}
+                    onRmfChange={setThRmf}
+                    rmfLimit={thLimits.rmf}
+                    ssf={thSsf}
+                    onSsfChange={setThSsf}
+                    ssfLimit={thLimits.ssf}
+                    esg={thEsg}
+                    onEsgChange={setThEsg}
+                    esgLimit={thLimits.esg}
+                    nsf={thNsf}
+                    onNsfChange={setThNsf}
+                    nsfLimit={thLimits.nsf}
+                  />
+
+                  <Separator />
+
+                  <THAdditionalReliefs
+                    reliefs={thTaxReliefs}
+                    onChange={setThTaxReliefs}
+                  />
                 </div>
               )}
             </CardContent>
@@ -382,6 +442,37 @@ export function MultiCountryCalculator({
                 </ul>
                 <p className="text-xs text-zinc-500 mt-3">
                   Note: Non-residents pay a flat 25% rate. Marital status and dependents affect deductions.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* TH Deductions Info Card */}
+        {country === "TH" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Tax &amp; Contributions</CardTitle>
+              <CardDescription>
+                Personal income tax, Social Security, and tax-saving options
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  What&apos;s Included
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-1">
+                  <li>Personal Income Tax — progressive rates 0% to 35%</li>
+                  <li>Standard deduction — 50% of income (max ฿100,000)</li>
+                  <li>Personal allowance — ฿60,000 per taxpayer</li>
+                  <li>Social Security Fund — 5% employee contribution (capped at ฿750/month)</li>
+                  <li>Voluntary contributions — Provident Fund, RMF, SSF, ESG, NSF</li>
+                  <li>Insurance deductions — Life & health insurance premiums</li>
+                </ul>
+                <p className="text-xs text-zinc-500 mt-3">
+                  Note: Non-residents pay 15% flat rate or progressive, whichever is higher. 
+                  Retirement savings (PVD+RMF+SSF) share a ฿500,000 combined limit.
                 </p>
               </div>
             </CardContent>
