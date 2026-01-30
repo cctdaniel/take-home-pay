@@ -1017,7 +1017,8 @@ export function MultiCountryResults({
                 </p>
                 <div className="flex items-center justify-between py-2 opacity-60">
                   <span className="text-sm text-zinc-400">
-                    Super Guarantee ({(result.breakdown.superannuation.rate * 100).toFixed(0)}%)
+                    Super Guarantee (
+                    {(result.breakdown.superannuation.rate * 100).toFixed(0)}%)
                   </span>
                   <span className="text-sm text-zinc-500 tabular-nums">
                     +

@@ -22,7 +22,7 @@ export function AUTaxOptions({
   onPrivateHealthInsuranceChange,
 }: AUTaxOptionsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       <div className="space-y-2">
         <Label htmlFor="pay-frequency">Pay Frequency</Label>
         <Select
@@ -61,9 +61,6 @@ export function AUTaxOptions({
           <option value="yes">Yes (Hospital Cover)</option>
           <option value="no">No</option>
         </Select>
-      </div>
-      <div className="flex items-end text-xs text-zinc-500">
-        Includes LITO for residents. Superannuation (12%) shown as employer contribution.
       </div>
     </div>
   );
