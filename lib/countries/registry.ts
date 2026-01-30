@@ -6,6 +6,7 @@
 import { AUCalculator } from "./au";
 import { KRCalculator } from "./kr";
 import { NLCalculator } from "./nl";
+import { PTCalculator } from "./pt";
 import { SGCalculator } from "./sg";
 import type {
   CalculationResult,
@@ -25,13 +26,14 @@ const countryCalculators: Record<CountryCode, CountryCalculator> = {
   KR: KRCalculator,
   NL: NLCalculator,
   AU: AUCalculator,
+  PT: PTCalculator,
 };
 
 // ============================================================================
 // SUPPORTED COUNTRIES
 // ============================================================================
-// US first, then alphabetical by country name: Australia, Netherlands, Singapore, South Korea
-export const SUPPORTED_COUNTRIES: CountryCode[] = ["US", "AU", "NL", "SG", "KR"];
+// US first, then alphabetical by country name: Australia, Netherlands, Portugal, Singapore, South Korea
+export const SUPPORTED_COUNTRIES: CountryCode[] = ["US", "AU", "NL", "PT", "SG", "KR"];
 
 export const COUNTRY_CONFIGS: Record<CountryCode, CountryConfig> = {
   US: USCalculator.config,
@@ -39,6 +41,7 @@ export const COUNTRY_CONFIGS: Record<CountryCode, CountryConfig> = {
   KR: KRCalculator.config,
   NL: NLCalculator.config,
   AU: AUCalculator.config,
+  PT: PTCalculator.config,
 };
 
 // ============================================================================

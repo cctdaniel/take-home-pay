@@ -55,6 +55,7 @@ export function MultiCountryResults({
   const isKR = country === "KR";
   const isNL = country === "NL";
   const isAU = country === "AU";
+  const isPT = country === "PT";
 
   // US-specific data
   let stateName = usState || "";
@@ -1054,6 +1055,251 @@ export function MultiCountryResults({
                   Employer pays this on top of your salary - not deducted from
                   take-home pay
                 </p>
+              </>
+            )}
+
+          {/* PT Tax Breakdown */}
+          {isPT &&
+            "incomeTax" in taxes &&
+            "socialSecurity" in taxes &&
+            result.breakdown.type === "PT" && (
+              <>
+                {/* Residency Status */}
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-zinc-400">Tax Residency</span>
+                  <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
+                    {result.breakdown.isResident
+                      ? "Portuguese Resident"
+                      : "Non-Resident (25% flat)"}
+                  </span>
+                </div>
+
+                {/* Filing Status */}
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-zinc-400">Filing Status</span>
+                  <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
+                    {result.breakdown.filingStatus === "single" && "Single"}
+                    {result.breakdown.filingStatus === "married_jointly" && "Married Filing Jointly"}
+                    {result.breakdown.filingStatus === "married_separately" && "Married Filing Separately"}
+                  </span>
+                </div>
+
+                {/* Specific Deduction */}
+                {result.breakdown.specificDeduction > 0 && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="text-xs text-zinc-500 pt-2 pb-1">
+                      Specific Deduction (Dedução Específica)
+                    </p>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">
+                        Minimum Deduction
+                      </span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -
+                        {formatCurrency(
+                          result.breakdown.specificDeduction,
+                          currency,
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                      <span className="text-sm text-zinc-300">
+                        Taxable Income
+                      </span>
+                      <span className="text-sm text-zinc-200 tabular-nums">
+                        {formatCurrency(result.taxableIncome, currency)}
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                <Separator className="my-2" />
+
+                {/* IRS Income Tax */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  IRS (Imposto sobre o Rendimento)
+                </p>
+                
+                {/* Show joint filing comparison if applicable */}
+                {result.breakdown.jointFilingSavings && result.breakdown.jointFilingSavings > 0 && (
+                  <>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">
+                        Tax (Separate Filing)
+                      </span>
+                      <span className="text-sm text-zinc-500 tabular-nums line-through">
+                        {formatCurrency(
+                          result.breakdown.incomeTaxBeforeJointFiling ?? 0,
+                          currency,
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">
+                        Tax (Joint Filing)
+                      </span>
+                      <span className="text-sm text-zinc-200 tabular-nums">
+                        {formatCurrency(taxes.incomeTax, currency)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-emerald-400">
+                        Joint Filing Savings
+                      </span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.jointFilingSavings, currency)}
+                      </span>
+                    </div>
+                  </>
+                )}
+                
+                {!result.breakdown.jointFilingSavings && (
+                  <DeductionRow
+                    label="Income Tax"
+                    amount={taxes.incomeTax}
+                    grossSalary={grossSalary}
+                    currency={currency}
+                  />
+                )}
+
+                {/* Solidarity Surcharge for high incomes */}
+                {taxes.solidaritySurcharge > 0 && (
+                  <DeductionRow
+                    label="Solidarity Surcharge"
+                    amount={taxes.solidaritySurcharge}
+                    grossSalary={grossSalary}
+                    currency={currency}
+                  />
+                )}
+
+                <Separator className="my-2" />
+
+                {/* Social Security */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Social Security (Segurança Social)
+                </p>
+                <DeductionRow
+                  label="Employee Contribution (11%)"
+                  amount={taxes.socialSecurity}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+
+                {/* Employer SS Contribution (informational) */}
+                <div className="flex items-center justify-between py-2 opacity-60">
+                  <span className="text-sm text-zinc-400">
+                    Employer Contribution (23.75%)
+                  </span>
+                  <span className="text-sm text-zinc-500 tabular-nums">
+                    +
+                    {formatCurrency(
+                      result.breakdown.employerSocialSecurity,
+                      currency,
+                    )}
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-500 italic">
+                  Employer pays this on top of your salary - not deducted from
+                  take-home pay
+                </p>
+
+                {/* PPR Contribution & Tax Credits */}
+                {result.breakdown.pprContribution > 0 && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="text-xs text-zinc-500 pt-2 pb-1">
+                      Tax Savings (PPR)
+                    </p>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">
+                        PPR Contribution
+                      </span>
+                      <span className="text-sm text-zinc-200 tabular-nums">
+                        {formatCurrency(result.breakdown.pprContribution, currency)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">
+                        Tax Credit (20%)
+                      </span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.pprTaxCredit, currency)}
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                {/* Dependent Deductions */}
+                {result.breakdown.dependentDeduction > 0 && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="text-xs text-zinc-500 pt-2 pb-1">
+                      Family Deductions
+                    </p>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">
+                        Dependents ({result.breakdown.numberOfDependents})
+                      </span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.dependentDeduction, currency)}
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                {/* Tax Summary */}
+                {(result.breakdown.pprContribution > 0 || result.breakdown.dependentDeduction > 0) && (
+                  <>
+                    <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                      <span className="text-sm text-zinc-300">
+                        Gross Tax Before Credits
+                      </span>
+                      <span className="text-sm text-zinc-200 tabular-nums">
+                        {formatCurrency(result.breakdown.grossTaxBeforeCredits, currency)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-300">Total Credits</span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.totalTaxCredits, currency)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                      <span className="text-sm text-zinc-300 font-medium">
+                        Final Tax Payable
+                      </span>
+                      <span className="text-sm text-zinc-100 tabular-nums font-medium">
+                        {formatCurrency(result.totalTax, currency)}
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                {/* Marital Status & Dependents Info */}
+                <Separator className="my-2" />
+                <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
+                  <p className="text-xs text-zinc-400 font-medium mb-1">
+                    Taxpayer Information
+                  </p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <span className="text-xs text-zinc-500 bg-zinc-700/50 px-2 py-1 rounded">
+                      {result.breakdown.filingStatus === "single"
+                        ? "Single"
+                        : "Married"}
+                    </span>
+                    {result.breakdown.numberOfDependents > 0 && (
+                      <span className="text-xs text-zinc-500 bg-zinc-700/50 px-2 py-1 rounded">
+                        {result.breakdown.numberOfDependents} dependent
+                        {result.breakdown.numberOfDependents > 1 ? "s" : ""}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-zinc-500 mt-2">
+                    Note: Additional deductions for health, education, housing,
+                    and other expenses are not included.
+                  </p>
+                </div>
               </>
             )}
 

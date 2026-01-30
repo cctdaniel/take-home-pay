@@ -13,6 +13,7 @@ Each country has its own page for better SEO and shareability:
 | Singapore     | [/sg](http://localhost:3000/sg) |
 | South Korea   | [/kr](http://localhost:3000/kr) |
 | Netherlands   | [/nl](http://localhost:3000/nl) |
+| Portugal      | [/pt](http://localhost:3000/pt) |
 
 Root `/` redirects to `/us` by default.
 
@@ -62,6 +63,16 @@ Root `/` redirects to `/us` by default.
 - **Tax Deductions** — Employment income, basic, dependent, and child deductions
 - **Tax Credits** — Wage earner credit, child tax credit, pension credit
 
+### Portugal
+
+- **IRS (Income Tax)** — 2026 progressive brackets (13% to 48%, 9 brackets for residents)
+- **Social Security** — 11% employee contribution (Segurança Social)
+- **Specific Deduction** — Minimum €4,104 or actual SS contributions (whichever is higher)
+- **Solidarity Surcharge** — Additional 2.5% (€80k-€250k) and 5% (above €250k)
+- **PPR (Retirement Savings Plan)** — 20% tax credit on contributions, age-based limits
+- **Dependent Deductions** — €600 per dependent deducted from tax assessed
+- **Non-Residents** — Flat 25% rate on Portuguese-source income
+
 ## Getting Started
 
 ```bash
@@ -103,6 +114,7 @@ Open [http://localhost:3000](http://localhost:3000) to use the calculator. You'l
 - **Netherlands:** Income tax brackets and national insurance rates for 2026
 - **Singapore:** IRAS tax rates and CPF contribution rates for 2026
 - **South Korea:** NTS tax rates and social insurance rates for 2026
+- **Portugal:** IRS tax brackets and Social Security rates from Autoridade Tributária e Aduaneira (AT) for 2026
 
 ## Disclaimer
 

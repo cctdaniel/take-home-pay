@@ -20,7 +20,7 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU";
+export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -100,6 +100,12 @@ export interface AUContributionInputs {
   // This interface is kept for consistency
 }
 
+// Portugal-specific contributions (Social Security is mandatory)
+export interface PTContributionInputs {
+  // Social Security contributions are mandatory and calculated automatically
+  pprContribution: number; // Retirement Savings Plan contribution (20% tax credit)
+}
+
 // South Korea additional tax reliefs/deductions (인적공제 및 세액공제)
 export interface KRTaxReliefInputs {
   // ============================================================================
@@ -153,7 +159,8 @@ export type ContributionInputs =
   | SGContributionInputs
   | KRContributionInputs
   | NLContributionInputs
-  | AUContributionInputs;
+  | AUContributionInputs
+  | PTContributionInputs;
 
 // ============================================================================
 // CALCULATOR INPUT TYPES
@@ -198,12 +205,24 @@ export interface AUCalculatorInputs extends BaseCalculatorInputs {
   hasPrivateHealthInsurance: boolean; // Affects Medicare Levy Surcharge
 }
 
+export type PTFilingStatus = "single" | "married_jointly" | "married_separately";
+
+export interface PTCalculatorInputs extends BaseCalculatorInputs {
+  country: "PT";
+  residencyType: "resident" | "non_resident";
+  filingStatus: PTFilingStatus;
+  numberOfDependents: number; // For tax benefits
+  age: number; // For PPR contribution limits
+  contributions: PTContributionInputs;
+}
+
 export type CalculatorInputs =
   | USCalculatorInputs
   | SGCalculatorInputs
   | KRCalculatorInputs
   | NLCalculatorInputs
-  | AUCalculatorInputs;
+  | AUCalculatorInputs
+  | PTCalculatorInputs;
 
 // ============================================================================
 // TAX BREAKDOWN TYPES
@@ -249,12 +268,20 @@ export interface AUTaxBreakdown extends BaseTaxBreakdown {
   division293Tax: number; // Additional tax on super for high income earners
 }
 
+export interface PTTaxBreakdown extends BaseTaxBreakdown {
+  type: "PT"; // Discriminant for type-safe narrowing
+  incomeTax: number; // IRS - Imposto sobre o Rendimento
+  solidaritySurcharge: number; // Adicional de Solidariedade for high incomes
+  socialSecurity: number; // Segurança Social - 11%
+}
+
 export type TaxBreakdown =
   | USTaxBreakdown
   | SGTaxBreakdown
   | KRTaxBreakdown
   | NLTaxBreakdown
-  | AUTaxBreakdown;
+  | AUTaxBreakdown
+  | PTTaxBreakdown;
 
 // ============================================================================
 // CALCULATION RESULT TYPES
@@ -451,12 +478,50 @@ export interface AUBreakdown {
   isResident: boolean;
 }
 
+export interface PTBreakdown {
+  type: "PT";
+  taxableIncome: number; // Income after specific deductions
+  // IRS bracket breakdown
+  bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }>;
+  // Tax components
+  incomeTax: number; // IRS calculated from brackets (before credits)
+  solidaritySurcharge: number; // Adicional de Solidariedade
+  socialSecurity: number; // Segurança Social contribution
+  // Deductions applied
+  specificDeduction: number; // Dedução específica mínima (or SS contribution)
+  // Taxpayer info
+  isResident: boolean;
+  filingStatus: PTFilingStatus;
+  numberOfDependents: number;
+  // Employer SS contribution (informational)
+  employerSocialSecurity: number;
+  // Effective rates
+  effectiveIRSRate: number;
+  effectiveSocialSecurityRate: number;
+  // Tax reliefs and credits
+  pprContribution: number; // PPR contribution amount
+  pprTaxCredit: number; // 20% tax credit on PPR
+  pprMaxContribution: number; // Age-based limit
+  dependentDeduction: number; // €600 per dependent
+  totalTaxCredits: number; // Total credits and deductions
+  grossTaxBeforeCredits: number; // Tax before credits applied
+  // Joint filing info (for comparison)
+  incomeTaxBeforeJointFiling?: number; // Tax if filed separately (for comparison)
+  jointFilingSavings?: number; // Savings from joint filing
+}
+
 export type CountrySpecificBreakdown =
   | USBreakdown
   | SGBreakdown
   | KRBreakdown
   | NLBreakdown
-  | AUBreakdown;
+  | AUBreakdown
+  | PTBreakdown;
 
 // ============================================================================
 // COUNTRY CALCULATOR INTERFACE
@@ -586,4 +651,20 @@ export function isAUBreakdown(
   breakdown: CountrySpecificBreakdown,
 ): breakdown is AUBreakdown {
   return breakdown.type === "AU";
+}
+
+export function isPTInputs(
+  inputs: CalculatorInputs,
+): inputs is PTCalculatorInputs {
+  return inputs.country === "PT";
+}
+
+export function isPTTaxBreakdown(taxes: TaxBreakdown): taxes is PTTaxBreakdown {
+  return "type" in taxes && (taxes as PTTaxBreakdown).type === "PT";
+}
+
+export function isPTBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is PTBreakdown {
+  return breakdown.type === "PT";
 }
