@@ -308,6 +308,131 @@ export function calculatePensionCredit(contribution: number, totalIncome: number
   return Math.round(cappedContribution * rate);
 }
 
+// ============================================================================
+// ADDITIONAL TAX CREDIT CALCULATIONS (2026)
+// ============================================================================
+
+/**
+ * Calculate insurance premium credit (보험료 세액공제)
+ * 12% of insurance premiums, capped at ₩1,000,000
+ * Includes: life insurance, casualty insurance, etc.
+ */
+export function calculateInsuranceCredit(insurancePremiums: number): number {
+  if (insurancePremiums <= 0) return 0;
+
+  // 12% credit rate
+  const creditRate = 0.12;
+  // Maximum credit cap
+  const maxCredit = 1000000; // ₩1,000,000
+
+  const credit = insurancePremiums * creditRate;
+  return Math.round(Math.min(credit, maxCredit));
+}
+
+/**
+ * Calculate medical expense credit (의료비 세액공제)
+ * 15% of medical expenses exceeding 3% of gross income
+ * No cap for self/dependents with disability, otherwise capped
+ */
+export function calculateMedicalCredit(medicalExpenses: number, grossIncome: number): number {
+  if (medicalExpenses <= 0) return 0;
+
+  // Only expenses exceeding 3% of gross income qualify
+  const threshold = grossIncome * 0.03;
+  const qualifyingExpenses = Math.max(0, medicalExpenses - threshold);
+
+  if (qualifyingExpenses <= 0) return 0;
+
+  // 15% credit rate
+  const creditRate = 0.15;
+
+  return Math.round(qualifyingExpenses * creditRate);
+}
+
+/**
+ * Calculate education expense credit (교육비 세액공제)
+ * 15% of education expenses
+ * Different caps apply: preschool ₩3M, K-12 ₩3M, university ₩9M per person
+ * For simplicity, we use a general calculation
+ */
+export function calculateEducationCredit(educationExpenses: number): number {
+  if (educationExpenses <= 0) return 0;
+
+  // 15% credit rate
+  const creditRate = 0.15;
+
+  return Math.round(educationExpenses * creditRate);
+}
+
+/**
+ * Calculate donation credit (기부금 세액공제)
+ * 15% for donations up to ₩10,000,000
+ * 30% for donations exceeding ₩10,000,000
+ */
+export function calculateDonationCredit(donations: number): number {
+  if (donations <= 0) return 0;
+
+  const threshold = 10000000; // ₩10M threshold
+
+  if (donations <= threshold) {
+    // 15% for first ₩10M
+    return Math.round(donations * 0.15);
+  } else {
+    // 15% for first ₩10M + 30% for excess
+    const excess = donations - threshold;
+    return Math.round(threshold * 0.15 + excess * 0.30);
+  }
+}
+
+/**
+ * Calculate rent credit (월세 세액공제) - also known as rent tax credit
+ * For renters with income below certain thresholds
+ * 15% for lowest income bracket, 17% for higher bracket
+ * 
+ * Income thresholds (2026):
+ * - Single: ₩35M or less (15%), ₩45M or less (17% reduced)
+ * - Married/with dependents: ₩55M or less (15%), ₩70M or less (17% reduced)
+ * 
+ * Annual rent cap for credit calculation: ₩7,500,000
+ */
+export function calculateRentCredit(
+  monthlyRent: number,
+  grossIncome: number,
+  hasDependents: boolean
+): number {
+  if (monthlyRent <= 0) return 0;
+
+  const annualRent = monthlyRent * 12;
+
+  // Determine credit rate based on income
+  let creditRate = 0;
+
+  if (hasDependents) {
+    // Married/with dependents thresholds
+    if (grossIncome <= 55000000) {
+      creditRate = 0.15; // 15% for income ≤ ₩55M
+    } else if (grossIncome <= 70000000) {
+      creditRate = 0.17; // 17% for income ₩55M-70M (but reduced)
+    } else {
+      return 0; // No credit for income > ₩70M
+    }
+  } else {
+    // Single thresholds
+    if (grossIncome <= 35000000) {
+      creditRate = 0.15; // 15% for income ≤ ₩35M
+    } else if (grossIncome <= 45000000) {
+      creditRate = 0.17; // 17% for income ₩35M-45M (but reduced)
+    } else {
+      return 0; // No credit for income > ₩45M
+    }
+  }
+
+  // Cap annual rent for credit calculation at ₩7.5M
+  const cappedRent = Math.min(annualRent, 7500000);
+
+  return Math.round(cappedRent * creditRate);
+}
+
 /**
  * Calculate non-taxable allowances (비과세 소득)
  * Returns the total annual non-taxable amount

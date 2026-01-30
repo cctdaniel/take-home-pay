@@ -131,6 +131,81 @@ export function KRAdditionalReliefs({ reliefs, onChange }: KRAdditionalReliefsPr
           currency="KRW"
         />
       </div>
+
+      {/* Tax Credits (세액공제) */}
+      <div className="pt-4 border-t border-zinc-700">
+        <h4 className="text-sm font-medium text-zinc-300 mb-3">Tax Credits (세액공제)</h4>
+        <div className="space-y-4">
+          <ContributionSlider
+            label="Insurance Premiums (보험료)"
+            description="12% credit, capped at ₩1,000,000 (life, casualty insurance)"
+            value={reliefs.insurancePremiums || 0}
+            onChange={(value) => handleChange("insurancePremiums", value)}
+            max={10000000}
+            step={100000}
+            currency="KRW"
+          />
+
+          <ContributionSlider
+            label="Medical Expenses (의료비)"
+            description="15% credit on amount exceeding 3% of income"
+            value={reliefs.medicalExpenses || 0}
+            onChange={(value) => handleChange("medicalExpenses", value)}
+            max={50000000}
+            step={100000}
+            currency="KRW"
+          />
+
+          <ContributionSlider
+            label="Education Expenses (교육비)"
+            description="15% credit (preschool ₩3M, K-12 ₩3M, university ₩9M per person)"
+            value={reliefs.educationExpenses || 0}
+            onChange={(value) => handleChange("educationExpenses", value)}
+            max={30000000}
+            step={100000}
+            currency="KRW"
+          />
+
+          <ContributionSlider
+            label="Donations (기부금)"
+            description="15% credit up to ₩10M, 30% above"
+            value={reliefs.donations || 0}
+            onChange={(value) => handleChange("donations", value)}
+            max={50000000}
+            step={100000}
+            currency="KRW"
+          />
+        </div>
+      </div>
+
+      {/* Housing (주거 관련) */}
+      <div className="pt-4 border-t border-zinc-700">
+        <h4 className="text-sm font-medium text-zinc-300 mb-3">Housing (주거)</h4>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="text-sm">Homeowner (주택 소유)</Label>
+              <p className="text-xs text-zinc-500 mt-0.5">Check if you own your home (disables rent credit)</p>
+            </div>
+            <Switch
+              checked={reliefs.isHomeowner}
+              onCheckedChange={(checked) => handleChange("isHomeowner", checked)}
+            />
+          </div>
+
+          {!reliefs.isHomeowner && (
+            <ContributionSlider
+              label="Monthly Rent (월세)"
+              description="15-17% credit based on income (single ≤₩35M/45M, married ≤₩55M/70M)"
+              value={reliefs.monthlyRent || 0}
+              onChange={(value) => handleChange("monthlyRent", value)}
+              max={3000000}
+              step={50000}
+              currency="KRW"
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -656,11 +656,27 @@ export function MultiCountryResults({
                   </>
                 )}
 
-                {/* Tax Credits Applied */}
+                {/* Tax Calculation Flow */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">Income Tax Calculation</p>
+                
+                {/* Gross Tax (before credits) */}
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-sm text-zinc-400">
+                    Gross Tax (before credits)
+                  </span>
+                  <span className="text-sm text-zinc-300 tabular-nums">
+                    {formatCurrency(
+                      result.breakdown.taxDetails.grossIncomeTax,
+                      currency,
+                    )}
+                  </span>
+                </div>
+
+                {/* Tax Credits - shown as reductions */}
                 {result.breakdown.taxCredits.totalCredits > 0 && (
                   <>
-                    <p className="text-xs text-zinc-500 pt-2 pb-1">
-                      Tax Credits Applied
+                    <p className="text-xs text-zinc-500 pt-3 pb-1">
+                      Tax Credits (세액공제)
                     </p>
                     {result.breakdown.taxCredits.wageEarnerCredit > 0 && (
                       <div className="flex items-center justify-between py-1">
@@ -718,17 +734,113 @@ export function MultiCountryResults({
                         </span>
                       </div>
                     )}
-                    <Separator className="my-2" />
+                    {result.breakdown.taxCredits.insuranceCredit > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Insurance Premium Credit
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.taxCredits.insuranceCredit,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.taxCredits.medicalCredit > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Medical Expense Credit
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.taxCredits.medicalCredit,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.taxCredits.educationCredit > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Education Expense Credit
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.taxCredits.educationCredit,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.taxCredits.donationCredit > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Donation Credit
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.taxCredits.donationCredit,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {result.breakdown.taxCredits.rentCredit > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Rent Credit (월세)
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -
+                          {formatCurrency(
+                            result.breakdown.taxCredits.rentCredit,
+                            currency,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* Total Credits */}
+                    <div className="flex items-center justify-between py-1 border-t border-zinc-700/50 mt-1">
+                      <span className="text-sm text-zinc-300">
+                        Total Credits
+                      </span>
+                      <span className="text-sm text-emerald-400 tabular-nums font-medium">
+                        -
+                        {formatCurrency(
+                          result.breakdown.taxCredits.totalCredits,
+                          currency,
+                        )}
+                      </span>
+                    </div>
                   </>
                 )}
 
-                <p className="text-xs text-zinc-500 pt-2 pb-1">Income Tax</p>
-                <DeductionRow
-                  label="National Income Tax"
-                  amount={taxes.incomeTax}
-                  grossSalary={grossSalary}
-                  currency={currency}
-                />
+                {/* Final National Tax */}
+                <div className="flex items-center justify-between py-2 border-t border-zinc-700 mt-1">
+                  <span className="text-sm text-zinc-200 font-medium">
+                    National Income Tax
+                  </span>
+                  <span className="text-sm text-zinc-200 tabular-nums font-medium">
+                    {formatCurrency(
+                      result.breakdown.taxDetails.finalIncomeTax,
+                      currency,
+                    )}
+                  </span>
+                </div>
+                
+                {/* Show warning when credits exceed tax */}
+                {result.breakdown.taxCredits.totalCredits > result.breakdown.taxDetails.grossIncomeTax && (
+                  <p className="text-xs text-amber-400 italic mt-1">
+                    Credits exceed gross tax — no income tax due
+                  </p>
+                )}
+
                 <DeductionRow
                   label="Local Income Tax (10%)"
                   amount={taxes.localIncomeTax}
@@ -797,11 +909,12 @@ export function MultiCountryResults({
                 <Separator className="my-2" />
                 <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
                   <p className="text-xs text-zinc-400 font-medium mb-1">
-                    Note:
+                    About Tax Credits:
                   </p>
                   <p className="text-xs text-zinc-500">
-                    Additional credits (insurance, medical, education,
-                    donations, rent) are not included.
+                    Tax credits reduce your tax bill dollar-for-dollar. If credits 
+                    exceed your gross tax, you pay ₩0 in income tax (but still owe 
+                    social insurance contributions).
                   </p>
                 </div>
               </>

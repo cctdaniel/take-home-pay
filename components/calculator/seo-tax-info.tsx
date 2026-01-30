@@ -184,14 +184,30 @@ function KRTaxInfo() {
       </ul>
 
       <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
-        Additional Reliefs (Not Included)
+        Additional Tax Credits Available
       </h4>
       <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
-        <li>Insurance premium credit (12%)</li>
-        <li>Medical expense credit (15% above 3% income)</li>
-        <li>Education expense credit (15%)</li>
-        <li>Donation credit (15-30%)</li>
-        <li>Rent credit (15-17% for non-homeowners)</li>
+        <li>
+          <strong className="text-zinc-300">Insurance Premium Credit</strong> –
+          12% of premiums, capped at ₩1,000,000 (life, casualty insurance)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Medical Expense Credit</strong> –
+          15% of expenses exceeding 3% of gross income
+        </li>
+        <li>
+          <strong className="text-zinc-300">Education Expense Credit</strong> –
+          15% of education costs (per-person caps apply)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Donation Credit</strong> – 15% for
+          first ₩10M, 30% above
+        </li>
+        <li>
+          <strong className="text-zinc-300">Rent Credit (월세)</strong> – 15%
+          for income ≤₩35M (single) / ≤₩55M (married), 17% for higher incomes
+          (capped at thresholds)
+        </li>
       </ul>
     </div>
   );

@@ -19,7 +19,6 @@ import {
   KR_SOCIAL_INSURANCE,
   KR_LOCAL_TAX_RATE,
   KR_TAX_DEDUCTIONS,
-  KR_TAX_CREDITS,
   calculateEmploymentIncomeDeduction,
   calculateProgressiveIncomeTax,
   calculateNationalPension,
@@ -30,6 +29,11 @@ import {
   calculateChildTaxCredit,
   calculatePensionCredit,
   calculateNonTaxableAllowances,
+  calculateInsuranceCredit,
+  calculateMedicalCredit,
+  calculateEducationCredit,
+  calculateDonationCredit,
+  calculateRentCredit,
 } from "./constants/tax-brackets-2026";
 
 // Default tax reliefs (no dependents)
@@ -166,8 +170,39 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
     grossSalary
   );
 
+  // Insurance premium credit (보험료 세액공제) - 12%, capped at ₩1M
+  const insuranceCredit = calculateInsuranceCredit(taxReliefs.insurancePremiums);
+
+  // Medical expense credit (의료비 세액공제) - 15% of amount exceeding 3% of income
+  const medicalCredit = calculateMedicalCredit(taxReliefs.medicalExpenses, grossSalary);
+
+  // Education expense credit (교육비 세액공제) - 15%
+  const educationCredit = calculateEducationCredit(taxReliefs.educationExpenses);
+
+  // Donation credit (기부금 세액공제) - 15% up to ₩10M, 30% above
+  const donationCredit = calculateDonationCredit(taxReliefs.donations);
+
+  // Rent credit (월세 세액공제) - 15% or 17% depending on income
+  // Only applies if not a homeowner
+  const rentCredit = taxReliefs.isHomeowner
+    ? 0
+    : calculateRentCredit(
+        taxReliefs.monthlyRent,
+        grossSalary,
+        taxReliefs.numberOfDependents > 0 || taxReliefs.numberOfChildrenUnder20 > 0
+      );
+
   // Total tax credits
-  const totalTaxCredits = wageEarnerTaxCredit + standardTaxCredit + childTaxCredit + pensionCredit;
+  const totalTaxCredits =
+    wageEarnerTaxCredit +
+    standardTaxCredit +
+    childTaxCredit +
+    pensionCredit +
+    insuranceCredit +
+    medicalCredit +
+    educationCredit +
+    donationCredit +
+    rentCredit;
 
   // Final income tax after credits
   const finalIncomeTax = Math.max(0, grossIncomeTax - totalTaxCredits);
@@ -256,11 +291,11 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
       standardCredit: standardTaxCredit,
       childTaxCredit,
       pensionCredit, // Personal pension credit (연금저축/IRP)
-      insuranceCredit: 0, // Not yet implemented
-      medicalCredit: 0, // Not yet implemented
-      educationCredit: 0, // Not yet implemented
-      donationCredit: 0, // Not yet implemented
-      rentCredit: 0, // Not yet implemented
+      insuranceCredit, // 보험료 세액공제
+      medicalCredit, // 의료비 세액공제
+      educationCredit, // 교육비 세액공제
+      donationCredit, // 기부금 세액공제
+      rentCredit, // 월세 세액공제
       totalCredits: totalTaxCredits,
     },
     taxDetails: {
