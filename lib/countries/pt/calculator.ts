@@ -136,15 +136,8 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
         tax: incomeTax,
       },
     ];
-    // Calculate what tax would be under standard regime for comparison
-    if (filingStatus === "married_jointly") {
-      const halfIncome = taxableIncome / 2;
-      const irsResultHalf = calculateIRS(halfIncome);
-      incomeTaxStandardRegime = irsResultHalf.totalTax * 2;
-    } else {
-      const irsResult = calculateIRS(taxableIncome);
-      incomeTaxStandardRegime = irsResult.totalTax;
-    }
+    // Note: Standard regime comparison (incomeTaxStandardRegime) is calculated later
+    // after PPR credits and dependent deductions are computed
   } else if (isResident) {
     // Residents: progressive tax brackets
     if (filingStatus === "married_jointly") {
@@ -199,6 +192,34 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
   const dependentDeduction = isResident
     ? calculateDependentDeduction(numberOfDependents)
     : 0;
+
+  // Step 7b: For NHR 2.0, calculate what tax would be under standard regime
+  // This must be done after PPR and dependent deductions are calculated
+  if (isNhr2) {
+    // Standard regime: gross - specific deduction, progressive brackets, solidarity surcharge, credits
+    const standardSpecificDeduction = calculateSpecificDeduction(grossSalary, socialSecurity);
+    const standardTaxableIncome = Math.max(0, grossSalary - standardSpecificDeduction);
+    let standardIncomeTax: number;
+    let standardSolidarity = 0;
+    
+    if (filingStatus === "married_jointly") {
+      const halfIncome = standardTaxableIncome / 2;
+      const irsResultHalf = calculateIRS(halfIncome);
+      standardIncomeTax = irsResultHalf.totalTax * 2;
+    } else {
+      const irsResult = calculateIRS(standardTaxableIncome);
+      standardIncomeTax = irsResult.totalTax;
+    }
+    
+    // Standard regime solidarity surcharge (if applicable)
+    if (grossSalary > 80000) {
+      standardSolidarity = calculateSolidaritySurcharge(grossSalary);
+    }
+    
+    // Standard regime tax credits (same PPR and dependents as NHR)
+    const standardTaxCredits = pprTaxCredit + dependentDeduction;
+    incomeTaxStandardRegime = Math.max(0, standardIncomeTax + standardSolidarity - standardTaxCredits);
+  }
 
   // Step 8: Calculate final tax after credits and deductions
   // Tax credits (PPR) and deductions (dependents) reduce the tax assessed
