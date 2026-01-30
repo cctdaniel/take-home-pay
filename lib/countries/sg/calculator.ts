@@ -74,8 +74,8 @@ export function calculateSG(inputs: SGCalculatorInputs): CalculationResult {
   // Net salary after all deductions
   const netSalary = grossSalary - totalDeductions;
 
-  // Effective tax rate (income tax only, not CPF)
-  const effectiveTaxRate = grossSalary > 0 ? taxes.incomeTax / grossSalary : 0;
+  // Effective tax rate (income tax + CPF - mandatory contributions)
+  const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
 
   const periodsPerYear = getPeriodsPerYear(payFrequency);
 

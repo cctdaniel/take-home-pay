@@ -1180,12 +1180,41 @@ export function MultiCountryResults({
                 {/* Residency Status */}
                 <div className="flex items-center justify-between py-2">
                   <span className="text-sm text-zinc-400">Tax Residency</span>
-                  <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
-                    {result.breakdown.isResident
-                      ? "Portuguese Resident"
-                      : "Non-Resident (25% flat)"}
+                  <span className={`text-xs font-medium px-2 py-1 rounded ${
+                    result.breakdown.isNhr2
+                      ? "text-emerald-300 bg-emerald-500/20"
+                      : "text-zinc-300 bg-zinc-700/50"
+                  }`}>
+                    {result.breakdown.isNhr2
+                      ? "NHR 2.0 (20% flat)"
+                      : result.breakdown.isResident
+                        ? "Portuguese Resident"
+                        : "Non-Resident (25% flat)"}
                   </span>
                 </div>
+
+                {/* NHR 2.0 Info Banner */}
+                {result.breakdown.isNhr2 && (
+                  <div className="bg-emerald-500/10 rounded-lg p-3 my-3 border border-emerald-500/20">
+                    <p className="text-xs text-emerald-400 font-medium mb-1">
+                      NHR 2.0 Regime Active
+                    </p>
+                    <p className="text-xs text-zinc-400">
+                      20% flat tax rate on Portuguese employment income for 10 years.
+                      Exempt from solidarity surcharge.
+                    </p>
+                    {result.breakdown.nhr2TaxSavings && result.breakdown.nhr2TaxSavings > 0 && (
+                      <div className="flex items-center justify-between mt-2 pt-2 border-t border-emerald-500/20">
+                        <span className="text-xs text-emerald-400">
+                          Savings vs Standard Regime
+                        </span>
+                        <span className="text-sm font-medium text-emerald-400 tabular-nums">
+                          {formatCurrency(result.breakdown.nhr2TaxSavings, currency)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Filing Status */}
                 <div className="flex items-center justify-between py-2">
@@ -1197,8 +1226,8 @@ export function MultiCountryResults({
                   </span>
                 </div>
 
-                {/* Specific Deduction */}
-                {result.breakdown.specificDeduction > 0 && (
+                {/* Specific Deduction - only for standard residents, not NHR 2.0 */}
+                {result.breakdown.specificDeduction > 0 && !result.breakdown.isNhr2 && (
                   <>
                     <Separator className="my-2" />
                     <p className="text-xs text-zinc-500 pt-2 pb-1">

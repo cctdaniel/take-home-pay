@@ -254,9 +254,11 @@ export interface AUCalculatorInputs extends BaseCalculatorInputs {
 
 export type PTFilingStatus = "single" | "married_jointly" | "married_separately";
 
+export type PTResidencyType = "resident" | "non_resident" | "nhr_2";
+
 export interface PTCalculatorInputs extends BaseCalculatorInputs {
   country: "PT";
-  residencyType: "resident" | "non_resident";
+  residencyType: PTResidencyType;
   filingStatus: PTFilingStatus;
   numberOfDependents: number; // For tax benefits
   age: number; // For PPR contribution limits
@@ -557,6 +559,7 @@ export interface PTBreakdown {
   specificDeduction: number; // Dedução específica mínima (or SS contribution)
   // Taxpayer info
   isResident: boolean;
+  isNhr2: boolean; // NHR 2.0 regime
   filingStatus: PTFilingStatus;
   numberOfDependents: number;
   // Employer SS contribution (informational)
@@ -574,6 +577,9 @@ export interface PTBreakdown {
   // Joint filing info (for comparison)
   incomeTaxBeforeJointFiling?: number; // Tax if filed separately (for comparison)
   jointFilingSavings?: number; // Savings from joint filing
+  // NHR 2.0 info
+  nhr2FlatRate?: number; // 20% flat rate for NHR 2.0
+  nhr2TaxSavings?: number; // Tax savings vs standard regime
 }
 
 export interface THBreakdown {

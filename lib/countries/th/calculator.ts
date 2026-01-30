@@ -67,8 +67,8 @@ export function calculateTH(inputs: THCalculatorInputs): CalculationResult {
   // Net salary after all deductions
   const netSalary = grossSalary - totalDeductions;
 
-  // Effective tax rate (income tax only)
-  const effectiveTaxRate = grossSalary > 0 ? taxes.incomeTax / grossSalary : 0;
+  // Effective tax rate (income tax + Social Security - mandatory contributions)
+  const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
 
   const periodsPerYear = getPeriodsPerYear(payFrequency);
 

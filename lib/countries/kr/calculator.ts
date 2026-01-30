@@ -251,8 +251,8 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
   // Net salary
   const netSalary = grossSalary - totalDeductions;
 
-  // Effective tax rate (income tax only, not social insurance)
-  const effectiveTaxRate = grossSalary > 0 ? adjustedIncomeTax / grossSalary : 0;
+  // Effective tax rate (income tax + social insurance - all mandatory contributions)
+  const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
 
   const periodsPerYear = getPeriodsPerYear(payFrequency);
 
