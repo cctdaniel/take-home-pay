@@ -1206,6 +1206,9 @@ export function MultiCountryResults({
 
                   return (
                     <>
+                      <p className="text-xs text-zinc-500 italic">
+                        Lower tax method is highlighted; the higher one is dimmed.
+                      </p>
                       <div className="flex items-center justify-between py-1">
                         <span className={`text-sm ${progressiveClass}`}>
                           Progressive Tax
