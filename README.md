@@ -14,6 +14,8 @@ Each country has its own page for better SEO and shareability:
 | South Korea   | [/kr](http://localhost:3000/kr) |
 | Netherlands   | [/nl](http://localhost:3000/nl) |
 | Portugal      | [/pt](http://localhost:3000/pt) |
+| Thailand      | [/th](http://localhost:3000/th) |
+| Hong Kong     | [/hk](http://localhost:3000/hk) |
 
 Root `/` redirects to `/us` by default.
 
@@ -73,6 +75,21 @@ Root `/` redirects to `/us` by default.
 - **Dependent Deductions** — €600 per dependent deducted from tax assessed
 - **Non-Residents** — Flat 25% rate on Portuguese-source income
 
+### Thailand
+
+- **Income Tax** — 2026 progressive brackets (0% to 35%)
+- **Social Security** — 5% employee contribution (capped monthly)
+- **Allowances** — Personal, spouse, child, parent, and insurance deductions
+- **Retirement Savings** — Provident Fund, RMF, SSF, ESG, and NSF contributions
+- **Residency** — Non-residents pay 15% flat or progressive (whichever is higher)
+
+### Hong Kong
+
+- **Salaries Tax** — 2026 progressive rates (2% to 17%) or standard rate (15%/16%)
+- **MPF Contributions** — Mandatory 5% of relevant income (capped at HK$1,500/month)
+- **Allowances** — Basic, married, child, dependent parent, single parent
+- **Deductions** — MPF TVC/QDAP, self-education, home loan interest, domestic rent, donations
+
 ## Getting Started
 
 ```bash
@@ -93,7 +110,7 @@ Open [http://localhost:3000](http://localhost:3000) to use the calculator. You'l
 
 ```
 /app/
-  [country]/page.tsx     # Dynamic country pages (/us, /au, /sg, /kr, /nl)
+  [country]/page.tsx     # Dynamic country pages (/us, /au, /hk, /sg, /kr, /nl, /pt, /th)
   page.tsx               # Redirect to /us
 /lib/countries/          # Country-specific calculators
   /us/                   # US tax calculations
@@ -115,6 +132,8 @@ Open [http://localhost:3000](http://localhost:3000) to use the calculator. You'l
 - **Singapore:** IRAS tax rates and CPF contribution rates for 2026
 - **South Korea:** NTS tax rates and social insurance rates for 2026
 - **Portugal:** IRS tax brackets and Social Security rates from Autoridade Tributária e Aduaneira (AT) for 2026
+- **Thailand:** Revenue Department tax brackets and Social Security Fund rates for 2026
+- **Hong Kong:** IRD salaries tax rates/allowances and MPFA MPF contribution rates for 2026
 
 ## Disclaimer
 

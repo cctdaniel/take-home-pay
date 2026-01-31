@@ -12,6 +12,8 @@ import { Separator } from "@/components/ui/separator";
 import { useMultiCountryCalculator } from "@/hooks/use-multi-country-calculator";
 import type { CountryCode } from "@/lib/countries/types";
 import { AUTaxOptions } from "./au-tax-options";
+import { HKAdditionalReliefs } from "./hk-additional-reliefs";
+import { HKTaxOptions } from "./hk-tax-options";
 import { PTTaxOptions } from "./pt-tax-options";
 import { ContributionOptions } from "./contribution-options";
 import { CountrySelector } from "./country-selector";
@@ -122,6 +124,15 @@ export function MultiCountryCalculator({
     setThNsf,
     thLimits,
 
+    // HK-specific
+    hkResidencyType,
+    setHkResidencyType,
+    hkTaxReliefs,
+    setHkTaxReliefs,
+    hkVoluntaryContributions,
+    setHkVoluntaryContributions,
+    hkLimits,
+
     // Results
     result,
   } = useMultiCountryCalculator(country);
@@ -227,11 +238,20 @@ export function MultiCountryCalculator({
                 onPayFrequencyChange={setPayFrequency}
               />
             )}
+
+            {country === "HK" && (
+              <HKTaxOptions
+                residencyType={hkResidencyType}
+                onResidencyTypeChange={setHkResidencyType}
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+              />
+            )}
           </CardContent>
         </Card>
 
         {/* Contributions Card - US, SG, PT, and TH */}
-        {(country === "US" || country === "SG" || country === "PT" || country === "TH") && (
+        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK") && (
           <Card>
             <CardHeader>
               <CardTitle>
@@ -244,6 +264,8 @@ export function MultiCountryCalculator({
                     ? "Optional tax-saving contributions to PPR (Retirement Savings Plan)"
                     : country === "SG"
                       ? "Optional tax-saving contributions (CPF is mandatory)"
+                      : country === "HK"
+                        ? "Optional MPF/annuity contributions (tax deductible)"
                       : "Optional tax-saving contributions (Social Security is mandatory)"}
               </CardDescription>
             </CardHeader>
@@ -328,6 +350,23 @@ export function MultiCountryCalculator({
                     reliefs={thTaxReliefs}
                     onChange={setThTaxReliefs}
                   />
+                </div>
+              )}
+
+              {country === "HK" && (
+                <div className="space-y-6">
+                  <ContributionSlider
+                    label="Tax-Deductible Voluntary MPF & Annuity Contributions"
+                    description={`Combined cap: HK$${hkLimits.taxDeductibleVoluntaryContributions.toLocaleString()}`}
+                    value={hkVoluntaryContributions}
+                    onChange={setHkVoluntaryContributions}
+                    max={hkLimits.taxDeductibleVoluntaryContributions}
+                    currency="HKD"
+                  />
+                  <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
+                    Voluntary MPF Tax-Deductible Contributions (TVC) and Qualifying
+                    Deferred Annuity Policy premiums share a combined annual cap.
+                  </p>
                 </div>
               )}
             </CardContent>
@@ -474,6 +513,33 @@ export function MultiCountryCalculator({
                 <p className="text-xs text-zinc-500 mt-3">
                   Note: Non-residents pay 15% flat rate or progressive, whichever is higher. 
                   Retirement savings (PVD+RMF+SSF) share a ฿500,000 combined limit.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* HK Allowances & Deductions */}
+        {country === "HK" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Allowances &amp; Deductions</CardTitle>
+              <CardDescription>
+                Apply allowances and deductible expenses for Hong Kong salaries tax
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <HKAdditionalReliefs
+                reliefs={hkTaxReliefs}
+                onChange={setHkTaxReliefs}
+              />
+              <Separator className="my-6" />
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  Mandatory MPF (Employee)
+                </p>
+                <p className="text-xs text-zinc-400">
+                  5% of monthly income between HK$7,100 and HK$30,000 (max HK$1,500/month)
                 </p>
               </div>
             </CardContent>

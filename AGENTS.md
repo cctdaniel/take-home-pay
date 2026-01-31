@@ -4,7 +4,7 @@ This file provides guidance for AI coding agents working with this codebase.
 
 ## Project Overview
 
-**Take Home Pay Calculator** — A Next.js web application for calculating take-home salary after taxes and deductions. Supports multiple countries (US, Australia, Netherlands, Portugal, Singapore, South Korea, and Thailand) with 2026 tax data.
+**Take Home Pay Calculator** — A Next.js web application for calculating take-home salary after taxes and deductions. Supports multiple countries (US, Australia, Hong Kong, Netherlands, Portugal, Singapore, South Korea, and Thailand) with 2026 tax data.
 
 ## Tech Stack
 
@@ -32,6 +32,7 @@ This file provides guidance for AI coding agents working with this codebase.
     /sg/                  # Singapore tax calculator (income tax, CPF)
     /kr/                  # South Korea tax calculator (income tax, social insurance)
     /nl/                  # Netherlands tax calculator (income tax, national insurance)
+    /hk/                  # Hong Kong tax calculator (salaries tax, MPF)
     /pt/                  # Portugal tax calculator (IRS, Social Security)
     /th/                  # Thailand tax calculator (PIT, SSF, Provident Fund)
     registry.ts           # Country calculator registry (factory pattern)
@@ -53,6 +54,7 @@ Each country has its own route for better SEO:
 | Singapore     | `/sg` | Yes (static)       |
 | South Korea   | `/kr` | Yes (static)       |
 | Netherlands   | `/nl` | Yes (static)       |
+| Hong Kong     | `/hk` | Yes (static)       |
 | Portugal      | `/pt` | Yes (static)       |
 | Thailand      | `/th` | Yes (static)       |
 
@@ -124,6 +126,7 @@ Each country calculator handles:
 | `lib/countries/nl/calculator.ts`             | Netherlands tax calculation logic      |
 | `lib/countries/pt/calculator.ts`             | Portugal tax calculation logic         |
 | `lib/countries/th/calculator.ts`             | Thailand tax calculation logic         |
+| `lib/countries/hk/calculator.ts`             | Hong Kong tax calculation logic        |
 | `lib/constants/tax-year.ts`                  | Current tax year and build metadata    |
 | `components/calculator/country-selector.tsx` | Country dropdown (navigates on change) |
 

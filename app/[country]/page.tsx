@@ -35,6 +35,7 @@ const COUNTRY_DESCRIPTIONS: Record<CountryCode, string> = {
   AU: `Free ${TAX_YEAR} take home pay calculator for Australia. Calculate your salary after taxes including income tax (Stage 3 cuts), Medicare levy, Medicare levy surcharge, Division 293 tax (high income earners), LITO, and superannuation.`,
   PT: `Free ${TAX_YEAR} take home pay calculator for Portugal. Calculate your salary after taxes including IRS income tax, Social Security contributions (Segurança Social), and solidarity surcharge for high incomes.`,
   TH: `Free ${TAX_YEAR} take home pay calculator for Thailand. Calculate your salary after taxes including personal income tax (progressive rates 0-35%), Social Security Fund contributions, and tax-saving options like Provident Fund, RMF, SSF, and ESG funds.`,
+  HK: `Free ${TAX_YEAR} take home pay calculator for Hong Kong. Calculate your salary after salaries tax, MPF contributions, and key allowances and deductions.`,
 };
 
 // Country-specific keywords for SEO
@@ -108,6 +109,14 @@ const COUNTRY_KEYWORDS: Record<CountryCode, string[]> = {
     "thailand paycheck calculator",
     "rd go th tax calculator",
     "thai revenue department tax",
+  ],
+  HK: [
+    "hong kong take home pay calculator",
+    "hong kong salary after tax",
+    `${TAX_YEAR} hong kong tax calculator`,
+    "hong kong salaries tax calculator",
+    "mpf contribution calculator",
+    "hong kong payroll tax",
   ],
 };
 
@@ -202,6 +211,11 @@ const COUNTRY_HEADER_INFO: Record<
     tagline: "Calculate your actual salary after taxes in Thailand.",
     details:
       "Personal income tax (0-35% progressive), Social Security Fund (5%), Provident Fund, RMF, SSF, ESG funds, allowances & deductions",
+  },
+  HK: {
+    tagline: "Calculate your actual salary after taxes in Hong Kong.",
+    details:
+      "Salaries tax, MPF contributions, allowances & deductible expenses",
   },
 };
 
