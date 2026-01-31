@@ -3,6 +3,7 @@
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { getCurrencySymbol } from "@/lib/countries/currency";
 import { formatCurrency, type CurrencyCode } from "@/lib/format";
 
 interface ContributionSliderProps {
@@ -27,7 +28,7 @@ export function ContributionSlider({
   const isMaxed = value >= max;
 
   // Currency symbol for min label
-  const currencySymbol = currency === "KRW" ? "₩" : currency === "EUR" ? "€" : "S$";
+  const currencySymbol = getCurrencySymbol(currency);
 
   return (
     <div className="space-y-3">

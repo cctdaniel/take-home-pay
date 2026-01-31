@@ -1,6 +1,7 @@
 "use client";
 
 import { calculateNetSalary, getCountryConfig } from "@/lib/countries/registry";
+import { HKCalculator } from "@/lib/countries/hk/calculator";
 import { PTCalculator } from "@/lib/countries/pt/calculator";
 import { THCalculator } from "@/lib/countries/th/calculator";
 import {
@@ -14,6 +15,9 @@ import type {
   CalculatorInputs,
   CountryCode,
   CurrencyCode,
+  HKCalculatorInputs,
+  HKResidencyType,
+  HKTaxReliefInputs,
   KRCalculatorInputs,
   KRResidencyType,
   KRTaxReliefInputs,
@@ -87,6 +91,23 @@ const DEFAULT_TH_TAX_RELIEFS: THTaxReliefInputs = {
   politicalDonation: 0,
 };
 
+const DEFAULT_HK_TAX_RELIEFS: HKTaxReliefInputs = {
+  hasMarriedAllowance: false,
+  hasSingleParentAllowance: false,
+  numberOfChildren: 0,
+  numberOfNewbornChildren: 0,
+  numberOfDependentParents: 0,
+  numberOfDependentParentsLivingWith: 0,
+  numberOfDependentSiblings: 0,
+  hasDisabilityAllowance: false,
+  numberOfDisabledDependents: 0,
+  selfEducationExpenses: 0,
+  homeLoanInterest: 0,
+  domesticRent: 0,
+  charitableDonations: 0,
+  elderlyResidentialCareExpenses: 0,
+};
+
 // Default gross salaries per country
 const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
   US: 100000,
@@ -96,6 +117,7 @@ const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
   AU: 100000, // A$100k typical Australian salary
   PT: 35000, // €35k typical Portuguese salary
   TH: 600000, // ฿600k typical Thai middle income
+  HK: 420000, // HK$35k monthly
 };
 
 // ============================================================================
@@ -194,6 +216,17 @@ export interface UseMultiCountryCalculatorReturn {
     nsf: number;
   };
 
+  // HK-specific
+  hkResidencyType: HKResidencyType;
+  setHkResidencyType: (value: HKResidencyType) => void;
+  hkTaxReliefs: HKTaxReliefInputs;
+  setHkTaxReliefs: (value: HKTaxReliefInputs) => void;
+  hkVoluntaryContributions: number;
+  setHkVoluntaryContributions: (value: number) => void;
+  hkLimits: {
+    taxDeductibleVoluntaryContributions: number;
+  };
+
   // Limits
   usLimits: {
     traditional401k: number;
@@ -277,6 +310,15 @@ export function useMultiCountryCalculator(
   const [thEsg, setThEsgState] = useState(0);
   const [thNsf, setThNsfState] = useState(0);
 
+  // HK-specific state
+  const [hkResidencyType, setHkResidencyType] =
+    useState<HKResidencyType>("resident");
+  const [hkTaxReliefs, setHkTaxReliefs] = useState<HKTaxReliefInputs>(
+    DEFAULT_HK_TAX_RELIEFS,
+  );
+  const [hkVoluntaryContributions, setHkVoluntaryContributionsState] =
+    useState(0);
+
   // Track previous country using state (React docs pattern for adjusting state when props change)
   const [prevCountry, setPrevCountry] = useState(country);
 
@@ -322,6 +364,10 @@ export function useMultiCountryCalculator(
       setThSsfState(0);
       setThEsgState(0);
       setThNsfState(0);
+    } else if (country === "HK") {
+      setHkResidencyType("resident");
+      setHkTaxReliefs(DEFAULT_HK_TAX_RELIEFS);
+      setHkVoluntaryContributionsState(0);
     }
   }
 
@@ -372,6 +418,14 @@ export function useMultiCountryCalculator(
       nsf: limits.nationalSavingsFundContribution?.limit ?? 30000,
     };
   }, [grossSalary]);
+
+  const hkLimits = useMemo(() => {
+    const limits = HKCalculator.getContributionLimits();
+    return {
+      taxDeductibleVoluntaryContributions:
+        limits.taxDeductibleVoluntaryContributions?.limit ?? 60000,
+    };
+  }, []);
 
   // US contribution handlers with validation
   const setTraditional401k = useCallback((value: number) => {
@@ -451,6 +505,14 @@ export function useMultiCountryCalculator(
     [thLimits.nsf],
   );
 
+  const setHkVoluntaryContributions = useCallback(
+    (value: number) =>
+      setHkVoluntaryContributionsState(
+        Math.min(value, hkLimits.taxDeductibleVoluntaryContributions),
+      ),
+    [hkLimits.taxDeductibleVoluntaryContributions],
+  );
+
   // Build inputs based on country
   const inputs: CalculatorInputs = useMemo(() => {
     if (country === "US") {
@@ -528,7 +590,24 @@ export function useMultiCountryCalculator(
       };
       return ptInputs;
     } else {
-      // TH
+      // TH or HK
+      if (country === "HK") {
+        const hkInputs: HKCalculatorInputs = {
+          country: "HK",
+          grossSalary,
+          payFrequency,
+          residencyType: hkResidencyType,
+          contributions: {
+            taxDeductibleVoluntaryContributions: Math.min(
+              hkVoluntaryContributions,
+              hkLimits.taxDeductibleVoluntaryContributions,
+            ),
+          },
+          taxReliefs: hkTaxReliefs,
+        };
+        return hkInputs;
+      }
+
       const thInputs: THCalculatorInputs = {
         country: "TH",
         grossSalary,
@@ -586,10 +665,14 @@ export function useMultiCountryCalculator(
     thSsf,
     thEsg,
     thNsf,
+    hkResidencyType,
+    hkTaxReliefs,
+    hkVoluntaryContributions,
     usLimits,
     sgLimits,
     ptLimits,
     thLimits,
+    hkLimits,
   ]);
 
   // Calculate result
@@ -679,11 +762,20 @@ export function useMultiCountryCalculator(
     thNsf,
     setThNsf,
 
+    // HK-specific
+    hkResidencyType,
+    setHkResidencyType,
+    hkTaxReliefs,
+    setHkTaxReliefs,
+    hkVoluntaryContributions,
+    setHkVoluntaryContributions,
+
     // Limits
     usLimits,
     sgLimits,
     ptLimits,
     thLimits,
+    hkLimits,
 
     // Results
     result,

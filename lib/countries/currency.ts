@@ -47,6 +47,12 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
     name: "Thai Baht",
     locale: "th-TH",
   },
+  HKD: {
+    code: "HKD",
+    symbol: "HK$",
+    name: "Hong Kong Dollar",
+    locale: "en-HK",
+  },
 };
 
 // ============================================================================
@@ -60,6 +66,7 @@ export const COUNTRY_CURRENCY: Record<CountryCode, CurrencyCode> = {
   AU: "AUD",
   PT: "EUR",
   TH: "THB",
+  HK: "HKD",
 };
 
 // ============================================================================
@@ -106,6 +113,9 @@ export function getCurrencyForCountry(countryCode: CountryCode): CurrencyConfig 
   }
   if (countryCode === "TH") {
     return { ...baseConfig, locale: "th-TH" };
+  }
+  if (countryCode === "HK") {
+    return { ...baseConfig, locale: "en-HK" };
   }
   
   return baseConfig;
