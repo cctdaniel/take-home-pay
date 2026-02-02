@@ -117,29 +117,47 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
   const nationalInsurance = calculateNationalInsurance(grossSalary);
 
   // ==========================================================================
-  // STEP 5: Cap Pension Contribution
+  // STEP 5: Calculate Pension Tax Relief and Net Cost
   // ==========================================================================
-  // Pension contribution cannot exceed (gross salary - total taxes)
-  // to ensure non-negative take-home pay
-  const totalTax = incomeTax + nationalInsurance.total;
-  const maxAffordablePension = Math.max(0, grossSalary - totalTax);
-  const pensionContribution = Math.min(rawPensionContribution, maxAffordablePension);
-
-  // ==========================================================================
-  // STEP 6: Calculate Pension Tax Relief and Net Cost
-  // ==========================================================================
+  // The pension contribution input represents the GROSS amount going into pension
+  // Tax relief reduces the actual cost to the employee
+  // Basic rate: Pay £80, get £100 in pension (20% relief)
+  // Higher rate: Pay £80, get £100 in pension, claim £20 back (40% total relief)
+  
   const higherRateTaxpayer = isHigherRateTaxpayer(taxableIncome);
+  
+  // Calculate gross pension (capped at gross salary for practical reasons)
+  const grossPensionContribution = Math.min(rawPensionContribution, grossSalary);
+  
+  // For relief at source: you pay net, HMRC adds 20% to make it gross
+  // Net cost = Gross × 0.80 (for basic rate)
+  // But higher rate taxpayers can claim additional 20% or 25% back via tax return
   const pensionRelief = calculatePensionTaxRelief(
-    pensionContribution,
+    grossPensionContribution,
     taxableIncome,
     higherRateTaxpayer,
   );
   
-  // Net cost to employee = Gross - tax relief
-  const pensionNetCost = Math.max(0, pensionContribution - pensionRelief.totalRelief);
+  // Net cost to employee = Gross - total relief
+  // This is what actually reduces take-home pay
+  const netPensionCost = Math.max(0, grossPensionContribution - pensionRelief.totalRelief);
+  
+  // Cap net cost to ensure non-negative take-home
+  const totalTax = incomeTax + nationalInsurance.total;
+  const maxAffordableNetCost = Math.max(0, grossSalary - totalTax);
+  const cappedNetPensionCost = Math.min(netPensionCost, maxAffordableNetCost);
+  
+  // Recalculate gross contribution based on capped net cost
+  // Gross = NetCost / (1 - effectiveReliefRate)
+  const effectiveReliefRate = grossPensionContribution > 0 
+    ? pensionRelief.totalRelief / grossPensionContribution 
+    : 0;
+  const finalPensionContribution = effectiveReliefRate > 0
+    ? Math.round(cappedNetPensionCost / (1 - effectiveReliefRate))
+    : cappedNetPensionCost;
 
   // ==========================================================================
-  // STEP 7: Build Tax Breakdown and Totals
+  // STEP 6: Build Tax Breakdown and Totals
   // ==========================================================================
   const taxes: UKTaxBreakdown = {
     totalIncomeTax: incomeTax,
@@ -147,7 +165,7 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
     nationalInsurance: nationalInsurance.total,
   };
 
-  const totalDeductions = totalTax + pensionNetCost;
+  const totalDeductions = totalTax + cappedNetPensionCost;
   const netSalary = grossSalary - totalDeductions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(payFrequency);
@@ -174,8 +192,8 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
       additionalContribution: nationalInsurance.additionalContribution,
       total: nationalInsurance.total,
     },
-    pensionContribution,
-    pensionNetCost,
+    pensionContribution: finalPensionContribution,
+    pensionNetCost: cappedNetPensionCost,
     pensionTaxRelief: pensionRelief.totalRelief,
   };
 

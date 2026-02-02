@@ -868,9 +868,9 @@ export interface UKBreakdown {
     additionalContribution: number;
     total: number;
   };
-  pensionContribution: number;
-  pensionNetCost: number;
-  pensionTaxRelief: number;
+  pensionContribution: number;  // Gross amount in pension pot
+  pensionNetCost: number;        // Actual cost to employee (after tax relief)
+  pensionTaxRelief: number;     // Total tax relief amount
 }
 
 export interface DEBreakdown {

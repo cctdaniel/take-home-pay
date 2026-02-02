@@ -2641,18 +2641,32 @@ export function MultiCountryResults({
                     <p className="text-xs text-zinc-500 pt-2 pb-1">
                       Pension Contribution
                     </p>
-                    <DeductionRow
-                      label="Pension (Employee)"
-                      amount={result.breakdown.pensionContribution}
-                      grossSalary={grossSalary}
-                      currency={currency}
-                    />
-                    {result.breakdown.pensionTaxRelief > 0 && (
-                      <p className="text-xs text-emerald-400 italic mt-1">
-                        Basic rate tax relief: {formatCurrency(result.breakdown.pensionTaxRelief, currency)} 
-                        (claimed by pension provider)
-                      </p>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">
+                        Gross Contribution
+                      </span>
+                      <span className="text-sm text-zinc-200 tabular-nums">
+                        {formatCurrency(result.breakdown.pensionContribution, currency)}
+                      </span>
+                    </div>
+                    {"pensionTaxRelief" in result.breakdown && result.breakdown.pensionTaxRelief > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-emerald-400">
+                          Tax Relief
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -{formatCurrency(result.breakdown.pensionTaxRelief, currency)}
+                        </span>
+                      </div>
                     )}
+                    <div className="flex items-center justify-between py-1 border-t border-zinc-700/50 mt-1">
+                      <span className="text-sm text-zinc-300">
+                        Your Net Cost
+                      </span>
+                      <span className="text-sm text-zinc-100 tabular-nums font-medium">
+                        {formatCurrency(result.breakdown.pensionNetCost, currency)}
+                      </span>
+                    </div>
                   </>
                 )}
               </>

@@ -491,22 +491,32 @@ export function MultiCountryCalculator({
               {country === "UK" && (
                 <div className="space-y-6">
                   <ContributionSlider
-                    label="Pension Contribution"
-                    description="Annual pension contribution (tax relief applied at 20% basic rate)"
+                    label="Pension Contribution (Gross)"
+                    description="Total amount going into your pension pot"
                     value={ukPensionContribution}
                     onChange={setUkPensionContribution}
-                    max={Math.min(60000, Math.max(0, grossSalary - result.totalTax))}
+                    max={60000}
                     currency="GBP"
                   />
-                  <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
-                    <span className="text-emerald-400">Tip:</span> Higher and additional rate taxpayers can claim extra tax relief through their tax return (total 40% or 45% relief).
-                  </p>
-                  {grossSalary > 0 && result.totalTax > 0 && (
-                    <p className="text-xs text-zinc-400">
-                      Maximum affordable: {formatCurrency(Math.max(0, grossSalary - result.totalTax), currency)} 
-                      (after {formatCurrency(result.totalTax, currency)} taxes)
-                    </p>
+                  {result.breakdown.type === "UK" && result.breakdown.pensionNetCost > 0 && (
+                    <div className="bg-zinc-800/50 rounded-lg p-3 space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-zinc-400">Gross contribution:</span>
+                        <span className="text-zinc-200">{formatCurrency(result.breakdown.pensionContribution, currency)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-emerald-400">Tax relief:</span>
+                        <span className="text-emerald-400">-{formatCurrency(result.breakdown.pensionTaxRelief, currency)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm border-t border-zinc-700 pt-2">
+                        <span className="text-zinc-300">Your actual cost:</span>
+                        <span className="text-zinc-100 font-medium">{formatCurrency(result.breakdown.pensionNetCost, currency)}</span>
+                      </div>
+                    </div>
                   )}
+                  <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
+                    <span className="text-emerald-400">Tip:</span> Basic rate: pay £80, get £100 in pension. Higher rate: pay £80, get £100 + claim £20 back.
+                  </p>
                 </div>
               )}
             </CardContent>
