@@ -8,6 +8,39 @@ import type { CurrencyCode } from "@/lib/countries/types";
 import type { CountryComparison, MaritalStatus } from "@/hooks/use-country-comparison";
 import Link from "next/link";
 
+interface BreakdownLine {
+  label: string;
+  amount: number;
+}
+
+function BreakdownRow({
+  label,
+  amount,
+  grossSalary,
+  currency,
+}: {
+  label: string;
+  amount: number;
+  grossSalary: number;
+  currency: CurrencyCode;
+}) {
+  const percentage = grossSalary > 0 ? amount / grossSalary : 0;
+
+  return (
+    <div className="flex items-center justify-between py-1 text-xs text-zinc-500">
+      <span className="pl-4">{label}</span>
+      <div className="flex items-center gap-4">
+        <span className="text-[11px] text-zinc-600 tabular-nums w-12 text-right">
+          {formatPercentage(percentage)}
+        </span>
+        <span className="tabular-nums text-zinc-400 min-w-[80px] text-right">
+          -{formatCurrency(amount, currency)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 interface CompareBreakdownProps {
   selected: CountryComparison | null;
   baseSalary: number;
@@ -58,6 +91,58 @@ export function CompareBreakdown({
     calculation.totalDeductions - calculation.totalTax,
   );
   const takeHomeRate = grossSalary > 0 ? calculation.netSalary / grossSalary : 0;
+  const taxes = calculation.taxes;
+
+  const incomeTaxBreakdown: BreakdownLine[] = [];
+  const mandatoryBreakdown: BreakdownLine[] = [];
+
+  const pushLine = (target: BreakdownLine[], label: string, amount: number) => {
+    if (amount > 0) {
+      target.push({ label, amount });
+    }
+  };
+
+  if ("federalIncomeTax" in taxes) {
+    pushLine(incomeTaxBreakdown, "Federal income tax", taxes.federalIncomeTax);
+    pushLine(incomeTaxBreakdown, "State income tax", taxes.stateIncomeTax);
+    pushLine(mandatoryBreakdown, "Social Security", taxes.socialSecurity);
+    pushLine(mandatoryBreakdown, "Medicare", taxes.medicare);
+    pushLine(mandatoryBreakdown, "Additional Medicare", taxes.additionalMedicare);
+    pushLine(mandatoryBreakdown, "State disability", taxes.stateDisabilityInsurance);
+  } else if ("cpfEmployee" in taxes) {
+    pushLine(mandatoryBreakdown, "CPF (employee)", taxes.cpfEmployee);
+  } else if ("localIncomeTax" in taxes) {
+    pushLine(incomeTaxBreakdown, "National income tax", taxes.incomeTax);
+    pushLine(incomeTaxBreakdown, "Local income tax", taxes.localIncomeTax);
+    pushLine(mandatoryBreakdown, "National pension", taxes.nationalPension);
+    pushLine(mandatoryBreakdown, "Health insurance", taxes.nationalHealthInsurance);
+    pushLine(mandatoryBreakdown, "Long-term care", taxes.longTermCareInsurance);
+    pushLine(mandatoryBreakdown, "Employment insurance", taxes.employmentInsurance);
+  } else if ("socialSecurityTax" in taxes) {
+    pushLine(incomeTaxBreakdown, "Income tax", taxes.incomeTax);
+    pushLine(incomeTaxBreakdown, "Social security tax", taxes.socialSecurityTax);
+  } else if ("medicareLevy" in taxes) {
+    pushLine(incomeTaxBreakdown, "Income tax", taxes.incomeTax);
+    pushLine(incomeTaxBreakdown, "Medicare levy", taxes.medicareLevy);
+    pushLine(
+      incomeTaxBreakdown,
+      "Medicare levy surcharge",
+      taxes.medicareLevySurcharge,
+    );
+    pushLine(incomeTaxBreakdown, "Division 293 tax", taxes.division293Tax);
+  } else if ("solidaritySurcharge" in taxes) {
+    pushLine(incomeTaxBreakdown, "IRS income tax", taxes.incomeTax);
+    pushLine(incomeTaxBreakdown, "Solidarity surcharge", taxes.solidaritySurcharge);
+    pushLine(mandatoryBreakdown, "Social security", taxes.socialSecurity);
+  } else if ("mpfEmployee" in taxes) {
+    pushLine(mandatoryBreakdown, "MPF (employee)", taxes.mpfEmployee);
+  } else if ("socialSecurity" in taxes) {
+    pushLine(mandatoryBreakdown, "Social security", taxes.socialSecurity);
+  }
+
+  const showIncomeBreakdown =
+    incomeTaxBreakdown.length > 1 || (country === "US" && incomeTaxBreakdown.length > 0);
+  const showMandatoryBreakdown = mandatoryBreakdown.length > 0;
 
   return (
     <Card>
@@ -131,13 +216,41 @@ export function CompareBreakdown({
               grossSalary={grossSalary}
               currency={currency}
             />
+            {showIncomeBreakdown && (
+              <div className="mt-1">
+                {incomeTaxBreakdown.map((line) => (
+                  <BreakdownRow
+                    key={line.label}
+                    label={line.label}
+                    amount={line.amount}
+                    grossSalary={grossSalary}
+                    currency={currency}
+                  />
+                ))}
+              </div>
+            )}
             {mandatoryContributions > 0 && (
-              <DeductionRow
-                label="Mandatory contributions"
-                amount={mandatoryContributions}
-                grossSalary={grossSalary}
-                currency={currency}
-              />
+              <>
+                <DeductionRow
+                  label="Mandatory contributions"
+                  amount={mandatoryContributions}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                {showMandatoryBreakdown && (
+                  <div className="mt-1">
+                    {mandatoryBreakdown.map((line) => (
+                      <BreakdownRow
+                        key={line.label}
+                        label={line.label}
+                        amount={line.amount}
+                        grossSalary={grossSalary}
+                        currency={currency}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
             )}
             {voluntaryContributions > 0 && (
               <DeductionRow
