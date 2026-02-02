@@ -32,7 +32,23 @@ export function DETaxOptions({
 }: DETaxOptionsProps) {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* First row: State, Pay Frequency, Marital Status (similar to US) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="de-state">State (Bundesland)</Label>
+          <Select
+            id="de-state"
+            value={state}
+            onChange={(e) => onStateChange(e.target.value)}
+          >
+            {DE_FEDERAL_STATES.map((s) => (
+              <option key={s.code} value={s.code}>
+                {s.name} ({(s.churchTaxRate * 100).toFixed(0)}% church tax)
+              </option>
+            ))}
+          </Select>
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="pay-frequency">Pay Frequency</Label>
           <Select
@@ -48,22 +64,7 @@ export function DETaxOptions({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="de-state">Federal State (Bundesland)</Label>
-          <Select
-            id="de-state"
-            value={state}
-            onChange={(e) => onStateChange(e.target.value)}
-          >
-            {DE_FEDERAL_STATES.map((s) => (
-              <option key={s.code} value={s.code}>
-                {s.name} ({(s.churchTaxRate * 100).toFixed(0)}% church tax)
-              </option>
-            ))}
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="marital-status">Marital Status</Label>
+          <Label htmlFor="marital-status">Filing Status</Label>
           <Select
             id="marital-status"
             value={isMarried ? "married" : "single"}
@@ -73,7 +74,10 @@ export function DETaxOptions({
             <option value="married">Married (€40,700 Soli threshold)</option>
           </Select>
         </div>
+      </div>
 
+      {/* Second row: Church Membership, Children Status */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="church-member">Church Membership</Label>
           <Select
@@ -85,9 +89,7 @@ export function DETaxOptions({
             <option value="yes">Member (8% or 9% of income tax)</option>
           </Select>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="childless">Children Status</Label>
           <Select
@@ -98,10 +100,6 @@ export function DETaxOptions({
             <option value="no">Have children (1.7% Pflegeversicherung)</option>
             <option value="yes">Childless, age 23+ (2.5% Pflegeversicherung)</option>
           </Select>
-        </div>
-
-        <div className="flex items-end text-xs text-zinc-500">
-          Childless individuals pay an additional 0.6% for long-term care insurance (Pflegeversicherung).
         </div>
       </div>
     </div>
