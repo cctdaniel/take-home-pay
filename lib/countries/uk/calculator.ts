@@ -84,8 +84,10 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
 
   const isResident = residencyType === "resident";
   
-  // Get pension contribution (if any)
-  const pensionContribution = contributions?.pensionContribution || 0;
+  // Get pension contribution (if any), capped at gross salary
+  // Pension contribution cannot exceed gross salary to prevent negative net pay
+  const rawPensionContribution = contributions?.pensionContribution || 0;
+  const pensionContribution = Math.min(rawPensionContribution, grossSalary);
 
   // ==========================================================================
   // STEP 1: Calculate Personal Allowance

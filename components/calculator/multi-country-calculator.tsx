@@ -494,7 +494,7 @@ export function MultiCountryCalculator({
                     description="Annual pension contribution (tax relief applied at 20% basic rate)"
                     value={ukPensionContribution}
                     onChange={setUkPensionContribution}
-                    max={60000}
+                    max={Math.min(60000, grossSalary)}
                     currency="GBP"
                   />
                   <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">

@@ -584,6 +584,17 @@ export function useMultiCountryCalculator(
     [hkLimits.taxDeductibleVoluntaryContributions],
   );
 
+  // UK pension contribution handler with validation
+  // Pension contribution cannot exceed gross salary
+  const setUkPensionContributionValidated = useCallback(
+    (value: number) => {
+      // Cap at gross salary and annual allowance (£60,000)
+      const maxContribution = Math.min(60000, grossSalary);
+      setUkPensionContribution(Math.min(value, maxContribution));
+    },
+    [grossSalary],
+  );
+
   // Build inputs based on country
   const inputs: CalculatorInputs = useMemo(() => {
     if (country === "US") {
@@ -900,7 +911,7 @@ export function useMultiCountryCalculator(
     ukRegion,
     setUkRegion,
     ukPensionContribution,
-    setUkPensionContribution,
+    setUkPensionContribution: setUkPensionContributionValidated,
 
     // DE-specific
     deState,
