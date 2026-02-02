@@ -6,16 +6,16 @@ A multi-country salary calculator that shows your actual take-home pay after all
 
 Each country has its own page for better SEO and shareability:
 
-| Country       | URL                             |
-| ------------- | ------------------------------- |
-| United States | [/us](http://localhost:3000/us) |
-| Australia     | [/au](http://localhost:3000/au) |
-| Singapore     | [/sg](http://localhost:3000/sg) |
-| South Korea   | [/kr](http://localhost:3000/kr) |
-| Netherlands   | [/nl](http://localhost:3000/nl) |
-| Portugal      | [/pt](http://localhost:3000/pt) |
-| Thailand      | [/th](http://localhost:3000/th) |
-| Hong Kong     | [/hk](http://localhost:3000/hk) |
+| Country       | URL                                       |
+| ------------- | ----------------------------------------- |
+| United States | [/us](http://localhost:3000/us)           |
+| Australia     | [/au](http://localhost:3000/au)           |
+| Singapore     | [/sg](http://localhost:3000/sg)           |
+| South Korea   | [/kr](http://localhost:3000/kr)           |
+| Netherlands   | [/nl](http://localhost:3000/nl)           |
+| Portugal      | [/pt](http://localhost:3000/pt)           |
+| Thailand      | [/th](http://localhost:3000/th)           |
+| Hong Kong     | [/hk](http://localhost:3000/hk)           |
 | Compare All   | [/compare](http://localhost:3000/compare) |
 
 Root `/` redirects to `/us` by default.

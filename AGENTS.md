@@ -55,17 +55,17 @@ This file provides guidance for AI coding agents working with this codebase.
 
 Each country has its own route for better SEO:
 
-| Country       | URL   | Generated at build |
-| ------------- | ----- | ------------------ |
-| United States | `/us` | Yes (static)       |
-| Australia     | `/au` | Yes (static)       |
-| Singapore     | `/sg` | Yes (static)       |
-| South Korea   | `/kr` | Yes (static)       |
-| Netherlands   | `/nl` | Yes (static)       |
-| Hong Kong     | `/hk` | Yes (static)       |
-| Portugal      | `/pt` | Yes (static)       |
-| Thailand      | `/th` | Yes (static)       |
-| Compare All   | `/compare` | Yes (static) |
+| Country       | URL        | Generated at build |
+| ------------- | ---------- | ------------------ |
+| United States | `/us`      | Yes (static)       |
+| Australia     | `/au`      | Yes (static)       |
+| Singapore     | `/sg`      | Yes (static)       |
+| South Korea   | `/kr`      | Yes (static)       |
+| Netherlands   | `/nl`      | Yes (static)       |
+| Hong Kong     | `/hk`      | Yes (static)       |
+| Portugal      | `/pt`      | Yes (static)       |
+| Thailand      | `/th`      | Yes (static)       |
+| Compare All   | `/compare` | Yes (static)       |
 
 - Root `/` redirects to `/us` (default country)
 - Country selector navigates to the selected country's route
