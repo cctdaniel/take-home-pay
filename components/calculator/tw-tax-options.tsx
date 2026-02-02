@@ -9,6 +9,8 @@ interface TWTaxOptionsProps {
   onMarriedChange: (value: boolean) => void;
   hasDisability: boolean;
   onDisabilityChange: (value: boolean) => void;
+  isGoldCardHolder: boolean;
+  onGoldCardChange: (value: boolean) => void;
   payFrequency: PayFrequency;
   onPayFrequencyChange: (value: PayFrequency) => void;
 }
@@ -18,6 +20,8 @@ export function TWTaxOptions({
   onMarriedChange,
   hasDisability,
   onDisabilityChange,
+  isGoldCardHolder,
+  onGoldCardChange,
   payFrequency,
   onPayFrequencyChange,
 }: TWTaxOptionsProps) {
@@ -65,6 +69,23 @@ export function TWTaxOptions({
         {hasDisability && (
           <p className="text-xs text-zinc-500">
             Additional deduction: NT$227,000
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="gold-card-status">Employment Gold Card</Label>
+        <Select
+          id="gold-card-status"
+          value={isGoldCardHolder ? "goldcard" : "regular"}
+          onChange={(e) => onGoldCardChange(e.target.value === "goldcard")}
+        >
+          <option value="regular">Regular Taxpayer</option>
+          <option value="goldcard">Gold Card Holder (50% exemption on income &gt; NT$3M)</option>
+        </Select>
+        {isGoldCardHolder && (
+          <p className="text-xs text-zinc-500">
+            50% of income above NT$3M is tax-exempt for first 5 years as tax resident
           </p>
         )}
       </div>

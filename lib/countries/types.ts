@@ -203,6 +203,7 @@ export interface IDTaxReliefInputs {
 export interface TWTaxReliefInputs {
   isMarried: boolean; // Affects standard deduction amount
   hasDisability: boolean; // Special deduction for disabled individuals
+  isGoldCardHolder: boolean; // Employment Gold Card - 50% exemption on income > NT$3M
 }
 
 // South Korea additional tax reliefs/deductions (인적공제 및 세액공제)
@@ -821,6 +822,14 @@ export interface TWBreakdown {
   type: "TW";
   grossIncome: number;
   taxableIncome: number;
+
+  // Gold Card tax benefit
+  goldCard?: {
+    isApplied: boolean;
+    threshold: number;
+    exemptionAmount: number;
+    taxableIncomeBeforeExemption: number;
+  };
 
   // Social insurance breakdown (annual amounts)
   socialInsurance: {

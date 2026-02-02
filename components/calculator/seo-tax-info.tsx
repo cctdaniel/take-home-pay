@@ -721,6 +721,10 @@ function TWTaxInfo() {
           <strong className="text-zinc-300">Labor Pension</strong> –
           Employer contributes 6% mandatorily; employee can voluntarily contribute 0-6% (tax deductible)
         </li>
+        <li>
+          <strong className="text-zinc-300">Employment Gold Card</strong> –
+          50% tax exemption on income above NT$3M for first 5 years as tax resident (for qualified foreign professionals)
+        </li>
       </ul>
 
       <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
@@ -810,10 +814,48 @@ function TWTaxInfo() {
       </ul>
 
       <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Employment Gold Card Special Tax Benefits
+      </h4>
+      <p className="text-zinc-400 text-sm mb-2">
+        Foreign professionals holding an Employment Gold Card or Foreign Special Professional Work Permit 
+        enjoy significant tax incentives under the Act for the Recruitment and Employment of Foreign Professionals.
+        These benefits apply for the first 5 years as a tax resident in Taiwan.
+      </p>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>
+          <strong className="text-zinc-300">50% Exemption on Income Above NT$3 Million</strong> –
+          Half of your salary income exceeding NT$3 million per year is excluded from taxable income.
+          For example, with NT$5 million income: NT$3M + (50% × NT$2M) = NT$4M taxable (saving ~NT$200K in taxes).
+        </li>
+        <li>
+          <strong className="text-zinc-300">Eligibility Requirements</strong> –
+          1) First time approved to reside in Taiwan for work; 2) Reside &gt;183 days in the tax year;
+          3) Earn &gt;NT$3 million in salary; 4) Hold Gold Card or Special Professional Work Permit.
+        </li>
+        <li>
+          <strong className="text-zinc-300">5-Year Benefit Period</strong> –
+          The tax benefit applies for 5 consecutive tax years starting from the first year you meet 
+          all conditions (residency + income threshold). If you don&apos;t meet conditions in a year, 
+          that year doesn&apos;t count toward the 5 years.
+        </li>
+        <li>
+          <strong className="text-zinc-300">AMT Exemption</strong> –
+          Overseas income is excluded from the Alternative Minimum Tax (AMT) calculation during the benefit period.
+        </li>
+        <li>
+          <strong className="text-zinc-300">Non-Taxable Benefits</strong> –
+          Additional benefits like housing allowance, utilities, and education expenses may be tax-free 
+          for qualified foreign professionals.
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
         Tax Calculation Formula
       </h4>
       <p className="text-zinc-400 text-sm">
         Gross Salary − Social Insurance Contributions − Total Deductions & Exemptions = Taxable Income
+        <br />
+        (Gold Card: 50% of income above NT$3M is exempt from Taxable Income)
         <br />
         Taxable Income × Progressive Tax Rate = Income Tax
         <br />

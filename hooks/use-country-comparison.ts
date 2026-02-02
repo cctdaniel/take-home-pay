@@ -567,6 +567,7 @@ export function useCountryComparison(
             taxReliefs: {
               isMarried: inputs.maritalStatus === "married",
               hasDisability: false,
+              isGoldCardHolder: false,
             },
           };
           const result = calculateNetSalary(twInputs);

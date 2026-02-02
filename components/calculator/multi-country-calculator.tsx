@@ -306,6 +306,10 @@ export function MultiCountryCalculator({
                 onDisabilityChange={(value) =>
                   setTwTaxReliefs({ ...twTaxReliefs, hasDisability: value })
                 }
+                isGoldCardHolder={twTaxReliefs.isGoldCardHolder}
+                onGoldCardChange={(value) =>
+                  setTwTaxReliefs({ ...twTaxReliefs, isGoldCardHolder: value })
+                }
                 payFrequency={payFrequency}
                 onPayFrequencyChange={setPayFrequency}
               />
@@ -625,6 +629,32 @@ export function MultiCountryCalculator({
                   <strong className="text-zinc-300">Voluntary Contribution:</strong> You can choose to contribute 
                   an additional 0-6% of your salary, which reduces your taxable income (tax deductible).
                 </p>
+              </div>
+
+              <div className="bg-zinc-800/50 rounded-lg p-4 border border-emerald-500/30">
+                <p className="text-sm font-medium text-emerald-300 mb-2">
+                  Employment Gold Card (就業金卡) - Special Tax Benefits
+                </p>
+                <p className="text-xs text-zinc-400 mb-2">
+                  Foreign professionals with an Employment Gold Card or Foreign Special Professional Work Permit 
+                  enjoy significant tax incentives for their first 5 years as tax residents:
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-2">
+                  <li>
+                    <strong className="text-zinc-300">50% Tax Exemption</strong> — 
+                    50% of your salary income above NT$3 million is excluded from taxable income.
+                    Example: If your income is NT$5M, only NT$4M is taxable (NT$3M + 50% of NT$2M).
+                  </li>
+                  <li>
+                    <strong className="text-zinc-300">Eligibility</strong> — 
+                    Must reside in Taiwan &gt;183 days/year, earn &gt;NT$3M, be first-time work permit holder,
+                    and hold Gold Card or Special Professional Work Permit.
+                  </li>
+                  <li>
+                    <strong className="text-zinc-300">AMT Exemption</strong> — 
+                    Overseas income is excluded from Alternative Minimum Tax calculation.
+                  </li>
+                </ul>
               </div>
 
               <div className="bg-zinc-800/30 rounded-lg p-3">

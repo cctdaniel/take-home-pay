@@ -121,6 +121,7 @@ const DEFAULT_ID_TAX_RELIEFS: IDTaxReliefInputs = {
 const DEFAULT_TW_TAX_RELIEFS: TWTaxReliefInputs = {
   isMarried: false,
   hasDisability: false,
+  isGoldCardHolder: false,
 };
 
 // Default gross salaries per country

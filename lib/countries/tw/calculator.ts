@@ -100,13 +100,26 @@ function calculateTWIncomeTax(inputs: TWCalculatorInputs) {
   // STEP 3: Calculate Taxable Income
   // ==========================================================================
   // Formula: Gross Salary - (Social Insurance + Deductions + Exemptions)
-  const taxableIncome = Math.max(
+  const taxableIncomeBeforeGoldCard = Math.max(
     0,
     grossSalary - annualSocialInsurance.total - totalDeductionsAndExemptions
   );
 
   // ==========================================================================
-  // STEP 4: Calculate Income Tax
+  // STEP 4: Apply Employment Gold Card Tax Benefit (if applicable)
+  // ==========================================================================
+  // Gold Card holders: 50% of income above NT$3M is tax-exempt for first 5 years
+  const GOLD_CARD_THRESHOLD = 3_000_000;
+  let goldCardExemption = 0;
+  let taxableIncome = taxableIncomeBeforeGoldCard;
+
+  if (taxReliefs.isGoldCardHolder && taxableIncomeBeforeGoldCard > GOLD_CARD_THRESHOLD) {
+    goldCardExemption = (taxableIncomeBeforeGoldCard - GOLD_CARD_THRESHOLD) * 0.5;
+    taxableIncome = taxableIncomeBeforeGoldCard - goldCardExemption;
+  }
+
+  // ==========================================================================
+  // STEP 5: Calculate Income Tax
   // ==========================================================================
   const taxResult = calculateProgressiveTax(taxableIncome);
 
@@ -114,6 +127,12 @@ function calculateTWIncomeTax(inputs: TWCalculatorInputs) {
     // Income tax
     incomeTax: taxResult.totalTax,
     taxableIncome,
+    taxableIncomeBeforeGoldCard,
+    goldCardExemption,
+    goldCardThreshold: GOLD_CARD_THRESHOLD,
+    isGoldCardApplied: taxReliefs.isGoldCardHolder && goldCardExemption > 0,
+
+    // Bracket taxes based on final taxable income
     bracketTaxes: taxResult.bracketTaxes,
 
     // Social insurance
@@ -174,6 +193,14 @@ export function calculateTW(inputs: TWCalculatorInputs): CalculationResult {
     type: "TW",
     grossIncome: grossSalary,
     taxableIncome: taxResult.taxableIncome,
+
+    // Gold Card tax benefit
+    goldCard: {
+      isApplied: taxResult.isGoldCardApplied,
+      threshold: taxResult.goldCardThreshold,
+      exemptionAmount: taxResult.goldCardExemption,
+      taxableIncomeBeforeExemption: taxResult.taxableIncomeBeforeGoldCard,
+    },
     
     // Social insurance breakdown
     socialInsurance: {
@@ -277,6 +304,7 @@ export const TWCalculator: CountryCalculator = {
       taxReliefs: {
         isMarried: false,
         hasDisability: false,
+        isGoldCardHolder: false,
       },
     };
   },

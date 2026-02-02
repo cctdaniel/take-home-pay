@@ -2360,10 +2360,38 @@ export function MultiCountryResults({
                   </span>
                 </div>
 
+                {/* Gold Card Exemption */}
+                {result.breakdown.goldCard?.isApplied && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="text-xs text-zinc-500 pt-2 pb-1">
+                      Employment Gold Card Tax Benefit
+                    </p>
+                    <div className="flex items-center justify-between py-1">
+                      <div>
+                        <span className="text-sm text-zinc-400">Taxable Income Before Exemption</span>
+                        <p className="text-xs text-zinc-500">Income after deductions</p>
+                      </div>
+                      <span className="text-sm text-zinc-300 tabular-nums">
+                        {formatCurrency(result.breakdown.goldCard.taxableIncomeBeforeExemption, currency)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1">
+                      <div>
+                        <span className="text-sm text-zinc-400">50% Exemption (Income &gt; NT$3M)</span>
+                        <p className="text-xs text-zinc-500">Gold Card benefit - 50% of amount above NT$3M</p>
+                      </div>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.goldCard.exemptionAmount, currency)}
+                      </span>
+                    </div>
+                  </>
+                )}
+
                 {/* Taxable Income */}
                 <Separator className="my-2" />
                 <div className="flex items-center justify-between py-2">
-                  <span className="text-sm text-zinc-300">Taxable Income</span>
+                  <span className="text-sm text-zinc-300">Final Taxable Income</span>
                   <span className="text-sm text-zinc-200 tabular-nums font-medium">
                     {formatCurrency(result.taxableIncome, currency)}
                   </span>
