@@ -10,6 +10,7 @@ import {
 import { ContributionSlider } from "@/components/ui/contribution-slider";
 import { Separator } from "@/components/ui/separator";
 import { useMultiCountryCalculator } from "@/hooks/use-multi-country-calculator";
+import { formatCurrency } from "@/lib/format";
 import type { CountryCode } from "@/lib/countries/types";
 import { AUTaxOptions } from "./au-tax-options";
 import { DETaxOptions } from "./de-tax-options";
@@ -494,12 +495,18 @@ export function MultiCountryCalculator({
                     description="Annual pension contribution (tax relief applied at 20% basic rate)"
                     value={ukPensionContribution}
                     onChange={setUkPensionContribution}
-                    max={Math.min(60000, grossSalary)}
+                    max={Math.min(60000, Math.max(0, grossSalary - result.totalTax))}
                     currency="GBP"
                   />
                   <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
                     <span className="text-emerald-400">Tip:</span> Higher and additional rate taxpayers can claim extra tax relief through their tax return (total 40% or 45% relief).
                   </p>
+                  {grossSalary > 0 && result.totalTax > 0 && (
+                    <p className="text-xs text-zinc-400">
+                      Maximum affordable: {formatCurrency(Math.max(0, grossSalary - result.totalTax), currency)} 
+                      (after {formatCurrency(result.totalTax, currency)} taxes)
+                    </p>
+                  )}
                 </div>
               )}
             </CardContent>

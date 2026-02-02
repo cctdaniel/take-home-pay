@@ -84,36 +84,25 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
 
   const isResident = residencyType === "resident";
   
-  // Get pension contribution (if any), capped at gross salary
-  // Pension contribution cannot exceed gross salary to prevent negative net pay
+  // Get raw pension contribution (if any)
   const rawPensionContribution = contributions?.pensionContribution || 0;
-  const pensionContribution = Math.min(rawPensionContribution, grossSalary);
-
+  
   // ==========================================================================
-  // STEP 1: Calculate Personal Allowance
+  // STEP 1: Calculate Personal Allowance (without pension for now)
   // ==========================================================================
-  // Adjusted net income approximated as gross salary minus pension contributions
-  // Pension contributions via salary sacrifice reduce adjusted net income
-  const adjustedNetIncome = Math.max(0, grossSalary - pensionContribution);
   const personalAllowanceResult = calculatePersonalAllowance(
-    adjustedNetIncome,
+    grossSalary,
     isResident,
   );
 
   // ==========================================================================
   // STEP 2: Calculate Taxable Income
   // ==========================================================================
-  // Taxable income is gross salary minus Personal Allowance
-  // Pension contributions may be deducted before or after tax depending on scheme type
-  // For relief at source: pension is paid from net pay, tax relief added to pension
-  // For salary sacrifice: pension reduces taxable income directly
-  // This calculator assumes relief at source (most common for personal pensions)
   const taxableIncome = Math.max(0, grossSalary - personalAllowanceResult.allowance);
 
   // ==========================================================================
   // STEP 3: Calculate Income Tax
   // ==========================================================================
-  // Select appropriate tax bands based on region
   const taxBands =
     region === "scotland" ? UK_INCOME_TAX_BANDS_SCOTLAND : UK_INCOME_TAX_BANDS_RUK;
   
@@ -125,12 +114,19 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
   // ==========================================================================
   // STEP 4: Calculate National Insurance
   // ==========================================================================
-  // NI is calculated on gross earnings (before tax)
-  // Pension contributions do not reduce NI liability (unless salary sacrifice)
   const nationalInsurance = calculateNationalInsurance(grossSalary);
 
   // ==========================================================================
-  // STEP 5: Calculate Pension Tax Relief and Net Cost
+  // STEP 5: Cap Pension Contribution
+  // ==========================================================================
+  // Pension contribution cannot exceed (gross salary - total taxes)
+  // to ensure non-negative take-home pay
+  const totalTax = incomeTax + nationalInsurance.total;
+  const maxAffordablePension = Math.max(0, grossSalary - totalTax);
+  const pensionContribution = Math.min(rawPensionContribution, maxAffordablePension);
+
+  // ==========================================================================
+  // STEP 6: Calculate Pension Tax Relief and Net Cost
   // ==========================================================================
   const higherRateTaxpayer = isHigherRateTaxpayer(taxableIncome);
   const pensionRelief = calculatePensionTaxRelief(
@@ -143,7 +139,7 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
   const pensionNetCost = Math.max(0, pensionContribution - pensionRelief.totalRelief);
 
   // ==========================================================================
-  // STEP 6: Build Tax Breakdown
+  // STEP 7: Build Tax Breakdown and Totals
   // ==========================================================================
   const taxes: UKTaxBreakdown = {
     totalIncomeTax: incomeTax,
@@ -151,10 +147,6 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
     nationalInsurance: nationalInsurance.total,
   };
 
-  // ==========================================================================
-  // STEP 7: Calculate Totals
-  // ==========================================================================
-  const totalTax = incomeTax + nationalInsurance.total;
   const totalDeductions = totalTax + pensionNetCost;
   const netSalary = grossSalary - totalDeductions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;

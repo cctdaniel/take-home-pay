@@ -585,10 +585,11 @@ export function useMultiCountryCalculator(
   );
 
   // UK pension contribution handler with validation
-  // Pension contribution cannot exceed gross salary
+  // Pension contribution cannot exceed gross salary (calculator will further cap based on taxes)
   const setUkPensionContributionValidated = useCallback(
     (value: number) => {
       // Cap at gross salary and annual allowance (£60,000)
+      // The calculator will further cap to ensure non-negative take-home
       const maxContribution = Math.min(60000, grossSalary);
       setUkPensionContribution(Math.min(value, maxContribution));
     },
