@@ -98,6 +98,7 @@ function getUSFilingStatus(
 function buildAssumptionsSummary(
   country: CountryCode,
   inputs: ComparisonInputs,
+  retirementApplied: boolean,
 ): string[] {
   const summary: string[] = [];
   const { maritalStatus, numberOfChildren, assumptions } = inputs;
@@ -147,7 +148,7 @@ function buildAssumptionsSummary(
     summary.push("Single parent");
   }
 
-  if (assumptions.retirementContributions === "max") {
+  if (retirementApplied) {
     summary.push("Retirement: max");
   }
 
@@ -210,6 +211,7 @@ export function useCountryComparison(
           },
         };
           const result = calculateNetSalary(usInputs);
+          const retirementApplied = retirement401k > 0;
           acc.push({
             country,
             name: config.name,
@@ -222,7 +224,11 @@ export function useCountryComparison(
             effectiveTaxRate: result.effectiveTaxRate,
             deltaBase: 0,
             deltaPercent: 0,
-            assumptions: buildAssumptionsSummary(country, inputs),
+            assumptions: buildAssumptionsSummary(
+              country,
+              inputs,
+              retirementApplied,
+            ),
             calculation: result,
             usState: usInputs.state,
             usContributions: {
@@ -266,6 +272,7 @@ export function useCountryComparison(
             },
           };
           const result = calculateNetSalary(sgInputs);
+          const retirementApplied = srsContribution > 0;
           acc.push({
             country,
             name: config.name,
@@ -278,7 +285,11 @@ export function useCountryComparison(
             effectiveTaxRate: result.effectiveTaxRate,
             deltaBase: 0,
             deltaPercent: 0,
-            assumptions: buildAssumptionsSummary(country, inputs),
+            assumptions: buildAssumptionsSummary(
+              country,
+              inputs,
+              retirementApplied,
+            ),
             calculation: result,
           });
           return acc;
@@ -317,7 +328,7 @@ export function useCountryComparison(
             effectiveTaxRate: result.effectiveTaxRate,
             deltaBase: 0,
             deltaPercent: 0,
-            assumptions: buildAssumptionsSummary(country, inputs),
+            assumptions: buildAssumptionsSummary(country, inputs, false),
             calculation: result,
           });
           return acc;
@@ -345,7 +356,7 @@ export function useCountryComparison(
             effectiveTaxRate: result.effectiveTaxRate,
             deltaBase: 0,
             deltaPercent: 0,
-            assumptions: buildAssumptionsSummary(country, inputs),
+            assumptions: buildAssumptionsSummary(country, inputs, false),
             calculation: result,
           });
           return acc;
@@ -375,7 +386,7 @@ export function useCountryComparison(
             effectiveTaxRate: result.effectiveTaxRate,
             deltaBase: 0,
             deltaPercent: 0,
-            assumptions: buildAssumptionsSummary(country, inputs),
+            assumptions: buildAssumptionsSummary(country, inputs, false),
             calculation: result,
           });
           return acc;
@@ -406,6 +417,7 @@ export function useCountryComparison(
           },
         };
           const result = calculateNetSalary(ptInputs);
+          const retirementApplied = pprContribution > 0;
           acc.push({
             country,
             name: config.name,
@@ -418,7 +430,11 @@ export function useCountryComparison(
             effectiveTaxRate: result.effectiveTaxRate,
             deltaBase: 0,
             deltaPercent: 0,
-            assumptions: buildAssumptionsSummary(country, inputs),
+            assumptions: buildAssumptionsSummary(
+              country,
+              inputs,
+              retirementApplied,
+            ),
             calculation: result,
           });
           return acc;
@@ -473,6 +489,7 @@ export function useCountryComparison(
           },
         };
           const result = calculateNetSalary(thInputs);
+          const retirementApplied = providentFundContribution > 0;
           acc.push({
             country,
             name: config.name,
@@ -485,7 +502,11 @@ export function useCountryComparison(
             effectiveTaxRate: result.effectiveTaxRate,
             deltaBase: 0,
             deltaPercent: 0,
-            assumptions: buildAssumptionsSummary(country, inputs),
+            assumptions: buildAssumptionsSummary(
+              country,
+              inputs,
+              retirementApplied,
+            ),
             calculation: result,
           });
           return acc;
@@ -525,6 +546,7 @@ export function useCountryComparison(
           },
         };
         const result = calculateNetSalary(hkInputs);
+        const retirementApplied = voluntaryMpf > 0;
         acc.push({
           country,
           name: config.name,
@@ -537,7 +559,11 @@ export function useCountryComparison(
           effectiveTaxRate: result.effectiveTaxRate,
           deltaBase: 0,
           deltaPercent: 0,
-          assumptions: buildAssumptionsSummary(country, inputs),
+          assumptions: buildAssumptionsSummary(
+            country,
+            inputs,
+            retirementApplied,
+          ),
           calculation: result,
         });
 

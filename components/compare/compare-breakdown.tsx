@@ -48,6 +48,7 @@ export function CompareBreakdown({
   const { calculation, name, country, currency, assumptions } = selected;
   const grossSalary = calculation.grossSalary;
   const incomeTax = calculation.taxes.totalIncomeTax;
+  const usesTotalTaxLabel = calculation.totalTax === incomeTax;
   const mandatoryContributions = Math.max(
     0,
     calculation.totalTax - incomeTax,
@@ -125,7 +126,7 @@ export function CompareBreakdown({
             </div>
             <Separator className="my-2" />
             <DeductionRow
-              label="Income tax"
+              label={usesTotalTaxLabel ? "Total tax" : "Income tax"}
               amount={incomeTax}
               grossSalary={grossSalary}
               currency={currency}

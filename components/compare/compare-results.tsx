@@ -47,6 +47,8 @@ export function CompareResults({
 }: CompareResultsProps) {
   const updatedAt = formatUpdatedAt(comparison.fxUpdatedAt);
   const topCountry = comparison.results[0];
+  const hasList = comparison.results.length > 0;
+  const showError = hasResults && !isLoading && error;
 
   return (
     <Card className="sticky top-6">
@@ -68,7 +70,7 @@ export function CompareResults({
           </div>
         )}
 
-        {hasResults && !isLoading && error && (
+        {showError && !hasList && (
           <div className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-200">
             <p>{error}</p>
             <button
@@ -81,13 +83,26 @@ export function CompareResults({
           </div>
         )}
 
-        {hasResults && !isLoading && !error && comparison.results.length === 0 && (
+        {showError && hasList && (
+          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200">
+            <p>FX refresh failed. Showing cached rates.</p>
+            <button
+              type="button"
+              onClick={onRetry}
+              className="mt-3 inline-flex items-center rounded-md border border-amber-500/40 px-3 py-1.5 text-xs font-medium text-amber-100 transition hover:border-amber-400/70"
+            >
+              Retry FX rates
+            </button>
+          </div>
+        )}
+
+        {hasResults && !isLoading && !error && !hasList && (
           <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-4 text-sm text-zinc-400">
             FX rates are unavailable right now.
           </div>
         )}
 
-        {hasResults && !isLoading && !error && comparison.results.length > 0 && (
+        {hasResults && !isLoading && hasList && (
           <div className="space-y-4">
             <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-4">
               <div className="flex items-center justify-between text-xs text-zinc-400">
