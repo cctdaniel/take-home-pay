@@ -127,6 +127,7 @@ const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
   TH: 600000, // ฿600k typical Thai middle income
   HK: 420000, // HK$35k monthly
   ID: 120000000, // Rp120M typical salary
+  CH: 90000, // CHF 90k typical Swiss salary
 };
 
 // ============================================================================

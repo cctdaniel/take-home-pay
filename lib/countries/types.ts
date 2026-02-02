@@ -8,7 +8,7 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD" | "IDR";
+export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD" | "IDR" | "CHF";
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -20,7 +20,7 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK" | "ID";
+export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK" | "ID" | "CH";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -135,6 +135,15 @@ export interface IDContributionInputs {
   dplkContribution: number; // Dana Pensiun Lembaga Keuangan (voluntary pension fund)
   zakatContribution: number; // Zakat to BAZNAS or authorized amil zakat institutions
 }
+
+// Switzerland-specific contributions (Pillar 3a voluntary pension)
+export interface CHContributionInputs {
+  pillar3aContribution: number; // Pillar 3a contribution (tax deductible)
+  includeBVG: boolean; // Whether to include occupational pension
+}
+
+// Switzerland filing status types
+export type CHFilingStatus = "single" | "married" | "single_parent";
 
 // Thailand additional tax reliefs/allowances
 export interface THTaxReliefInputs {
@@ -328,6 +337,16 @@ export interface IDCalculatorInputs extends BaseCalculatorInputs {
   taxReliefs: IDTaxReliefInputs;
 }
 
+export interface CHCalculatorInputs extends BaseCalculatorInputs {
+  country: "CH";
+  filingStatus: CHFilingStatus;
+  canton: string; // Canton code (e.g., "ZH", "ZG", "GE")
+  age: number; // For BVG contribution rates
+  numberOfChildren: number; // For child allowances
+  contributions: CHContributionInputs;
+  includeHealthInsurance: boolean; // Include health insurance cost (informational)
+}
+
 export type CalculatorInputs =
   | USCalculatorInputs
   | SGCalculatorInputs
@@ -337,7 +356,8 @@ export type CalculatorInputs =
   | PTCalculatorInputs
   | THCalculatorInputs
   | HKCalculatorInputs
-  | IDCalculatorInputs;
+  | IDCalculatorInputs
+  | CHCalculatorInputs;
 
 // ============================================================================
 // TAX BREAKDOWN TYPES
@@ -407,6 +427,16 @@ export interface IDTaxBreakdown extends BaseTaxBreakdown {
   bpjsJp: number; // BPJS JP employee contribution
 }
 
+export interface CHTaxBreakdown extends BaseTaxBreakdown {
+  federalIncomeTax: number;
+  cantonalIncomeTax: number;
+  municipalIncomeTax: number;
+  ahvIvEo: number; // Old age, disability, loss of earnings
+  alv: number; // Unemployment insurance
+  bvg: number; // Occupational pension
+  healthInsurance: number; // Health insurance cost (informational)
+}
+
 export type TaxBreakdown =
   | USTaxBreakdown
   | SGTaxBreakdown
@@ -416,7 +446,8 @@ export type TaxBreakdown =
   | PTTaxBreakdown
   | THTaxBreakdown
   | HKTaxBreakdown
-  | IDTaxBreakdown;
+  | IDTaxBreakdown
+  | CHTaxBreakdown;
 
 // ============================================================================
 // CALCULATION RESULT TYPES
@@ -790,6 +821,50 @@ export interface IDBreakdown {
   taxReliefs: IDTaxReliefInputs;
 }
 
+export interface CHBreakdown {
+  type: "CH";
+  filingStatus: CHFilingStatus;
+  canton: string;
+  cantonName: string;
+  federalTaxableIncome: number;
+  federalTax: number;
+  cantonalTax: number;
+  municipalTax: number;
+  totalCantonalTax: number;
+  cantonalMultiplier: number;
+  socialSecurity: {
+    ahvIvEo: number;
+    ahvIvEoRate: number;
+    alv: number;
+    alvRate: number;
+    alvCap: number;
+    bvg: number;
+    bvgRate: number;
+    coordinatedSalary: number;
+    totalSocialSecurity: number;
+  };
+  deductions: {
+    professionalExpenses: number;
+    insurancePremiums: number;
+    pillar3a: number;
+    totalDeductions: number;
+  };
+  healthInsurance: {
+    annualCost: number;
+    monthlyCost: number;
+    isIncluded: boolean;
+  };
+  pillar3a: {
+    contribution: number;
+    maxContribution: number;
+  };
+  childAllowances: number;
+  numberOfChildren: number;
+  effectiveTaxRate: number;
+  effectiveSocialSecurityRate: number;
+  totalDeductionRate: number;
+}
+
 export type CountrySpecificBreakdown =
   | USBreakdown
   | SGBreakdown
@@ -799,7 +874,8 @@ export type CountrySpecificBreakdown =
   | PTBreakdown
   | THBreakdown
   | HKBreakdown
-  | IDBreakdown;
+  | IDBreakdown
+  | CHBreakdown;
 
 // ============================================================================
 // COUNTRY CALCULATOR INTERFACE
@@ -993,4 +1069,20 @@ export function isIDBreakdown(
   breakdown: CountrySpecificBreakdown,
 ): breakdown is IDBreakdown {
   return breakdown.type === "ID";
+}
+
+export function isCHInputs(
+  inputs: CalculatorInputs,
+): inputs is CHCalculatorInputs {
+  return inputs.country === "CH";
+}
+
+export function isCHTaxBreakdown(taxes: TaxBreakdown): taxes is CHTaxBreakdown {
+  return "federalIncomeTax" in taxes && "cantonalIncomeTax" in taxes;
+}
+
+export function isCHBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is CHBreakdown {
+  return breakdown.type === "CH";
 }

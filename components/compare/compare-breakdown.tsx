@@ -102,7 +102,16 @@ export function CompareBreakdown({
     }
   };
 
-  if ("federalIncomeTax" in taxes) {
+  if ("federalIncomeTax" in taxes && "cantonalIncomeTax" in taxes) {
+    // Switzerland - check before US because both have federalIncomeTax
+    pushLine(incomeTaxBreakdown, "Federal income tax", taxes.federalIncomeTax);
+    pushLine(incomeTaxBreakdown, "Cantonal income tax", taxes.cantonalIncomeTax);
+    pushLine(incomeTaxBreakdown, "Municipal income tax", taxes.municipalIncomeTax);
+    pushLine(mandatoryBreakdown, "AHV/IV/EO (social security)", taxes.ahvIvEo);
+    pushLine(mandatoryBreakdown, "ALV (unemployment)", taxes.alv);
+    pushLine(mandatoryBreakdown, "BVG (pension)", taxes.bvg);
+  } else if ("federalIncomeTax" in taxes) {
+    // United States
     pushLine(incomeTaxBreakdown, "Federal income tax", taxes.federalIncomeTax);
     pushLine(incomeTaxBreakdown, "State income tax", taxes.stateIncomeTax);
     pushLine(mandatoryBreakdown, "Social Security", taxes.socialSecurity);

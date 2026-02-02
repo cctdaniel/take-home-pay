@@ -40,7 +40,8 @@ export function calculateNetSalary(inputs: CalculatorInputs): CalculationResult 
   }
 
   const usTaxes = result.taxes;
-  if (!("federalIncomeTax" in usTaxes)) {
+  // Check for stateIncomeTax to distinguish from Switzerland which also has federalIncomeTax
+  if (!("federalIncomeTax" in usTaxes) || !("stateIncomeTax" in usTaxes)) {
     throw new Error("Expected US taxes");
   }
 

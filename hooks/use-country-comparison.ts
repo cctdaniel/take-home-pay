@@ -10,8 +10,10 @@ import { CONTRIBUTION_LIMITS } from "@/lib/countries/us/constants/contribution-l
 import { getSRSLimit } from "@/lib/countries/sg/constants/cpf-rates-2026";
 import { HK_DEDUCTIONS_2026 } from "@/lib/countries/hk/constants/tax-brackets-2026";
 import { TH_TAX_ALLOWANCES } from "@/lib/countries/th/constants/tax-brackets-2026";
+import { CH_PILLAR3A_2026 } from "@/lib/countries/ch/constants/tax-brackets-2026";
 import type {
   AUCalculatorInputs,
+  CHCalculatorInputs,
   CalculationResult,
   CountryCode,
   CurrencyCode,
@@ -133,8 +135,12 @@ function buildAssumptionsSummary(
     summary.push(assumptions.hasPrivateHealthInsurance ? "Private health" : "No private health");
   }
 
-  if (country === "HK" || country === "KR" || country === "TH" || country === "AU" || country === "PT" || country === "ID") {
+  if (country === "HK" || country === "KR" || country === "TH" || country === "AU" || country === "PT" || country === "ID" || country === "CH") {
     summary.push(assumptions.isResident ? "Resident" : "Non-resident");
+  }
+  
+  if (country === "CH") {
+    summary.push(`Age ${assumptions.age}`);
   }
 
   if (country === "SG" && maritalStatus === "married" && assumptions.spouseHasNoIncome) {
@@ -543,6 +549,50 @@ export function useCountryComparison(
             deltaBase: 0,
             deltaPercent: 0,
             assumptions: buildAssumptionsSummary(country, inputs, false),
+            calculation: result,
+          });
+          return acc;
+        }
+        
+        if (country === "CH") {
+          const defaultInputs = getDefaultInputs(country) as CHCalculatorInputs;
+          const pillar3aContribution =
+            isMaxRetirement && inputs.assumptions.isResident
+              ? Math.min(CH_PILLAR3A_2026.maxContributionWithPension, grossLocal)
+              : 0;
+          const chInputs: CHCalculatorInputs = {
+            ...defaultInputs,
+            grossSalary: grossLocal,
+            payFrequency,
+            filingStatus: inputs.maritalStatus === "married" ? "married" : "single",
+            canton: "ZH", // Default to Zurich for comparison
+            age: inputs.assumptions.age,
+            numberOfChildren: inputs.numberOfChildren,
+            contributions: {
+              pillar3aContribution,
+              includeBVG: true,
+            },
+            includeHealthInsurance: true,
+          };
+          const result = calculateNetSalary(chInputs);
+          const retirementApplied = pillar3aContribution > 0;
+          acc.push({
+            country,
+            name: config.name,
+            currency,
+            rate,
+            grossLocal,
+            netLocal: result.netSalary,
+            netBase: result.netSalary / rate,
+            takeHomeRate: grossLocal > 0 ? result.netSalary / grossLocal : 0,
+            effectiveTaxRate: result.effectiveTaxRate,
+            deltaBase: 0,
+            deltaPercent: 0,
+            assumptions: buildAssumptionsSummary(
+              country,
+              inputs,
+              retirementApplied,
+            ),
             calculation: result,
           });
           return acc;

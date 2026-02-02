@@ -59,6 +59,12 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
     name: "Indonesian Rupiah",
     locale: "id-ID",
   },
+  CHF: {
+    code: "CHF",
+    symbol: "CHF",
+    name: "Swiss Franc",
+    locale: "de-CH",
+  },
 };
 
 // ============================================================================
@@ -74,6 +80,7 @@ export const COUNTRY_CURRENCY: Record<CountryCode, CurrencyCode> = {
   TH: "THB",
   HK: "HKD",
   ID: "IDR",
+  CH: "CHF",
 };
 
 // ============================================================================

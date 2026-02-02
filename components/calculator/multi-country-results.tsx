@@ -59,6 +59,7 @@ export function MultiCountryResults({
   const isTH = country === "TH";
   const isHK = country === "HK";
   const isID = country === "ID";
+  const isCH = country === "CH";
 
   // US-specific data
   let stateName = usState || "";
@@ -171,8 +172,8 @@ export function MultiCountryResults({
 
           <Separator className="my-2" />
 
-          {/* US Tax Breakdown */}
-          {isUS && "federalIncomeTax" in taxes && (
+          {/* US Tax Breakdown - check for stateIncomeTax to distinguish from Switzerland */}
+          {isUS && "federalIncomeTax" in taxes && "stateIncomeTax" in taxes && (
             <>
               <p className="text-xs text-zinc-500 pt-2 pb-1">Federal Taxes</p>
               <DeductionRow
