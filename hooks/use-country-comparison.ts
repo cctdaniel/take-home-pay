@@ -15,6 +15,7 @@ import type {
   CalculationResult,
   CountryCode,
   CurrencyCode,
+  DECalculatorInputs,
   HKCalculatorInputs,
   IDCalculatorInputs,
   KRCalculatorInputs,
@@ -133,8 +134,15 @@ function buildAssumptionsSummary(
     summary.push(assumptions.hasPrivateHealthInsurance ? "Private health" : "No private health");
   }
 
-  if (country === "HK" || country === "KR" || country === "TH" || country === "AU" || country === "PT" || country === "ID") {
+  if (country === "HK" || country === "KR" || country === "TH" || country === "AU" || country === "PT" || country === "ID" || country === "DE") {
     summary.push(assumptions.isResident ? "Resident" : "Non-resident");
+  }
+
+  if (country === "DE") {
+    summary.push(inputs.maritalStatus === "married" ? "Married (joint threshold)" : "Single");
+    if (inputs.numberOfChildren > 0) {
+      summary.push(`${inputs.numberOfChildren} child${inputs.numberOfChildren > 1 ? "ren" : ""} (no childless surcharge)`);
+    }
   }
 
   if (country === "SG" && maritalStatus === "married" && assumptions.spouseHasNoIncome) {
@@ -530,6 +538,36 @@ export function useCountryComparison(
             },
           };
           const result = calculateNetSalary(idInputs);
+          acc.push({
+            country,
+            name: config.name,
+            currency,
+            rate,
+            grossLocal,
+            netLocal: result.netSalary,
+            netBase: result.netSalary / rate,
+            takeHomeRate: grossLocal > 0 ? result.netSalary / grossLocal : 0,
+            effectiveTaxRate: result.effectiveTaxRate,
+            deltaBase: 0,
+            deltaPercent: 0,
+            assumptions: buildAssumptionsSummary(country, inputs, false),
+            calculation: result,
+          });
+          return acc;
+        }
+
+        if (country === "DE") {
+          const defaultInputs = getDefaultInputs(country) as DECalculatorInputs;
+          const deInputs: DECalculatorInputs = {
+            ...defaultInputs,
+            grossSalary: grossLocal,
+            payFrequency,
+            state: "BE", // Default to Berlin for comparison (9% church tax rate)
+            isMarried: inputs.maritalStatus === "married",
+            isChurchMember: false, // Default: not a church member
+            isChildless: inputs.numberOfChildren === 0,
+          };
+          const result = calculateNetSalary(deInputs);
           acc.push({
             country,
             name: config.name,

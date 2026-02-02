@@ -38,6 +38,7 @@ const COUNTRY_DESCRIPTIONS: Record<CountryCode, string> = {
   TH: `Free ${TAX_YEAR} take home pay calculator for Thailand. Calculate your salary after taxes including personal income tax (progressive rates 0-35%), Social Security Fund contributions, and tax-saving options like Provident Fund, RMF, SSF, and ESG funds.`,
   HK: `Free ${TAX_YEAR} take home pay calculator for Hong Kong. Calculate your salary after salaries tax, MPF contributions, and key allowances and deductions.`,
   ID: `Free ${TAX_YEAR} take home pay calculator for Indonesia. Calculate your salary after taxes including PPh 21 income tax (progressive rates 5% to 35%), BPJS Kesehatan (health insurance), BPJS JHT (old age security), and BPJS JP (pension) contributions.`,
+  DE: `Free ${TAX_YEAR} take home pay calculator for Germany. Calculate your salary after taxes including income tax (Einkommensteuer) per §32a EStG, Solidarity Surcharge (Solidaritätszuschlag), and social security contributions (pension, health, unemployment, and long-term care insurance).`,
 };
 
 // Country-specific keywords for SEO
@@ -133,6 +134,20 @@ const COUNTRY_KEYWORDS: Record<CountryCode, string[]> = {
     "gaji bersih indonesia",
     "kalkulator pph 21",
     "tarif pph 21",
+  ],
+  DE: [
+    "germany take home pay calculator",
+    "german salary after tax",
+    `${TAX_YEAR} germany tax calculator`,
+    "germany income tax calculator",
+    "einkommensteuer calculator",
+    "solidaritätszuschlag calculator",
+    "lohnsteuer calculator",
+    "brutto netto rechner",
+    "gehaltsrechner deutschland",
+    "sozialversicherung beiträge",
+    "krankenversicherung rechner",
+    "rentenversicherung beitrag",
   ],
 };
 
@@ -237,6 +252,11 @@ const COUNTRY_HEADER_INFO: Record<
     tagline: "Calculate your actual salary after taxes in Indonesia.",
     details:
       "PPh 21 income tax (5-35% progressive), BPJS Kesehatan (1%), BPJS JHT (2%), BPJS JP (1%), PTKP allowances",
+  },
+  DE: {
+    tagline: "Calculate your actual salary after taxes in Germany.",
+    details:
+      "Income tax (Einkommensteuer §32a EStG, progressive 0-45%), Solidarity Surcharge (Solidaritätszuschlag 5.5%), Pension Insurance (9.3%), Health Insurance (7.3% + Zusatzbeitrag), Unemployment Insurance (1.3%), Long-term Care Insurance (1.7-2.5%)",
   },
 };
 

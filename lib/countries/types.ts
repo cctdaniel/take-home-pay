@@ -8,7 +8,7 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD" | "IDR";
+export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD" | "IDR" | "EUR";
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -20,7 +20,7 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK" | "ID";
+export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK" | "ID" | "DE";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -328,6 +328,18 @@ export interface IDCalculatorInputs extends BaseCalculatorInputs {
   taxReliefs: IDTaxReliefInputs;
 }
 
+// ============================================================================
+// GERMANY-SPECIFIC TYPES
+// ============================================================================
+
+export interface DECalculatorInputs extends BaseCalculatorInputs {
+  country: "DE";
+  state?: string; // Federal state code (e.g., "BE" for Berlin, "BY" for Bavaria)
+  isMarried?: boolean; // Affects solidarity surcharge exemption threshold
+  isChurchMember?: boolean; // Whether member of recognized religious community
+  isChildless?: boolean; // Affects long-term care insurance rate (+0.6% if childless and over 23)
+}
+
 export type CalculatorInputs =
   | USCalculatorInputs
   | SGCalculatorInputs
@@ -337,7 +349,8 @@ export type CalculatorInputs =
   | PTCalculatorInputs
   | THCalculatorInputs
   | HKCalculatorInputs
-  | IDCalculatorInputs;
+  | IDCalculatorInputs
+  | DECalculatorInputs;
 
 // ============================================================================
 // TAX BREAKDOWN TYPES
@@ -407,6 +420,18 @@ export interface IDTaxBreakdown extends BaseTaxBreakdown {
   bpjsJp: number; // BPJS JP employee contribution
 }
 
+export interface DETaxBreakdown extends BaseTaxBreakdown {
+  type: "DE";
+  incomeTax: number; // Einkommensteuer
+  solidaritySurcharge: number; // Solidaritätszuschlag
+  churchTax: number; // Kirchensteuer
+  pensionInsurance: number; // Rentenversicherung
+  unemploymentInsurance: number; // Arbeitslosenversicherung
+  healthInsurance: number; // Krankenversicherung
+  longTermCareInsurance: number; // Pflegeversicherung
+  totalSocialSecurity: number;
+}
+
 export type TaxBreakdown =
   | USTaxBreakdown
   | SGTaxBreakdown
@@ -416,7 +441,8 @@ export type TaxBreakdown =
   | PTTaxBreakdown
   | THTaxBreakdown
   | HKTaxBreakdown
-  | IDTaxBreakdown;
+  | IDTaxBreakdown
+  | DETaxBreakdown;
 
 // ============================================================================
 // CALCULATION RESULT TYPES
@@ -790,6 +816,58 @@ export interface IDBreakdown {
   taxReliefs: IDTaxReliefInputs;
 }
 
+export interface DEBreakdown {
+  type: "DE";
+  taxableIncome: number;
+  standardDeductions: {
+    employeeLumpSum: number; // Arbeitnehmer-Pauschbetrag
+    specialExpensesLumpSum: number; // Sonderausgaben-Pauschbetrag
+    total: number;
+  };
+  taxDetails: {
+    incomeTax: number; // Einkommensteuer
+    solidaritySurcharge: number; // Solidaritätszuschlag
+    churchTax: number; // Kirchensteuer
+    totalIncomeTax: number;
+  };
+  socialSecurity: {
+    pension: {
+      employee: number;
+      employer: number;
+      total: number;
+    };
+    unemployment: {
+      employee: number;
+      employer: number;
+      total: number;
+    };
+    health: {
+      employee: number;
+      employer: number;
+      total: number;
+    };
+    longTermCare: {
+      employee: number;
+      employer: number;
+      total: number;
+    };
+  };
+  totalSocialSecurity: number;
+  taxRates: {
+    effectiveIncomeTaxRate: number;
+    effectiveSolidarityRate: number;
+    effectiveChurchTaxRate: number;
+    effectiveSocialSecurityRate: number;
+  };
+  personalInfo: {
+    isMarried: boolean;
+    isChurchMember: boolean;
+    isChildless: boolean;
+    state: string;
+    churchTaxRate: number;
+  };
+}
+
 export type CountrySpecificBreakdown =
   | USBreakdown
   | SGBreakdown
@@ -799,7 +877,8 @@ export type CountrySpecificBreakdown =
   | PTBreakdown
   | THBreakdown
   | HKBreakdown
-  | IDBreakdown;
+  | IDBreakdown
+  | DEBreakdown;
 
 // ============================================================================
 // COUNTRY CALCULATOR INTERFACE
@@ -993,4 +1072,24 @@ export function isIDBreakdown(
   breakdown: CountrySpecificBreakdown,
 ): breakdown is IDBreakdown {
   return breakdown.type === "ID";
+}
+
+export function isDEInputs(
+  inputs: CalculatorInputs,
+): inputs is DECalculatorInputs {
+  return inputs.country === "DE";
+}
+
+export function isDETaxBreakdown(taxes: TaxBreakdown): taxes is DETaxBreakdown {
+  return (
+    "solidaritySurcharge" in taxes &&
+    "churchTax" in taxes &&
+    "pensionInsurance" in taxes
+  );
+}
+
+export function isDEBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is DEBreakdown {
+  return breakdown.type === "DE";
 }

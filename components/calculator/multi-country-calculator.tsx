@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { useMultiCountryCalculator } from "@/hooks/use-multi-country-calculator";
 import type { CountryCode } from "@/lib/countries/types";
 import { AUTaxOptions } from "./au-tax-options";
+import { DETaxOptions } from "./de-tax-options";
 import { HKAdditionalReliefs } from "./hk-additional-reliefs";
 import { HKTaxOptions } from "./hk-tax-options";
 import { IDContributionOptions } from "./id-contribution-options";
@@ -142,6 +143,16 @@ export function MultiCountryCalculator({
     setIdDplkContribution,
     idZakatContribution,
     setIdZakatContribution,
+
+    // DE-specific
+    deState,
+    setDeState,
+    deIsMarried,
+    setDeIsMarried,
+    deIsChurchMember,
+    setDeIsChurchMember,
+    deIsChildless,
+    setDeIsChildless,
 
     // Results
     result,
@@ -287,11 +298,26 @@ export function MultiCountryCalculator({
                 }
               />
             )}
+
+            {country === "DE" && (
+              <DETaxOptions
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+                state={deState}
+                onStateChange={setDeState}
+                isMarried={deIsMarried}
+                onMarriedChange={setDeIsMarried}
+                isChurchMember={deIsChurchMember}
+                onChurchMemberChange={setDeIsChurchMember}
+                isChildless={deIsChildless}
+                onChildlessChange={setDeIsChildless}
+              />
+            )}
           </CardContent>
         </Card>
 
-        {/* Contributions Card - US, SG, PT, TH, HK, and ID */}
-        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID") && (
+        {/* Contributions Card - US, SG, PT, TH, HK, ID, and DE (info only) */}
+        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID" || country === "DE") && (
           <Card>
             <CardHeader>
               <CardTitle>
@@ -419,6 +445,26 @@ export function MultiCountryCalculator({
                   zakatContribution={idZakatContribution}
                   onZakatContributionChange={setIdZakatContribution}
                 />
+              )}
+
+              {country === "DE" && (
+                <div className="bg-zinc-800/50 rounded-lg p-4">
+                  <p className="text-sm font-medium text-zinc-300 mb-2">
+                    Mandatory Social Security (Sozialversicherung)
+                  </p>
+                  <p className="text-xs text-zinc-400 mb-2">
+                    Automatically deducted from your salary:
+                  </p>
+                  <ul className="text-xs text-zinc-500 space-y-1">
+                    <li>Pension Insurance (Rentenversicherung): 9.3%</li>
+                    <li>Health Insurance (Krankenversicherung): 7.3% + ~1.45% Zusatzbeitrag</li>
+                    <li>Unemployment Insurance (Arbeitslosenversicherung): 1.3%</li>
+                    <li>Long-term Care (Pflegeversicherung): 1.7% (2.5% if childless 23+)</li>
+                  </ul>
+                  <p className="text-xs text-zinc-500 mt-2">
+                    Contributions are capped at €101,400 (pension/unemployment) and €69,750 (health/care).
+                  </p>
+                </div>
               )}
             </CardContent>
           </Card>

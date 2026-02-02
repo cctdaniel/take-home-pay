@@ -59,6 +59,7 @@ export function MultiCountryResults({
   const isTH = country === "TH";
   const isHK = country === "HK";
   const isID = country === "ID";
+  const isDE = country === "DE";
 
   // US-specific data
   let stateName = usState || "";
@@ -1540,7 +1541,8 @@ export function MultiCountryResults({
 
           {/* PT Tax Breakdown */}
           {isPT &&
-            "solidaritySurcharge" in taxes &&
+            "type" in taxes &&
+            taxes.type === "PT" &&
             result.breakdown.type === "PT" && (
               <>
                 {/* Residency Status */}
@@ -2270,6 +2272,167 @@ export function MultiCountryResults({
                     PTKP (Penghasilan Tidak Kena Pajak) is the non-taxable income threshold.
                     Rp54M for individuals, +Rp4.5M if married, +Rp4.5M per dependent (max 3),
                     +Rp54M if spouse income is combined.
+                  </p>
+                </div>
+              </>
+            )}
+
+          {/* DE Tax Breakdown */}
+          {isDE &&
+            "type" in taxes &&
+            taxes.type === "DE" &&
+            result.breakdown.type === "DE" && (
+              <>
+                {/* Personal Info */}
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-zinc-400">Personal Status</span>
+                  <div className="flex gap-2">
+                    {result.breakdown.personalInfo.isMarried && (
+                      <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
+                        Married
+                      </span>
+                    )}
+                    {result.breakdown.personalInfo.isChurchMember && (
+                      <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
+                        Church Member
+                      </span>
+                    )}
+                    {result.breakdown.personalInfo.isChildless && (
+                      <span className="text-xs font-medium text-amber-300 bg-amber-900/30 px-2 py-1 rounded">
+                        Childless (+0.6% PV)
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <Separator className="my-2" />
+
+                {/* Standard Deductions */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Standard Deductions
+                </p>
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-sm text-zinc-400">
+                    Employee Lump-Sum (Pauschbetrag)
+                  </span>
+                  <span className="text-sm text-emerald-400 tabular-nums">
+                    -{formatCurrency(result.breakdown.standardDeductions.employeeLumpSum, currency)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-sm text-zinc-400">
+                    Special Expenses
+                  </span>
+                  <span className="text-sm text-emerald-400 tabular-nums">
+                    -{formatCurrency(result.breakdown.standardDeductions.specialExpensesLumpSum, currency)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                  <span className="text-sm text-zinc-300">Taxable Income</span>
+                  <span className="text-sm text-zinc-200 tabular-nums">
+                    {formatCurrency(result.taxableIncome, currency)}
+                  </span>
+                </div>
+
+                <Separator className="my-2" />
+
+                {/* Income Tax */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Income Tax (Einkommensteuer §32a EStG)
+                </p>
+                <DeductionRow
+                  label="Income Tax"
+                  amount={taxes.incomeTax}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+
+                {/* Solidarity Surcharge */}
+                {taxes.solidaritySurcharge > 0 && (
+                  <DeductionRow
+                    label="Solidarity Surcharge (5.5%)"
+                    amount={taxes.solidaritySurcharge}
+                    grossSalary={grossSalary}
+                    currency={currency}
+                  />
+                )}
+                {taxes.solidaritySurcharge === 0 && (
+                  <p className="text-xs text-emerald-500 italic -mt-1 mb-1">
+                    Solidarity surcharge exempt (below threshold)
+                  </p>
+                )}
+
+                {/* Church Tax */}
+                {taxes.churchTax > 0 && (
+                  <DeductionRow
+                    label={`Church Tax (${(result.breakdown.personalInfo.churchTaxRate * 100).toFixed(0)}%)`}
+                    amount={taxes.churchTax}
+                    grossSalary={grossSalary}
+                    currency={currency}
+                  />
+                )}
+
+                <Separator className="my-2" />
+
+                {/* Social Security */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Social Security (Sozialversicherung)
+                </p>
+                <DeductionRow
+                  label="Pension Insurance (9.3%)"
+                  amount={taxes.pensionInsurance}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                <DeductionRow
+                  label="Health Insurance (7.3% + Zusatz)"
+                  amount={taxes.healthInsurance}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                <DeductionRow
+                  label="Unemployment Insurance (1.3%)"
+                  amount={taxes.unemploymentInsurance}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                <DeductionRow
+                  label={`Long-term Care (${result.breakdown.personalInfo.isChildless ? "2.5%" : "1.7%"})`}
+                  amount={taxes.longTermCareInsurance}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+
+                {/* Employer Contributions (informational) */}
+                <div className="flex items-center justify-between py-2 opacity-60">
+                  <span className="text-sm text-zinc-400">
+                    Employer Social Security
+                  </span>
+                  <span className="text-sm text-zinc-500 tabular-nums">
+                    +
+                    {formatCurrency(
+                      result.breakdown.socialSecurity.pension.employer +
+                        result.breakdown.socialSecurity.health.employer +
+                        result.breakdown.socialSecurity.unemployment.employer +
+                        result.breakdown.socialSecurity.longTermCare.employer,
+                      currency
+                    )}
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-500 italic">
+                  Employer pays this on top of your salary - not deducted from take-home pay
+                </p>
+
+                <Separator className="my-2" />
+                <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
+                  <p className="text-xs text-zinc-400 font-medium mb-1">
+                    About German Taxes:
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    Income tax uses progressive rates (0-45%) per §32a EStG. Solidarity surcharge
+                    (5.5%) applies only above €20,350 tax (single). Church tax (8% or 9%) applies
+                    if you're a member. Social security includes pension, health, unemployment,
+                    and long-term care insurance with employer matching contributions.
                   </p>
                 </div>
               </>
