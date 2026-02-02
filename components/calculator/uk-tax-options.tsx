@@ -24,21 +24,7 @@ export function UKTaxOptions({
   onRegionChange,
 }: UKTaxOptionsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <div className="space-y-2">
-        <Label htmlFor="uk-pay-frequency">Pay Frequency</Label>
-        <Select
-          id="uk-pay-frequency"
-          value={payFrequency}
-          onChange={(e) => onPayFrequencyChange(e.target.value as PayFrequency)}
-        >
-          <option value="annual">Annual</option>
-          <option value="monthly">Monthly</option>
-          <option value="biweekly">Bi-weekly</option>
-          <option value="weekly">Weekly</option>
-        </Select>
-      </div>
-
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div className="space-y-2">
         <Label htmlFor="uk-region">Region</Label>
         <Select
@@ -65,6 +51,20 @@ export function UKTaxOptions({
         <p className="text-xs text-zinc-500">
           Personal Allowance is applied only for residents in this calculator.
         </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="uk-pay-frequency">Pay Frequency</Label>
+        <Select
+          id="uk-pay-frequency"
+          value={payFrequency}
+          onChange={(e) => onPayFrequencyChange(e.target.value as PayFrequency)}
+        >
+          <option value="annual">Annual</option>
+          <option value="monthly">Monthly</option>
+          <option value="biweekly">Bi-weekly</option>
+          <option value="weekly">Weekly</option>
+        </Select>
       </div>
     </div>
   );
