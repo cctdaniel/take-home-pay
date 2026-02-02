@@ -2329,7 +2329,7 @@ export function MultiCountryResults({
                 </div>
                 <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
                   <span className="text-sm text-zinc-300">Taxable Income</span>
-                  <span className="text-sm text-zinc-200 tabular-ums">
+                  <span className="text-sm text-zinc-200 tabular-nums">
                     {formatCurrency(result.taxableIncome, currency)}
                   </span>
                 </div>
