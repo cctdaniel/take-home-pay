@@ -14,6 +14,7 @@ import type { CountryCode } from "@/lib/countries/types";
 import { AUTaxOptions } from "./au-tax-options";
 import { HKAdditionalReliefs } from "./hk-additional-reliefs";
 import { HKTaxOptions } from "./hk-tax-options";
+import { IDTaxOptions } from "./id-tax-options";
 import { PTTaxOptions } from "./pt-tax-options";
 import { ContributionOptions } from "./contribution-options";
 import { CountrySelector } from "./country-selector";
@@ -133,6 +134,10 @@ export function MultiCountryCalculator({
     setHkVoluntaryContributions,
     hkLimits,
 
+    // ID-specific
+    idTaxReliefs,
+    setIdTaxReliefs,
+
     // Results
     result,
   } = useMultiCountryCalculator(country);
@@ -245,6 +250,36 @@ export function MultiCountryCalculator({
                 onResidencyTypeChange={setHkResidencyType}
                 payFrequency={payFrequency}
                 onPayFrequencyChange={setPayFrequency}
+              />
+            )}
+
+            {country === "ID" && (
+              <IDTaxOptions
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+                maritalStatus={idTaxReliefs.maritalStatus}
+                onMaritalStatusChange={(value) =>
+                  setIdTaxReliefs({
+                    ...idTaxReliefs,
+                    maritalStatus: value,
+                    spouseIncomeCombined:
+                      value === "married" && idTaxReliefs.spouseIncomeCombined,
+                  })
+                }
+                numberOfDependents={idTaxReliefs.numberOfDependents}
+                onNumberOfDependentsChange={(value) =>
+                  setIdTaxReliefs({
+                    ...idTaxReliefs,
+                    numberOfDependents: value,
+                  })
+                }
+                spouseIncomeCombined={idTaxReliefs.spouseIncomeCombined}
+                onSpouseIncomeCombinedChange={(value) =>
+                  setIdTaxReliefs({
+                    ...idTaxReliefs,
+                    spouseIncomeCombined: value,
+                  })
+                }
               />
             )}
           </CardContent>

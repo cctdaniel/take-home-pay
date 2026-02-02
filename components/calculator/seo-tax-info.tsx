@@ -24,6 +24,7 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "PT" && <PTTaxInfo />}
         {country === "TH" && <THTaxInfo />}
         {country === "HK" && <HKTaxInfo />}
+        {country === "ID" && <IDTaxInfo />}
       </div>
     </section>
   );
@@ -570,6 +571,93 @@ function HKTaxInfo() {
           monthly income between HK$7,100 and HK$30,000 (max HK$1,500/month)
         </li>
       </ul>
+    </div>
+  );
+}
+
+// ============================================================================
+// INDONESIA TAX INFO
+// ============================================================================
+function IDTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Indonesia</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li>
+          <strong className="text-zinc-300">PPh 21 (Income Tax)</strong> –
+          Progressive rates from 5% to 35% (5 brackets)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Job Expense Deduction</strong> –
+          5% of gross income, capped at Rp6,000,000/year
+        </li>
+        <li>
+          <strong className="text-zinc-300">PTKP (Non-Taxable Income)</strong> –
+          Rp54,000,000 for individual, plus Rp4,500,000 if married, plus Rp4,500,000 per dependent (max 3)
+        </li>
+        <li>
+          <strong className="text-zinc-300">BPJS Kesehatan</strong> – 1% employee
+          contribution (capped at Rp12,000,000/month wage base)
+        </li>
+        <li>
+          <strong className="text-zinc-300">BPJS JHT (Old Age)</strong> – 2%
+          employee contribution (no cap)
+        </li>
+        <li>
+          <strong className="text-zinc-300">BPJS JP (Pension)</strong> – 1%
+          employee contribution (capped at Rp10,547,400/month wage base)
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        PPh 21 Tax Brackets 2026 (Residents)
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Rp0 – Rp60,000,000: 5%</li>
+        <li>Rp60,000,001 – Rp250,000,000: 15%</li>
+        <li>Rp250,000,001 – Rp500,000,000: 25%</li>
+        <li>Rp500,000,001 – Rp5,000,000,000: 30%</li>
+        <li>Rp5,000,000,001+: 35%</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        PTKP (Penghasilan Tidak Kena Pajak) Allowances
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Individual taxpayer: Rp54,000,000</li>
+        <li>Married taxpayer: Additional Rp4,500,000</li>
+        <li>Dependents: Rp4,500,000 each (maximum 3)</li>
+        <li>Spouse with combined income: Additional Rp54,000,000</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        BPJS Contributions (Employee Share)
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Health Insurance (Kesehatan): 1% (capped at Rp120,000/month)</li>
+        <li>Old Age Security (JHT): 2% (no cap)</li>
+        <li>Pension (JP): 1% (capped at Rp105,474/month)</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-2">
+        Employers contribute additional amounts: 4% for health, 3.7% for JHT, and 2% for JP.
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Tax Calculation Method
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Indonesia uses a gross-to-net calculation method: Gross Income → Job Expense Deduction →
+        BPJS Deductions = Net Income. Net Income → PTKP = Taxable Income (rounded down to nearest Rp1,000).
+        Taxable Income is then subject to progressive PPh 21 rates.
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Sources
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Tax rates based on Undang-Undang Nomor 7 Tahun 2021 (HPP Law) and PMK 168/2023.
+        BPJS rates based on BPJS Ketenagakerjaan and BPJS Kesehatan regulations effective 2026.
+      </p>
     </div>
   );
 }

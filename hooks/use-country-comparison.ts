@@ -16,6 +16,7 @@ import type {
   CountryCode,
   CurrencyCode,
   HKCalculatorInputs,
+  IDCalculatorInputs,
   KRCalculatorInputs,
   NLCalculatorInputs,
   PayFrequency,
@@ -132,7 +133,7 @@ function buildAssumptionsSummary(
     summary.push(assumptions.hasPrivateHealthInsurance ? "Private health" : "No private health");
   }
 
-  if (country === "HK" || country === "KR" || country === "TH" || country === "AU" || country === "PT") {
+  if (country === "HK" || country === "KR" || country === "TH" || country === "AU" || country === "PT" || country === "ID") {
     summary.push(assumptions.isResident ? "Resident" : "Non-resident");
   }
 
@@ -507,6 +508,38 @@ export function useCountryComparison(
               inputs,
               retirementApplied,
             ),
+            calculation: result,
+          });
+          return acc;
+        }
+
+        if (country === "ID") {
+          const defaultInputs = getDefaultInputs(country) as IDCalculatorInputs;
+          const idInputs: IDCalculatorInputs = {
+            ...defaultInputs,
+            grossSalary: grossLocal,
+            payFrequency,
+            contributions: {},
+            taxReliefs: {
+              maritalStatus: inputs.maritalStatus,
+              numberOfDependents: Math.min(inputs.numberOfChildren, 3),
+              spouseIncomeCombined: inputs.maritalStatus === "married" && inputs.assumptions.spouseHasNoIncome,
+            },
+          };
+          const result = calculateNetSalary(idInputs);
+          acc.push({
+            country,
+            name: config.name,
+            currency,
+            rate,
+            grossLocal,
+            netLocal: result.netSalary,
+            netBase: result.netSalary / rate,
+            takeHomeRate: grossLocal > 0 ? result.netSalary / grossLocal : 0,
+            effectiveTaxRate: result.effectiveTaxRate,
+            deltaBase: 0,
+            deltaPercent: 0,
+            assumptions: buildAssumptionsSummary(country, inputs, false),
             calculation: result,
           });
           return acc;

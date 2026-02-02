@@ -138,6 +138,11 @@ export function CompareBreakdown({
     pushLine(mandatoryBreakdown, "MPF (employee)", taxes.mpfEmployee);
   } else if ("socialSecurity" in taxes) {
     pushLine(mandatoryBreakdown, "Social security", taxes.socialSecurity);
+  } else if ("bpjsHealth" in taxes) {
+    pushLine(incomeTaxBreakdown, "Income tax", taxes.incomeTax);
+    pushLine(mandatoryBreakdown, "BPJS Health", taxes.bpjsHealth);
+    pushLine(mandatoryBreakdown, "BPJS JHT", taxes.bpjsJht);
+    pushLine(mandatoryBreakdown, "BPJS JP", taxes.bpjsJp);
   }
 
   const showIncomeBreakdown =
