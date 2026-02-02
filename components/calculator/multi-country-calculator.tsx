@@ -14,6 +14,8 @@ import type { CountryCode } from "@/lib/countries/types";
 import { AUTaxOptions } from "./au-tax-options";
 import { HKAdditionalReliefs } from "./hk-additional-reliefs";
 import { HKTaxOptions } from "./hk-tax-options";
+import { IDContributionOptions } from "./id-contribution-options";
+import { IDTaxOptions } from "./id-tax-options";
 import { PTTaxOptions } from "./pt-tax-options";
 import { ContributionOptions } from "./contribution-options";
 import { CountrySelector } from "./country-selector";
@@ -133,6 +135,14 @@ export function MultiCountryCalculator({
     setHkVoluntaryContributions,
     hkLimits,
 
+    // ID-specific
+    idTaxReliefs,
+    setIdTaxReliefs,
+    idDplkContribution,
+    setIdDplkContribution,
+    idZakatContribution,
+    setIdZakatContribution,
+
     // Results
     result,
   } = useMultiCountryCalculator(country);
@@ -247,11 +257,41 @@ export function MultiCountryCalculator({
                 onPayFrequencyChange={setPayFrequency}
               />
             )}
+
+            {country === "ID" && (
+              <IDTaxOptions
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+                maritalStatus={idTaxReliefs.maritalStatus}
+                onMaritalStatusChange={(value) =>
+                  setIdTaxReliefs({
+                    ...idTaxReliefs,
+                    maritalStatus: value,
+                    spouseIncomeCombined:
+                      value === "married" && idTaxReliefs.spouseIncomeCombined,
+                  })
+                }
+                numberOfDependents={idTaxReliefs.numberOfDependents}
+                onNumberOfDependentsChange={(value) =>
+                  setIdTaxReliefs({
+                    ...idTaxReliefs,
+                    numberOfDependents: value,
+                  })
+                }
+                spouseIncomeCombined={idTaxReliefs.spouseIncomeCombined}
+                onSpouseIncomeCombinedChange={(value) =>
+                  setIdTaxReliefs({
+                    ...idTaxReliefs,
+                    spouseIncomeCombined: value,
+                  })
+                }
+              />
+            )}
           </CardContent>
         </Card>
 
-        {/* Contributions Card - US, SG, PT, and TH */}
-        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK") && (
+        {/* Contributions Card - US, SG, PT, TH, HK, and ID */}
+        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID") && (
           <Card>
             <CardHeader>
               <CardTitle>
@@ -266,7 +306,9 @@ export function MultiCountryCalculator({
                       ? "Optional tax-saving contributions (CPF is mandatory)"
                       : country === "HK"
                         ? "Optional MPF/annuity contributions (tax deductible)"
-                      : "Optional tax-saving contributions (Social Security is mandatory)"}
+                        : country === "ID"
+                          ? "Optional tax-saving contributions (BPJS is mandatory)"
+                          : "Optional tax-saving contributions (Social Security is mandatory)"}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -368,6 +410,15 @@ export function MultiCountryCalculator({
                     Deferred Annuity Policy premiums share a combined annual cap.
                   </p>
                 </div>
+              )}
+
+              {country === "ID" && (
+                <IDContributionOptions
+                  dplkContribution={idDplkContribution}
+                  onDplkContributionChange={setIdDplkContribution}
+                  zakatContribution={idZakatContribution}
+                  onZakatContributionChange={setIdZakatContribution}
+                />
               )}
             </CardContent>
           </Card>

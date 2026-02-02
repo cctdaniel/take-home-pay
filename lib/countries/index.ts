@@ -33,6 +33,9 @@ export { KRCalculator, calculateKR, KR_CONFIG, KR_CURRENCY } from "./kr";
 // Hong Kong Calculator
 export { HKCalculator, calculateHK, HK_CONFIG, HK_CURRENCY } from "./hk";
 
+// Indonesia Calculator
+export { IDCalculator, calculateID, ID_CONFIG, ID_CURRENCY } from "./id";
+
 // Netherlands Calculator
 export { NLCalculator, calculateNL, NL_CONFIG, NL_CURRENCY } from "./nl";
 

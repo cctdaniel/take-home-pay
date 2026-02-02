@@ -53,6 +53,12 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
     name: "Hong Kong Dollar",
     locale: "en-HK",
   },
+  IDR: {
+    code: "IDR",
+    symbol: "Rp",
+    name: "Indonesian Rupiah",
+    locale: "id-ID",
+  },
 };
 
 // ============================================================================
@@ -67,6 +73,7 @@ export const COUNTRY_CURRENCY: Record<CountryCode, CurrencyCode> = {
   PT: "EUR",
   TH: "THB",
   HK: "HKD",
+  ID: "IDR",
 };
 
 // ============================================================================
@@ -116,6 +123,9 @@ export function getCurrencyForCountry(countryCode: CountryCode): CurrencyConfig 
   }
   if (countryCode === "HK") {
     return { ...baseConfig, locale: "en-HK" };
+  }
+  if (countryCode === "ID") {
+    return { ...baseConfig, locale: "id-ID" };
   }
   
   return baseConfig;

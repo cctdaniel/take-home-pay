@@ -8,7 +8,7 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD";
+export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD" | "IDR";
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -20,7 +20,7 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK";
+export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK" | "ID";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -130,6 +130,12 @@ export interface HKContributionInputs {
   taxDeductibleVoluntaryContributions: number; // MPF TVC + QDAP (combined cap)
 }
 
+// Indonesia-specific contributions (mandatory BPJS + voluntary DPLP pension and zakat)
+export interface IDContributionInputs {
+  dplkContribution: number; // Dana Pensiun Lembaga Keuangan (voluntary pension fund)
+  zakatContribution: number; // Zakat to BAZNAS or authorized amil zakat institutions
+}
+
 // Thailand additional tax reliefs/allowances
 export interface THTaxReliefInputs {
   // Personal allowances
@@ -179,6 +185,13 @@ export interface HKTaxReliefInputs {
   domesticRent: number;
   charitableDonations: number;
   elderlyResidentialCareExpenses: number;
+}
+
+// Indonesia tax relief inputs (PTKP)
+export interface IDTaxReliefInputs {
+  maritalStatus: "single" | "married";
+  numberOfDependents: number; // 0-3 dependents
+  spouseIncomeCombined: boolean; // Additional PTKP if spouse income is combined
 }
 
 // South Korea additional tax reliefs/deductions (인적공제 및 세액공제)
@@ -236,7 +249,8 @@ export type ContributionInputs =
   | NLContributionInputs
   | AUContributionInputs
   | PTContributionInputs
-  | HKContributionInputs;
+  | HKContributionInputs
+  | IDContributionInputs;
 
 // ============================================================================
 // CALCULATOR INPUT TYPES
@@ -308,6 +322,12 @@ export interface HKCalculatorInputs extends BaseCalculatorInputs {
   taxReliefs: HKTaxReliefInputs;
 }
 
+export interface IDCalculatorInputs extends BaseCalculatorInputs {
+  country: "ID";
+  contributions: IDContributionInputs;
+  taxReliefs: IDTaxReliefInputs;
+}
+
 export type CalculatorInputs =
   | USCalculatorInputs
   | SGCalculatorInputs
@@ -316,7 +336,8 @@ export type CalculatorInputs =
   | AUCalculatorInputs
   | PTCalculatorInputs
   | THCalculatorInputs
-  | HKCalculatorInputs;
+  | HKCalculatorInputs
+  | IDCalculatorInputs;
 
 // ============================================================================
 // TAX BREAKDOWN TYPES
@@ -379,6 +400,13 @@ export interface HKTaxBreakdown extends BaseTaxBreakdown {
   mpfEmployee: number; // MPF mandatory contribution (employee)
 }
 
+export interface IDTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number; // PPh 21 (resident)
+  bpjsHealth: number; // BPJS Kesehatan employee contribution
+  bpjsJht: number; // BPJS JHT employee contribution
+  bpjsJp: number; // BPJS JP employee contribution
+}
+
 export type TaxBreakdown =
   | USTaxBreakdown
   | SGTaxBreakdown
@@ -387,7 +415,8 @@ export type TaxBreakdown =
   | AUTaxBreakdown
   | PTTaxBreakdown
   | THTaxBreakdown
-  | HKTaxBreakdown;
+  | HKTaxBreakdown
+  | IDTaxBreakdown;
 
 // ============================================================================
 // CALCULATION RESULT TYPES
@@ -727,6 +756,40 @@ export interface HKBreakdown {
   };
 }
 
+export interface IDBreakdown {
+  type: "ID";
+  grossIncome: number;
+  jobExpense: number;
+  jobExpenseCap: number;
+  pensionDeduction: number;
+  voluntaryDeductions: {
+    dplk: number;
+    zakat: number;
+    total: number;
+  };
+  netIncome: number;
+  ptkp: number;
+  taxableIncomeBeforeRounding: number;
+  taxableIncome: number;
+  bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }>;
+  bpjs: {
+    healthEmployee: number;
+    healthEmployer: number;
+    healthMonthlyCap: number;
+    jhtEmployee: number;
+    jhtEmployer: number;
+    jpEmployee: number;
+    jpEmployer: number;
+    jpMonthlyCap: number;
+  };
+  taxReliefs: IDTaxReliefInputs;
+}
+
 export type CountrySpecificBreakdown =
   | USBreakdown
   | SGBreakdown
@@ -735,7 +798,8 @@ export type CountrySpecificBreakdown =
   | AUBreakdown
   | PTBreakdown
   | THBreakdown
-  | HKBreakdown;
+  | HKBreakdown
+  | IDBreakdown;
 
 // ============================================================================
 // COUNTRY CALCULATOR INTERFACE
@@ -814,7 +878,8 @@ export function isNLTaxBreakdown(taxes: TaxBreakdown): taxes is NLTaxBreakdown {
     "incomeTax" in taxes &&
     !("cpfEmployee" in taxes) &&
     !("federalIncomeTax" in taxes) &&
-    !("mpfEmployee" in taxes)
+    !("mpfEmployee" in taxes) &&
+    !("bpjsHealth" in taxes)
   );
 }
 
@@ -914,8 +979,18 @@ export function isHKTaxBreakdown(taxes: TaxBreakdown): taxes is HKTaxBreakdown {
   );
 }
 
+export function isIDTaxBreakdown(taxes: TaxBreakdown): taxes is IDTaxBreakdown {
+  return "bpjsHealth" in taxes && "bpjsJht" in taxes && "bpjsJp" in taxes;
+}
+
 export function isHKBreakdown(
   breakdown: CountrySpecificBreakdown,
 ): breakdown is HKBreakdown {
   return breakdown.type === "HK";
+}
+
+export function isIDBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is IDBreakdown {
+  return breakdown.type === "ID";
 }

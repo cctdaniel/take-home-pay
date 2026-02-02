@@ -18,6 +18,8 @@ import type {
   HKCalculatorInputs,
   HKResidencyType,
   HKTaxReliefInputs,
+  IDCalculatorInputs,
+  IDTaxReliefInputs,
   KRCalculatorInputs,
   KRResidencyType,
   KRTaxReliefInputs,
@@ -108,6 +110,12 @@ const DEFAULT_HK_TAX_RELIEFS: HKTaxReliefInputs = {
   elderlyResidentialCareExpenses: 0,
 };
 
+const DEFAULT_ID_TAX_RELIEFS: IDTaxReliefInputs = {
+  maritalStatus: "single",
+  numberOfDependents: 0,
+  spouseIncomeCombined: false,
+};
+
 // Default gross salaries per country
 const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
   US: 100000,
@@ -118,6 +126,7 @@ const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
   PT: 35000, // €35k typical Portuguese salary
   TH: 600000, // ฿600k typical Thai middle income
   HK: 420000, // HK$35k monthly
+  ID: 120000000, // Rp120M typical salary
 };
 
 // ============================================================================
@@ -227,6 +236,14 @@ export interface UseMultiCountryCalculatorReturn {
     taxDeductibleVoluntaryContributions: number;
   };
 
+  // ID-specific
+  idTaxReliefs: IDTaxReliefInputs;
+  setIdTaxReliefs: (value: IDTaxReliefInputs) => void;
+  idDplkContribution: number;
+  setIdDplkContribution: (value: number) => void;
+  idZakatContribution: number;
+  setIdZakatContribution: (value: number) => void;
+
   // Limits
   usLimits: {
     traditional401k: number;
@@ -319,6 +336,13 @@ export function useMultiCountryCalculator(
   const [hkVoluntaryContributions, setHkVoluntaryContributionsState] =
     useState(0);
 
+  // ID-specific state
+  const [idTaxReliefs, setIdTaxReliefs] = useState<IDTaxReliefInputs>(
+    DEFAULT_ID_TAX_RELIEFS,
+  );
+  const [idDplkContribution, setIdDplkContribution] = useState(0);
+  const [idZakatContribution, setIdZakatContribution] = useState(0);
+
   // Track previous country using state (React docs pattern for adjusting state when props change)
   const [prevCountry, setPrevCountry] = useState(country);
 
@@ -368,6 +392,10 @@ export function useMultiCountryCalculator(
       setHkResidencyType("resident");
       setHkTaxReliefs(DEFAULT_HK_TAX_RELIEFS);
       setHkVoluntaryContributionsState(0);
+    } else if (country === "ID") {
+      setIdTaxReliefs(DEFAULT_ID_TAX_RELIEFS);
+      setIdDplkContribution(0);
+      setIdZakatContribution(0);
     }
   }
 
@@ -589,6 +617,18 @@ export function useMultiCountryCalculator(
         },
       };
       return ptInputs;
+    } else if (country === "ID") {
+      const idInputs: IDCalculatorInputs = {
+        country: "ID",
+        grossSalary,
+        payFrequency,
+        contributions: {
+          dplkContribution: idDplkContribution,
+          zakatContribution: idZakatContribution,
+        },
+        taxReliefs: idTaxReliefs,
+      };
+      return idInputs;
     } else {
       // TH or HK
       if (country === "HK") {
@@ -668,6 +708,9 @@ export function useMultiCountryCalculator(
     hkResidencyType,
     hkTaxReliefs,
     hkVoluntaryContributions,
+    idTaxReliefs,
+    idDplkContribution,
+    idZakatContribution,
     usLimits,
     sgLimits,
     ptLimits,
@@ -769,6 +812,14 @@ export function useMultiCountryCalculator(
     setHkTaxReliefs,
     hkVoluntaryContributions,
     setHkVoluntaryContributions,
+
+    // ID-specific
+    idTaxReliefs,
+    setIdTaxReliefs,
+    idDplkContribution,
+    setIdDplkContribution,
+    idZakatContribution,
+    setIdZakatContribution,
 
     // Limits
     usLimits,

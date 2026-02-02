@@ -26,6 +26,7 @@ const BASE_CURRENCIES: CurrencyCode[] = [
   "HKD",
   "KRW",
   "THB",
+  "IDR",
 ];
 
 const COUNTRIES = getSupportedCountries();

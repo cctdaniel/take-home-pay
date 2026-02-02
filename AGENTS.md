@@ -4,7 +4,7 @@ This file provides guidance for AI coding agents working with this codebase.
 
 ## Project Overview
 
-**Take Home Pay Calculator** — A Next.js web application for calculating take-home salary after taxes and deductions. Supports multiple countries (US, Australia, Hong Kong, Netherlands, Portugal, Singapore, South Korea, and Thailand) with 2026 tax data.
+**Take Home Pay Calculator** — A Next.js web application for calculating take-home salary after taxes and deductions. Supports multiple countries (US, Australia, Hong Kong, Indonesia, Netherlands, Portugal, Singapore, South Korea, and Thailand) with 2026 tax data.
 
 ## Tech Stack
 
@@ -43,6 +43,7 @@ This file provides guidance for AI coding agents working with this codebase.
     /hk/                  # Hong Kong tax calculator (salaries tax, MPF)
     /pt/                  # Portugal tax calculator (IRS, Social Security)
     /th/                  # Thailand tax calculator (PIT, SSF, Provident Fund)
+    /id/                  # Indonesia tax calculator (PPh 21, BPJS)
     registry.ts           # Country calculator registry (factory pattern)
     types.ts              # Shared TypeScript interfaces
   /constants/             # Tax brackets, contribution limits, tax year
@@ -65,6 +66,7 @@ Each country has its own route for better SEO:
 | Hong Kong     | `/hk`      | Yes (static)       |
 | Portugal      | `/pt`      | Yes (static)       |
 | Thailand      | `/th`      | Yes (static)       |
+| Indonesia     | `/id`      | Yes (static)       |
 | Compare All   | `/compare` | Yes (static)       |
 
 - Root `/` redirects to `/us` (default country)
@@ -96,7 +98,7 @@ The codebase uses a registry pattern for country support:
 
 1. **Registry** (`lib/countries/registry.ts`) — Factory that returns the appropriate calculator
 2. **Country Calculator Interface** (`lib/countries/types.ts`) — Each country implements `CountryCalculator`
-3. **Country Implementations** — `/lib/countries/us/`, `/lib/countries/au/`, `/lib/countries/sg/`, `/lib/countries/kr/`, `/lib/countries/nl/`, `/lib/countries/pt/`
+3. **Country Implementations** — `/lib/countries/us/`, `/lib/countries/au/`, `/lib/countries/sg/`, `/lib/countries/kr/`, `/lib/countries/nl/`, `/lib/countries/pt/`, `/lib/countries/id/`
 
 ### Tax Calculation Flow
 
@@ -142,6 +144,7 @@ Each country calculator handles:
 | `lib/countries/pt/calculator.ts`             | Portugal tax calculation logic         |
 | `lib/countries/th/calculator.ts`             | Thailand tax calculation logic         |
 | `lib/countries/hk/calculator.ts`             | Hong Kong tax calculation logic        |
+| `lib/countries/id/calculator.ts`             | Indonesia tax calculation logic        |
 | `lib/constants/tax-year.ts`                  | Current tax year and build metadata    |
 | `components/calculator/country-selector.tsx` | Country dropdown (navigates on change) |
 
@@ -165,7 +168,20 @@ Each country calculator handles:
     - Add simple breakdown mapping in `components/compare/compare-breakdown.tsx` if needed
 11. **Update documentation:** Update this file (AGENTS.md) and README.md to include the new country and `/compare`
 
-Note: Any time you add a new country, also update `/compare` assumptions and documentation to keep the experience consistent.
+**Note:** Any time you add a new country, also update `/compare` assumptions and documentation to keep the experience consistent.
+
+### Indonesia Notes
+
+- **Tax System:** PPh 21 (Article 21 Income Tax) with progressive rates 5% to 35%
+- **Key Components:**
+  - PTKP (Non-Taxable Income): Rp54M individual + Rp4.5M married + Rp4.5M per dependent (max 3)
+  - Job Expense Deduction: 5% of gross income, capped at Rp6M/year
+  - BPJS Kesehatan (Health): 1% employee (capped at Rp12M monthly wage base)
+  - BPJS JHT (Old Age): 2% employee (no cap)
+  - BPJS JP (Pension): 1% employee (capped at Rp10,547,400 monthly wage base)
+- **Sources:**
+  - Tax brackets: UU No. 7/2021 (HPP Law)
+  - BPJS rates: BPJS Ketenagakerjaan and BPJS Kesehan regulations 2026
 
 ## Code Style
 
