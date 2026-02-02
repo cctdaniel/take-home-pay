@@ -40,7 +40,7 @@ export function calculateNetSalary(inputs: CalculatorInputs): CalculationResult 
   }
 
   const usTaxes = result.taxes;
-  if (!("federalIncomeTax" in usTaxes)) {
+  if (!("federalIncomeTax" in usTaxes) || !("stateIncomeTax" in usTaxes)) {
     throw new Error("Expected US taxes");
   }
 

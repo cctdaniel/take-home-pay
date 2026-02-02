@@ -12,7 +12,9 @@ import { HK_DEDUCTIONS_2026 } from "@/lib/countries/hk/constants/tax-brackets-20
 import { TH_TAX_ALLOWANCES } from "@/lib/countries/th/constants/tax-brackets-2026";
 import type {
   AUCalculatorInputs,
+  CACalculatorInputs,
   CalculationResult,
+  CalculatorInputs,
   CountryCode,
   CurrencyCode,
   HKCalculatorInputs,
@@ -133,8 +135,12 @@ function buildAssumptionsSummary(
     summary.push(assumptions.hasPrivateHealthInsurance ? "Private health" : "No private health");
   }
 
-  if (country === "HK" || country === "KR" || country === "TH" || country === "AU" || country === "PT" || country === "ID") {
+  if (country === "HK" || country === "KR" || country === "TH" || country === "AU" || country === "PT" || country === "ID" || country === "CA") {
     summary.push(assumptions.isResident ? "Resident" : "Non-resident");
+  }
+
+  if (country === "CA") {
+    summary.push("ON"); // Default to Ontario for comparison
   }
 
   if (country === "SG" && maritalStatus === "married" && assumptions.spouseHasNoIncome) {
@@ -530,6 +536,36 @@ export function useCountryComparison(
             },
           };
           const result = calculateNetSalary(idInputs);
+          acc.push({
+            country,
+            name: config.name,
+            currency,
+            rate,
+            grossLocal,
+            netLocal: result.netSalary,
+            netBase: result.netSalary / rate,
+            takeHomeRate: grossLocal > 0 ? result.netSalary / grossLocal : 0,
+            effectiveTaxRate: result.effectiveTaxRate,
+            deltaBase: 0,
+            deltaPercent: 0,
+            assumptions: buildAssumptionsSummary(country, inputs, false),
+            calculation: result,
+          });
+          return acc;
+        }
+
+        if (country === "CA") {
+          const defaultInputs = getDefaultInputs(country) as unknown as CACalculatorInputs;
+          const caInputs: CACalculatorInputs = {
+            ...defaultInputs,
+            grossSalary: grossLocal,
+            payFrequency,
+            region: "ON", // Default to Ontario for comparison
+            contributions: {
+              rrspContribution: 0, // No RRSP for comparison (simplification)
+            },
+          };
+          const result = calculateNetSalary(caInputs as unknown as CalculatorInputs);
           acc.push({
             country,
             name: config.name,

@@ -38,6 +38,7 @@ const COUNTRY_DESCRIPTIONS: Record<CountryCode, string> = {
   TH: `Free ${TAX_YEAR} take home pay calculator for Thailand. Calculate your salary after taxes including personal income tax (progressive rates 0-35%), Social Security Fund contributions, and tax-saving options like Provident Fund, RMF, SSF, and ESG funds.`,
   HK: `Free ${TAX_YEAR} take home pay calculator for Hong Kong. Calculate your salary after salaries tax, MPF contributions, and key allowances and deductions.`,
   ID: `Free ${TAX_YEAR} take home pay calculator for Indonesia. Calculate your salary after taxes including PPh 21 income tax (progressive rates 5% to 35%), BPJS Kesehatan (health insurance), BPJS JHT (old age security), and BPJS JP (pension) contributions.`,
+  CA: `Free ${TAX_YEAR} take home pay calculator for Canada. Calculate your salary after taxes including federal and provincial income tax, CPP contributions (base and enhanced), EI premiums, and RRSP deductions.`,
 };
 
 // Country-specific keywords for SEO
@@ -64,6 +65,23 @@ const COUNTRY_KEYWORDS: Record<CountryCode, string[]> = {
     "lito calculator",
     "division 293 tax calculator",
     "high income super tax",
+  ],
+  CA: [
+    "canada take home pay calculator",
+    "canadian salary after tax",
+    `${TAX_YEAR} canada tax calculator`,
+    "canada income tax calculator",
+    "canada cpp calculator",
+    "canada ei calculator",
+    "ontario tax calculator",
+    "british columbia tax calculator",
+    "alberta tax calculator",
+    "quebec tax calculator",
+    "rrsp tax savings",
+    "canada paycheck calculator",
+    "cra tax calculator",
+    "canada federal tax",
+    "canada provincial tax",
   ],
   NL: [
     "netherlands take home pay calculator",
@@ -204,6 +222,11 @@ const COUNTRY_HEADER_INFO: Record<
     tagline: "Calculate your actual salary after taxes in Australia.",
     details:
       "Income tax (Stage 3 cuts), LITO, Medicare levy, Medicare levy surcharge, Division 293 tax, superannuation",
+  },
+  CA: {
+    tagline: "Calculate your actual salary after taxes in Canada.",
+    details:
+      "Federal & provincial income tax (13 provinces/territories), CPP contributions (base + enhanced), EI premiums, QPIP (Quebec), RRSP deductions",
   },
   NL: {
     tagline: "Calculate your actual salary after taxes in the Netherlands.",

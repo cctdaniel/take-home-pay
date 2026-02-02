@@ -8,7 +8,7 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD" | "IDR";
+export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD" | "IDR" | "CAD";
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -20,7 +20,7 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK" | "ID";
+export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK" | "ID" | "CA";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -328,6 +328,35 @@ export interface IDCalculatorInputs extends BaseCalculatorInputs {
   taxReliefs: IDTaxReliefInputs;
 }
 
+// ============================================================================
+// CANADA SPECIFIC TYPES
+// ============================================================================
+export type CARegion =
+  | "AB" // Alberta
+  | "BC" // British Columbia
+  | "MB" // Manitoba
+  | "NB" // New Brunswick
+  | "NL" // Newfoundland and Labrador
+  | "NS" // Nova Scotia
+  | "NT" // Northwest Territories
+  | "NU" // Nunavut
+  | "ON" // Ontario
+  | "PE" // Prince Edward Island
+  | "QC" // Quebec
+  | "SK" // Saskatchewan
+  | "YT"; // Yukon
+
+// Canada contribution inputs (voluntary contributions like RRSP)
+export interface CAContributionInputs {
+  rrspContribution: number; // Registered Retirement Savings Plan (tax deductible)
+}
+
+export interface CACalculatorInputs extends BaseCalculatorInputs {
+  country: "CA";
+  region: CARegion; // Province/Territory
+  contributions: CAContributionInputs;
+}
+
 export type CalculatorInputs =
   | USCalculatorInputs
   | SGCalculatorInputs
@@ -337,7 +366,8 @@ export type CalculatorInputs =
   | PTCalculatorInputs
   | THCalculatorInputs
   | HKCalculatorInputs
-  | IDCalculatorInputs;
+  | IDCalculatorInputs
+  | CACalculatorInputs;
 
 // ============================================================================
 // TAX BREAKDOWN TYPES
@@ -407,6 +437,15 @@ export interface IDTaxBreakdown extends BaseTaxBreakdown {
   bpjsJp: number; // BPJS JP employee contribution
 }
 
+export interface CATaxBreakdown extends BaseTaxBreakdown {
+  federalIncomeTax: number;
+  provincialIncomeTax: number;
+  cppEmployee: number; // Canada Pension Plan - base contribution
+  cpp2Employee: number; // CPP2 - second additional contribution
+  eiEmployee: number; // Employment Insurance
+  qpipEmployee?: number; // Quebec Parental Insurance Plan (Quebec only)
+}
+
 export type TaxBreakdown =
   | USTaxBreakdown
   | SGTaxBreakdown
@@ -416,7 +455,8 @@ export type TaxBreakdown =
   | PTTaxBreakdown
   | THTaxBreakdown
   | HKTaxBreakdown
-  | IDTaxBreakdown;
+  | IDTaxBreakdown
+  | CATaxBreakdown;
 
 // ============================================================================
 // CALCULATION RESULT TYPES
@@ -790,6 +830,59 @@ export interface IDBreakdown {
   taxReliefs: IDTaxReliefInputs;
 }
 
+// Canada breakdown
+export interface CABreakdown {
+  type: "CA";
+  region: CARegion;
+  regionName: string;
+  federalTaxableIncome: number;
+  provincialTaxableIncome: number;
+  federalBracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }>;
+  provincialBracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }>;
+  federalBPA: number; // Basic Personal Amount (federal)
+  provincialBPA: number; // Basic Personal Amount (provincial)
+  federalTaxBeforeCredits: number; // Tax calculated before BPA credit
+  provincialTaxBeforeCredits: number; // Tax calculated before BPA credit
+  provincialSurtax?: number; // Ontario surtax (if applicable)
+  cpp: {
+    pensionableEarnings: number;
+    contributoryEarnings: number;
+    baseContribution: number;
+    baseRate: number;
+    baseMax: number;
+  };
+  cpp2: {
+    additionalPensionableEarnings: number;
+    contribution: number;
+    rate: number;
+    max: number;
+  };
+  ei: {
+    insurableEarnings: number;
+    premium: number;
+    rate: number;
+    maxPremium: number;
+  };
+  qpip?: {
+    // Quebec only
+    premium: number;
+    rate: number;
+    maxPremium: number;
+  };
+  rrspDeduction: number;
+  isQuebec: boolean;
+}
+
 export type CountrySpecificBreakdown =
   | USBreakdown
   | SGBreakdown
@@ -799,7 +892,8 @@ export type CountrySpecificBreakdown =
   | PTBreakdown
   | THBreakdown
   | HKBreakdown
-  | IDBreakdown;
+  | IDBreakdown
+  | CABreakdown;
 
 // ============================================================================
 // COUNTRY CALCULATOR INTERFACE
@@ -993,4 +1087,20 @@ export function isIDBreakdown(
   breakdown: CountrySpecificBreakdown,
 ): breakdown is IDBreakdown {
   return breakdown.type === "ID";
+}
+
+export function isCAInputs(
+  inputs: CalculatorInputs,
+): inputs is CACalculatorInputs {
+  return inputs.country === "CA";
+}
+
+export function isCATaxBreakdown(taxes: TaxBreakdown): taxes is CATaxBreakdown {
+  return "cppEmployee" in taxes && "cpp2Employee" in taxes && "federalIncomeTax" in taxes;
+}
+
+export function isCABreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is CABreakdown {
+  return breakdown.type === "CA";
 }

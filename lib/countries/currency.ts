@@ -59,6 +59,12 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
     name: "Indonesian Rupiah",
     locale: "id-ID",
   },
+  CAD: {
+    code: "CAD",
+    symbol: "C$",
+    name: "Canadian Dollar",
+    locale: "en-CA",
+  },
 };
 
 // ============================================================================
@@ -74,6 +80,7 @@ export const COUNTRY_CURRENCY: Record<CountryCode, CurrencyCode> = {
   TH: "THB",
   HK: "HKD",
   ID: "IDR",
+  CA: "CAD",
 };
 
 // ============================================================================
@@ -126,6 +133,9 @@ export function getCurrencyForCountry(countryCode: CountryCode): CurrencyConfig 
   }
   if (countryCode === "ID") {
     return { ...baseConfig, locale: "id-ID" };
+  }
+  if (countryCode === "CA") {
+    return { ...baseConfig, locale: "en-CA" };
   }
   
   return baseConfig;

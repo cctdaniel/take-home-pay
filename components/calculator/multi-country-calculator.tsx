@@ -12,6 +12,8 @@ import { Separator } from "@/components/ui/separator";
 import { useMultiCountryCalculator } from "@/hooks/use-multi-country-calculator";
 import type { CountryCode } from "@/lib/countries/types";
 import { AUTaxOptions } from "./au-tax-options";
+import { CAContributionOptions } from "./ca-contribution-options";
+import { CATaxOptions } from "./ca-tax-options";
 import { HKAdditionalReliefs } from "./hk-additional-reliefs";
 import { HKTaxOptions } from "./hk-tax-options";
 import { IDContributionOptions } from "./id-contribution-options";
@@ -143,6 +145,13 @@ export function MultiCountryCalculator({
     idZakatContribution,
     setIdZakatContribution,
 
+    // CA-specific
+    caRegion,
+    setCaRegion,
+    caRrspContribution,
+    setCaRrspContribution,
+    caLimits,
+
     // Results
     result,
   } = useMultiCountryCalculator(country);
@@ -225,6 +234,15 @@ export function MultiCountryCalculator({
               />
             )}
 
+            {country === "CA" && (
+              <CATaxOptions
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+                region={caRegion}
+                onRegionChange={setCaRegion}
+              />
+            )}
+
             {country === "PT" && (
               <PTTaxOptions
                 payFrequency={payFrequency}
@@ -290,8 +308,8 @@ export function MultiCountryCalculator({
           </CardContent>
         </Card>
 
-        {/* Contributions Card - US, SG, PT, TH, HK, and ID */}
-        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID") && (
+        {/* Contributions Card - US, SG, PT, TH, HK, ID, and CA */}
+        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID" || country === "CA") && (
           <Card>
             <CardHeader>
               <CardTitle>
@@ -308,7 +326,9 @@ export function MultiCountryCalculator({
                         ? "Optional MPF/annuity contributions (tax deductible)"
                         : country === "ID"
                           ? "Optional tax-saving contributions (BPJS is mandatory)"
-                          : "Optional tax-saving contributions (Social Security is mandatory)"}
+                          : country === "CA"
+                            ? "Optional RRSP contributions (tax deductible)"
+                            : "Optional tax-saving contributions (Social Security is mandatory)"}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -420,6 +440,15 @@ export function MultiCountryCalculator({
                   onZakatContributionChange={setIdZakatContribution}
                 />
               )}
+
+              {country === "CA" && (
+                <CAContributionOptions
+                  rrspContribution={caRrspContribution}
+                  onRrspContributionChange={setCaRrspContribution}
+                  rrspLimit={caLimits.rrspContribution}
+                  currencyCode="CAD"
+                />
+              )}
             </CardContent>
           </Card>
         )}
@@ -503,6 +532,38 @@ export function MultiCountryCalculator({
                     deducted from take-home (shown below for reference)
                   </li>
                 </ul>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* CA Deductions Info Card */}
+        {country === "CA" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Tax &amp; Contributions</CardTitle>
+              <CardDescription>
+                Federal and provincial income tax, CPP, EI, and RRSP deductions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  What&apos;s Included
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-1">
+                  <li>Federal Income Tax — progressive rates 14% to 33% (2026)</li>
+                  <li>Provincial/Territorial Tax — varies by province (5% to 25.75%)</li>
+                  <li>CPP Contributions — 5.95% on earnings up to $74,600 (2026)</li>
+                  <li>CPP2 (Enhanced CPP) — 4% on earnings $74,600 to $85,000</li>
+                  <li>EI Premiums — 1.63% (1.30% in Quebec) up to $68,900</li>
+                  <li>QPIP Premiums — 0.43% in Quebec only</li>
+                  <li>RRSP Deductions — tax-deductible retirement contributions</li>
+                </ul>
+                <p className="text-xs text-zinc-500 mt-3">
+                  Note: 2026 federal tax rates include a reduction to 14% for the lowest bracket 
+                  (previously 15%). Basic Personal Amount is $16,452 (phases out above $181,440).
+                </p>
               </div>
             </CardContent>
           </Card>

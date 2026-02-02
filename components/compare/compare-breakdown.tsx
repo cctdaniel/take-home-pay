@@ -102,13 +102,24 @@ export function CompareBreakdown({
     }
   };
 
-  if ("federalIncomeTax" in taxes) {
+  if ("federalIncomeTax" in taxes && "stateIncomeTax" in taxes) {
+    // US Tax Breakdown
     pushLine(incomeTaxBreakdown, "Federal income tax", taxes.federalIncomeTax);
     pushLine(incomeTaxBreakdown, "State income tax", taxes.stateIncomeTax);
     pushLine(mandatoryBreakdown, "Social Security", taxes.socialSecurity);
     pushLine(mandatoryBreakdown, "Medicare", taxes.medicare);
     pushLine(mandatoryBreakdown, "Additional Medicare", taxes.additionalMedicare);
     pushLine(mandatoryBreakdown, "State disability", taxes.stateDisabilityInsurance);
+  } else if ("cppEmployee" in taxes) {
+    // Canada Tax Breakdown
+    pushLine(incomeTaxBreakdown, "Federal income tax", taxes.federalIncomeTax);
+    pushLine(incomeTaxBreakdown, "Provincial income tax", taxes.provincialIncomeTax);
+    pushLine(mandatoryBreakdown, "CPP (base)", taxes.cppEmployee);
+    pushLine(mandatoryBreakdown, "CPP2 (enhanced)", taxes.cpp2Employee);
+    pushLine(mandatoryBreakdown, "EI premiums", taxes.eiEmployee);
+    if (taxes.qpipEmployee) {
+      pushLine(mandatoryBreakdown, "QPIP (Quebec)", taxes.qpipEmployee);
+    }
   } else if ("cpfEmployee" in taxes) {
     pushLine(mandatoryBreakdown, "CPF (employee)", taxes.cpfEmployee);
   } else if ("localIncomeTax" in taxes) {

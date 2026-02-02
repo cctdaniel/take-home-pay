@@ -59,6 +59,7 @@ export function MultiCountryResults({
   const isTH = country === "TH";
   const isHK = country === "HK";
   const isID = country === "ID";
+  const isCA = country === "CA";
 
   // US-specific data
   let stateName = usState || "";
@@ -172,7 +173,7 @@ export function MultiCountryResults({
           <Separator className="my-2" />
 
           {/* US Tax Breakdown */}
-          {isUS && "federalIncomeTax" in taxes && (
+          {isUS && "federalIncomeTax" in taxes && "socialSecurity" in taxes && (
             <>
               <p className="text-xs text-zinc-500 pt-2 pb-1">Federal Taxes</p>
               <DeductionRow
@@ -2270,6 +2271,247 @@ export function MultiCountryResults({
                     PTKP (Penghasilan Tidak Kena Pajak) is the non-taxable income threshold.
                     Rp54M for individuals, +Rp4.5M if married, +Rp4.5M per dependent (max 3),
                     +Rp54M if spouse income is combined.
+                  </p>
+                </div>
+              </>
+            )}
+
+          {/* Canada Tax Breakdown */}
+          {isCA &&
+            "cppEmployee" in taxes &&
+            result.breakdown.type === "CA" && (
+              <>
+                {/* RRSP Deduction */}
+                {result.breakdown.rrspDeduction > 0 && (
+                  <>
+                    <p className="text-xs text-zinc-500 pt-2 pb-1">
+                      RRSP Deduction (Pre-tax)
+                    </p>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">
+                        RRSP Contribution
+                      </span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.rrspDeduction, currency)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                      <span className="text-sm text-zinc-300">Taxable Income</span>
+                      <span className="text-sm text-zinc-200 tabular-nums">
+                        {formatCurrency(result.taxableIncome, currency)}
+                      </span>
+                    </div>
+                    <Separator className="my-2" />
+                  </>
+                )}
+
+                {/* Federal Tax */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Federal Income Tax Calculation
+                </p>
+                <div className="bg-zinc-800/30 rounded p-2 mb-2">
+                  {/* Step 1: Tax before credits */}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">
+                      Tax on taxable income
+                    </span>
+                    <span className="text-sm text-zinc-300 tabular-nums">
+                      {formatCurrency(result.breakdown.federalTaxBeforeCredits, currency)}
+                    </span>
+                  </div>
+                  
+                  {/* Step 2: BPA Credit */}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-500">
+                      − BPA Tax Credit ({formatCurrency(result.breakdown.federalBPA, currency)} × 14%)
+                    </span>
+                    <span className="text-sm text-zinc-400 tabular-nums">
+                      −{formatCurrency(result.breakdown.federalBPA * 0.14, currency)}
+                    </span>
+                  </div>
+                  
+                  {/* Step 3: Final Tax */}
+                  <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1 pt-1">
+                    <span className="text-sm text-zinc-200 font-medium">
+                      = Federal Tax You Pay
+                    </span>
+                    <span className="text-sm font-bold text-zinc-100 tabular-nums">
+                      {formatCurrency(taxes.federalIncomeTax, currency)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Provincial Tax */}
+                <Separator className="my-2" />
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  {result.breakdown.regionName} Provincial Tax Calculation
+                </p>
+                <div className="bg-zinc-800/30 rounded p-2 mb-2">
+                  {/* Step 1: Tax before credits */}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">
+                      Tax on taxable income
+                    </span>
+                    <span className="text-sm text-zinc-300 tabular-nums">
+                      {formatCurrency(result.breakdown.provincialTaxBeforeCredits, currency)}
+                    </span>
+                  </div>
+                  
+                  {/* Step 2: BPA Credit */}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-500">
+                      − BPA Tax Credit ({formatCurrency(result.breakdown.provincialBPA, currency)} × {(result.breakdown.provincialBracketTaxes[0]?.rate ? result.breakdown.provincialBracketTaxes[0].rate * 100 : 5.05).toFixed(2)}%)
+                    </span>
+                    <span className="text-sm text-zinc-400 tabular-nums">
+                      −{formatCurrency(result.breakdown.provincialBPA * (result.breakdown.provincialBracketTaxes[0]?.rate ?? 0.0505), currency)}
+                    </span>
+                  </div>
+                  
+                  {/* Step 2b: Ontario Surtax (if applicable) */}
+                  {result.breakdown.region === "ON" && result.breakdown.provincialSurtax && result.breakdown.provincialSurtax > 0 ? (
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-500">
+                        + Ontario Surtax
+                      </span>
+                      <span className="text-sm text-zinc-400 tabular-nums">
+                        +{formatCurrency(result.breakdown.provincialSurtax, currency)}
+                      </span>
+                    </div>
+                  ) : null}
+                  
+                  {/* Step 3: Final Tax */}
+                  <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1 pt-1">
+                    <span className="text-sm text-zinc-200 font-medium">
+                      = Provincial Tax You Pay
+                    </span>
+                    <span className="text-sm font-bold text-zinc-100 tabular-nums">
+                      {formatCurrency(taxes.provincialIncomeTax, currency)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* CPP Contributions */}
+                <Separator className="my-2" />
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Canada Pension Plan (CPP) — Employee Contributions
+                </p>
+                <div className="bg-zinc-800/30 rounded p-2 mb-2">
+                  <p className="text-xs text-zinc-500 mb-1">
+                    CPP is calculated on pensionable earnings between $3,500 and $74,600
+                  </p>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">
+                      Your pensionable earnings
+                    </span>
+                    <span className="text-sm text-zinc-200 tabular-nums">
+                      {formatCurrency(result.breakdown.cpp.pensionableEarnings, currency)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-500">
+                      − Basic exemption (not taxed)
+                    </span>
+                    <span className="text-sm text-zinc-500 tabular-nums">
+                      {formatCurrency(3500, currency)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-1 border-t border-zinc-700/50 mt-1 pt-1">
+                    <span className="text-sm text-zinc-300">
+                      = Contributory earnings
+                    </span>
+                    <span className="text-sm text-zinc-200 tabular-nums">
+                      {formatCurrency(result.breakdown.cpp.contributoryEarnings, currency)}
+                    </span>
+                  </div>
+                </div>
+                <DeductionRow
+                  label={`CPP Base (${(result.breakdown.cpp.baseRate * 100).toFixed(2)}%)`}
+                  amount={taxes.cppEmployee}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                {taxes.cppEmployee >= result.breakdown.cpp.baseMax * 0.99 && (
+                  <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                    Maximum CPP contribution reached
+                  </p>
+                )}
+
+                {/* CPP2 */}
+                {taxes.cpp2Employee > 0 && (
+                  <>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">
+                        Additional Pensionable Earnings (CPP2)
+                      </span>
+                      <span className="text-sm text-zinc-200 tabular-nums">
+                        {formatCurrency(result.breakdown.cpp2.additionalPensionableEarnings, currency)}
+                      </span>
+                    </div>
+                    <DeductionRow
+                      label={`CPP2 Enhanced (${(result.breakdown.cpp2.rate * 100).toFixed(0)}%)`}
+                      amount={taxes.cpp2Employee}
+                      grossSalary={grossSalary}
+                      currency={currency}
+                    />
+                    {taxes.cpp2Employee >= result.breakdown.cpp2.max * 0.99 && (
+                      <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                        Maximum CPP2 contribution reached
+                      </p>
+                    )}
+                  </>
+                )}
+
+                {/* EI Premiums */}
+                <Separator className="my-2" />
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Employment Insurance (EI)
+                </p>
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-sm text-zinc-400">
+                    Insurable Earnings
+                  </span>
+                  <span className="text-sm text-zinc-200 tabular-nums">
+                    {formatCurrency(result.breakdown.ei.insurableEarnings, currency)}
+                  </span>
+                </div>
+                <DeductionRow
+                  label={`EI Premium (${(result.breakdown.ei.rate * 100).toFixed(2)}%)`}
+                  amount={taxes.eiEmployee}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                {taxes.eiEmployee >= result.breakdown.ei.maxPremium * 0.99 && (
+                  <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                    Maximum EI premium reached
+                  </p>
+                )}
+
+                {/* QPIP (Quebec only) */}
+                {result.breakdown.isQuebec && taxes.qpipEmployee && taxes.qpipEmployee > 0 && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="text-xs text-zinc-500 pt-2 pb-1">
+                      QPIP (Quebec Parental Insurance)
+                    </p>
+                    <DeductionRow
+                      label={`QPIP (${(result.breakdown.qpip!.rate * 100).toFixed(2)}%)`}
+                      amount={taxes.qpipEmployee}
+                      grossSalary={grossSalary}
+                      currency={currency}
+                    />
+                    {taxes.qpipEmployee && taxes.qpipEmployee >= (result.breakdown.qpip?.maxPremium ?? 0) * 0.99 && (
+                      <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                        Maximum QPIP premium reached
+                      </p>
+                    )}
+                  </>
+                )}
+
+                <Separator className="my-2" />
+                <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
+                  <p className="text-xs text-zinc-500">
+                    <strong>Note:</strong> The $3,500 CPP exemption is a threshold, not a deduction. 
+                    You don&apos;t pay CPP on the first $3,500 of pensionable earnings.
                   </p>
                 </div>
               </>

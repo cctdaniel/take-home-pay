@@ -1,6 +1,7 @@
 "use client";
 
 import { calculateNetSalary, getCountryConfig } from "@/lib/countries/registry";
+import { CACalculator } from "@/lib/countries/ca/calculator";
 import { HKCalculator } from "@/lib/countries/hk/calculator";
 import { PTCalculator } from "@/lib/countries/pt/calculator";
 import { THCalculator } from "@/lib/countries/th/calculator";
@@ -11,6 +12,8 @@ import {
 import type {
   AUCalculatorInputs,
   AUResidencyType,
+  CACalculatorInputs,
+  CARegion,
   CalculationResult,
   CalculatorInputs,
   CountryCode,
@@ -127,6 +130,7 @@ const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
   TH: 600000, // ฿600k typical Thai middle income
   HK: 420000, // HK$35k monthly
   ID: 120000000, // Rp120M typical salary
+  CA: 80000, // C$80k typical Canadian salary
 };
 
 // ============================================================================
@@ -244,6 +248,15 @@ export interface UseMultiCountryCalculatorReturn {
   idZakatContribution: number;
   setIdZakatContribution: (value: number) => void;
 
+  // CA-specific
+  caRegion: CARegion;
+  setCaRegion: (value: CARegion) => void;
+  caRrspContribution: number;
+  setCaRrspContribution: (value: number) => void;
+  caLimits: {
+    rrspContribution: number;
+  };
+
   // Limits
   usLimits: {
     traditional401k: number;
@@ -343,6 +356,10 @@ export function useMultiCountryCalculator(
   const [idDplkContribution, setIdDplkContribution] = useState(0);
   const [idZakatContribution, setIdZakatContribution] = useState(0);
 
+  // CA-specific state
+  const [caRegion, setCaRegion] = useState<CARegion>("ON");
+  const [caRrspContribution, setCaRrspContributionState] = useState(0);
+
   // Track previous country using state (React docs pattern for adjusting state when props change)
   const [prevCountry, setPrevCountry] = useState(country);
 
@@ -396,6 +413,9 @@ export function useMultiCountryCalculator(
       setIdTaxReliefs(DEFAULT_ID_TAX_RELIEFS);
       setIdDplkContribution(0);
       setIdZakatContribution(0);
+    } else if (country === "CA") {
+      setCaRegion("ON");
+      setCaRrspContributionState(0);
     }
   }
 
@@ -452,6 +472,14 @@ export function useMultiCountryCalculator(
     return {
       taxDeductibleVoluntaryContributions:
         limits.taxDeductibleVoluntaryContributions?.limit ?? 60000,
+    };
+  }, []);
+
+  // CA limits
+  const caLimits = useMemo(() => {
+    const limits = CACalculator.getContributionLimits();
+    return {
+      rrspContribution: limits.rrspContribution?.limit ?? 32490,
     };
   }, []);
 
@@ -541,8 +569,16 @@ export function useMultiCountryCalculator(
     [hkLimits.taxDeductibleVoluntaryContributions],
   );
 
+  // CA RRSP contribution handler with validation
+  const setCaRrspContribution = useCallback(
+    (value: number) => {
+      setCaRrspContributionState(Math.min(value, caLimits.rrspContribution));
+    },
+    [caLimits.rrspContribution],
+  );
+
   // Build inputs based on country
-  const inputs: CalculatorInputs = useMemo(() => {
+  const inputs = useMemo(() => {
     if (country === "US") {
       const usInputs: USCalculatorInputs = {
         country: "US",
@@ -629,6 +665,17 @@ export function useMultiCountryCalculator(
         taxReliefs: idTaxReliefs,
       };
       return idInputs;
+    } else if (country === "CA") {
+      const caInputs: CACalculatorInputs = {
+        country: "CA",
+        grossSalary,
+        payFrequency,
+        region: caRegion,
+        contributions: {
+          rrspContribution: Math.min(caRrspContribution, caLimits.rrspContribution),
+        },
+      };
+      return caInputs;
     } else {
       // TH or HK
       if (country === "HK") {
@@ -711,6 +758,9 @@ export function useMultiCountryCalculator(
     idTaxReliefs,
     idDplkContribution,
     idZakatContribution,
+    caRegion,
+    caRrspContribution,
+    caLimits,
     usLimits,
     sgLimits,
     ptLimits,
@@ -720,7 +770,7 @@ export function useMultiCountryCalculator(
 
   // Calculate result
   const result = useMemo(() => {
-    return calculateNetSalary(inputs);
+    return calculateNetSalary(inputs as CalculatorInputs);
   }, [inputs]);
 
   return {
@@ -821,12 +871,19 @@ export function useMultiCountryCalculator(
     idZakatContribution,
     setIdZakatContribution,
 
+    // CA-specific
+    caRegion,
+    setCaRegion,
+    caRrspContribution,
+    setCaRrspContribution,
+
     // Limits
     usLimits,
     sgLimits,
     ptLimits,
     thLimits,
     hkLimits,
+    caLimits,
 
     // Results
     result,

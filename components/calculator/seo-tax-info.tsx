@@ -21,6 +21,7 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "KR" && <KRTaxInfo />}
         {country === "NL" && <NLTaxInfo />}
         {country === "AU" && <AUTaxInfo />}
+        {country === "CA" && <CATaxInfo />}
         {country === "PT" && <PTTaxInfo />}
         {country === "TH" && <THTaxInfo />}
         {country === "HK" && <HKTaxInfo />}
@@ -671,6 +672,116 @@ function IDTaxInfo() {
       <p className="text-zinc-400 text-sm">
         Tax rates based on Undang-Undang Nomor 7 Tahun 2021 (HPP Law) and PMK 168/2023.
         BPJS rates based on BPJS Ketenagakerjaan and BPJS Kesehatan regulations effective 2026.
+      </p>
+    </div>
+  );
+}
+
+// ============================================================================
+// CANADA TAX INFO
+// ============================================================================
+function CATaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Canada</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li>
+          <strong className="text-zinc-300">Federal Income Tax</strong> –
+          Progressive rates from 14% to 33% (5 brackets, 2026 rates)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Provincial/Territorial Tax</strong> –
+          Additional tax varies by province (5% to 25.75%)
+        </li>
+        <li>
+          <strong className="text-zinc-300">CPP (Canada Pension Plan)</strong> –
+          5.95% employee contribution on earnings up to $74,600 (2026 YMPE)
+        </li>
+        <li>
+          <strong className="text-zinc-300">CPP2 (Enhanced CPP)</strong> –
+          Additional 4% on earnings between $74,600 and $85,000 (2026 YAMPE)
+        </li>
+        <li>
+          <strong className="text-zinc-300">EI (Employment Insurance)</strong> –
+          1.63% (1.30% in Quebec) on earnings up to $68,900
+        </li>
+        <li>
+          <strong className="text-zinc-300">QPIP (Quebec only)</strong> –
+          0.43% on earnings up to $68,900 for Quebec Parental Insurance Plan
+        </li>
+        <li>
+          <strong className="text-zinc-300">RRSP Deductions</strong> –
+          Registered Retirement Savings Plan contributions reduce taxable income
+        </li>
+        <li>
+          <strong className="text-zinc-300">Basic Personal Amount</strong> –
+          Federal BPA of $16,452 (phases out between $181,440 and $258,482)
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Federal Tax Brackets 2026
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>$0 – $58,523: 14% (reduced from 15% in 2026)</li>
+        <li>$58,524 – $117,045: 20.5%</li>
+        <li>$117,046 – $181,440: 26%</li>
+        <li>$181,441 – $258,482: 29%</li>
+        <li>$258,483+: 33%</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        CPP Contributions 2026
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Basic Exemption: $3,500 (not subject to CPP)</li>
+        <li>Maximum Pensionable Earnings (YMPE): $74,600</li>
+        <li>Contribution Rate: 5.95% (employee share)</li>
+        <li>Maximum Employee Contribution: $4,230.45</li>
+        <li>CPP2 (Second Ceiling): Applies to earnings $74,600 – $85,000 at 4%</li>
+        <li>Maximum CPP2 Contribution: $416.00</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        EI Premiums 2026
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Maximum Insurable Earnings: $68,900</li>
+        <li>Employee Rate (outside Quebec): 1.63% (max $1,123.07)</li>
+        <li>Employee Rate (Quebec): 1.30% (max $895.70)</li>
+        <li>Employer Rate: 1.4x employee rate</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Selected Provincial Tax Rates 2026
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Ontario: 5.05% – 13.16% (plus surtax on higher incomes)</li>
+        <li>British Columbia: 5.06% – 20.5%</li>
+        <li>Alberta: 8% – 15%</li>
+        <li>Quebec: 14% – 25.75%</li>
+        <li>Nova Scotia: 8.79% – 21%</li>
+        <li>Manitoba: 10.8% – 17.4%</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        RRSP Contribution Limit 2026
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        The 2026 RRSP contribution limit is $32,490. Contributions are tax-deductible
+        and reduce your taxable income. Unused contribution room can be carried forward.
+        Your personal limit is based on 18% of your previous year&apos;s earned income
+        up to the annual maximum.
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Sources
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Tax rates based on CRA T4127 Payroll Deductions Formulas (122nd Edition).
+        CPP rates from CRA contribution rates and maximums.
+        EI rates from Canada Employment Insurance Commission Actuarial Report 2026.
+        Provincial rates from respective provincial finance ministries.
       </p>
     </div>
   );
