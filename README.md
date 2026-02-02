@@ -16,8 +16,15 @@ Each country has its own page for better SEO and shareability:
 | Portugal      | [/pt](http://localhost:3000/pt) |
 | Thailand      | [/th](http://localhost:3000/th) |
 | Hong Kong     | [/hk](http://localhost:3000/hk) |
+| Compare All   | [/compare](http://localhost:3000/compare) |
 
 Root `/` redirects to `/us` by default.
+
+## Compare Mode
+
+The `/compare` page asks a few simple questions and shows take-home pay across all supported countries using FX conversion. It surfaces a compact breakdown per country and links out to the full country calculator for detailed inputs and accuracy.
+
+FX rates are fetched from Exchangerate-API and cached on the server for performance.
 
 ## Supported Countries
 
@@ -97,6 +104,12 @@ npm install
 npm run dev
 ```
 
+Create a `.env` file with your Exchangerate-API key:
+
+```bash
+EXCHANGERATE_API_KEY=your_key_here
+```
+
 Open [http://localhost:3000](http://localhost:3000) to use the calculator. You'll be redirected to `/us` by default.
 
 ## Tech Stack
@@ -112,6 +125,8 @@ Open [http://localhost:3000](http://localhost:3000) to use the calculator. You'l
 /app/
   [country]/page.tsx     # Dynamic country pages (/us, /au, /hk, /sg, /kr, /nl, /pt, /th)
   page.tsx               # Redirect to /us
+  compare/page.tsx       # Compare flow
+  api/fx/route.ts         # FX rates proxy (Exchangerate-API)
 /lib/countries/          # Country-specific calculators
   /us/                   # US tax calculations
   /au/                   # Australia tax calculations
@@ -121,6 +136,7 @@ Open [http://localhost:3000](http://localhost:3000) to use the calculator. You'l
   registry.ts            # Country calculator factory
   types.ts               # Shared interfaces
 /components/calculator/  # Calculator UI components
+/components/compare/     # Compare flow UI components
 /hooks/                  # React state management
 ```
 
@@ -134,6 +150,7 @@ Open [http://localhost:3000](http://localhost:3000) to use the calculator. You'l
 - **Portugal:** IRS tax brackets and Social Security rates from Autoridade Tributária e Aduaneira (AT) for 2026
 - **Thailand:** Revenue Department tax brackets and Social Security Fund rates for 2026
 - **Hong Kong:** IRD salaries tax rates/allowances and MPFA MPF contribution rates for 2026
+- **FX Rates:** Exchangerate-API (cached, used for `/compare`)
 
 ## Disclaimer
 

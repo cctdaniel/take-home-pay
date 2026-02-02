@@ -19,12 +19,20 @@ This file provides guidance for AI coding agents working with this codebase.
 /app/
   layout.tsx              # Root layout with fonts and base metadata
   page.tsx                # Redirects to /us (default country)
+  /compare/
+    page.tsx              # Compare flow (questionnaire + results)
+  /api/
+    /fx/
+      route.ts            # FX rates proxy (Exchangerate-API)
   /[country]/
     page.tsx              # Dynamic country page with generateStaticParams
 /components/
   /calculator/            # Domain-specific calculator components
+  /compare/               # Compare flow UI components
   /ui/                    # Reusable UI primitives (card, input, select, etc.)
 /hooks/                   # React custom hooks for state management
+  use-country-comparison.ts # Compare flow calculations
+  use-fx-rates.ts          # FX rate fetching hook
 /lib/
   /countries/             # Country-specific calculator implementations
     /us/                  # US tax calculator (federal, state, FICA)
@@ -57,6 +65,7 @@ Each country has its own route for better SEO:
 | Hong Kong     | `/hk` | Yes (static)       |
 | Portugal      | `/pt` | Yes (static)       |
 | Thailand      | `/th` | Yes (static)       |
+| Compare All   | `/compare` | Yes (static) |
 
 - Root `/` redirects to `/us` (default country)
 - Country selector navigates to the selected country's route
@@ -93,6 +102,12 @@ The codebase uses a registry pattern for country support:
 
 ```
 URL (/us, /sg, etc.) → Country Page → MultiCountryCalculator → Country Calculator → Tax Breakdown → Results Display
+```
+
+Compare flow:
+
+```
+/compare → Questionnaire → FX conversion → Country Calculator → Ranked Results + Snapshot
 ```
 
 Each country calculator handles:
@@ -144,7 +159,13 @@ Each country calculator handles:
    - Add to `COUNTRY_KEYWORDS`
    - Add to `COUNTRY_HEADER_INFO`
 9. Add country section to `components/calculator/seo-tax-info.tsx`
-10. **Update documentation:** Update this file (AGENTS.md) and README.md to include the new country
+10. Update compare flow:
+    - Add to `SUPPORTED_COUNTRIES` and any compare selectors
+    - Extend `hooks/use-country-comparison.ts` for country-specific assumptions and retirement max rules
+    - Add simple breakdown mapping in `components/compare/compare-breakdown.tsx` if needed
+11. **Update documentation:** Update this file (AGENTS.md) and README.md to include the new country and `/compare`
+
+Note: Any time you add a new country, also update `/compare` assumptions and documentation to keep the experience consistent.
 
 ## Code Style
 
