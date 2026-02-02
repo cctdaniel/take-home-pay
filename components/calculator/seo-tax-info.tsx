@@ -643,6 +643,20 @@ function IDTaxInfo() {
       </p>
 
       <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Voluntary Tax-Deductible Contributions
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>
+          <strong className="text-zinc-300">DPLK (Pension Fund)</strong> – 
+          Voluntary contributions to Dana Pensiun Lembaga Keuangan are tax deductible
+        </li>
+        <li>
+          <strong className="text-zinc-300">Zakat</strong> – 
+          Zakat paid to BAZNAS or authorized amil zakat institutions reduces taxable income
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
         Tax Calculation Method
       </h4>
       <p className="text-zinc-400 text-sm">

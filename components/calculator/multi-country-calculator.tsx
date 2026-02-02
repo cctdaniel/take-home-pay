@@ -14,6 +14,7 @@ import type { CountryCode } from "@/lib/countries/types";
 import { AUTaxOptions } from "./au-tax-options";
 import { HKAdditionalReliefs } from "./hk-additional-reliefs";
 import { HKTaxOptions } from "./hk-tax-options";
+import { IDContributionOptions } from "./id-contribution-options";
 import { IDTaxOptions } from "./id-tax-options";
 import { PTTaxOptions } from "./pt-tax-options";
 import { ContributionOptions } from "./contribution-options";
@@ -137,6 +138,10 @@ export function MultiCountryCalculator({
     // ID-specific
     idTaxReliefs,
     setIdTaxReliefs,
+    idDplkContribution,
+    setIdDplkContribution,
+    idZakatContribution,
+    setIdZakatContribution,
 
     // Results
     result,
@@ -285,8 +290,8 @@ export function MultiCountryCalculator({
           </CardContent>
         </Card>
 
-        {/* Contributions Card - US, SG, PT, and TH */}
-        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK") && (
+        {/* Contributions Card - US, SG, PT, TH, HK, and ID */}
+        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID") && (
           <Card>
             <CardHeader>
               <CardTitle>
@@ -301,7 +306,9 @@ export function MultiCountryCalculator({
                       ? "Optional tax-saving contributions (CPF is mandatory)"
                       : country === "HK"
                         ? "Optional MPF/annuity contributions (tax deductible)"
-                      : "Optional tax-saving contributions (Social Security is mandatory)"}
+                        : country === "ID"
+                          ? "Optional tax-saving contributions (BPJS is mandatory)"
+                          : "Optional tax-saving contributions (Social Security is mandatory)"}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -403,6 +410,15 @@ export function MultiCountryCalculator({
                     Deferred Annuity Policy premiums share a combined annual cap.
                   </p>
                 </div>
+              )}
+
+              {country === "ID" && (
+                <IDContributionOptions
+                  dplkContribution={idDplkContribution}
+                  onDplkContributionChange={setIdDplkContribution}
+                  zakatContribution={idZakatContribution}
+                  onZakatContributionChange={setIdZakatContribution}
+                />
               )}
             </CardContent>
           </Card>

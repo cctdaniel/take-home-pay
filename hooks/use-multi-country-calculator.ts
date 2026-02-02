@@ -239,6 +239,10 @@ export interface UseMultiCountryCalculatorReturn {
   // ID-specific
   idTaxReliefs: IDTaxReliefInputs;
   setIdTaxReliefs: (value: IDTaxReliefInputs) => void;
+  idDplkContribution: number;
+  setIdDplkContribution: (value: number) => void;
+  idZakatContribution: number;
+  setIdZakatContribution: (value: number) => void;
 
   // Limits
   usLimits: {
@@ -336,6 +340,8 @@ export function useMultiCountryCalculator(
   const [idTaxReliefs, setIdTaxReliefs] = useState<IDTaxReliefInputs>(
     DEFAULT_ID_TAX_RELIEFS,
   );
+  const [idDplkContribution, setIdDplkContribution] = useState(0);
+  const [idZakatContribution, setIdZakatContribution] = useState(0);
 
   // Track previous country using state (React docs pattern for adjusting state when props change)
   const [prevCountry, setPrevCountry] = useState(country);
@@ -388,6 +394,8 @@ export function useMultiCountryCalculator(
       setHkVoluntaryContributionsState(0);
     } else if (country === "ID") {
       setIdTaxReliefs(DEFAULT_ID_TAX_RELIEFS);
+      setIdDplkContribution(0);
+      setIdZakatContribution(0);
     }
   }
 
@@ -614,7 +622,10 @@ export function useMultiCountryCalculator(
         country: "ID",
         grossSalary,
         payFrequency,
-        contributions: {},
+        contributions: {
+          dplkContribution: idDplkContribution,
+          zakatContribution: idZakatContribution,
+        },
         taxReliefs: idTaxReliefs,
       };
       return idInputs;
@@ -698,6 +709,8 @@ export function useMultiCountryCalculator(
     hkTaxReliefs,
     hkVoluntaryContributions,
     idTaxReliefs,
+    idDplkContribution,
+    idZakatContribution,
     usLimits,
     sgLimits,
     ptLimits,
@@ -803,6 +816,10 @@ export function useMultiCountryCalculator(
     // ID-specific
     idTaxReliefs,
     setIdTaxReliefs,
+    idDplkContribution,
+    setIdDplkContribution,
+    idZakatContribution,
+    setIdZakatContribution,
 
     // Limits
     usLimits,

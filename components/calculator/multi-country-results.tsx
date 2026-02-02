@@ -58,6 +58,7 @@ export function MultiCountryResults({
   const isPT = country === "PT";
   const isTH = country === "TH";
   const isHK = country === "HK";
+  const isID = country === "ID";
 
   // US-specific data
   let stateName = usState || "";
@@ -2089,6 +2090,186 @@ export function MultiCountryResults({
                   <p className="text-xs text-zinc-500">
                     ESG fund contributions (held 5+ years), pension life insurance,
                     prenatal care expenses, disabled dependent care, elderly taxpayer allowance.
+                  </p>
+                </div>
+              </>
+            )}
+
+          {/* ID Tax Breakdown */}
+          {isID &&
+            "bpjsHealth" in taxes &&
+            result.breakdown.type === "ID" && (
+              <>
+                {/* PTKP Info */}
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-zinc-400">PTKP Status</span>
+                  <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
+                    {result.breakdown.taxReliefs.maritalStatus === "married"
+                      ? `Married${result.breakdown.taxReliefs.spouseIncomeCombined ? " (Combined)" : ""}`
+                      : "Single"}
+                    {result.breakdown.taxReliefs.numberOfDependents > 0 &&
+                      ` + ${result.breakdown.taxReliefs.numberOfDependents} dependent${result.breakdown.taxReliefs.numberOfDependents > 1 ? "s" : ""}`}
+                  </span>
+                </div>
+
+                <Separator className="my-2" />
+
+                {/* Income Deductions */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Income Deductions
+                </p>
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-sm text-zinc-400">
+                    Job Expense (5%)
+                  </span>
+                  <span className="text-sm text-emerald-400 tabular-nums">
+                    -{formatCurrency(result.breakdown.jobExpense, currency)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-sm text-zinc-400">
+                    Pension Deductions (JHT + JP)
+                  </span>
+                  <span className="text-sm text-emerald-400 tabular-nums">
+                    -{formatCurrency(result.breakdown.pensionDeduction, currency)}
+                  </span>
+                </div>
+                {result.breakdown.voluntaryDeductions.dplk > 0 && (
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">
+                      DPLK Pension
+                    </span>
+                    <span className="text-sm text-emerald-400 tabular-nums">
+                      -{formatCurrency(result.breakdown.voluntaryDeductions.dplk, currency)}
+                    </span>
+                  </div>
+                )}
+                {result.breakdown.voluntaryDeductions.zakat > 0 && (
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">
+                      Zakat
+                    </span>
+                    <span className="text-sm text-emerald-400 tabular-nums">
+                      -{formatCurrency(result.breakdown.voluntaryDeductions.zakat, currency)}
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                  <span className="text-sm text-zinc-300">Net Income</span>
+                  <span className="text-sm text-zinc-200 tabular-nums">
+                    {formatCurrency(result.breakdown.netIncome, currency)}
+                  </span>
+                </div>
+
+                {/* PTKP Allowance */}
+                <Separator className="my-2" />
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  PTKP (Non-Taxable Income)
+                </p>
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-sm text-zinc-400">PTKP Allowance</span>
+                  <span className="text-sm text-emerald-400 tabular-nums">
+                    -{formatCurrency(result.breakdown.ptkp, currency)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                  <span className="text-sm text-zinc-300">Taxable Income</span>
+                  <span className="text-sm text-zinc-200 tabular-nums">
+                    {formatCurrency(result.taxableIncome, currency)}
+                  </span>
+                </div>
+
+                {/* Income Tax */}
+                <Separator className="my-2" />
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  PPh 21 (Income Tax)
+                </p>
+                
+                {/* Tax Bracket Breakdown */}
+                {result.breakdown.bracketTaxes.map((bracket, index) => (
+                  <div key={index} className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">
+                      {(bracket.rate * 100).toFixed(0)}% on {formatCurrency(bracket.min, currency)}
+                      {bracket.max === Infinity ? "+" : ` - ${formatCurrency(bracket.max, currency)}`}
+                    </span>
+                    <span className="text-sm text-zinc-200 tabular-nums">
+                      {formatCurrency(bracket.tax, currency)}
+                    </span>
+                  </div>
+                ))}
+
+                <DeductionRow
+                  label="Total PPh 21 Tax"
+                  amount={taxes.incomeTax}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+
+                <Separator className="my-2" />
+
+                {/* BPJS Contributions */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  BPJS Contributions
+                </p>
+                <DeductionRow
+                  label="Health Insurance (1%)"
+                  amount={taxes.bpjsHealth}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                {grossSalary / 12 > result.breakdown.bpjs.healthMonthlyCap && (
+                  <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                    Capped at Rp{result.breakdown.bpjs.healthMonthlyCap.toLocaleString()}/month
+                  </p>
+                )}
+
+                <DeductionRow
+                  label="Old Age Security JHT (2%)"
+                  amount={taxes.bpjsJht}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+
+                <DeductionRow
+                  label="Pension JP (1%)"
+                  amount={taxes.bpjsJp}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                {grossSalary / 12 > result.breakdown.bpjs.jpMonthlyCap && (
+                  <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                    Capped at Rp{result.breakdown.bpjs.jpMonthlyCap.toLocaleString()}/month
+                  </p>
+                )}
+
+                {/* Employer Contributions (informational) */}
+                <div className="flex items-center justify-between py-2 opacity-60">
+                  <span className="text-sm text-zinc-400">
+                    Employer BPJS (4% + 3.7% + 2%)
+                  </span>
+                  <span className="text-sm text-zinc-500 tabular-nums">
+                    +
+                    {formatCurrency(
+                      result.breakdown.bpjs.healthEmployer +
+                        result.breakdown.bpjs.jhtEmployer +
+                        result.breakdown.bpjs.jpEmployer,
+                      currency
+                    )}
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-500 italic">
+                  Employer pays this on top of your salary - not deducted from take-home pay
+                </p>
+
+                <Separator className="my-2" />
+                <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
+                  <p className="text-xs text-zinc-400 font-medium mb-1">
+                    About PTKP:
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    PTKP (Penghasilan Tidak Kena Pajak) is the non-taxable income threshold.
+                    Rp54M for individuals, +Rp4.5M if married, +Rp4.5M per dependent (max 3),
+                    +Rp54M if spouse income is combined.
                   </p>
                 </div>
               </>

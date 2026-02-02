@@ -57,7 +57,7 @@ function calculateBpjsContributions(annualSalary: number) {
 }
 
 export function calculateID(inputs: IDCalculatorInputs): CalculationResult {
-  const { grossSalary, payFrequency, taxReliefs } = inputs;
+  const { grossSalary, payFrequency, taxReliefs, contributions } = inputs;
 
   const jobExpense = Math.min(
     grossSalary * ID_JOB_EXPENSE_2026.rate,
@@ -67,7 +67,12 @@ export function calculateID(inputs: IDCalculatorInputs): CalculationResult {
   const bpjs = calculateBpjsContributions(grossSalary);
   const pensionDeduction = bpjs.jhtEmployee + bpjs.jpEmployee;
 
-  const netIncome = Math.max(0, grossSalary - jobExpense - pensionDeduction);
+  // Voluntary tax-deductible contributions
+  const dplkContribution = contributions.dplkContribution || 0;
+  const zakatContribution = contributions.zakatContribution || 0;
+  const voluntaryDeductions = dplkContribution + zakatContribution;
+
+  const netIncome = Math.max(0, grossSalary - jobExpense - pensionDeduction - voluntaryDeductions);
   const ptkp = calculatePtkp(taxReliefs);
 
   const taxableIncomeBeforeRounding = Math.max(0, netIncome - ptkp.total);
@@ -97,6 +102,12 @@ export function calculateID(inputs: IDCalculatorInputs): CalculationResult {
     jobExpense: Math.round(jobExpense),
     jobExpenseCap: ID_JOB_EXPENSE_2026.annualCap,
     pensionDeduction,
+    voluntaryDeductions: {
+      dplk: dplkContribution,
+      zakat: zakatContribution,
+      total: voluntaryDeductions,
+    },
+    netIncome,
     ptkp: ptkp.total,
     taxableIncomeBeforeRounding,
     taxableIncome,
@@ -140,7 +151,20 @@ export const IDCalculator: CountryCalculator = {
   },
 
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      dplkContribution: {
+        limit: Number.POSITIVE_INFINITY, // No specific annual cap, but must be reasonable
+        name: "DPLK Contribution",
+        description: "Voluntary contributions to Dana Pensiun Lembaga Keuangan (DPLK)",
+        preTax: true,
+      },
+      zakatContribution: {
+        limit: Number.POSITIVE_INFINITY, // No specific cap, but generally limited to 2.5% of wealth
+        name: "Zakat",
+        description: "Zakat paid to BAZNAS or authorized amil zakat institutions",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): IDCalculatorInputs {
@@ -148,7 +172,10 @@ export const IDCalculator: CountryCalculator = {
       country: "ID",
       grossSalary: 120_000_000,
       payFrequency: "monthly",
-      contributions: {},
+      contributions: {
+        dplkContribution: 0,
+        zakatContribution: 0,
+      },
       taxReliefs: {
         maritalStatus: "single",
         numberOfDependents: 0,

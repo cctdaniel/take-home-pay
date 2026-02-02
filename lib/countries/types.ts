@@ -130,10 +130,10 @@ export interface HKContributionInputs {
   taxDeductibleVoluntaryContributions: number; // MPF TVC + QDAP (combined cap)
 }
 
-// Indonesia-specific contributions (mandatory BPJS, no optional contributions modeled)
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+// Indonesia-specific contributions (mandatory BPJS + voluntary DPLP pension and zakat)
 export interface IDContributionInputs {
-  // BPJS contributions are mandatory and calculated automatically
+  dplkContribution: number; // Dana Pensiun Lembaga Keuangan (voluntary pension fund)
+  zakatContribution: number; // Zakat to BAZNAS or authorized amil zakat institutions
 }
 
 // Thailand additional tax reliefs/allowances
@@ -762,6 +762,12 @@ export interface IDBreakdown {
   jobExpense: number;
   jobExpenseCap: number;
   pensionDeduction: number;
+  voluntaryDeductions: {
+    dplk: number;
+    zakat: number;
+    total: number;
+  };
+  netIncome: number;
   ptkp: number;
   taxableIncomeBeforeRounding: number;
   taxableIncome: number;

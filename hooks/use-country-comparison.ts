@@ -519,7 +519,10 @@ export function useCountryComparison(
             ...defaultInputs,
             grossSalary: grossLocal,
             payFrequency,
-            contributions: {},
+            contributions: {
+              dplkContribution: 0,
+              zakatContribution: 0,
+            },
             taxReliefs: {
               maritalStatus: inputs.maritalStatus,
               numberOfDependents: Math.min(inputs.numberOfChildren, 3),
