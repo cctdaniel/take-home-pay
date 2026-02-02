@@ -125,7 +125,7 @@ export function getCurrencyForCountry(countryCode: CountryCode): CurrencyConfig 
 // COMMON FORMATTING FUNCTIONS
 // ============================================================================
 export function formatPercentage(value: number): string {
-  return `${(value * 100).toFixed(1)}%`;
+  return `${(value * 100).toFixed(2)}%`;
 }
 
 function escapeRegExp(value: string): string {

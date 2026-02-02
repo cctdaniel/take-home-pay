@@ -8,6 +8,7 @@ import {
 } from "@/lib/countries/registry";
 import type { CountryCode } from "@/lib/countries/types";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 // ============================================================================
@@ -247,6 +248,15 @@ export default async function CountryPage({ params }: PageProps) {
             {headerInfo.tagline} Uses {TAX_YEAR} tax brackets and rates.
           </p>
           <p className="text-zinc-500 text-sm mt-2">{headerInfo.details}</p>
+          <div className="mt-4">
+            <Link
+              href="/compare"
+              className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:border-emerald-400/70 hover:bg-emerald-500/20"
+            >
+              Compare all countries
+              <span aria-hidden="true">→</span>
+            </Link>
+          </div>
         </div>
 
         {/* Calculator */}
