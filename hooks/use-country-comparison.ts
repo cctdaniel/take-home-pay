@@ -24,6 +24,7 @@ import type {
   PTCalculatorInputs,
   SGCalculatorInputs,
   THCalculatorInputs,
+  UKCalculatorInputs,
   USCalculatorInputs,
   USFilingStatus,
 } from "@/lib/countries/types";
@@ -134,7 +135,7 @@ function buildAssumptionsSummary(
     summary.push(assumptions.hasPrivateHealthInsurance ? "Private health" : "No private health");
   }
 
-  if (country === "HK" || country === "KR" || country === "TH" || country === "AU" || country === "PT" || country === "ID" || country === "DE") {
+  if (country === "HK" || country === "KR" || country === "TH" || country === "AU" || country === "PT" || country === "ID" || country === "DE" || country === "UK") {
     summary.push(assumptions.isResident ? "Resident" : "Non-resident");
   }
 
@@ -538,6 +539,37 @@ export function useCountryComparison(
             },
           };
           const result = calculateNetSalary(idInputs);
+          acc.push({
+            country,
+            name: config.name,
+            currency,
+            rate,
+            grossLocal,
+            netLocal: result.netSalary,
+            netBase: result.netSalary / rate,
+            takeHomeRate: grossLocal > 0 ? result.netSalary / grossLocal : 0,
+            effectiveTaxRate: result.effectiveTaxRate,
+            deltaBase: 0,
+            deltaPercent: 0,
+            assumptions: buildAssumptionsSummary(country, inputs, false),
+            calculation: result,
+          });
+          return acc;
+        }
+
+        if (country === "UK") {
+          const defaultInputs = getDefaultInputs(country) as UKCalculatorInputs;
+          const ukInputs: UKCalculatorInputs = {
+            ...defaultInputs,
+            grossSalary: grossLocal,
+            payFrequency,
+            residencyType: inputs.assumptions.isResident ? "resident" : "non_resident",
+            region: "rest_of_uk",
+            contributions: {
+              pensionContribution: 0,
+            },
+          };
+          const result = calculateNetSalary(ukInputs);
           acc.push({
             country,
             name: config.name,

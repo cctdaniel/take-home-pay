@@ -34,6 +34,8 @@ import type {
   THCalculatorInputs,
   THResidencyType,
   THTaxReliefInputs,
+  UKCalculatorInputs,
+  UKResidencyType,
   USCalculatorInputs,
   USFilingStatus,
 } from "@/lib/countries/types";
@@ -128,6 +130,7 @@ const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
   TH: 600000, // ฿600k typical Thai middle income
   HK: 420000, // HK$35k monthly
   ID: 120000000, // Rp120M typical salary
+  UK: 35000, // £35,000 typical UK salary
   DE: 55000, // €55k typical German salary
 };
 
@@ -246,6 +249,14 @@ export interface UseMultiCountryCalculatorReturn {
   idZakatContribution: number;
   setIdZakatContribution: (value: number) => void;
 
+  // UK-specific
+  ukResidencyType: UKResidencyType;
+  setUkResidencyType: (value: UKResidencyType) => void;
+  ukRegion: "rest_of_uk" | "scotland";
+  setUkRegion: (value: "rest_of_uk" | "scotland") => void;
+  ukPensionContribution: number;
+  setUkPensionContribution: (value: number) => void;
+
   // DE-specific
   deState: string;
   setDeState: (value: string) => void;
@@ -355,6 +366,11 @@ export function useMultiCountryCalculator(
   const [idDplkContribution, setIdDplkContribution] = useState(0);
   const [idZakatContribution, setIdZakatContribution] = useState(0);
 
+  // UK-specific state
+  const [ukResidencyType, setUkResidencyType] = useState<UKResidencyType>("resident");
+  const [ukRegion, setUkRegion] = useState<"rest_of_uk" | "scotland">("rest_of_uk");
+  const [ukPensionContribution, setUkPensionContribution] = useState(0);
+
   // DE-specific state
   const [deState, setDeState] = useState("BE"); // Berlin as default
   const [deIsMarried, setDeIsMarried] = useState(false);
@@ -414,6 +430,10 @@ export function useMultiCountryCalculator(
       setIdTaxReliefs(DEFAULT_ID_TAX_RELIEFS);
       setIdDplkContribution(0);
       setIdZakatContribution(0);
+    } else if (country === "UK") {
+      setUkResidencyType("resident");
+      setUkRegion("rest_of_uk");
+      setUkPensionContribution(0);
     } else if (country === "DE") {
       setDeState("BE");
       setDeIsMarried(false);
@@ -652,6 +672,18 @@ export function useMultiCountryCalculator(
         taxReliefs: idTaxReliefs,
       };
       return idInputs;
+    } else if (country === "UK") {
+      const ukInputs: UKCalculatorInputs = {
+        country: "UK",
+        grossSalary,
+        payFrequency,
+        residencyType: ukResidencyType,
+        region: ukRegion,
+        contributions: {
+          pensionContribution: ukPensionContribution,
+        },
+      };
+      return ukInputs;
     } else if (country === "DE") {
       const deInputs: DECalculatorInputs = {
         country: "DE",
@@ -745,6 +777,9 @@ export function useMultiCountryCalculator(
     idTaxReliefs,
     idDplkContribution,
     idZakatContribution,
+    ukResidencyType,
+    ukRegion,
+    ukPensionContribution,
     deState,
     deIsMarried,
     deIsChurchMember,
@@ -858,6 +893,14 @@ export function useMultiCountryCalculator(
     setIdDplkContribution,
     idZakatContribution,
     setIdZakatContribution,
+
+    // UK-specific
+    ukResidencyType,
+    setUkResidencyType,
+    ukRegion,
+    setUkRegion,
+    ukPensionContribution,
+    setUkPensionContribution,
 
     // DE-specific
     deState,

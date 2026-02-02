@@ -59,6 +59,12 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
     name: "Indonesian Rupiah",
     locale: "id-ID",
   },
+  GBP: {
+    code: "GBP",
+    symbol: "£",
+    name: "British Pound",
+    locale: "en-GB",
+  },
 };
 
 // ============================================================================
@@ -74,6 +80,7 @@ export const COUNTRY_CURRENCY: Record<CountryCode, CurrencyCode> = {
   TH: "THB",
   HK: "HKD",
   ID: "IDR",
+  UK: "GBP",
   DE: "EUR",
 };
 
@@ -127,6 +134,9 @@ export function getCurrencyForCountry(countryCode: CountryCode): CurrencyConfig 
   }
   if (countryCode === "ID") {
     return { ...baseConfig, locale: "id-ID" };
+  }
+  if (countryCode === "UK") {
+    return { ...baseConfig, locale: "en-GB" };
   }
   if (countryCode === "DE") {
     return { ...baseConfig, locale: "de-DE" };
