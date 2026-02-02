@@ -2573,69 +2573,6 @@ export function MultiCountryResults({
 
                 {/* Pension Contribution */}
                 {result.breakdown.pensionContribution > 0 && (
-                <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
-                  <span className="text-sm text-zinc-300">Taxable Income</span>
-                  <span className="text-sm text-zinc-200 tabular-nums">
-                    {formatCurrency(result.taxableIncome, currency)}
-                  </span>
-                </div>
-
-                {/* Income Tax */}
-                <Separator className="my-2" />
-                <p className="text-xs text-zinc-500 pt-2 pb-1">
-                  Income Tax {result.breakdown.region === "scotland" ? "(Scottish Rates)" : ""}
-                </p>
-                
-                {/* Tax Bracket Breakdown */}
-                {result.breakdown.bracketTaxes.map((bracket, index) => (
-                  <div key={index} className="flex items-center justify-between py-1">
-                    <span className="text-sm text-zinc-400">
-                      {(bracket.rate * 100).toFixed(0)}% {formatCurrency(bracket.min, currency)}
-                      {bracket.max === Infinity ? "+" : ` - ${formatCurrency(bracket.max, currency)}`}
-                    </span>
-                    <span className="text-sm text-zinc-200 tabular-nums">
-                      {formatCurrency(bracket.tax, currency)}
-                    </span>
-                  </div>
-                ))}
-
-                <DeductionRow
-                  label="Total Income Tax"
-                  amount={taxes.incomeTax}
-                  grossSalary={grossSalary}
-                  currency={currency}
-                />
-
-                {/* National Insurance */}
-                <Separator className="my-2" />
-                <p className="text-xs text-zinc-500 pt-2 pb-1">
-                  National Insurance (Class 1 Employee)
-                </p>
-                {result.breakdown.nationalInsurance.mainContribution > 0 && (
-                  <DeductionRow
-                    label={`Main Rate (${(result.breakdown.nationalInsurance.mainRate * 100).toFixed(0)}% on £${result.breakdown.nationalInsurance.primaryThreshold.toLocaleString()} - £${result.breakdown.nationalInsurance.upperEarningsLimit.toLocaleString()})`}
-                    amount={result.breakdown.nationalInsurance.mainContribution}
-                    grossSalary={grossSalary}
-                    currency={currency}
-                  />
-                )}
-                {result.breakdown.nationalInsurance.additionalContribution > 0 && (
-                  <DeductionRow
-                    label={`Additional Rate (${(result.breakdown.nationalInsurance.additionalRate * 100).toFixed(0)}% above £${result.breakdown.nationalInsurance.upperEarningsLimit.toLocaleString()})`}
-                    amount={result.breakdown.nationalInsurance.additionalContribution}
-                    grossSalary={grossSalary}
-                    currency={currency}
-                  />
-                )}
-                <DeductionRow
-                  label="Total National Insurance"
-                  amount={taxes.nationalInsurance}
-                  grossSalary={grossSalary}
-                  currency={currency}
-                />
-
-                {/* Pension Contribution */}
-                {result.breakdown.pensionContribution > 0 && (
                   <>
                     <Separator className="my-2" />
                     <p className="text-xs text-zinc-500 pt-2 pb-1">

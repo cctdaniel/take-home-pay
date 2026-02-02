@@ -147,14 +147,6 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
   const maxAffordableNetCost = Math.max(0, grossSalary - totalTax);
   const cappedNetPensionCost = Math.min(netPensionCost, maxAffordableNetCost);
   
-  // Recalculate gross contribution based on capped net cost
-  // Gross = NetCost / (1 - effectiveReliefRate)
-  const effectiveReliefRate = grossPensionContribution > 0 
-    ? pensionRelief.totalRelief / grossPensionContribution 
-    : 0;
-  const finalPensionContribution = effectiveReliefRate > 0
-    ? Math.round(cappedNetPensionCost / (1 - effectiveReliefRate))
-    : cappedNetPensionCost;
 
   // ==========================================================================
   // STEP 6: Build Tax Breakdown and Totals
@@ -192,7 +184,7 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
       additionalContribution: nationalInsurance.additionalContribution,
       total: nationalInsurance.total,
     },
-    pensionContribution: finalPensionContribution,
+    pensionContribution: grossPensionContribution,
     pensionNetCost: cappedNetPensionCost,
     pensionTaxRelief: pensionRelief.totalRelief,
   };
