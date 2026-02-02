@@ -15,6 +15,7 @@ import type {
   CalculatorInputs,
   CountryCode,
   CurrencyCode,
+  DECalculatorInputs,
   HKCalculatorInputs,
   HKResidencyType,
   HKTaxReliefInputs,
@@ -127,6 +128,7 @@ const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
   TH: 600000, // ฿600k typical Thai middle income
   HK: 420000, // HK$35k monthly
   ID: 120000000, // Rp120M typical salary
+  DE: 55000, // €55k typical German salary
 };
 
 // ============================================================================
@@ -244,6 +246,16 @@ export interface UseMultiCountryCalculatorReturn {
   idZakatContribution: number;
   setIdZakatContribution: (value: number) => void;
 
+  // DE-specific
+  deState: string;
+  setDeState: (value: string) => void;
+  deIsMarried: boolean;
+  setDeIsMarried: (value: boolean) => void;
+  deIsChurchMember: boolean;
+  setDeIsChurchMember: (value: boolean) => void;
+  deIsChildless: boolean;
+  setDeIsChildless: (value: boolean) => void;
+
   // Limits
   usLimits: {
     traditional401k: number;
@@ -343,6 +355,12 @@ export function useMultiCountryCalculator(
   const [idDplkContribution, setIdDplkContribution] = useState(0);
   const [idZakatContribution, setIdZakatContribution] = useState(0);
 
+  // DE-specific state
+  const [deState, setDeState] = useState("BE"); // Berlin as default
+  const [deIsMarried, setDeIsMarried] = useState(false);
+  const [deIsChurchMember, setDeIsChurchMember] = useState(false);
+  const [deIsChildless, setDeIsChildless] = useState(false);
+
   // Track previous country using state (React docs pattern for adjusting state when props change)
   const [prevCountry, setPrevCountry] = useState(country);
 
@@ -396,6 +414,11 @@ export function useMultiCountryCalculator(
       setIdTaxReliefs(DEFAULT_ID_TAX_RELIEFS);
       setIdDplkContribution(0);
       setIdZakatContribution(0);
+    } else if (country === "DE") {
+      setDeState("BE");
+      setDeIsMarried(false);
+      setDeIsChurchMember(false);
+      setDeIsChildless(false);
     }
   }
 
@@ -629,6 +652,17 @@ export function useMultiCountryCalculator(
         taxReliefs: idTaxReliefs,
       };
       return idInputs;
+    } else if (country === "DE") {
+      const deInputs: DECalculatorInputs = {
+        country: "DE",
+        grossSalary,
+        payFrequency,
+        state: deState,
+        isMarried: deIsMarried,
+        isChurchMember: deIsChurchMember,
+        isChildless: deIsChildless,
+      };
+      return deInputs;
     } else {
       // TH or HK
       if (country === "HK") {
@@ -711,6 +745,10 @@ export function useMultiCountryCalculator(
     idTaxReliefs,
     idDplkContribution,
     idZakatContribution,
+    deState,
+    deIsMarried,
+    deIsChurchMember,
+    deIsChildless,
     usLimits,
     sgLimits,
     ptLimits,
@@ -820,6 +858,16 @@ export function useMultiCountryCalculator(
     setIdDplkContribution,
     idZakatContribution,
     setIdZakatContribution,
+
+    // DE-specific
+    deState,
+    setDeState,
+    deIsMarried,
+    setDeIsMarried,
+    deIsChurchMember,
+    setDeIsChurchMember,
+    deIsChildless,
+    setDeIsChildless,
 
     // Limits
     usLimits,

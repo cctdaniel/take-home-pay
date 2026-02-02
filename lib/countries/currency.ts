@@ -74,6 +74,7 @@ export const COUNTRY_CURRENCY: Record<CountryCode, CurrencyCode> = {
   TH: "THB",
   HK: "HKD",
   ID: "IDR",
+  DE: "EUR",
 };
 
 // ============================================================================
@@ -126,6 +127,9 @@ export function getCurrencyForCountry(countryCode: CountryCode): CurrencyConfig 
   }
   if (countryCode === "ID") {
     return { ...baseConfig, locale: "id-ID" };
+  }
+  if (countryCode === "DE") {
+    return { ...baseConfig, locale: "de-DE" };
   }
   
   return baseConfig;
