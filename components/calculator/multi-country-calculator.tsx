@@ -16,6 +16,7 @@ import { HKAdditionalReliefs } from "./hk-additional-reliefs";
 import { HKTaxOptions } from "./hk-tax-options";
 import { IDContributionOptions } from "./id-contribution-options";
 import { IDTaxOptions } from "./id-tax-options";
+import { TWTaxOptions } from "./tw-tax-options";
 import { PTTaxOptions } from "./pt-tax-options";
 import { ContributionOptions } from "./contribution-options";
 import { CountrySelector } from "./country-selector";
@@ -296,53 +297,18 @@ export function MultiCountryCalculator({
             )}
 
             {country === "TW" && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="tw-isMarried"
-                      checked={twTaxReliefs.isMarried}
-                      onChange={(e) =>
-                        setTwTaxReliefs({
-                          ...twTaxReliefs,
-                          isMarried: e.target.checked,
-                        })
-                      }
-                      className="h-4 w-4 rounded border-zinc-600 bg-zinc-800 text-emerald-500 focus:ring-emerald-500"
-                    />
-                    <label htmlFor="tw-isMarried" className="text-sm text-zinc-300">
-                      Married (joint filing)
-                    </label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="tw-hasDisability"
-                      checked={twTaxReliefs.hasDisability}
-                      onChange={(e) =>
-                        setTwTaxReliefs({
-                          ...twTaxReliefs,
-                          hasDisability: e.target.checked,
-                        })
-                      }
-                      className="h-4 w-4 rounded border-zinc-600 bg-zinc-800 text-emerald-500 focus:ring-emerald-500"
-                    />
-                    <label htmlFor="tw-hasDisability" className="text-sm text-zinc-300">
-                      Disability deduction
-                    </label>
-                  </div>
-                </div>
-                <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
-                  <span className="text-emerald-400">Standard Deduction:</span>{" "}
-                  {twTaxReliefs.isMarried ? "NT$272,000" : "NT$136,000"} |{" "}
-                  <span className="text-emerald-400">Personal Exemption:</span>{" "}
-                  NT$101,000 |{" "}
-                  <span className="text-emerald-400">Salary Deduction:</span>{" "}
-                  NT$227,000
-                  {twTaxReliefs.hasDisability && " | Disability: NT$227,000"}
-                </p>
-              </div>
+              <TWTaxOptions
+                isMarried={twTaxReliefs.isMarried}
+                onMarriedChange={(value) =>
+                  setTwTaxReliefs({ ...twTaxReliefs, isMarried: value })
+                }
+                hasDisability={twTaxReliefs.hasDisability}
+                onDisabilityChange={(value) =>
+                  setTwTaxReliefs({ ...twTaxReliefs, hasDisability: value })
+                }
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+              />
             )}
           </CardContent>
         </Card>
