@@ -2299,35 +2299,42 @@ export function MultiCountryResults({
                 <p className="text-xs text-zinc-500 pt-2 pb-1">
                   Deductions & Exemptions
                 </p>
+                <p className="text-xs text-zinc-500 italic mb-2">
+                  These amounts reduce your taxable income before tax is calculated
+                </p>
                 <div className="flex items-center justify-between py-1">
-                  <span className="text-sm text-zinc-400">
-                    Standard Deduction
-                  </span>
+                  <div>
+                    <span className="text-sm text-zinc-400">Standard Deduction</span>
+                    <p className="text-xs text-zinc-500">Flat deduction for all taxpayers</p>
+                  </div>
                   <span className="text-sm text-emerald-400 tabular-nums">
                     -{formatCurrency(result.breakdown.deductions.standardDeduction, currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-1">
-                  <span className="text-sm text-zinc-400">
-                    Personal Exemption
-                  </span>
+                  <div>
+                    <span className="text-sm text-zinc-400">Personal Exemption</span>
+                    <p className="text-xs text-zinc-500">Basic living expense allowance</p>
+                  </div>
                   <span className="text-sm text-emerald-400 tabular-nums">
                     -{formatCurrency(result.breakdown.deductions.personalExemption, currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-1">
-                  <span className="text-sm text-zinc-400">
-                    Salary Special Deduction
-                  </span>
+                  <div>
+                    <span className="text-sm text-zinc-400">Salary Special Deduction</span>
+                    <p className="text-xs text-zinc-500">Work-related expenses (no receipts needed)</p>
+                  </div>
                   <span className="text-sm text-emerald-400 tabular-nums">
                     -{formatCurrency(result.breakdown.deductions.specialSalaryDeduction, currency)}
                   </span>
                 </div>
                 {result.breakdown.deductions.disabilityDeduction > 0 && (
                   <div className="flex items-center justify-between py-1">
-                    <span className="text-sm text-zinc-400">
-                      Disability Deduction
-                    </span>
+                    <div>
+                      <span className="text-sm text-zinc-400">Disability Deduction</span>
+                      <p className="text-xs text-zinc-500">For taxpayers with disability certificate</p>
+                    </div>
                     <span className="text-sm text-emerald-400 tabular-nums">
                       -{formatCurrency(result.breakdown.deductions.disabilityDeduction, currency)}
                     </span>
@@ -2335,9 +2342,10 @@ export function MultiCountryResults({
                 )}
                 {result.breakdown.deductions.voluntaryPensionContribution > 0 && (
                   <div className="flex items-center justify-between py-1">
-                    <span className="text-sm text-zinc-400">
-                      Voluntary Pension Contribution
-                    </span>
+                    <div>
+                      <span className="text-sm text-zinc-400">Voluntary Pension</span>
+                      <p className="text-xs text-zinc-500">Tax-deductible contribution to pension fund</p>
+                    </div>
                     <span className="text-sm text-emerald-400 tabular-nums">
                       -{formatCurrency(result.breakdown.deductions.voluntaryPensionContribution, currency)}
                     </span>

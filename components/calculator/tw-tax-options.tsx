@@ -48,7 +48,7 @@ export function TWTaxOptions({
           <option value="married">Married (Joint)</option>
         </Select>
         <p className="text-xs text-zinc-500">
-          Standard: {isMarried ? "NT$272,000" : "NT$136,000"}
+          Flat deduction reducing taxable income. {isMarried ? "NT$272,000 for married joint filers" : "NT$136,000 for single filers"}.
         </p>
       </div>
 

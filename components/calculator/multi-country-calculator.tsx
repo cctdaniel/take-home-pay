@@ -556,25 +556,83 @@ export function MultiCountryCalculator({
             <CardHeader>
               <CardTitle>Tax &amp; Social Insurance</CardTitle>
               <CardDescription>
-                Comprehensive income tax and mandatory social insurance contributions
+                Comprehensive income tax, deductions, and mandatory social insurance
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <div className="bg-zinc-800/50 rounded-lg p-4">
                 <p className="text-sm font-medium text-zinc-300 mb-2">
-                  What&apos;s Included
+                  Deductions & Exemptions (Reduce Taxable Income)
                 </p>
-                <ul className="text-xs text-zinc-400 space-y-1">
-                  <li>Comprehensive Income Tax (5% - 40% progressive)</li>
-                  <li>Labor Insurance (2.3% - capped at NT$45,800/month)</li>
-                  <li>Employment Insurance (0.2% - capped at NT$45,800/month)</li>
-                  <li>National Health Insurance (1.551% - capped at NT$313,000/month)</li>
-                  <li>Standard Deduction, Personal Exemption, Salary Deduction</li>
+                <ul className="text-xs text-zinc-400 space-y-2">
                   <li>
-                    Labor Pension (6%) — employer-paid on top of salary, not
-                    deducted from take-home (employee voluntary contribution optional)
+                    <strong className="text-zinc-300">Standard Deduction</strong> — 
+                    A flat amount all taxpayers can deduct. Single: NT$136,000 | Married: NT$272,000.
+                    You don&apos;t need receipts.
+                  </li>
+                  <li>
+                    <strong className="text-zinc-300">Personal Exemption</strong> — 
+                    NT$101,000 basic allowance per taxpayer to cover essential living expenses.
+                  </li>
+                  <li>
+                    <strong className="text-zinc-300">Salary Special Deduction</strong> — 
+                    NT$227,000 for wage earners to cover work-related expenses. 
+                    Automatically applied, no receipts required.
+                  </li>
+                  <li>
+                    <strong className="text-zinc-300">Disability Deduction</strong> — 
+                    Additional NT$227,000 if you hold a disability certificate.
+                  </li>
+                  <li>
+                    <strong className="text-zinc-300">Voluntary Pension</strong> — 
+                    Employee contributions (0-6% of salary) to Labor Pension Fund are fully tax deductible.
                   </li>
                 </ul>
+              </div>
+
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  Social Insurance Contributions (Employee Share)
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-2">
+                  <li>
+                    <strong className="text-zinc-300">Labor Insurance (2.3%)</strong> — 
+                    Covers maternity, injury, sickness, disability, and death benefits. 
+                    Capped at NT$45,800/month wage base.
+                  </li>
+                  <li>
+                    <strong className="text-zinc-300">Employment Insurance (0.2%)</strong> — 
+                    Provides unemployment benefits and job training support. 
+                    Capped at NT$45,800/month wage base.
+                  </li>
+                  <li>
+                    <strong className="text-zinc-300">National Health Insurance (1.551%)</strong> — 
+                    Universal healthcare coverage. Capped at NT$313,000/month wage base.
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  Labor Pension (勞工退休金)
+                </p>
+                <p className="text-xs text-zinc-400 mb-2">
+                  <strong className="text-zinc-300">Employer Contribution:</strong> Your employer must contribute 
+                  at least 6% of your monthly salary to your individual pension account. 
+                  This is paid by the employer and is NOT deducted from your take-home pay.
+                </p>
+                <p className="text-xs text-zinc-400">
+                  <strong className="text-zinc-300">Voluntary Contribution:</strong> You can choose to contribute 
+                  an additional 0-6% of your salary, which reduces your taxable income (tax deductible).
+                </p>
+              </div>
+
+              <div className="bg-zinc-800/30 rounded-lg p-3">
+                <p className="text-xs text-zinc-500">
+                  <strong className="text-zinc-400">How it works:</strong> Your gross salary minus social insurance 
+                  minus all deductions/exemptions = taxable income. Tax is calculated on this amount using progressive rates 
+                  (5%, 12%, 20%, 30%, 40%). Higher deductions mean lower taxable income and less tax.
+                </p>
               </div>
             </CardContent>
           </Card>

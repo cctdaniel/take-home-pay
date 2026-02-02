@@ -25,6 +25,7 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "TH" && <THTaxInfo />}
         {country === "HK" && <HKTaxInfo />}
         {country === "ID" && <IDTaxInfo />}
+        {country === "TW" && <TWTaxInfo />}
       </div>
     </section>
   );
@@ -671,6 +672,163 @@ function IDTaxInfo() {
       <p className="text-zinc-400 text-sm">
         Tax rates based on Undang-Undang Nomor 7 Tahun 2021 (HPP Law) and PMK 168/2023.
         BPJS rates based on BPJS Ketenagakerjaan and BPJS Kesehatan regulations effective 2026.
+      </p>
+    </div>
+  );
+}
+
+// ============================================================================
+// TAIWAN TAX INFO
+// ============================================================================
+function TWTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Taiwan</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li>
+          <strong className="text-zinc-300">Comprehensive Income Tax</strong> –
+          Progressive rates from 5% to 40% (5 brackets)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Standard Deduction</strong> –
+          NT$136,000 for single filers, NT$272,000 for married couples (joint filing)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Personal Exemption</strong> –
+          NT$101,000 per taxpayer (reduces taxable income)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Salary Special Deduction</strong> –
+          NT$227,000 for wage earners (automatic deduction for employment income)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Disability Deduction</strong> –
+          Additional NT$227,000 for taxpayers with disabilities
+        </li>
+        <li>
+          <strong className="text-zinc-300">Labor Insurance</strong> –
+          2.3% employee contribution (11.5% × 20%), capped at NT$45,800/month
+        </li>
+        <li>
+          <strong className="text-zinc-300">Employment Insurance</strong> –
+          0.2% employee contribution (1% × 20%), capped at NT$45,800/month
+        </li>
+        <li>
+          <strong className="text-zinc-300">National Health Insurance</strong> –
+          1.551% employee contribution (5.17% × 30%), capped at NT$313,000/month
+        </li>
+        <li>
+          <strong className="text-zinc-300">Labor Pension</strong> –
+          Employer contributes 6% mandatorily; employee can voluntarily contribute 0-6% (tax deductible)
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Tax Brackets 2026 (Residents)
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>NT$0 – NT$610,000: 5%</li>
+        <li>NT$610,001 – NT$1,380,000: 12%</li>
+        <li>NT$1,380,001 – NT$2,770,000: 20%</li>
+        <li>NT$2,770,001 – NT$5,190,000: 30%</li>
+        <li>NT$5,190,001+: 40%</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Understanding Your Deductions
+      </h4>
+      <p className="text-zinc-400 text-sm mb-2">
+        Taiwan offers several deductions that reduce your taxable income before tax is calculated:
+      </p>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>
+          <strong className="text-zinc-300">Standard Deduction</strong> –
+          A flat amount that all taxpayers can claim. Choose this or itemized deductions (whichever is higher).
+          Single: NT$136,000 | Married: NT$272,000.
+        </li>
+        <li>
+          <strong className="text-zinc-300">Personal Exemption</strong> –
+          A basic allowance for each taxpayer to cover basic living expenses. Amount: NT$101,000 per person.
+        </li>
+        <li>
+          <strong className="text-zinc-300">Salary Special Deduction</strong> –
+          An automatic deduction for wage earners to account for work-related expenses. 
+          You do not need to provide receipts. Amount: NT$227,000.
+        </li>
+        <li>
+          <strong className="text-zinc-300">Disability Deduction</strong> –
+          Additional allowance for taxpayers holding a disability certificate. Amount: NT$227,000.
+        </li>
+        <li>
+          <strong className="text-zinc-300">Voluntary Pension Contribution</strong> –
+          Amounts you voluntarily contribute to your Labor Pension Fund (up to 6% of salary) are fully tax deductible.
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Social Insurance Contributions (Employee Share)
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>
+          <strong className="text-zinc-300">Labor Insurance (勞工保險)</strong> –
+          Total premium 11.5%, employee pays 20% (effective 2.3%). Covers maternity, injury, sickness, disability, and death benefits.
+          Monthly cap: NT$45,800.
+        </li>
+        <li>
+          <strong className="text-zinc-300">Employment Insurance (就業保險)</strong> –
+          Total premium 1%, employee pays 20% (effective 0.2%). Provides unemployment benefits and job training.
+          Monthly cap: NT$45,800.
+        </li>
+        <li>
+          <strong className="text-zinc-300">National Health Insurance (全民健康保險)</strong> –
+          Total premium 5.17%, employee pays 30% (effective 1.551%). Provides universal healthcare coverage.
+          Monthly cap: NT$313,000.
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Labor Pension (勞工退休金)
+      </h4>
+      <p className="text-zinc-400 text-sm mb-2">
+        Taiwan operates a New Labor Pension System where employers must contribute at least 6% of your monthly 
+        wages to an individual pension account. This is paid by the employer and not deducted from your salary.
+      </p>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>
+          <strong className="text-zinc-300">Employer Contribution</strong> –
+          6% of monthly salary (mandatory, employer-paid, not deducted from take-home pay)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Employee Voluntary Contribution</strong> –
+          You can choose to contribute an additional 0-6% of your salary, which is tax deductible.
+          Monthly cap: NT$150,000 for contribution calculations.
+        </li>
+        <li>
+          <strong className="text-zinc-300">Benefit</strong> –
+          Upon retirement, you receive monthly payments or a lump sum based on your account balance.
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Tax Calculation Formula
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Gross Salary − Social Insurance Contributions − Total Deductions & Exemptions = Taxable Income
+        <br />
+        Taxable Income × Progressive Tax Rate = Income Tax
+        <br />
+        Income Tax + Social Insurance = Total Tax
+        <br />
+        Gross Salary − Total Tax − Voluntary Contributions = Net Salary
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Sources
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Tax brackets and deductions based on Ministry of Finance announcement (November 27, 2025) effective for 2026 tax year.
+        Social insurance rates from Bureau of Labor Insurance and National Health Insurance Administration.
+        Official sources: National Taxation Bureau of Taipei, Ministry of Labor.
       </p>
     </div>
   );
