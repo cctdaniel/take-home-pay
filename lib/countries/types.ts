@@ -8,7 +8,7 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD" | "IDR";
+export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD" | "IDR" | "TWD";
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -20,7 +20,7 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK" | "ID";
+export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK" | "ID" | "TW";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -136,6 +136,11 @@ export interface IDContributionInputs {
   zakatContribution: number; // Zakat to BAZNAS or authorized amil zakat institutions
 }
 
+// Taiwan-specific contributions (voluntary labor pension)
+export interface TWContributionInputs {
+  voluntaryPensionContribution: number; // Employee voluntary contribution to labor pension (0-6% of salary, max NT$150,000)
+}
+
 // Thailand additional tax reliefs/allowances
 export interface THTaxReliefInputs {
   // Personal allowances
@@ -194,6 +199,12 @@ export interface IDTaxReliefInputs {
   spouseIncomeCombined: boolean; // Additional PTKP if spouse income is combined
 }
 
+// Taiwan tax relief inputs
+export interface TWTaxReliefInputs {
+  isMarried: boolean; // Affects standard deduction amount
+  hasDisability: boolean; // Special deduction for disabled individuals
+}
+
 // South Korea additional tax reliefs/deductions (인적공제 및 세액공제)
 export interface KRTaxReliefInputs {
   // ============================================================================
@@ -250,7 +261,8 @@ export type ContributionInputs =
   | AUContributionInputs
   | PTContributionInputs
   | HKContributionInputs
-  | IDContributionInputs;
+  | IDContributionInputs
+  | TWContributionInputs;
 
 // ============================================================================
 // CALCULATOR INPUT TYPES
@@ -328,6 +340,12 @@ export interface IDCalculatorInputs extends BaseCalculatorInputs {
   taxReliefs: IDTaxReliefInputs;
 }
 
+export interface TWCalculatorInputs extends BaseCalculatorInputs {
+  country: "TW";
+  contributions: TWContributionInputs;
+  taxReliefs: TWTaxReliefInputs;
+}
+
 export type CalculatorInputs =
   | USCalculatorInputs
   | SGCalculatorInputs
@@ -337,7 +355,8 @@ export type CalculatorInputs =
   | PTCalculatorInputs
   | THCalculatorInputs
   | HKCalculatorInputs
-  | IDCalculatorInputs;
+  | IDCalculatorInputs
+  | TWCalculatorInputs;
 
 // ============================================================================
 // TAX BREAKDOWN TYPES
@@ -407,6 +426,13 @@ export interface IDTaxBreakdown extends BaseTaxBreakdown {
   bpjsJp: number; // BPJS JP employee contribution
 }
 
+export interface TWTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number; // Comprehensive Income Tax
+  laborInsurance: number; // Labor Insurance (employee portion)
+  employmentInsurance: number; // Employment Insurance (employee portion)
+  nhi: number; // National Health Insurance (employee portion)
+}
+
 export type TaxBreakdown =
   | USTaxBreakdown
   | SGTaxBreakdown
@@ -416,7 +442,8 @@ export type TaxBreakdown =
   | PTTaxBreakdown
   | THTaxBreakdown
   | HKTaxBreakdown
-  | IDTaxBreakdown;
+  | IDTaxBreakdown
+  | TWTaxBreakdown;
 
 // ============================================================================
 // CALCULATION RESULT TYPES
@@ -790,6 +817,58 @@ export interface IDBreakdown {
   taxReliefs: IDTaxReliefInputs;
 }
 
+export interface TWBreakdown {
+  type: "TW";
+  grossIncome: number;
+  taxableIncome: number;
+
+  // Social insurance breakdown (annual amounts)
+  socialInsurance: {
+    laborInsurance: number;
+    employmentInsurance: number;
+    nhi: number;
+    total: number;
+    // Monthly values
+    monthlyLaborInsurance: number;
+    monthlyEmploymentInsurance: number;
+    monthlyNhi: number;
+    monthlyTotal: number;
+    // Caps
+    laborInsuranceCap: number;
+    employmentInsuranceCap: number;
+    nhiCap: number;
+    // Rates
+    laborInsuranceRate: number;
+    employmentInsuranceRate: number;
+    nhiRate: number;
+  };
+
+  // Deductions breakdown
+  deductions: {
+    standardDeduction: number;
+    personalExemption: number;
+    specialSalaryDeduction: number;
+    disabilityDeduction: number;
+    voluntaryPensionContribution: number;
+    totalDeductionsAndExemptions: number;
+  };
+
+  // Tax bracket breakdown
+  bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }>;
+
+  // Voluntary contributions
+  voluntaryContributions: {
+    voluntaryPensionContribution: number;
+    pensionMaxRate: number;
+    pensionMonthlyCap: number;
+  };
+}
+
 export type CountrySpecificBreakdown =
   | USBreakdown
   | SGBreakdown
@@ -799,7 +878,8 @@ export type CountrySpecificBreakdown =
   | PTBreakdown
   | THBreakdown
   | HKBreakdown
-  | IDBreakdown;
+  | IDBreakdown
+  | TWBreakdown;
 
 // ============================================================================
 // COUNTRY CALCULATOR INTERFACE
@@ -993,4 +1073,20 @@ export function isIDBreakdown(
   breakdown: CountrySpecificBreakdown,
 ): breakdown is IDBreakdown {
   return breakdown.type === "ID";
+}
+
+export function isTWInputs(
+  inputs: CalculatorInputs,
+): inputs is TWCalculatorInputs {
+  return inputs.country === "TW";
+}
+
+export function isTWTaxBreakdown(taxes: TaxBreakdown): taxes is TWTaxBreakdown {
+  return "laborInsurance" in taxes && "employmentInsurance" in taxes && "nhi" in taxes;
+}
+
+export function isTWBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is TWBreakdown {
+  return breakdown.type === "TW";
 }

@@ -33,6 +33,8 @@ import type {
   THCalculatorInputs,
   THResidencyType,
   THTaxReliefInputs,
+  TWCalculatorInputs,
+  TWTaxReliefInputs,
   USCalculatorInputs,
   USFilingStatus,
 } from "@/lib/countries/types";
@@ -116,6 +118,11 @@ const DEFAULT_ID_TAX_RELIEFS: IDTaxReliefInputs = {
   spouseIncomeCombined: false,
 };
 
+const DEFAULT_TW_TAX_RELIEFS: TWTaxReliefInputs = {
+  isMarried: false,
+  hasDisability: false,
+};
+
 // Default gross salaries per country
 const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
   US: 100000,
@@ -127,6 +134,7 @@ const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
   TH: 600000, // ฿600k typical Thai middle income
   HK: 420000, // HK$35k monthly
   ID: 120000000, // Rp120M typical salary
+  TW: 720000, // NT$60k monthly typical salary
 };
 
 // ============================================================================
@@ -244,6 +252,15 @@ export interface UseMultiCountryCalculatorReturn {
   idZakatContribution: number;
   setIdZakatContribution: (value: number) => void;
 
+  // TW-specific
+  twTaxReliefs: TWTaxReliefInputs;
+  setTwTaxReliefs: (value: TWTaxReliefInputs) => void;
+  twVoluntaryPension: number;
+  setTwVoluntaryPension: (value: number) => void;
+  twLimits: {
+    voluntaryPensionContribution: number;
+  };
+
   // Limits
   usLimits: {
     traditional401k: number;
@@ -343,6 +360,12 @@ export function useMultiCountryCalculator(
   const [idDplkContribution, setIdDplkContribution] = useState(0);
   const [idZakatContribution, setIdZakatContribution] = useState(0);
 
+  // TW-specific state
+  const [twTaxReliefs, setTwTaxReliefs] = useState<TWTaxReliefInputs>(
+    DEFAULT_TW_TAX_RELIEFS,
+  );
+  const [twVoluntaryPension, setTwVoluntaryPensionState] = useState(0);
+
   // Track previous country using state (React docs pattern for adjusting state when props change)
   const [prevCountry, setPrevCountry] = useState(country);
 
@@ -396,6 +419,9 @@ export function useMultiCountryCalculator(
       setIdTaxReliefs(DEFAULT_ID_TAX_RELIEFS);
       setIdDplkContribution(0);
       setIdZakatContribution(0);
+    } else if (country === "TW") {
+      setTwTaxReliefs(DEFAULT_TW_TAX_RELIEFS);
+      setTwVoluntaryPensionState(0);
     }
   }
 
@@ -452,6 +478,17 @@ export function useMultiCountryCalculator(
     return {
       taxDeductibleVoluntaryContributions:
         limits.taxDeductibleVoluntaryContributions?.limit ?? 60000,
+    };
+  }, []);
+
+  // TW limits
+  const twLimits = useMemo(() => {
+    // Max voluntary pension: 6% of salary up to NT$150,000 monthly cap
+    const monthlyCap = 150000;
+    const maxRate = 0.06;
+    const maxAnnual = monthlyCap * maxRate * 12;
+    return {
+      voluntaryPensionContribution: maxAnnual,
     };
   }, []);
 
@@ -539,6 +576,13 @@ export function useMultiCountryCalculator(
         Math.min(value, hkLimits.taxDeductibleVoluntaryContributions),
       ),
     [hkLimits.taxDeductibleVoluntaryContributions],
+  );
+
+  // TW contribution handler with validation
+  const setTwVoluntaryPension = useCallback(
+    (value: number) =>
+      setTwVoluntaryPensionState(Math.min(value, twLimits.voluntaryPensionContribution)),
+    [twLimits.voluntaryPensionContribution],
   );
 
   // Build inputs based on country
@@ -629,6 +673,20 @@ export function useMultiCountryCalculator(
         taxReliefs: idTaxReliefs,
       };
       return idInputs;
+    } else if (country === "TW") {
+      const twInputs: TWCalculatorInputs = {
+        country: "TW",
+        grossSalary,
+        payFrequency,
+        contributions: {
+          voluntaryPensionContribution: Math.min(
+            twVoluntaryPension,
+            twLimits.voluntaryPensionContribution,
+          ),
+        },
+        taxReliefs: twTaxReliefs,
+      };
+      return twInputs;
     } else {
       // TH or HK
       if (country === "HK") {
@@ -711,6 +769,9 @@ export function useMultiCountryCalculator(
     idTaxReliefs,
     idDplkContribution,
     idZakatContribution,
+    twTaxReliefs,
+    twVoluntaryPension,
+    twLimits,
     usLimits,
     sgLimits,
     ptLimits,
@@ -820,6 +881,13 @@ export function useMultiCountryCalculator(
     setIdDplkContribution,
     idZakatContribution,
     setIdZakatContribution,
+
+    // TW-specific
+    twTaxReliefs,
+    setTwTaxReliefs,
+    twVoluntaryPension,
+    setTwVoluntaryPension,
+    twLimits,
 
     // Limits
     usLimits,

@@ -143,6 +143,13 @@ export function MultiCountryCalculator({
     idZakatContribution,
     setIdZakatContribution,
 
+    // TW-specific
+    twTaxReliefs,
+    setTwTaxReliefs,
+    twVoluntaryPension,
+    setTwVoluntaryPension,
+    twLimits,
+
     // Results
     result,
   } = useMultiCountryCalculator(country);
@@ -287,11 +294,61 @@ export function MultiCountryCalculator({
                 }
               />
             )}
+
+            {country === "TW" && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="tw-isMarried"
+                      checked={twTaxReliefs.isMarried}
+                      onChange={(e) =>
+                        setTwTaxReliefs({
+                          ...twTaxReliefs,
+                          isMarried: e.target.checked,
+                        })
+                      }
+                      className="h-4 w-4 rounded border-zinc-600 bg-zinc-800 text-emerald-500 focus:ring-emerald-500"
+                    />
+                    <label htmlFor="tw-isMarried" className="text-sm text-zinc-300">
+                      Married (joint filing)
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="tw-hasDisability"
+                      checked={twTaxReliefs.hasDisability}
+                      onChange={(e) =>
+                        setTwTaxReliefs({
+                          ...twTaxReliefs,
+                          hasDisability: e.target.checked,
+                        })
+                      }
+                      className="h-4 w-4 rounded border-zinc-600 bg-zinc-800 text-emerald-500 focus:ring-emerald-500"
+                    />
+                    <label htmlFor="tw-hasDisability" className="text-sm text-zinc-300">
+                      Disability deduction
+                    </label>
+                  </div>
+                </div>
+                <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
+                  <span className="text-emerald-400">Standard Deduction:</span>{" "}
+                  {twTaxReliefs.isMarried ? "NT$272,000" : "NT$136,000"} |{" "}
+                  <span className="text-emerald-400">Personal Exemption:</span>{" "}
+                  NT$101,000 |{" "}
+                  <span className="text-emerald-400">Salary Deduction:</span>{" "}
+                  NT$227,000
+                  {twTaxReliefs.hasDisability && " | Disability: NT$227,000"}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Contributions Card - US, SG, PT, TH, HK, and ID */}
-        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID") && (
+        {/* Contributions Card - US, SG, PT, TH, HK, ID, and TW */}
+        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID" || country === "TW") && (
           <Card>
             <CardHeader>
               <CardTitle>
@@ -420,6 +477,25 @@ export function MultiCountryCalculator({
                   onZakatContributionChange={setIdZakatContribution}
                 />
               )}
+
+              {country === "TW" && (
+                <div className="space-y-6">
+                  <ContributionSlider
+                    label="Voluntary Labor Pension Contribution"
+                    description={`Employee can voluntarily contribute 0-6% of monthly salary (capped at NT$150,000/month)`}
+                    value={twVoluntaryPension}
+                    onChange={setTwVoluntaryPension}
+                    max={twLimits.voluntaryPensionContribution}
+                    currency="TWD"
+                    step={1000}
+                  />
+                  <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
+                    <span className="text-emerald-400">Tip:</span> Voluntary contributions 
+                    to the Labor Pension Fund are tax-deductible. Employer already contributes 
+                    6% mandatorily. Maximum employee contribution is 6% of salary up to NT$150,000/month.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
@@ -501,6 +577,36 @@ export function MultiCountryCalculator({
                   <li>
                     Superannuation (12%) — employer-paid on top of salary, not
                     deducted from take-home (shown below for reference)
+                  </li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* TW Deductions Info Card */}
+        {country === "TW" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Tax &amp; Social Insurance</CardTitle>
+              <CardDescription>
+                Comprehensive income tax and mandatory social insurance contributions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  What&apos;s Included
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-1">
+                  <li>Comprehensive Income Tax (5% - 40% progressive)</li>
+                  <li>Labor Insurance (2.3% - capped at NT$45,800/month)</li>
+                  <li>Employment Insurance (0.2% - capped at NT$45,800/month)</li>
+                  <li>National Health Insurance (1.551% - capped at NT$313,000/month)</li>
+                  <li>Standard Deduction, Personal Exemption, Salary Deduction</li>
+                  <li>
+                    Labor Pension (6%) — employer-paid on top of salary, not
+                    deducted from take-home (employee voluntary contribution optional)
                   </li>
                 </ul>
               </div>

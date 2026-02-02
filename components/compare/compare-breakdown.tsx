@@ -143,6 +143,11 @@ export function CompareBreakdown({
     pushLine(mandatoryBreakdown, "BPJS Health", taxes.bpjsHealth);
     pushLine(mandatoryBreakdown, "BPJS JHT", taxes.bpjsJht);
     pushLine(mandatoryBreakdown, "BPJS JP", taxes.bpjsJp);
+  } else if ("laborInsurance" in taxes) {
+    pushLine(incomeTaxBreakdown, "Income tax", taxes.incomeTax);
+    pushLine(mandatoryBreakdown, "Labor Insurance", taxes.laborInsurance);
+    pushLine(mandatoryBreakdown, "Employment Insurance", taxes.employmentInsurance);
+    pushLine(mandatoryBreakdown, "National Health Insurance", taxes.nhi);
   }
 
   const showIncomeBreakdown =

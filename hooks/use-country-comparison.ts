@@ -23,6 +23,7 @@ import type {
   PTCalculatorInputs,
   SGCalculatorInputs,
   THCalculatorInputs,
+  TWCalculatorInputs,
   USCalculatorInputs,
   USFilingStatus,
 } from "@/lib/countries/types";
@@ -133,7 +134,7 @@ function buildAssumptionsSummary(
     summary.push(assumptions.hasPrivateHealthInsurance ? "Private health" : "No private health");
   }
 
-  if (country === "HK" || country === "KR" || country === "TH" || country === "AU" || country === "PT" || country === "ID") {
+  if (country === "HK" || country === "KR" || country === "TH" || country === "AU" || country === "PT" || country === "ID" || country === "TW") {
     summary.push(assumptions.isResident ? "Resident" : "Non-resident");
   }
 
@@ -543,6 +544,46 @@ export function useCountryComparison(
             deltaBase: 0,
             deltaPercent: 0,
             assumptions: buildAssumptionsSummary(country, inputs, false),
+            calculation: result,
+          });
+          return acc;
+        }
+
+        if (country === "TW") {
+          const defaultInputs = getDefaultInputs(country) as TWCalculatorInputs;
+          const voluntaryPension = isMaxRetirement
+            ? Math.min(
+                (grossLocal / 12) * 0.06,
+                150_000 * 0.06
+              ) * 12
+            : 0;
+          const twInputs: TWCalculatorInputs = {
+            ...defaultInputs,
+            grossSalary: grossLocal,
+            payFrequency,
+            contributions: {
+              voluntaryPensionContribution: voluntaryPension,
+            },
+            taxReliefs: {
+              isMarried: inputs.maritalStatus === "married",
+              hasDisability: false,
+            },
+          };
+          const result = calculateNetSalary(twInputs);
+          const retirementApplied = voluntaryPension > 0;
+          acc.push({
+            country,
+            name: config.name,
+            currency,
+            rate,
+            grossLocal,
+            netLocal: result.netSalary,
+            netBase: result.netSalary / rate,
+            takeHomeRate: grossLocal > 0 ? result.netSalary / grossLocal : 0,
+            effectiveTaxRate: result.effectiveTaxRate,
+            deltaBase: 0,
+            deltaPercent: 0,
+            assumptions: buildAssumptionsSummary(country, inputs, retirementApplied),
             calculation: result,
           });
           return acc;
