@@ -12,6 +12,7 @@ import { NLCalculator } from "./nl";
 import { PTCalculator } from "./pt";
 import { SGCalculator } from "./sg";
 import { THCalculator } from "./th";
+import { TWCalculator } from "./tw";
 import { UKCalculator } from "./uk";
 import type {
   CalculationResult,
@@ -35,6 +36,7 @@ const countryCalculators: Record<CountryCode, CountryCalculator> = {
   TH: THCalculator,
   HK: HKCalculator,
   ID: IDCalculator,
+  TW: TWCalculator,
   UK: UKCalculator,
   DE: DECalculator,
 };
@@ -42,8 +44,8 @@ const countryCalculators: Record<CountryCode, CountryCalculator> = {
 // ============================================================================
 // SUPPORTED COUNTRIES
 // ============================================================================
-// US first, then alphabetical by country name: Australia, Germany, Hong Kong, Indonesia, Netherlands, Portugal, Singapore, South Korea, Thailand, UK
-export const SUPPORTED_COUNTRIES: CountryCode[] = ["US", "AU", "DE", "HK", "ID", "NL", "PT", "SG", "KR", "TH", "UK"];
+// US first, then alphabetical by country name: Australia, Germany, Hong Kong, Indonesia, Netherlands, Portugal, Singapore, South Korea, Taiwan, Thailand, UK
+export const SUPPORTED_COUNTRIES: CountryCode[] = ["US", "AU", "DE", "HK", "ID", "NL", "PT", "SG", "KR", "TW", "TH", "UK"];
 
 export const COUNTRY_CONFIGS: Record<CountryCode, CountryConfig> = {
   US: USCalculator.config,
@@ -55,6 +57,7 @@ export const COUNTRY_CONFIGS: Record<CountryCode, CountryConfig> = {
   TH: THCalculator.config,
   HK: HKCalculator.config,
   ID: IDCalculator.config,
+  TW: TWCalculator.config,
   UK: UKCalculator.config,
   DE: DECalculator.config,
 };

@@ -59,6 +59,12 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
     name: "Indonesian Rupiah",
     locale: "id-ID",
   },
+  TWD: {
+    code: "TWD",
+    symbol: "NT$",
+    name: "New Taiwan Dollar",
+    locale: "zh-TW",
+  },
   GBP: {
     code: "GBP",
     symbol: "£",
@@ -80,6 +86,7 @@ export const COUNTRY_CURRENCY: Record<CountryCode, CurrencyCode> = {
   TH: "THB",
   HK: "HKD",
   ID: "IDR",
+  TW: "TWD",
   UK: "GBP",
   DE: "EUR",
 };
@@ -134,6 +141,9 @@ export function getCurrencyForCountry(countryCode: CountryCode): CurrencyConfig 
   }
   if (countryCode === "ID") {
     return { ...baseConfig, locale: "id-ID" };
+  }
+  if (countryCode === "TW") {
+    return { ...baseConfig, locale: "zh-TW" };
   }
   if (countryCode === "UK") {
     return { ...baseConfig, locale: "en-GB" };

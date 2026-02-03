@@ -35,11 +35,9 @@ import type {
 } from "../types";
 import { DE_CONFIG } from "./config";
 import {
-  calculateChurchTax,
   calculateGermanIncomeTax,
   calculateSocialSecurity,
   calculateSolidaritySurcharge,
-  DE_BASIC_ALLOWANCE_2026,
 } from "./constants/tax-brackets-2026";
 import { DE_FEDERAL_STATES } from "./config";
 

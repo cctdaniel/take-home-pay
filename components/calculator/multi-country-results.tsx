@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { CalculationResult, PayFrequency } from "@/lib/countries/types";
+import { isDETaxBreakdown } from "@/lib/countries/types";
 import {
   getStateCalculator,
   hasNoIncomeTax,
@@ -59,6 +60,7 @@ export function MultiCountryResults({
   const isTH = country === "TH";
   const isHK = country === "HK";
   const isID = country === "ID";
+  const isTW = country === "TW";
   const isDE = country === "DE";
   const isUK = country === "UK";
 
@@ -2277,11 +2279,10 @@ export function MultiCountryResults({
                 </div>
               </>
             )}
-
+          
           {/* DE Tax Breakdown */}
           {isDE &&
-            "type" in taxes &&
-            taxes.type === "DE" &&
+            isDETaxBreakdown(taxes) &&
             result.breakdown.type === "DE" && (
               <>
                 {/* Personal Info */}
@@ -2606,6 +2607,237 @@ export function MultiCountryResults({
                     </div>
                   </>
                 )}
+              </>
+            )}
+
+
+          {/* TW Tax Breakdown */}
+          {isTW &&
+            "laborInsurance" in taxes &&
+            result.breakdown.type === "TW" && (
+              <>
+                {/* Filing Status */}
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-zinc-400">Filing Status</span>
+                  <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
+                    {result.breakdown.deductions.standardDeduction === 272000
+                      ? "Married (Joint)"
+                      : "Single"}
+                    {result.breakdown.deductions.disabilityDeduction > 0 &&
+                      " + Disability"}
+                  </span>
+                </div>
+
+                <Separator className="my-2" />
+
+                {/* Deductions */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Deductions & Exemptions
+                </p>
+                <p className="text-xs text-zinc-500 italic mb-2">
+                  These amounts reduce your taxable income before tax is calculated
+                </p>
+                <div className="flex items-center justify-between py-1">
+                  <div>
+                    <span className="text-sm text-zinc-400">Standard Deduction</span>
+                    <p className="text-xs text-zinc-500">Flat deduction for all taxpayers</p>
+                  </div>
+                  <span className="text-sm text-emerald-400 tabular-nums">
+                    -{formatCurrency(result.breakdown.deductions.standardDeduction, currency)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-1">
+                  <div>
+                    <span className="text-sm text-zinc-400">Personal Exemption</span>
+                    <p className="text-xs text-zinc-500">Basic living expense allowance</p>
+                  </div>
+                  <span className="text-sm text-emerald-400 tabular-nums">
+                    -{formatCurrency(result.breakdown.deductions.personalExemption, currency)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-1">
+                  <div>
+                    <span className="text-sm text-zinc-400">Salary Special Deduction</span>
+                    <p className="text-xs text-zinc-500">Work-related expenses (no receipts needed)</p>
+                  </div>
+                  <span className="text-sm text-emerald-400 tabular-nums">
+                    -{formatCurrency(result.breakdown.deductions.specialSalaryDeduction, currency)}
+                  </span>
+                </div>
+                {result.breakdown.deductions.disabilityDeduction > 0 && (
+                  <div className="flex items-center justify-between py-1">
+                    <div>
+                      <span className="text-sm text-zinc-400">Disability Deduction</span>
+                      <p className="text-xs text-zinc-500">For taxpayers with disability certificate</p>
+                    </div>
+                    <span className="text-sm text-emerald-400 tabular-nums">
+                      -{formatCurrency(result.breakdown.deductions.disabilityDeduction, currency)}
+                    </span>
+                  </div>
+                )}
+                {result.breakdown.deductions.voluntaryPensionContribution > 0 && (
+                  <div className="flex items-center justify-between py-1">
+                    <div>
+                      <span className="text-sm text-zinc-400">Voluntary Pension</span>
+                      <p className="text-xs text-zinc-500">Tax-deductible contribution to pension fund</p>
+                    </div>
+                    <span className="text-sm text-emerald-400 tabular-nums">
+                      -{formatCurrency(result.breakdown.deductions.voluntaryPensionContribution, currency)}
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                  <span className="text-sm text-zinc-300">
+                    Total Deductions & Exemptions
+                  </span>
+                  <span className="text-sm text-emerald-400 tabular-nums">
+                    -{formatCurrency(result.breakdown.deductions.totalDeductionsAndExemptions, currency)}
+                  </span>
+                </div>
+
+                {/* Gold Card Exemption */}
+                {result.breakdown.goldCard?.isApplied && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="text-xs text-zinc-500 pt-2 pb-1">
+                      Employment Gold Card Tax Benefit
+                    </p>
+                    <div className="flex items-center justify-between py-1">
+                      <div>
+                        <span className="text-sm text-zinc-400">Taxable Income Before Exemption</span>
+                        <p className="text-xs text-zinc-500">Income after deductions</p>
+                      </div>
+                      <span className="text-sm text-zinc-300 tabular-nums">
+                        {formatCurrency(result.breakdown.goldCard.taxableIncomeBeforeExemption, currency)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-1">
+                      <div>
+                        <span className="text-sm text-zinc-400">50% Exemption (Income &gt; NT$3M)</span>
+                        <p className="text-xs text-zinc-500">Gold Card benefit - 50% of amount above NT$3M</p>
+                      </div>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.goldCard.exemptionAmount, currency)}
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                {/* Taxable Income */}
+                <Separator className="my-2" />
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-zinc-300">Final Taxable Income</span>
+                  <span className="text-sm text-zinc-200 tabular-nums font-medium">
+                    {formatCurrency(result.taxableIncome, currency)}
+                  </span>
+                </div>
+
+                {/* Income Tax */}
+                <Separator className="my-2" />
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Comprehensive Income Tax (Progressive)
+                </p>
+                
+                {/* Tax Bracket Breakdown */}
+                {result.breakdown.bracketTaxes.map((bracket, index) => (
+                  bracket.tax > 0 && (
+                    <div key={index} className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">
+                        {(bracket.rate * 100).toFixed(0)}% on {formatCurrency(bracket.min, currency)}
+                        {bracket.max === Infinity ? "+" : ` - ${formatCurrency(bracket.max, currency)}`}
+                      </span>
+                      <span className="text-sm text-zinc-200 tabular-nums">
+                        {formatCurrency(bracket.tax, currency)}
+                      </span>
+                    </div>
+                  )
+                ))}
+
+                <DeductionRow
+                  label="Total Income Tax"
+                  amount={taxes.incomeTax}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+
+                <Separator className="my-2" />
+
+                {/* Social Insurance */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Social Insurance (Employee Portion)
+                </p>
+                <DeductionRow
+                  label="Labor Insurance (2.3%)"
+                  amount={taxes.laborInsurance}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                {grossSalary / 12 > result.breakdown.socialInsurance.laborInsuranceCap && (
+                  <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                    Capped at NT${result.breakdown.socialInsurance.laborInsuranceCap.toLocaleString()}/month
+                  </p>
+                )}
+
+                <DeductionRow
+                  label="Employment Insurance (0.2%)"
+                  amount={taxes.employmentInsurance}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                {grossSalary / 12 > result.breakdown.socialInsurance.employmentInsuranceCap && (
+                  <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                    Capped at NT${result.breakdown.socialInsurance.employmentInsuranceCap.toLocaleString()}/month
+                  </p>
+                )}
+
+                <DeductionRow
+                  label="National Health Insurance (1.551%)"
+                  amount={taxes.nhi}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                {grossSalary / 12 > result.breakdown.socialInsurance.nhiCap && (
+                  <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                    Capped at NT${result.breakdown.socialInsurance.nhiCap.toLocaleString()}/month
+                  </p>
+                )}
+
+                <div className="flex items-center justify-between py-2 border-t border-zinc-700 mt-2">
+                  <span className="text-sm text-zinc-300">
+                    Total Social Insurance
+                  </span>
+                  <span className="text-sm text-zinc-200 tabular-nums">
+                    {formatCurrency(result.breakdown.socialInsurance.total, currency)}
+                  </span>
+                </div>
+
+                {/* Employer Contribution Info */}
+                <Separator className="my-2" />
+                <div className="flex items-center justify-between py-2 opacity-60">
+                  <span className="text-sm text-zinc-400">
+                    Employer Labor Pension (6%)
+                  </span>
+                  <span className="text-sm text-zinc-500 tabular-nums">
+                    +
+                    {formatCurrency(
+                      Math.min(grossSalary / 12, 150000) * 0.06 * 12,
+                      currency
+                    )}
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-500 italic">
+                  Employer pays this into your pension account - not deducted from take-home pay
+                </p>
+
+                <Separator className="my-2" />
+                <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
+                  <p className="text-xs text-zinc-400 font-medium mb-1">
+                    Tax Rates:
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    5% (0-610K), 12% (610K-1.38M), 20% (1.38M-2.77M), 30% (2.77M-5.19M), 40% (5.19M+)
+                  </p>
+                </div>
               </>
             )}
 

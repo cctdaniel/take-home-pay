@@ -18,6 +18,7 @@ import { HKAdditionalReliefs } from "./hk-additional-reliefs";
 import { HKTaxOptions } from "./hk-tax-options";
 import { IDContributionOptions } from "./id-contribution-options";
 import { IDTaxOptions } from "./id-tax-options";
+import { TWTaxOptions } from "./tw-tax-options";
 import { PTTaxOptions } from "./pt-tax-options";
 import { ContributionOptions } from "./contribution-options";
 import { CountrySelector } from "./country-selector";
@@ -146,6 +147,12 @@ export function MultiCountryCalculator({
     idZakatContribution,
     setIdZakatContribution,
 
+    // TW-specific
+    twTaxReliefs,
+    setTwTaxReliefs,
+    twVoluntaryPension,
+    setTwVoluntaryPension,
+    twLimits,
     // DE-specific
     deState,
     setDeState,
@@ -309,6 +316,24 @@ export function MultiCountryCalculator({
               />
             )}
 
+            {country === "TW" && (
+              <TWTaxOptions
+                isMarried={twTaxReliefs.isMarried}
+                onMarriedChange={(value) =>
+                  setTwTaxReliefs({ ...twTaxReliefs, isMarried: value })
+                }
+                hasDisability={twTaxReliefs.hasDisability}
+                onDisabilityChange={(value) =>
+                  setTwTaxReliefs({ ...twTaxReliefs, hasDisability: value })
+                }
+                isGoldCardHolder={twTaxReliefs.isGoldCardHolder}
+                onGoldCardChange={(value) =>
+                  setTwTaxReliefs({ ...twTaxReliefs, isGoldCardHolder: value })
+                }
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+               />
+            )}
             {country === "DE" && (
               <DETaxOptions
                 payFrequency={payFrequency}
@@ -336,8 +361,8 @@ export function MultiCountryCalculator({
           </CardContent>
         </Card>
 
-        {/* Contributions Card - US, SG, PT, TH, HK, ID, DE, and UK */}
-        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID" || country === "DE" || country === "UK") && (
+        {/* Contributions Card - US, SG, PT, TH, HK, ID, DE, UK and TW */}
+        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID" || country === "DE" || country === "UK" || country === "TW") && (
           <Card>
             <CardHeader>
               <CardTitle>
@@ -469,6 +494,25 @@ export function MultiCountryCalculator({
                 />
               )}
 
+              {country === "TW" && (
+                <div className="space-y-6">
+                  <ContributionSlider
+                    label="Voluntary Labor Pension Contribution"
+                    description={`Employee can voluntarily contribute 0-6% of monthly salary (capped at NT$150,000/month)`}
+                    value={twVoluntaryPension}
+                    onChange={setTwVoluntaryPension}
+                    max={twLimits.voluntaryPensionContribution}
+                    currency="TWD"
+                    step={1000}
+                  />
+                  <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
+                    <span className="text-emerald-400">Tip:</span> Voluntary contributions 
+                    to the Labor Pension Fund are tax-deductible. Employer already contributes 
+                    6% mandatorily. Maximum employee contribution is 6% of salary up to NT$150,000/month.
+                  </p>
+                </div>
+              )}
+              
               {country === "DE" && (
                 <div className="bg-zinc-800/50 rounded-lg p-4">
                   <p className="text-sm font-medium text-zinc-300 mb-2">
@@ -488,6 +532,7 @@ export function MultiCountryCalculator({
                   </p>
                 </div>
               )}
+              
               {country === "UK" && (
                 <div className="space-y-6">
                   <ContributionSlider
@@ -602,6 +647,120 @@ export function MultiCountryCalculator({
                     deducted from take-home (shown below for reference)
                   </li>
                 </ul>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* TW Deductions Info Card */}
+        {country === "TW" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Tax &amp; Social Insurance</CardTitle>
+              <CardDescription>
+                Comprehensive income tax, deductions, and mandatory social insurance
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  Deductions & Exemptions (Reduce Taxable Income)
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-2">
+                  <li>
+                    <strong className="text-zinc-300">Standard Deduction</strong> — 
+                    A flat amount all taxpayers can deduct. Single: NT$136,000 | Married: NT$272,000.
+                    You don&apos;t need receipts.
+                  </li>
+                  <li>
+                    <strong className="text-zinc-300">Personal Exemption</strong> — 
+                    NT$101,000 basic allowance per taxpayer to cover essential living expenses.
+                  </li>
+                  <li>
+                    <strong className="text-zinc-300">Salary Special Deduction</strong> — 
+                    NT$227,000 for wage earners to cover work-related expenses. 
+                    Automatically applied, no receipts required.
+                  </li>
+                  <li>
+                    <strong className="text-zinc-300">Disability Deduction</strong> — 
+                    Additional NT$227,000 if you hold a disability certificate.
+                  </li>
+                  <li>
+                    <strong className="text-zinc-300">Voluntary Pension</strong> — 
+                    Employee contributions (0-6% of salary) to Labor Pension Fund are fully tax deductible.
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  Social Insurance Contributions (Employee Share)
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-2">
+                  <li>
+                    <strong className="text-zinc-300">Labor Insurance (2.3%)</strong> — 
+                    Covers maternity, injury, sickness, disability, and death benefits. 
+                    Capped at NT$45,800/month wage base.
+                  </li>
+                  <li>
+                    <strong className="text-zinc-300">Employment Insurance (0.2%)</strong> — 
+                    Provides unemployment benefits and job training support. 
+                    Capped at NT$45,800/month wage base.
+                  </li>
+                  <li>
+                    <strong className="text-zinc-300">National Health Insurance (1.551%)</strong> — 
+                    Universal healthcare coverage. Capped at NT$313,000/month wage base.
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  Labor Pension (勞工退休金)
+                </p>
+                <p className="text-xs text-zinc-400 mb-2">
+                  <strong className="text-zinc-300">Employer Contribution:</strong> Your employer must contribute 
+                  at least 6% of your monthly salary to your individual pension account. 
+                  This is paid by the employer and is NOT deducted from your take-home pay.
+                </p>
+                <p className="text-xs text-zinc-400">
+                  <strong className="text-zinc-300">Voluntary Contribution:</strong> You can choose to contribute 
+                  an additional 0-6% of your salary, which reduces your taxable income (tax deductible).
+                </p>
+              </div>
+
+              <div className="bg-zinc-800/50 rounded-lg p-4 border border-emerald-500/30">
+                <p className="text-sm font-medium text-emerald-300 mb-2">
+                  Employment Gold Card (就業金卡) - Special Tax Benefits
+                </p>
+                <p className="text-xs text-zinc-400 mb-2">
+                  Foreign professionals with an Employment Gold Card or Foreign Special Professional Work Permit 
+                  enjoy significant tax incentives for their first 5 years as tax residents:
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-2">
+                  <li>
+                    <strong className="text-zinc-300">50% Tax Exemption</strong> — 
+                    50% of your salary income above NT$3 million is excluded from taxable income.
+                    Example: If your income is NT$5M, only NT$4M is taxable (NT$3M + 50% of NT$2M).
+                  </li>
+                  <li>
+                    <strong className="text-zinc-300">Eligibility</strong> — 
+                    Must reside in Taiwan &gt;183 days/year, earn &gt;NT$3M, be first-time work permit holder,
+                    and hold Gold Card or Special Professional Work Permit.
+                  </li>
+                  <li>
+                    <strong className="text-zinc-300">AMT Exemption</strong> — 
+                    Overseas income is excluded from Alternative Minimum Tax calculation.
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-zinc-800/30 rounded-lg p-3">
+                <p className="text-xs text-zinc-500">
+                  <strong className="text-zinc-400">How it works:</strong> Your gross salary minus social insurance 
+                  minus all deductions/exemptions = taxable income. Tax is calculated on this amount using progressive rates 
+                  (5%, 12%, 20%, 30%, 40%). Higher deductions mean lower taxable income and less tax.
+                </p>
               </div>
             </CardContent>
           </Card>

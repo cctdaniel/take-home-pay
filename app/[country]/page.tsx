@@ -38,6 +38,7 @@ const COUNTRY_DESCRIPTIONS: Record<CountryCode, string> = {
   TH: `Free ${TAX_YEAR} take home pay calculator for Thailand. Calculate your salary after taxes including personal income tax (progressive rates 0-35%), Social Security Fund contributions, and tax-saving options like Provident Fund, RMF, SSF, and ESG funds.`,
   HK: `Free ${TAX_YEAR} take home pay calculator for Hong Kong. Calculate your salary after salaries tax, MPF contributions, and key allowances and deductions.`,
   ID: `Free ${TAX_YEAR} take home pay calculator for Indonesia. Calculate your salary after taxes including PPh 21 income tax (progressive rates 5% to 35%), BPJS Kesehatan (health insurance), BPJS JHT (old age security), and BPJS JP (pension) contributions.`,
+  TW: `Free ${TAX_YEAR} take home pay calculator for Taiwan. Calculate your salary after taxes including comprehensive income tax (progressive rates 5% to 40%), Labor Insurance, Employment Insurance, National Health Insurance, and voluntary labor pension contributions.`,
   UK: `Free ${TAX_YEAR} take home pay calculator for the United Kingdom. Calculate your salary after taxes including Income Tax (with Personal Allowance taper), Class 1 National Insurance (employee), and Scottish Income Tax rates if applicable.`,
   DE: `Free ${TAX_YEAR} take home pay calculator for Germany. Calculate your salary after taxes including income tax (Einkommensteuer) per §32a EStG, Solidarity Surcharge (Solidaritätszuschlag), and social security contributions (pension, health, unemployment, and long-term care insurance).`,
 };
@@ -135,6 +136,20 @@ const COUNTRY_KEYWORDS: Record<CountryCode, string[]> = {
     "gaji bersih indonesia",
     "kalkulator pph 21",
     "tarif pph 21",
+  ],
+  TW: [
+    "taiwan take home pay calculator",
+    "taiwan salary after tax",
+    `${TAX_YEAR} taiwan tax calculator`,
+    "taiwan income tax calculator",
+    "taiwan paycheck calculator",
+    "labor insurance taiwan",
+    "national health insurance taiwan",
+    "taiwan comprehensive income tax",
+    "taiwan tax brackets",
+    "taiwan social insurance",
+    "taiwan 綜合所得稅",
+    "台灣薪資計算",
   ],
   UK: [
     "uk take home pay calculator",
@@ -270,6 +285,11 @@ const COUNTRY_HEADER_INFO: Record<
     tagline: "Calculate your actual salary after taxes in Indonesia.",
     details:
       "PPh 21 income tax (5-35% progressive), BPJS Kesehatan (1%), BPJS JHT (2%), BPJS JP (1%), PTKP allowances",
+  },
+  TW: {
+    tagline: "Calculate your actual salary after taxes in Taiwan.",
+    details:
+      "Comprehensive income tax (5-40% progressive), Labor Insurance (2.3%), Employment Insurance (0.2%), National Health Insurance (1.551%), voluntary labor pension",
   },
   UK: {
     tagline: "Calculate your actual salary after taxes in the United Kingdom.",
