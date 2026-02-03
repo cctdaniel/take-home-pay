@@ -64,6 +64,7 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
     symbol: "NT$",
     name: "New Taiwan Dollar",
     locale: "zh-TW",
+  },
   GBP: {
     code: "GBP",
     symbol: "£",
@@ -143,6 +144,7 @@ export function getCurrencyForCountry(countryCode: CountryCode): CurrencyConfig 
   }
   if (countryCode === "TW") {
     return { ...baseConfig, locale: "zh-TW" };
+  }
   if (countryCode === "UK") {
     return { ...baseConfig, locale: "en-GB" };
   }

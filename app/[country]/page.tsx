@@ -150,6 +150,7 @@ const COUNTRY_KEYWORDS: Record<CountryCode, string[]> = {
     "taiwan social insurance",
     "taiwan 綜合所得稅",
     "台灣薪資計算",
+  ],
   UK: [
     "uk take home pay calculator",
     "united kingdom salary after tax",
@@ -289,6 +290,7 @@ const COUNTRY_HEADER_INFO: Record<
     tagline: "Calculate your actual salary after taxes in Taiwan.",
     details:
       "Comprehensive income tax (5-40% progressive), Labor Insurance (2.3%), Employment Insurance (0.2%), National Health Insurance (1.551%), voluntary labor pension",
+  },
   UK: {
     tagline: "Calculate your actual salary after taxes in the United Kingdom.",
     details:

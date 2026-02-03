@@ -44,10 +44,8 @@ const countryCalculators: Record<CountryCode, CountryCalculator> = {
 // ============================================================================
 // SUPPORTED COUNTRIES
 // ============================================================================
-// US first, then alphabetical by country name: Australia, Hong Kong, Netherlands, Portugal, Singapore, South Korea, Taiwan, Thailand
-export const SUPPORTED_COUNTRIES: CountryCode[] = ["US", "AU", "HK", "ID", "NL", "PT", "SG", "KR", "TW", "TH"];
-// US first, then alphabetical by country name: Australia, Germany, Hong Kong, Indonesia, Netherlands, Portugal, Singapore, South Korea, Thailand, UK
-export const SUPPORTED_COUNTRIES: CountryCode[] = ["US", "AU", "DE", "HK", "ID", "NL", "PT", "SG", "KR", "TH", "UK"];
+// US first, then alphabetical by country name: Australia, Germany, Hong Kong, Indonesia, Netherlands, Portugal, Singapore, South Korea, Taiwan, Thailand, UK
+export const SUPPORTED_COUNTRIES: CountryCode[] = ["US", "AU", "DE", "HK", "ID", "NL", "PT", "SG", "KR", "TW", "TH", "UK"];
 
 export const COUNTRY_CONFIGS: Record<CountryCode, CountryConfig> = {
   US: USCalculator.config,

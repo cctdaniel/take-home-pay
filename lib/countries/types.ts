@@ -390,7 +390,7 @@ export type CalculatorInputs =
   | THCalculatorInputs
   | HKCalculatorInputs
   | IDCalculatorInputs
-  | TWCalculatorInputs;
+  | TWCalculatorInputs
   | UKCalculatorInputs
   | DECalculatorInputs;
 
@@ -496,7 +496,7 @@ export type TaxBreakdown =
   | THTaxBreakdown
   | HKTaxBreakdown
   | IDTaxBreakdown
-  | TWTaxBreakdown;
+  | TWTaxBreakdown
   | UKTaxBreakdown
   | DETaxBreakdown;
 

@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { CalculationResult, PayFrequency } from "@/lib/countries/types";
+import { isDETaxBreakdown } from "@/lib/countries/types";
 import {
   getStateCalculator,
   hasNoIncomeTax,
@@ -2281,8 +2282,7 @@ export function MultiCountryResults({
           
           {/* DE Tax Breakdown */}
           {isDE &&
-            "type" in taxes &&
-            taxes.type === "DE" &&
+            isDETaxBreakdown(taxes) &&
             result.breakdown.type === "DE" && (
               <>
                 {/* Personal Info */}
