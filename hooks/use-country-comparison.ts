@@ -632,6 +632,23 @@ export function useCountryComparison(
 
         if (country === "DE") {
           const defaultInputs = getDefaultInputs(country) as DECalculatorInputs;
+          const deLimits = DECalculator.getContributionLimits({
+            country: "DE",
+            grossSalary: grossLocal,
+            isMarried: inputs.maritalStatus === "married",
+          } as Partial<DECalculatorInputs>);
+          const maxBav = Math.min(
+            deLimits.occupationalPension?.limit ?? 0,
+            grossLocal,
+          );
+          const maxRiester = Math.min(
+            deLimits.riesterContribution?.limit ?? 0,
+            grossLocal,
+          );
+          const maxRuerup = Math.min(
+            deLimits.ruerupContribution?.limit ?? 0,
+            grossLocal,
+          );
           const deInputs: DECalculatorInputs = {
             ...defaultInputs,
             grossSalary: grossLocal,
@@ -640,8 +657,15 @@ export function useCountryComparison(
             isMarried: inputs.maritalStatus === "married",
             isChurchMember: false, // Default: not a church member
             isChildless: inputs.numberOfChildren === 0,
+            contributions: {
+              ...defaultInputs.contributions,
+              occupationalPension: isMaxRetirement ? maxBav : 0,
+              riesterContribution: isMaxRetirement ? maxRiester : 0,
+              ruerupContribution: isMaxRetirement ? maxRuerup : 0,
+            },
           };
           const result = calculateNetSalary(deInputs);
+          const retirementApplied = isMaxRetirement;
           acc.push({
             country,
             name: config.name,
@@ -654,7 +678,11 @@ export function useCountryComparison(
             effectiveTaxRate: result.effectiveTaxRate,
             deltaBase: 0,
             deltaPercent: 0,
-            assumptions: buildAssumptionsSummary(country, inputs, false),
+            assumptions: buildAssumptionsSummary(
+              country,
+              inputs,
+              retirementApplied,
+            ),
             calculation: result,
           });
           return acc;

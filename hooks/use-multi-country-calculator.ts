@@ -570,6 +570,16 @@ export function useMultiCountryCalculator(
     return { bav, riester, ruerup };
   }, [grossSalary, deIsMarried]);
 
+  const deBavContributionClamped = Math.min(deBavContribution, deLimits.bav);
+  const deRiesterContributionClamped = Math.min(
+    deRiesterContribution,
+    deLimits.riester,
+  );
+  const deRuerupContributionClamped = Math.min(
+    deRuerupContribution,
+    deLimits.ruerup,
+  );
+
   // US contribution handlers with validation
   const setTraditional401k = useCallback((value: number) => {
     setTraditional401kState(
@@ -817,9 +827,9 @@ export function useMultiCountryCalculator(
         isChurchMember: deIsChurchMember,
         isChildless: deIsChildless,
         contributions: {
-          occupationalPension: Math.min(deBavContribution, deLimits.bav),
-          riesterContribution: Math.min(deRiesterContribution, deLimits.riester),
-          ruerupContribution: Math.min(deRuerupContribution, deLimits.ruerup),
+          occupationalPension: deBavContributionClamped,
+          riesterContribution: deRiesterContributionClamped,
+          ruerupContribution: deRuerupContributionClamped,
         },
       };
       return deInputs;
@@ -915,15 +925,14 @@ export function useMultiCountryCalculator(
     deIsMarried,
     deIsChurchMember,
     deIsChildless,
-    deBavContribution,
-    deRiesterContribution,
-    deRuerupContribution,
+    deBavContributionClamped,
+    deRiesterContributionClamped,
+    deRuerupContributionClamped,
     usLimits,
     sgLimits,
     ptLimits,
     thLimits,
     hkLimits,
-    deLimits,
   ]);
 
   // Calculate result
@@ -1052,11 +1061,11 @@ export function useMultiCountryCalculator(
     setDeIsChurchMember,
     deIsChildless,
     setDeIsChildless,
-    deBavContribution,
+    deBavContribution: deBavContributionClamped,
     setDeBavContribution,
-    deRiesterContribution,
+    deRiesterContribution: deRiesterContributionClamped,
     setDeRiesterContribution,
-    deRuerupContribution,
+    deRuerupContribution: deRuerupContributionClamped,
     setDeRuerupContribution,
     deLimits,
 
