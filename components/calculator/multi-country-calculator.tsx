@@ -13,6 +13,7 @@ import { useMultiCountryCalculator } from "@/hooks/use-multi-country-calculator"
 import { formatCurrency } from "@/lib/format";
 import type { CountryCode } from "@/lib/countries/types";
 import { AUTaxOptions } from "./au-tax-options";
+import { DEContributionOptions } from "./de-contribution-options";
 import { DETaxOptions } from "./de-tax-options";
 import { HKAdditionalReliefs } from "./hk-additional-reliefs";
 import { HKTaxOptions } from "./hk-tax-options";
@@ -162,6 +163,13 @@ export function MultiCountryCalculator({
     setDeIsChurchMember,
     deIsChildless,
     setDeIsChildless,
+    deBavContribution,
+    setDeBavContribution,
+    deRiesterContribution,
+    setDeRiesterContribution,
+    deRuerupContribution,
+    setDeRuerupContribution,
+    deLimits,
 
     // UK-specific
     ukResidencyType,
@@ -377,10 +385,12 @@ export function MultiCountryCalculator({
                       ? "Optional tax-saving contributions (CPF is mandatory)"
                       : country === "HK"
                         ? "Optional MPF/annuity contributions (tax deductible)"
-                        : country === "ID"
-                          ? "Optional tax-saving contributions (BPJS is mandatory)"
-                          : country === "UK"
-                            ? "Optional pension contributions (with tax relief)"
+                      : country === "ID"
+                        ? "Optional tax-saving contributions (BPJS is mandatory)"
+                        : country === "UK"
+                          ? "Optional pension contributions (with tax relief)"
+                          : country === "DE"
+                            ? "Optional pension contributions (bAV, Riester, Ruerup)"
                             : "Optional tax-saving contributions (Social Security is mandatory)"}
               </CardDescription>
             </CardHeader>
@@ -514,23 +524,16 @@ export function MultiCountryCalculator({
               )}
               
               {country === "DE" && (
-                <div className="bg-zinc-800/50 rounded-lg p-4">
-                  <p className="text-sm font-medium text-zinc-300 mb-2">
-                    Mandatory Social Security (Sozialversicherung)
-                  </p>
-                  <p className="text-xs text-zinc-400 mb-2">
-                    Automatically deducted from your salary:
-                  </p>
-                  <ul className="text-xs text-zinc-500 space-y-1">
-                    <li>Pension Insurance (Rentenversicherung): 9.3%</li>
-                    <li>Health Insurance (Krankenversicherung): 7.3% + ~1.45% Zusatzbeitrag</li>
-                    <li>Unemployment Insurance (Arbeitslosenversicherung): 1.3%</li>
-                    <li>Long-term Care (Pflegeversicherung): 1.7% (2.5% if childless 23+)</li>
-                  </ul>
-                  <p className="text-xs text-zinc-500 mt-2">
-                    Contributions are capped at €101,400 (pension/unemployment) and €69,750 (health/care).
-                  </p>
-                </div>
+                <DEContributionOptions
+                  occupationalPension={deBavContribution}
+                  onOccupationalPensionChange={setDeBavContribution}
+                  riesterContribution={deRiesterContribution}
+                  onRiesterContributionChange={setDeRiesterContribution}
+                  ruerupContribution={deRuerupContribution}
+                  onRuerupContributionChange={setDeRuerupContribution}
+                  limits={deLimits}
+                  isMarried={deIsMarried}
+                />
               )}
               
               {country === "UK" && (
