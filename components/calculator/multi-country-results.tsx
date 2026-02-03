@@ -2276,6 +2276,141 @@ export function MultiCountryResults({
               </>
             )}
 
+          {/* CH Tax Breakdown */}
+          {isCH &&
+            "federalIncomeTax" in taxes &&
+            "cantonalIncomeTax" in taxes &&
+            result.breakdown.type === "CH" && (
+              <>
+                {/* Taxable Income Info */}
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-zinc-400">Federal Taxable Income</span>
+                  <span className="text-sm text-zinc-200 tabular-nums">
+                    {formatCurrency(result.breakdown.federalTaxableIncome, currency)}
+                  </span>
+                </div>
+
+                {result.breakdown.deductions.totalDeductions > 0 && (
+                  <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                    After deductions: CHF {result.breakdown.deductions.professionalExpenses.toLocaleString()} professional + CHF {result.breakdown.deductions.insurancePremiums.toLocaleString()} insurance
+                    {result.breakdown.deductions.pillar3a > 0 && ` + CHF ${result.breakdown.deductions.pillar3a.toLocaleString()} Pillar 3a`}
+                  </p>
+                )}
+
+                <Separator className="my-2" />
+
+                {/* Income Tax */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">Income Tax</p>
+                
+                <DeductionRow
+                  label="Federal Income Tax"
+                  amount={taxes.federalIncomeTax}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                {result.breakdown.numberOfChildren > 0 && (
+                  <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                    Includes CHF {(result.breakdown.childAllowances).toLocaleString()} child deduction ({result.breakdown.numberOfChildren} child{result.breakdown.numberOfChildren > 1 ? "ren" : ""})
+                  </p>
+                )}
+
+                <DeductionRow
+                  label={`Cantonal Tax (${result.breakdown.canton})`}
+                  amount={taxes.cantonalIncomeTax}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+
+                <DeductionRow
+                  label="Municipal Tax"
+                  amount={taxes.municipalIncomeTax}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+
+                <p className="text-xs text-zinc-500 italic mt-1">
+                  Cantonal multiplier: {result.breakdown.cantonalMultiplier}x federal tax
+                </p>
+
+                <Separator className="my-2" />
+
+                {/* Social Security */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Social Security Contributions
+                </p>
+
+                <DeductionRow
+                  label="AHV/IV/EO (Old Age, Disability, Loss of Earnings)"
+                  amount={taxes.ahvIvEo}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                  5.3% of gross salary (no cap)
+                </p>
+
+                <DeductionRow
+                  label="ALV (Unemployment Insurance)"
+                  amount={taxes.alv}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+                {grossSalary > result.breakdown.socialSecurity.alvCap && (
+                  <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                    1.1% capped at CHF {result.breakdown.socialSecurity.alvCap.toLocaleString()}/year
+                  </p>
+                )}
+
+                {taxes.bvg > 0 && (
+                  <>
+                    <DeductionRow
+                      label="BVG (Occupational Pension)"
+                      amount={taxes.bvg}
+                      grossSalary={grossSalary}
+                      currency={currency}
+                    />
+                    <p className="text-xs text-zinc-500 italic -mt-1 mb-1">
+                      {(result.breakdown.socialSecurity.bvgRate * 100 * 2).toFixed(0)}% on CHF {result.breakdown.socialSecurity.coordinatedSalary.toLocaleString()} coordinated salary (50% employer/employee split)
+                    </p>
+                  </>
+                )}
+
+                {/* Health Insurance (informational) */}
+                {taxes.healthInsurance > 0 && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="text-xs text-zinc-500 pt-2 pb-1">
+                      Health Insurance (Informational)
+                    </p>
+                    <div className="flex items-center justify-between py-2 opacity-60">
+                      <span className="text-sm text-zinc-400">
+                        Estimated Annual Premium
+                      </span>
+                      <span className="text-sm text-zinc-500 tabular-nums">
+                        {formatCurrency(taxes.healthInsurance, currency)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-500 italic">
+                      Paid separately, not deducted from salary. Tax-deductible up to federal limits.
+                    </p>
+                  </>
+                )}
+
+                <Separator className="my-2" />
+                <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
+                  <p className="text-xs text-zinc-400 font-medium mb-1">
+                    About Swiss Taxes:
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    Switzerland has a three-tier tax system: Federal (uniform), Cantonal (varies by canton), 
+                    and Municipal (varies by municipality). Social security includes AHV/IV/EO (5.3%), 
+                    ALV (1.1% capped), and BVG pension (age-based). Actual cantonal/municipal taxes 
+                    may vary; these are representative estimates.
+                  </p>
+                </div>
+              </>
+            )}
+
           {/* Totals */}
           <DeductionRow
             label="Total Deductions"
