@@ -84,8 +84,8 @@ export function CHTaxOptions({
         </div>
       </div>
 
-      {/* Second Row: Age, Children (2 columns) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Second Row: Age, Children, Empty (3 columns to match) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label htmlFor="ch-age">Age</Label>
           <Input
