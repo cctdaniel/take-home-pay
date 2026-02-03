@@ -12,6 +12,8 @@ import { Separator } from "@/components/ui/separator";
 import { useMultiCountryCalculator } from "@/hooks/use-multi-country-calculator";
 import type { CountryCode } from "@/lib/countries/types";
 import { AUTaxOptions } from "./au-tax-options";
+import { CHContributionOptions } from "./ch-contribution-options";
+import { CHTaxOptions } from "./ch-tax-options";
 import { HKAdditionalReliefs } from "./hk-additional-reliefs";
 import { HKTaxOptions } from "./hk-tax-options";
 import { IDContributionOptions } from "./id-contribution-options";
@@ -142,6 +144,23 @@ export function MultiCountryCalculator({
     setIdDplkContribution,
     idZakatContribution,
     setIdZakatContribution,
+
+    // CH-specific
+    chFilingStatus,
+    setChFilingStatus,
+    chCanton,
+    setChCanton,
+    chAge,
+    setChAge,
+    chNumberOfChildren,
+    setChNumberOfChildren,
+    chPillar3aContribution,
+    setChPillar3aContribution,
+    chIncludeBVG,
+    setChIncludeBVG,
+    chIncludeHealthInsurance,
+    setChIncludeHealthInsurance,
+    chLimits,
 
     // Results
     result,
@@ -287,11 +306,26 @@ export function MultiCountryCalculator({
                 }
               />
             )}
+
+            {country === "CH" && (
+              <CHTaxOptions
+                filingStatus={chFilingStatus}
+                onFilingStatusChange={setChFilingStatus}
+                canton={chCanton}
+                onCantonChange={setChCanton}
+                age={chAge}
+                onAgeChange={setChAge}
+                numberOfChildren={chNumberOfChildren}
+                onNumberOfChildrenChange={setChNumberOfChildren}
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+              />
+            )}
           </CardContent>
         </Card>
 
-        {/* Contributions Card - US, SG, PT, TH, HK, and ID */}
-        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID") && (
+        {/* Contributions Card - US, SG, PT, TH, HK, ID, and CH */}
+        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID" || country === "CH") && (
           <Card>
             <CardHeader>
               <CardTitle>
@@ -308,7 +342,9 @@ export function MultiCountryCalculator({
                         ? "Optional MPF/annuity contributions (tax deductible)"
                         : country === "ID"
                           ? "Optional tax-saving contributions (BPJS is mandatory)"
-                          : "Optional tax-saving contributions (Social Security is mandatory)"}
+                          : country === "CH"
+                            ? "Pillar 3a voluntary pension contributions (tax deductible)"
+                            : "Optional tax-saving contributions (Social Security is mandatory)"}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -418,6 +454,17 @@ export function MultiCountryCalculator({
                   onDplkContributionChange={setIdDplkContribution}
                   zakatContribution={idZakatContribution}
                   onZakatContributionChange={setIdZakatContribution}
+                />
+              )}
+
+              {country === "CH" && (
+                <CHContributionOptions
+                  pillar3aContribution={chPillar3aContribution}
+                  onPillar3aContributionChange={setChPillar3aContribution}
+                  includeBVG={chIncludeBVG}
+                  onIncludeBVGChange={setChIncludeBVG}
+                  includeHealthInsurance={chIncludeHealthInsurance}
+                  onIncludeHealthInsuranceChange={setChIncludeHealthInsurance}
                 />
               )}
             </CardContent>
@@ -591,6 +638,36 @@ export function MultiCountryCalculator({
                 </p>
                 <p className="text-xs text-zinc-400">
                   5% of monthly income between HK$7,100 and HK$30,000 (max HK$1,500/month)
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Switzerland Tax & Contributions Info */}
+        {country === "CH" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Tax &amp; Contributions</CardTitle>
+              <CardDescription>
+                Federal, cantonal, and municipal taxes plus social security
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  What&apos;s Included
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-1">
+                  <li>Federal Direct Tax — Progressive rates from 0% to 11.5%</li>
+                  <li>Cantonal &amp; Municipal Tax — Varies by location (1.5x to 3.2x federal)</li>
+                  <li>AHV/IV/EO — 5.3% employee social security contribution</li>
+                  <li>ALV (Unemployment) — 1.1% on income up to CHF 148,200</li>
+                  <li>BVG (Occupational Pension) — Age-based rates (7%-18%)</li>
+                  <li>Pillar 3a — Tax-deductible voluntary pension (max CHF 7,258)</li>
+                </ul>
+                <p className="text-xs text-zinc-500 mt-3">
+                  Note: Health insurance (LAMal) is mandatory but paid separately, not deducted from salary. Premiums are tax-deductible.
                 </p>
               </div>
             </CardContent>

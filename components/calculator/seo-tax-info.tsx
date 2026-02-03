@@ -25,6 +25,7 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "TH" && <THTaxInfo />}
         {country === "HK" && <HKTaxInfo />}
         {country === "ID" && <IDTaxInfo />}
+        {country === "CH" && <CHTaxInfo />}
       </div>
     </section>
   );
@@ -571,6 +572,165 @@ function HKTaxInfo() {
           monthly income between HK$7,100 and HK$30,000 (max HK$1,500/month)
         </li>
       </ul>
+    </div>
+  );
+}
+
+// ============================================================================
+// SWITZERLAND TAX INFO
+// ============================================================================
+function CHTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Switzerland</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li>
+          <strong className="text-zinc-300">Federal Direct Tax</strong> –
+          Progressive rates from 0% to 11.5% (11 brackets)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Cantonal Tax</strong> – Varies by canton,
+          typically 1.5x to 3.2x federal tax
+        </li>
+        <li>
+          <strong className="text-zinc-300">Municipal Tax</strong> – Applied as
+          multiplier on cantonal tax (varies by municipality)
+        </li>
+        <li>
+          <strong className="text-zinc-300">AHV/IV/EO</strong> – 5.3% employee
+          contribution (old age, disability, loss of earnings)
+        </li>
+        <li>
+          <strong className="text-zinc-300">ALV (Unemployment)</strong> – 1.1%
+          employee contribution (capped at CHF 148,200)
+        </li>
+        <li>
+          <strong className="text-zinc-300">BVG (Pension)</strong> – Age-based
+          contribution rates (7%-18%) on coordinated salary
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Federal Tax Brackets 2026 (Single)
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>CHF 0 – 18,500: 0% (tax-free)</li>
+        <li>CHF 18,501 – 33,200: 0.77%</li>
+        <li>CHF 33,201 – 43,500: 0.88%</li>
+        <li>CHF 43,501 – 58,000: 2.64%</li>
+        <li>CHF 58,001 – 76,100: 2.97%</li>
+        <li>CHF 76,101 – 82,000: 5.94%</li>
+        <li>CHF 82,001 – 108,800: 6.6%</li>
+        <li>CHF 108,801 – 141,500: 8.8%</li>
+        <li>CHF 141,501 – 184,900: 11%</li>
+        <li>CHF 184,901 – 793,400: 13.2%</li>
+        <li>Above CHF 793,400: 11.5% (maximum rate)</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Federal Tax Brackets 2026 (Married)
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>CHF 0 – 32,000: 0% (tax-free)</li>
+        <li>CHF 32,001 – 53,400: 1%</li>
+        <li>CHF 53,401 – 61,300: 2%</li>
+        <li>CHF 61,301 – 79,100: 3%</li>
+        <li>CHF 79,101 – 94,900: 4%</li>
+        <li>CHF 94,901 – 108,600: 5%</li>
+        <li>CHF 108,601 – 120,500: 6%</li>
+        <li>CHF 120,501 – 130,500: 7%</li>
+        <li>CHF 130,501 – 138,300: 8%</li>
+        <li>CHF 138,301 – 144,200: 9%</li>
+        <li>CHF 144,201 – 148,200: 10%</li>
+        <li>CHF 148,201 – 150,300: 11%</li>
+        <li>CHF 150,301 – 152,300: 12%</li>
+        <li>CHF 152,301 – 940,800: 13%</li>
+        <li>Above CHF 940,800: 11.5% (maximum rate)</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Social Security Contributions (Employee Share)
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>
+          <strong className="text-zinc-300">AHV/IV/EO</strong> – 5.3% total:
+          AHV (old age) 4.35%, IV (disability) 0.7%, EO (loss of earnings) 0.25%
+        </li>
+        <li>
+          <strong className="text-zinc-300">ALV (Unemployment)</strong> – 1.1%
+          on income up to CHF 148,200/year
+        </li>
+        <li>
+          <strong className="text-zinc-300">BVG (Occupational Pension)</strong> –
+          Age-based rates applied to coordinated salary:
+        </li>
+        <li className="ml-4">Age 25-34: 7% total (3.5% employee minimum)</li>
+        <li className="ml-4">Age 35-44: 10% total (5% employee minimum)</li>
+        <li className="ml-4">Age 45-54: 15% total (7.5% employee minimum)</li>
+        <li className="ml-4">Age 55-65/64: 18% total (9% employee minimum)</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        BVG Coordinated Salary Calculation
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        The BVG-coordinated salary is calculated as: Gross Salary – CHF 26,460 (coordination deduction).
+        It is capped at CHF 64,260 (maximum insured salary) and only applies to salaries above CHF 22,680.
+        The coordination deduction ensures that lower-income workers are not overburdened by pension contributions.
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Cantonal Tax Multipliers (Representative)
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Zug (ZG): ~1.5x federal tax (low-tax canton)</li>
+        <li>Nidwalden (NW): ~1.6x federal tax</li>
+        <li>Bern (BE): ~2.4x federal tax</li>
+        <li>Basel-City (BS): ~2.6x federal tax</li>
+        <li>Ticino (TI): ~2.7x federal tax</li>
+        <li>Zurich (ZH): ~2.8x federal tax (high-tax urban)</li>
+        <li>Vaud (VD): ~2.9x federal tax</li>
+        <li>Geneva (GE): ~3.2x federal tax (very high-tax)</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Deductions & Allowances
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Child deduction: CHF 263 per child (federal tax)</li>
+        <li>Professional expenses: 3% of net income (min CHF 2,000, max CHF 4,000)</li>
+        <li>Pillar 3a contribution: Up to CHF 7,258/year (2026 limit)</li>
+        <li>Health insurance premiums: Deductible (limits vary by canton)</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Pillar 3a (Voluntary Pension)
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Pillar 3a is a tax-advantaged voluntary pension scheme. Contributions are fully deductible from taxable income.
+        For employees with a pension fund (2nd pillar), the maximum contribution is CHF 7,258 for 2026.
+        Funds are locked until retirement (age 59 for women, 60 for men) with some exceptions.
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Health Insurance (LAMal/KVG)
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Health insurance is mandatory for all residents and is paid separately (not deducted from salary).
+        Average premiums for adults (26+) are approximately CHF 393/month in 2026, but vary significantly by canton
+        (from ~CHF 300 in low-cost cantons to ~CHF 550+ in high-cost cantons like Geneva and Ticino).
+        Premiums are tax-deductible up to federal limits (CHF 1,800 single / CHF 3,600 married + CHF 700 per child).
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Sources
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Federal tax brackets based on ESTV 2025 tax tables (dbst-tarife-58c-2025-de.pdf).
+        Social security rates from Kendris Social Insurances 2026 and EY Social Security Overview 2026.
+        BVG regulations from BSV (Federal Social Insurance Office).
+        Official 2026 federal tax tables not yet published by ESTV as of February 2026.
+      </p>
     </div>
   );
 }

@@ -5,12 +5,18 @@ import { HKCalculator } from "@/lib/countries/hk/calculator";
 import { PTCalculator } from "@/lib/countries/pt/calculator";
 import { THCalculator } from "@/lib/countries/th/calculator";
 import {
+  CH_DEFAULT_CANTON,
+  CH_PILLAR3A_2026,
+} from "@/lib/countries/ch/constants/tax-brackets-2026";
+import {
   CPF_VOLUNTARY_TOPUP_LIMIT,
   getSRSLimit,
 } from "@/lib/countries/sg/constants/cpf-rates-2026";
 import type {
   AUCalculatorInputs,
   AUResidencyType,
+  CHCalculatorInputs,
+  CHFilingStatus,
   CalculationResult,
   CalculatorInputs,
   CountryCode,
@@ -245,6 +251,25 @@ export interface UseMultiCountryCalculatorReturn {
   idZakatContribution: number;
   setIdZakatContribution: (value: number) => void;
 
+  // CH-specific
+  chFilingStatus: CHFilingStatus;
+  setChFilingStatus: (value: CHFilingStatus) => void;
+  chCanton: string;
+  setChCanton: (value: string) => void;
+  chAge: number;
+  setChAge: (value: number) => void;
+  chNumberOfChildren: number;
+  setChNumberOfChildren: (value: number) => void;
+  chPillar3aContribution: number;
+  setChPillar3aContribution: (value: number) => void;
+  chIncludeBVG: boolean;
+  setChIncludeBVG: (value: boolean) => void;
+  chIncludeHealthInsurance: boolean;
+  setChIncludeHealthInsurance: (value: boolean) => void;
+  chLimits: {
+    pillar3aMaxContribution: number;
+  };
+
   // Limits
   usLimits: {
     traditional401k: number;
@@ -344,6 +369,15 @@ export function useMultiCountryCalculator(
   const [idDplkContribution, setIdDplkContribution] = useState(0);
   const [idZakatContribution, setIdZakatContribution] = useState(0);
 
+  // CH-specific state
+  const [chFilingStatus, setChFilingStatus] = useState<CHFilingStatus>("single");
+  const [chCanton, setChCanton] = useState(CH_DEFAULT_CANTON);
+  const [chAge, setChAge] = useState(35);
+  const [chNumberOfChildren, setChNumberOfChildren] = useState(0);
+  const [chPillar3aContribution, setChPillar3aContributionState] = useState(0);
+  const [chIncludeBVG, setChIncludeBVG] = useState(true);
+  const [chIncludeHealthInsurance, setChIncludeHealthInsurance] = useState(true);
+
   // Track previous country using state (React docs pattern for adjusting state when props change)
   const [prevCountry, setPrevCountry] = useState(country);
 
@@ -397,6 +431,14 @@ export function useMultiCountryCalculator(
       setIdTaxReliefs(DEFAULT_ID_TAX_RELIEFS);
       setIdDplkContribution(0);
       setIdZakatContribution(0);
+    } else if (country === "CH") {
+      setChFilingStatus("single");
+      setChCanton(CH_DEFAULT_CANTON);
+      setChAge(35);
+      setChNumberOfChildren(0);
+      setChPillar3aContributionState(0);
+      setChIncludeBVG(true);
+      setChIncludeHealthInsurance(true);
     }
   }
 
@@ -455,6 +497,17 @@ export function useMultiCountryCalculator(
         limits.taxDeductibleVoluntaryContributions?.limit ?? 60000,
     };
   }, []);
+
+  // CH limits
+  const chLimits = useMemo(() => ({
+    pillar3aMaxContribution: CH_PILLAR3A_2026.maxContributionWithPension,
+  }), []);
+
+  // CH contribution handler with validation
+  const setChPillar3aContribution = useCallback(
+    (value: number) => setChPillar3aContributionState(Math.min(value, chLimits.pillar3aMaxContribution)),
+    [chLimits.pillar3aMaxContribution],
+  );
 
   // US contribution handlers with validation
   const setTraditional401k = useCallback((value: number) => {
@@ -630,6 +683,22 @@ export function useMultiCountryCalculator(
         taxReliefs: idTaxReliefs,
       };
       return idInputs;
+    } else if (country === "CH") {
+      const chInputs: CHCalculatorInputs = {
+        country: "CH",
+        grossSalary,
+        payFrequency,
+        filingStatus: chFilingStatus,
+        canton: chCanton,
+        age: chAge,
+        numberOfChildren: chNumberOfChildren,
+        contributions: {
+          pillar3aContribution: Math.min(chPillar3aContribution, chLimits.pillar3aMaxContribution),
+          includeBVG: chIncludeBVG,
+        },
+        includeHealthInsurance: chIncludeHealthInsurance,
+      };
+      return chInputs;
     } else {
       // TH or HK
       if (country === "HK") {
@@ -712,11 +781,19 @@ export function useMultiCountryCalculator(
     idTaxReliefs,
     idDplkContribution,
     idZakatContribution,
+    chFilingStatus,
+    chCanton,
+    chAge,
+    chNumberOfChildren,
+    chPillar3aContribution,
+    chIncludeBVG,
+    chIncludeHealthInsurance,
     usLimits,
     sgLimits,
     ptLimits,
     thLimits,
     hkLimits,
+    chLimits,
   ]);
 
   // Calculate result
@@ -822,12 +899,29 @@ export function useMultiCountryCalculator(
     idZakatContribution,
     setIdZakatContribution,
 
+    // CH-specific
+    chFilingStatus,
+    setChFilingStatus,
+    chCanton,
+    setChCanton,
+    chAge,
+    setChAge,
+    chNumberOfChildren,
+    setChNumberOfChildren,
+    chPillar3aContribution,
+    setChPillar3aContribution,
+    chIncludeBVG,
+    setChIncludeBVG,
+    chIncludeHealthInsurance,
+    setChIncludeHealthInsurance,
+
     // Limits
     usLimits,
     sgLimits,
     ptLimits,
     thLimits,
     hkLimits,
+    chLimits,
 
     // Results
     result,
