@@ -20,6 +20,7 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "SG" && <SGTaxInfo />}
         {country === "KR" && <KRTaxInfo />}
         {country === "NL" && <NLTaxInfo />}
+        {country === "DE" && <DETaxInfo />}
         {country === "AU" && <AUTaxInfo />}
         {country === "PT" && <PTTaxInfo />}
         {country === "TH" && <THTaxInfo />}
@@ -249,6 +250,83 @@ function NLTaxInfo() {
           National rates apply uniformly
         </li>
       </ul>
+    </div>
+  );
+}
+
+// ============================================================================
+// GERMANY TAX INFO
+// ============================================================================
+function DETaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Germany</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li>
+          <strong className="text-zinc-300">Income Tax (Einkommensteuer)</strong>{" "}
+          – Formula-based progressive rates around 14% to 45% with a €12,348
+          basic allowance
+        </li>
+        <li>
+          <strong className="text-zinc-300">Solidarity Surcharge</strong> – 5.5%
+          of income tax; exempt below €20,350 (single) / €40,700 (married)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Church Tax (Kirchensteuer)</strong>{" "}
+          – Optional 8% (BY/BW) or 9% of income tax for members
+        </li>
+        <li>
+          <strong className="text-zinc-300">
+            Social Security (Employee Share)
+          </strong>{" "}
+          – Pension 9.3%, unemployment 1.3%, health 7.3% + ~1.45% additional,
+          long-term care 1.7% (2.5% if childless 23+)
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Tax-Saving Contributions
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>
+          <strong className="text-zinc-300">Occupational Pension (bAV)</strong>{" "}
+          – Salary conversion tax-free up to 8% of the BBG (EUR 8,112 in 2026)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Riester Pension</strong> – Eligible
+          contributions up to EUR 2,100 per year (incl. allowances)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Ruerup (Basisrente)</strong> – Max
+          deductible contributions EUR 30,826 (single) / EUR 61,652 (married)
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Standard Deductions Applied
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Employee lump-sum (Arbeitnehmer-Pauschbetrag): €1,230</li>
+        <li>
+          Special expenses lump-sum (Sonderausgaben-Pauschbetrag): €36 single /
+          €72 married
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Contribution Ceilings 2026
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Pension &amp; unemployment capped at €101,400/year</li>
+        <li>Health &amp; long-term care capped at €69,750/year</li>
+      </ul>
+
+      <p className="text-zinc-400 text-sm mt-3">
+        Taxable income is estimated as gross salary minus standard deductions.
+        Income tax is calculated per Section 32a formula, then solidarity surcharge
+        and optional church tax are added. Social security is deducted
+        separately.
+      </p>
     </div>
   );
 }

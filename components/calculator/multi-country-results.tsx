@@ -2289,11 +2289,9 @@ export function MultiCountryResults({
                 <div className="flex items-center justify-between py-2">
                   <span className="text-sm text-zinc-400">Personal Status</span>
                   <div className="flex gap-2">
-                    {result.breakdown.personalInfo.isMarried && (
-                      <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
-                        Married
-                      </span>
-                    )}
+                    <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
+                      {result.breakdown.personalInfo.isMarried ? "Married" : "Single"}
+                    </span>
                     {result.breakdown.personalInfo.isChurchMember && (
                       <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
                         Church Member
@@ -2425,6 +2423,42 @@ export function MultiCountryResults({
                 <p className="text-xs text-zinc-500 italic">
                   Employer pays this on top of your salary - not deducted from take-home pay
                 </p>
+
+                {result.breakdown.voluntaryContributions.total > 0 && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="text-xs text-zinc-500 pt-2 pb-1">
+                      Voluntary Contributions
+                    </p>
+                    {result.breakdown.voluntaryContributions.occupationalPension > 0 && (
+                      <DeductionRow
+                        label="Occupational Pension (bAV)"
+                        amount={result.breakdown.voluntaryContributions.occupationalPension}
+                        grossSalary={grossSalary}
+                        currency={currency}
+                      />
+                    )}
+                    {result.breakdown.voluntaryContributions.riester > 0 && (
+                      <DeductionRow
+                        label="Riester Pension"
+                        amount={result.breakdown.voluntaryContributions.riester}
+                        grossSalary={grossSalary}
+                        currency={currency}
+                      />
+                    )}
+                    {result.breakdown.voluntaryContributions.ruerup > 0 && (
+                      <DeductionRow
+                        label="Ruerup (Basisrente)"
+                        amount={result.breakdown.voluntaryContributions.ruerup}
+                        grossSalary={grossSalary}
+                        currency={currency}
+                      />
+                    )}
+                    <p className="text-xs text-zinc-500 mt-1">
+                      These contributions reduce your taxable income in the calculator.
+                    </p>
+                  </>
+                )}
 
                 <Separator className="my-2" />
                 <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">

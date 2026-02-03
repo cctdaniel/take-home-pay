@@ -39,6 +39,12 @@ import {
   calculateSocialSecurity,
   calculateSolidaritySurcharge,
 } from "./constants/tax-brackets-2026";
+import {
+  DE_BAV_TAX_FREE_LIMIT_2026,
+  DE_RIESTER_MAX_2026,
+  DE_RUERUP_MAX_MARRIED_2026,
+  DE_RUERUP_MAX_SINGLE_2026,
+} from "./constants/contribution-limits-2026";
 import { DE_FEDERAL_STATES } from "./config";
 
 // ============================================================================
@@ -79,7 +85,33 @@ export function calculateDE(inputs: DECalculatorInputs): CalculationResult {
     isMarried,
     isChurchMember,
     isChildless,
+    contributions,
   } = inputs;
+
+  const contributionInputs = contributions ?? {
+    occupationalPension: 0,
+    riesterContribution: 0,
+    ruerupContribution: 0,
+  };
+
+  // Voluntary contributions (tax-deductible pension schemes)
+  const occupationalPension = Math.min(
+    contributionInputs.occupationalPension ?? 0,
+    Math.min(DE_BAV_TAX_FREE_LIMIT_2026, grossSalary),
+  );
+  const riesterContribution = Math.min(
+    contributionInputs.riesterContribution ?? 0,
+    Math.min(DE_RIESTER_MAX_2026, grossSalary),
+  );
+  const ruerupMax = isMarried
+    ? DE_RUERUP_MAX_MARRIED_2026
+    : DE_RUERUP_MAX_SINGLE_2026;
+  const ruerupContribution = Math.min(
+    contributionInputs.ruerupContribution ?? 0,
+    Math.min(ruerupMax, grossSalary),
+  );
+  const voluntaryContributions =
+    occupationalPension + riesterContribution + ruerupContribution;
 
   // Step 1: Calculate Social Security Contributions
   // These are deducted from gross salary before income tax calculation
@@ -108,7 +140,10 @@ export function calculateDE(inputs: DECalculatorInputs): CalculationResult {
   // Note: In Germany, social security contributions don't directly reduce taxable income
   // but there is a tax credit for them. For simplicity in this calculator,
   // we calculate income tax on (gross - standard deductions) and keep SS separate
-  const taxableIncome = Math.max(0, grossSalary - standardDeductions);
+  const taxableIncome = Math.max(
+    0,
+    grossSalary - standardDeductions - voluntaryContributions,
+  );
 
   // Step 3: Calculate Income Tax (Einkommensteuer)
   const incomeTax = calculateGermanIncomeTax(taxableIncome);
@@ -130,12 +165,16 @@ export function calculateDE(inputs: DECalculatorInputs): CalculationResult {
   const totalIncomeTax = incomeTax + solidaritySurcharge + churchTax;
 
   // Step 7: Calculate Total Deductions and Net Salary
-  // Total deductions = income tax + solidarity + church tax + social security
-  const totalDeductions = totalIncomeTax + socialSecurity.total;
+  // Total deductions = income tax + solidarity + church tax + social security + voluntary contributions
+  const totalDeductions =
+    totalIncomeTax + socialSecurity.total + voluntaryContributions;
   const netSalary = grossSalary - totalDeductions;
 
-  // Effective tax rate (including all taxes and social security)
-  const effectiveTaxRate = grossSalary > 0 ? totalDeductions / grossSalary : 0;
+  // Effective tax rate (tax + mandatory social security only)
+  const effectiveTaxRate =
+    grossSalary > 0
+      ? (totalIncomeTax + socialSecurity.total) / grossSalary
+      : 0;
 
   // Period calculations
   const periodsPerYear = getPeriodsPerYear(payFrequency);
@@ -158,6 +197,12 @@ export function calculateDE(inputs: DECalculatorInputs): CalculationResult {
   const breakdown: DEBreakdown = {
     type: "DE",
     taxableIncome,
+    voluntaryContributions: {
+      occupationalPension,
+      riester: riesterContribution,
+      ruerup: ruerupContribution,
+      total: voluntaryContributions,
+    },
     standardDeductions: {
       employeeLumpSum,
       specialExpensesLumpSum,
@@ -228,10 +273,32 @@ export const DECalculator: CountryCalculator = {
     }));
   },
 
-  getContributionLimits(): ContributionLimits {
-    // Germany has mandatory social security, no voluntary contribution limits
-    // Church membership is a personal choice, not a contribution limit
-    return {};
+  getContributionLimits(inputs?: Partial<CalculatorInputs>): ContributionLimits {
+    const deInputs = inputs as Partial<DECalculatorInputs> | undefined;
+    const isMarried = deInputs?.isMarried ?? false;
+    const ruerupLimit = isMarried
+      ? DE_RUERUP_MAX_MARRIED_2026
+      : DE_RUERUP_MAX_SINGLE_2026;
+    return {
+      occupationalPension: {
+        limit: DE_BAV_TAX_FREE_LIMIT_2026,
+        name: "Occupational Pension (bAV)",
+        description: "Salary conversion tax-free up to 8% of BBG",
+        preTax: true,
+      },
+      riesterContribution: {
+        limit: DE_RIESTER_MAX_2026,
+        name: "Riester Pension",
+        description: "Tax-deductible contributions up to €2,100 (incl. allowances)",
+        preTax: true,
+      },
+      ruerupContribution: {
+        limit: ruerupLimit,
+        name: "Ruerup (Basisrente)",
+        description: "Tax-deductible contributions (higher limit for married)",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): DECalculatorInputs {
@@ -243,6 +310,11 @@ export const DECalculator: CountryCalculator = {
       isMarried: false,
       isChurchMember: false,
       isChildless: false,
+      contributions: {
+        occupationalPension: 0,
+        riesterContribution: 0,
+        ruerupContribution: 0,
+      },
     };
   },
 };

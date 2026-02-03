@@ -1,6 +1,7 @@
 "use client";
 
 import { calculateNetSalary, getCountryConfig } from "@/lib/countries/registry";
+import { DECalculator } from "@/lib/countries/de/calculator";
 import { HKCalculator } from "@/lib/countries/hk/calculator";
 import { PTCalculator } from "@/lib/countries/pt/calculator";
 import { THCalculator } from "@/lib/countries/th/calculator";
@@ -284,6 +285,17 @@ export interface UseMultiCountryCalculatorReturn {
   setDeIsChurchMember: (value: boolean) => void;
   deIsChildless: boolean;
   setDeIsChildless: (value: boolean) => void;
+  deBavContribution: number;
+  setDeBavContribution: (value: number) => void;
+  deRiesterContribution: number;
+  setDeRiesterContribution: (value: number) => void;
+  deRuerupContribution: number;
+  setDeRuerupContribution: (value: number) => void;
+  deLimits: {
+    bav: number;
+    riester: number;
+    ruerup: number;
+  };
 
   // Limits
   usLimits: {
@@ -400,6 +412,9 @@ export function useMultiCountryCalculator(
   const [deIsMarried, setDeIsMarried] = useState(false);
   const [deIsChurchMember, setDeIsChurchMember] = useState(false);
   const [deIsChildless, setDeIsChildless] = useState(false);
+  const [deBavContribution, setDeBavContributionState] = useState(0);
+  const [deRiesterContribution, setDeRiesterContributionState] = useState(0);
+  const [deRuerupContribution, setDeRuerupContributionState] = useState(0);
 
   // Track previous country using state (React docs pattern for adjusting state when props change)
   const [prevCountry, setPrevCountry] = useState(country);
@@ -466,6 +481,9 @@ export function useMultiCountryCalculator(
       setDeIsMarried(false);
       setDeIsChurchMember(false);
       setDeIsChildless(false);
+      setDeBavContributionState(0);
+      setDeRiesterContributionState(0);
+      setDeRuerupContributionState(0);
     }
   }
 
@@ -535,6 +553,32 @@ export function useMultiCountryCalculator(
       voluntaryPensionContribution: maxAnnual,
     };
   }, []);
+
+  // DE limits
+  const deLimits = useMemo(() => {
+    const limits = DECalculator.getContributionLimits({
+      country: "DE",
+      grossSalary,
+      isMarried: deIsMarried,
+    } as Partial<DECalculatorInputs>);
+    const bav = Math.min(
+      limits.occupationalPension?.limit ?? 0,
+      grossSalary,
+    );
+    const riester = Math.min(limits.riesterContribution?.limit ?? 0, grossSalary);
+    const ruerup = Math.min(limits.ruerupContribution?.limit ?? 0, grossSalary);
+    return { bav, riester, ruerup };
+  }, [grossSalary, deIsMarried]);
+
+  const deBavContributionClamped = Math.min(deBavContribution, deLimits.bav);
+  const deRiesterContributionClamped = Math.min(
+    deRiesterContribution,
+    deLimits.riester,
+  );
+  const deRuerupContributionClamped = Math.min(
+    deRuerupContribution,
+    deLimits.ruerup,
+  );
 
   // US contribution handlers with validation
   const setTraditional401k = useCallback((value: number) => {
@@ -627,6 +671,24 @@ export function useMultiCountryCalculator(
     (value: number) =>
       setTwVoluntaryPensionState(Math.min(value, twLimits.voluntaryPensionContribution)),
     [twLimits.voluntaryPensionContribution],
+  );
+
+  // DE contribution handlers with validation
+  const setDeBavContribution = useCallback(
+    (value: number) => setDeBavContributionState(Math.min(value, deLimits.bav)),
+    [deLimits.bav],
+  );
+
+  const setDeRiesterContribution = useCallback(
+    (value: number) =>
+      setDeRiesterContributionState(Math.min(value, deLimits.riester)),
+    [deLimits.riester],
+  );
+
+  const setDeRuerupContribution = useCallback(
+    (value: number) =>
+      setDeRuerupContributionState(Math.min(value, deLimits.ruerup)),
+    [deLimits.ruerup],
   );
   
   // UK pension contribution handler with validation
@@ -764,6 +826,11 @@ export function useMultiCountryCalculator(
         isMarried: deIsMarried,
         isChurchMember: deIsChurchMember,
         isChildless: deIsChildless,
+        contributions: {
+          occupationalPension: deBavContributionClamped,
+          riesterContribution: deRiesterContributionClamped,
+          ruerupContribution: deRuerupContributionClamped,
+        },
       };
       return deInputs;
     } else {
@@ -858,6 +925,9 @@ export function useMultiCountryCalculator(
     deIsMarried,
     deIsChurchMember,
     deIsChildless,
+    deBavContributionClamped,
+    deRiesterContributionClamped,
+    deRuerupContributionClamped,
     usLimits,
     sgLimits,
     ptLimits,
@@ -991,6 +1061,13 @@ export function useMultiCountryCalculator(
     setDeIsChurchMember,
     deIsChildless,
     setDeIsChildless,
+    deBavContribution: deBavContributionClamped,
+    setDeBavContribution,
+    deRiesterContribution: deRiesterContributionClamped,
+    setDeRiesterContribution,
+    deRuerupContribution: deRuerupContributionClamped,
+    setDeRuerupContribution,
+    deLimits,
 
     // Limits
     usLimits,

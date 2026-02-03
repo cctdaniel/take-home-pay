@@ -151,6 +151,13 @@ export interface UKContributionInputs {
   pensionContribution: number; // Workplace/personal pension contribution (tax relief at source)
 }
 
+// Germany-specific contributions (voluntary pension schemes)
+export interface DEContributionInputs {
+  occupationalPension: number; // bAV / Entgeltumwandlung (salary conversion)
+  riesterContribution: number; // Riester pension
+  ruerupContribution: number; // Ruerup (Basisrente)
+}
+
 // Thailand additional tax reliefs/allowances
 export interface THTaxReliefInputs {
   // Personal allowances
@@ -273,7 +280,8 @@ export type ContributionInputs =
   | PTContributionInputs
   | HKContributionInputs
   | IDContributionInputs
-  | TWContributionInputs;
+  | TWContributionInputs
+  | DEContributionInputs;
 
 // ============================================================================
 // CALCULATOR INPUT TYPES
@@ -378,6 +386,7 @@ export interface DECalculatorInputs extends BaseCalculatorInputs {
   isMarried?: boolean; // Affects solidarity surcharge exemption threshold
   isChurchMember?: boolean; // Whether member of recognized religious community
   isChildless?: boolean; // Affects long-term care insurance rate (+0.6% if childless and over 23)
+  contributions: DEContributionInputs;
 }
 
 export type CalculatorInputs =
@@ -965,6 +974,12 @@ export interface UKBreakdown {
 export interface DEBreakdown {
   type: "DE";
   taxableIncome: number;
+  voluntaryContributions: {
+    occupationalPension: number;
+    riester: number;
+    ruerup: number;
+    total: number;
+  };
   standardDeductions: {
     employeeLumpSum: number; // Arbeitnehmer-Pauschbetrag
     specialExpensesLumpSum: number; // Sonderausgaben-Pauschbetrag
