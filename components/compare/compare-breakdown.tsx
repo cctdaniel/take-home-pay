@@ -130,10 +130,18 @@ export function CompareBreakdown({
       taxes.medicareLevySurcharge,
     );
     pushLine(incomeTaxBreakdown, "Division 293 tax", taxes.division293Tax);
-  } else if ("solidaritySurcharge" in taxes) {
+  } else if ("solidaritySurcharge" in taxes && "type" in taxes && taxes.type === "PT") {
     pushLine(incomeTaxBreakdown, "IRS income tax", taxes.incomeTax);
     pushLine(incomeTaxBreakdown, "Solidarity surcharge", taxes.solidaritySurcharge);
     pushLine(mandatoryBreakdown, "Social security", taxes.socialSecurity);
+  } else if ("solidaritySurcharge" in taxes && "type" in taxes && taxes.type === "DE") {
+    pushLine(incomeTaxBreakdown, "Income tax", taxes.incomeTax);
+    pushLine(incomeTaxBreakdown, "Solidarity surcharge", taxes.solidaritySurcharge);
+    pushLine(incomeTaxBreakdown, "Church tax", taxes.churchTax);
+    pushLine(mandatoryBreakdown, "Pension insurance", taxes.pensionInsurance);
+    pushLine(mandatoryBreakdown, "Health insurance", taxes.healthInsurance);
+    pushLine(mandatoryBreakdown, "Unemployment insurance", taxes.unemploymentInsurance);
+    pushLine(mandatoryBreakdown, "Long-term care", taxes.longTermCareInsurance);
   } else if ("mpfEmployee" in taxes) {
     pushLine(mandatoryBreakdown, "MPF (employee)", taxes.mpfEmployee);
   } else if ("socialSecurity" in taxes) {
@@ -148,6 +156,10 @@ export function CompareBreakdown({
     pushLine(mandatoryBreakdown, "Labor Insurance", taxes.laborInsurance);
     pushLine(mandatoryBreakdown, "Employment Insurance", taxes.employmentInsurance);
     pushLine(mandatoryBreakdown, "National Health Insurance", taxes.nhi);
+  } else if ("nationalInsurance" in taxes && !("localIncomeTax" in taxes)) {
+    // UK - distinguish from KR by checking for localIncomeTax
+    pushLine(incomeTaxBreakdown, "Income tax", taxes.incomeTax);
+    pushLine(mandatoryBreakdown, "National Insurance", taxes.nationalInsurance);
   }
 
   const showIncomeBreakdown =

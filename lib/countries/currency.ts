@@ -64,6 +64,11 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
     symbol: "NT$",
     name: "New Taiwan Dollar",
     locale: "zh-TW",
+  GBP: {
+    code: "GBP",
+    symbol: "£",
+    name: "British Pound",
+    locale: "en-GB",
   },
 };
 
@@ -81,6 +86,8 @@ export const COUNTRY_CURRENCY: Record<CountryCode, CurrencyCode> = {
   HK: "HKD",
   ID: "IDR",
   TW: "TWD",
+  UK: "GBP",
+  DE: "EUR",
 };
 
 // ============================================================================
@@ -136,6 +143,11 @@ export function getCurrencyForCountry(countryCode: CountryCode): CurrencyConfig 
   }
   if (countryCode === "TW") {
     return { ...baseConfig, locale: "zh-TW" };
+  if (countryCode === "UK") {
+    return { ...baseConfig, locale: "en-GB" };
+  }
+  if (countryCode === "DE") {
+    return { ...baseConfig, locale: "de-DE" };
   }
   
   return baseConfig;

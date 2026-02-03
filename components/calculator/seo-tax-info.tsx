@@ -26,6 +26,7 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "HK" && <HKTaxInfo />}
         {country === "ID" && <IDTaxInfo />}
         {country === "TW" && <TWTaxInfo />}
+        {country === "UK" && <UKTaxInfo />}
       </div>
     </section>
   );
@@ -871,6 +872,116 @@ function TWTaxInfo() {
         Tax brackets and deductions based on Ministry of Finance announcement (November 27, 2025) effective for 2026 tax year.
         Social insurance rates from Bureau of Labor Insurance and National Health Insurance Administration.
         Official sources: National Taxation Bureau of Taipei, Ministry of Labor.
+      </p>
+    </div>
+  );
+}
+
+// ============================================================================
+// UNITED KINGDOM TAX INFO
+// ============================================================================
+function UKTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">United Kingdom</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li>
+          <strong className="text-zinc-300">Income Tax</strong> –
+          Progressive rates with Personal Allowance and tapered relief
+        </li>
+        <li>
+          <strong className="text-zinc-300">Personal Allowance</strong> –
+          £12,570 tax-free (tapered above £100,000, zero at £125,140)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Class 1 National Insurance</strong> –
+          8% on earnings between £12,570 and £50,270, 2% above
+        </li>
+        <li>
+          <strong className="text-zinc-300">Scottish Rates</strong> –
+          Different tax bands for Scottish residents (6 rates from 19% to 48%)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Pension Tax Relief</strong> –
+          20% basic rate automatically, higher/additional rates claimable
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Tax Bands 2026/27 — England, Wales &amp; Northern Ireland
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Personal Allowance: Up to £12,570 — 0%</li>
+        <li>Basic Rate: £12,571 to £50,270 — 20%</li>
+        <li>Higher Rate: £50,271 to £125,140 — 40%</li>
+        <li>Additional Rate: Over £125,140 — 45%</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Tax Bands 2026/27 — Scotland
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Personal Allowance: Up to £12,570 — 0%</li>
+        <li>Starter Rate: £12,571 to £16,537 — 19%</li>
+        <li>Basic Rate: £16,538 to £28,527 — 20%</li>
+        <li>Intermediate Rate: £28,528 to £43,662 — 21%</li>
+        <li>Higher Rate: £43,663 to £75,000 — 42%</li>
+        <li>Advanced Rate: £75,001 to £125,140 — 45%</li>
+        <li>Top Rate: Over £125,140 — 48%</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        National Insurance (Employee) 2026/27
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Below £12,570 (Primary Threshold): 0%</li>
+        <li>£12,570 to £50,270 (Upper Earnings Limit): 8%</li>
+        <li>Above £50,270: 2%</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-2">
+        National Insurance is calculated on gross earnings before tax. The Lower Earnings Limit (£6,708) 
+        determines benefit entitlement but no contributions are due below the Primary Threshold.
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Personal Allowance Taper
+      </h4>
+      <p className="text-zinc-400 text-sm mb-2">
+        For high earners, the Personal Allowance is reduced by £1 for every £2 of income above £100,000:
+      </p>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Income £100,000 or below: Full £12,570 allowance</li>
+        <li>Income £100,001 to £125,140: Reduced allowance</li>
+        <li>Income £125,140 or above: No Personal Allowance</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-2">
+        This creates an effective 60% tax rate on income between £100,000 and £125,140.
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Pension Contributions &amp; Tax Relief
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Basic rate (20%) tax relief applied automatically by pension provider</li>
+        <li>Higher rate (40%) taxpayers can claim additional 20% through tax return</li>
+        <li>Additional rate (45%) taxpayers can claim additional 25% through tax return</li>
+        <li>Annual allowance: £60,000 (may be tapered for high earners)</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Tax Year
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        The UK tax year runs from 6 April to 5 April the following year. This calculator uses 
+        the 2026/27 tax year rates (6 April 2026 to 5 April 2027).
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Sources
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Tax rates and thresholds from HMRC (HM Revenue &amp; Customs) Rates and Thresholds for 
+        Employers 2026 to 2027. Available at: gov.uk/guidance/rates-and-thresholds-for-employers-2026-to-2027
       </p>
     </div>
   );

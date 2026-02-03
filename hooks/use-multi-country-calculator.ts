@@ -15,6 +15,7 @@ import type {
   CalculatorInputs,
   CountryCode,
   CurrencyCode,
+  DECalculatorInputs,
   HKCalculatorInputs,
   HKResidencyType,
   HKTaxReliefInputs,
@@ -35,6 +36,8 @@ import type {
   THTaxReliefInputs,
   TWCalculatorInputs,
   TWTaxReliefInputs,
+  UKCalculatorInputs,
+  UKResidencyType,
   USCalculatorInputs,
   USFilingStatus,
 } from "@/lib/countries/types";
@@ -136,6 +139,8 @@ const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
   HK: 420000, // HK$35k monthly
   ID: 120000000, // Rp120M typical salary
   TW: 720000, // NT$60k monthly typical salary
+  UK: 35000, // £35,000 typical UK salary
+  DE: 55000, // €55k typical German salary
 };
 
 // ============================================================================
@@ -261,6 +266,24 @@ export interface UseMultiCountryCalculatorReturn {
   twLimits: {
     voluntaryPensionContribution: number;
   };
+  
+  // UK-specific
+  ukResidencyType: UKResidencyType;
+  setUkResidencyType: (value: UKResidencyType) => void;
+  ukRegion: "rest_of_uk" | "scotland";
+  setUkRegion: (value: "rest_of_uk" | "scotland") => void;
+  ukPensionContribution: number;
+  setUkPensionContribution: (value: number) => void;
+
+  // DE-specific
+  deState: string;
+  setDeState: (value: string) => void;
+  deIsMarried: boolean;
+  setDeIsMarried: (value: boolean) => void;
+  deIsChurchMember: boolean;
+  setDeIsChurchMember: (value: boolean) => void;
+  deIsChildless: boolean;
+  setDeIsChildless: (value: boolean) => void;
 
   // Limits
   usLimits: {
@@ -366,6 +389,17 @@ export function useMultiCountryCalculator(
     DEFAULT_TW_TAX_RELIEFS,
   );
   const [twVoluntaryPension, setTwVoluntaryPensionState] = useState(0);
+  
+  // UK-specific state
+  const [ukResidencyType, setUkResidencyType] = useState<UKResidencyType>("resident");
+  const [ukRegion, setUkRegion] = useState<"rest_of_uk" | "scotland">("rest_of_uk");
+  const [ukPensionContribution, setUkPensionContribution] = useState(0);
+
+  // DE-specific state
+  const [deState, setDeState] = useState("BE"); // Berlin as default
+  const [deIsMarried, setDeIsMarried] = useState(false);
+  const [deIsChurchMember, setDeIsChurchMember] = useState(false);
+  const [deIsChildless, setDeIsChildless] = useState(false);
 
   // Track previous country using state (React docs pattern for adjusting state when props change)
   const [prevCountry, setPrevCountry] = useState(country);
@@ -423,6 +457,15 @@ export function useMultiCountryCalculator(
     } else if (country === "TW") {
       setTwTaxReliefs(DEFAULT_TW_TAX_RELIEFS);
       setTwVoluntaryPensionState(0);
+    } else if (country === "UK") {
+      setUkResidencyType("resident");
+      setUkRegion("rest_of_uk");
+      setUkPensionContribution(0);
+    } else if (country === "DE") {
+      setDeState("BE");
+      setDeIsMarried(false);
+      setDeIsChurchMember(false);
+      setDeIsChildless(false);
     }
   }
 
@@ -585,6 +628,18 @@ export function useMultiCountryCalculator(
       setTwVoluntaryPensionState(Math.min(value, twLimits.voluntaryPensionContribution)),
     [twLimits.voluntaryPensionContribution],
   );
+  
+  // UK pension contribution handler with validation
+  // Pension contribution cannot exceed gross salary (calculator will further cap based on taxes)
+  const setUkPensionContributionValidated = useCallback(
+    (value: number) => {
+      // Cap at gross salary and annual allowance (£60,000)
+      // The calculator will further cap to ensure non-negative take-home
+      const maxContribution = Math.min(60000, grossSalary);
+      setUkPensionContribution(Math.min(value, maxContribution));
+    },
+    [grossSalary],
+  );
 
   // Build inputs based on country
   const inputs: CalculatorInputs = useMemo(() => {
@@ -688,6 +743,29 @@ export function useMultiCountryCalculator(
         taxReliefs: twTaxReliefs,
       };
       return twInputs;
+    } else if (country === "UK") {
+      const ukInputs: UKCalculatorInputs = {
+        country: "UK",
+        grossSalary,
+        payFrequency,
+        residencyType: ukResidencyType,
+        region: ukRegion,
+        contributions: {
+          pensionContribution: ukPensionContribution,
+        },
+      };
+      return ukInputs;
+    } else if (country === "DE") {
+      const deInputs: DECalculatorInputs = {
+        country: "DE",
+        grossSalary,
+        payFrequency,
+        state: deState,
+        isMarried: deIsMarried,
+        isChurchMember: deIsChurchMember,
+        isChildless: deIsChildless,
+      };
+      return deInputs;
     } else {
       // TH or HK
       if (country === "HK") {
@@ -773,6 +851,13 @@ export function useMultiCountryCalculator(
     twTaxReliefs,
     twVoluntaryPension,
     twLimits,
+    ukResidencyType,
+    ukRegion,
+    ukPensionContribution,
+    deState,
+    deIsMarried,
+    deIsChurchMember,
+    deIsChildless,
     usLimits,
     sgLimits,
     ptLimits,
@@ -889,6 +974,23 @@ export function useMultiCountryCalculator(
     twVoluntaryPension,
     setTwVoluntaryPension,
     twLimits,
+    // UK-specific
+    ukResidencyType,
+    setUkResidencyType,
+    ukRegion,
+    setUkRegion,
+    ukPensionContribution,
+    setUkPensionContribution: setUkPensionContributionValidated,
+
+    // DE-specific
+    deState,
+    setDeState,
+    deIsMarried,
+    setDeIsMarried,
+    deIsChurchMember,
+    setDeIsChurchMember,
+    deIsChildless,
+    setDeIsChildless,
 
     // Limits
     usLimits,

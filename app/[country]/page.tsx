@@ -39,6 +39,8 @@ const COUNTRY_DESCRIPTIONS: Record<CountryCode, string> = {
   HK: `Free ${TAX_YEAR} take home pay calculator for Hong Kong. Calculate your salary after salaries tax, MPF contributions, and key allowances and deductions.`,
   ID: `Free ${TAX_YEAR} take home pay calculator for Indonesia. Calculate your salary after taxes including PPh 21 income tax (progressive rates 5% to 35%), BPJS Kesehatan (health insurance), BPJS JHT (old age security), and BPJS JP (pension) contributions.`,
   TW: `Free ${TAX_YEAR} take home pay calculator for Taiwan. Calculate your salary after taxes including comprehensive income tax (progressive rates 5% to 40%), Labor Insurance, Employment Insurance, National Health Insurance, and voluntary labor pension contributions.`,
+  UK: `Free ${TAX_YEAR} take home pay calculator for the United Kingdom. Calculate your salary after taxes including Income Tax (with Personal Allowance taper), Class 1 National Insurance (employee), and Scottish Income Tax rates if applicable.`,
+  DE: `Free ${TAX_YEAR} take home pay calculator for Germany. Calculate your salary after taxes including income tax (Einkommensteuer) per §32a EStG, Solidarity Surcharge (Solidaritätszuschlag), and social security contributions (pension, health, unemployment, and long-term care insurance).`,
 };
 
 // Country-specific keywords for SEO
@@ -148,6 +150,36 @@ const COUNTRY_KEYWORDS: Record<CountryCode, string[]> = {
     "taiwan social insurance",
     "taiwan 綜合所得稅",
     "台灣薪資計算",
+  UK: [
+    "uk take home pay calculator",
+    "united kingdom salary after tax",
+    `${TAX_YEAR} uk tax calculator`,
+    "hmrc tax calculator",
+    "income tax calculator uk",
+    "national insurance calculator",
+    "scottish income tax calculator",
+    "uk paycheck calculator",
+    "salary calculator uk",
+    "paye calculator",
+    "personal allowance taper",
+    "uk tax bands",
+    "england tax calculator",
+    "wales tax calculator",
+    "northern ireland tax",
+  ],
+  DE: [
+    "germany take home pay calculator",
+    "german salary after tax",
+    `${TAX_YEAR} germany tax calculator`,
+    "germany income tax calculator",
+    "einkommensteuer calculator",
+    "solidaritätszuschlag calculator",
+    "lohnsteuer calculator",
+    "brutto netto rechner",
+    "gehaltsrechner deutschland",
+    "sozialversicherung beiträge",
+    "krankenversicherung rechner",
+    "rentenversicherung beitrag",
   ],
 };
 
@@ -257,6 +289,15 @@ const COUNTRY_HEADER_INFO: Record<
     tagline: "Calculate your actual salary after taxes in Taiwan.",
     details:
       "Comprehensive income tax (5-40% progressive), Labor Insurance (2.3%), Employment Insurance (0.2%), National Health Insurance (1.551%), voluntary labor pension",
+  UK: {
+    tagline: "Calculate your actual salary after taxes in the United Kingdom.",
+    details:
+      "Income Tax (Personal Allowance taper £100k+), Class 1 National Insurance, Scottish tax bands",
+  },
+  DE: {
+    tagline: "Calculate your actual salary after taxes in Germany.",
+    details:
+      "Income tax (Einkommensteuer §32a EStG, progressive 0-45%), Solidarity Surcharge (Solidaritätszuschlag 5.5%), Pension Insurance (9.3%), Health Insurance (7.3% + Zusatzbeitrag), Unemployment Insurance (1.3%), Long-term Care Insurance (1.7-2.5%)",
   },
 };
 

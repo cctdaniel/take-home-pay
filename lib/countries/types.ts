@@ -8,7 +8,7 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD" | "IDR" | "TWD";
+export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD" | "IDR" | "GBP" | "TWD";
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -20,7 +20,7 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK" | "ID" | "TW";
+export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK" | "ID" | "DE" | "UK" | "TW";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -139,6 +139,16 @@ export interface IDContributionInputs {
 // Taiwan-specific contributions (voluntary labor pension)
 export interface TWContributionInputs {
   voluntaryPensionContribution: number; // Employee voluntary contribution to labor pension (0-6% of salary, max NT$150,000)
+}
+
+// ============================================================================
+// RESIDENCY TYPES - UK specific
+// ============================================================================
+export type UKResidencyType = "resident" | "non_resident";
+
+// UK-specific contribution inputs (pension contributions are voluntary)
+export interface UKContributionInputs {
+  pensionContribution: number; // Workplace/personal pension contribution (tax relief at source)
 }
 
 // Thailand additional tax reliefs/allowances
@@ -347,6 +357,29 @@ export interface TWCalculatorInputs extends BaseCalculatorInputs {
   taxReliefs: TWTaxReliefInputs;
 }
 
+// ============================================================================
+// UNITED KINGDOM-SPECIFIC TYPES
+// ============================================================================
+
+export interface UKCalculatorInputs extends BaseCalculatorInputs {
+  country: "UK";
+  residencyType: UKResidencyType;
+  region: "rest_of_uk" | "scotland";
+  contributions: UKContributionInputs;
+}
+
+// ============================================================================
+// GERMANY-SPECIFIC TYPES
+// ============================================================================
+
+export interface DECalculatorInputs extends BaseCalculatorInputs {
+  country: "DE";
+  state?: string; // Federal state code (e.g., "BE" for Berlin, "BY" for Bavaria)
+  isMarried?: boolean; // Affects solidarity surcharge exemption threshold
+  isChurchMember?: boolean; // Whether member of recognized religious community
+  isChildless?: boolean; // Affects long-term care insurance rate (+0.6% if childless and over 23)
+}
+
 export type CalculatorInputs =
   | USCalculatorInputs
   | SGCalculatorInputs
@@ -358,6 +391,8 @@ export type CalculatorInputs =
   | HKCalculatorInputs
   | IDCalculatorInputs
   | TWCalculatorInputs;
+  | UKCalculatorInputs
+  | DECalculatorInputs;
 
 // ============================================================================
 // TAX BREAKDOWN TYPES
@@ -434,6 +469,23 @@ export interface TWTaxBreakdown extends BaseTaxBreakdown {
   nhi: number; // National Health Insurance (employee portion)
 }
 
+export interface UKTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number; // Income tax after personal allowance
+  nationalInsurance: number; // Class 1 National Insurance (employee)
+}
+
+export interface DETaxBreakdown extends BaseTaxBreakdown {
+  type: "DE";
+  incomeTax: number; // Einkommensteuer
+  solidaritySurcharge: number; // Solidaritätszuschlag
+  churchTax: number; // Kirchensteuer
+  pensionInsurance: number; // Rentenversicherung
+  unemploymentInsurance: number; // Arbeitslosenversicherung
+  healthInsurance: number; // Krankenversicherung
+  longTermCareInsurance: number; // Pflegeversicherung
+  totalSocialSecurity: number;
+}
+
 export type TaxBreakdown =
   | USTaxBreakdown
   | SGTaxBreakdown
@@ -445,6 +497,8 @@ export type TaxBreakdown =
   | HKTaxBreakdown
   | IDTaxBreakdown
   | TWTaxBreakdown;
+  | UKTaxBreakdown
+  | DETaxBreakdown;
 
 // ============================================================================
 // CALCULATION RESULT TYPES
@@ -878,6 +932,88 @@ export interface TWBreakdown {
   };
 }
 
+
+export interface UKBreakdown {
+  type: "UK";
+  region: "rest_of_uk" | "scotland";
+  isResident: boolean;
+  grossIncome: number;
+  personalAllowance: number;
+  personalAllowanceReduction: number;
+  taxableIncome: number;
+  bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }>;
+  incomeTax: number;
+  nationalInsurance: {
+    primaryThreshold: number;
+    upperEarningsLimit: number;
+    mainRate: number;
+    additionalRate: number;
+    mainContribution: number;
+    additionalContribution: number;
+    total: number;
+  };
+  pensionContribution: number;  // Gross amount in pension pot
+  pensionNetCost: number;        // Actual cost to employee (after tax relief)
+  pensionTaxRelief: number;     // Total tax relief amount
+}
+
+export interface DEBreakdown {
+  type: "DE";
+  taxableIncome: number;
+  standardDeductions: {
+    employeeLumpSum: number; // Arbeitnehmer-Pauschbetrag
+    specialExpensesLumpSum: number; // Sonderausgaben-Pauschbetrag
+    total: number;
+  };
+  taxDetails: {
+    incomeTax: number; // Einkommensteuer
+    solidaritySurcharge: number; // Solidaritätszuschlag
+    churchTax: number; // Kirchensteuer
+    totalIncomeTax: number;
+  };
+  socialSecurity: {
+    pension: {
+      employee: number;
+      employer: number;
+      total: number;
+    };
+    unemployment: {
+      employee: number;
+      employer: number;
+      total: number;
+    };
+    health: {
+      employee: number;
+      employer: number;
+      total: number;
+    };
+    longTermCare: {
+      employee: number;
+      employer: number;
+      total: number;
+    };
+  };
+  totalSocialSecurity: number;
+  taxRates: {
+    effectiveIncomeTaxRate: number;
+    effectiveSolidarityRate: number;
+    effectiveChurchTaxRate: number;
+    effectiveSocialSecurityRate: number;
+  };
+  personalInfo: {
+    isMarried: boolean;
+    isChurchMember: boolean;
+    isChildless: boolean;
+    state: string;
+    churchTaxRate: number;
+  };
+}
+
 export type CountrySpecificBreakdown =
   | USBreakdown
   | SGBreakdown
@@ -888,7 +1024,9 @@ export type CountrySpecificBreakdown =
   | THBreakdown
   | HKBreakdown
   | IDBreakdown
-  | TWBreakdown;
+  | TWBreakdown
+  | UKBreakdown
+  | DEBreakdown
 
 // ============================================================================
 // COUNTRY CALCULATOR INTERFACE
@@ -1098,4 +1236,40 @@ export function isTWBreakdown(
   breakdown: CountrySpecificBreakdown,
 ): breakdown is TWBreakdown {
   return breakdown.type === "TW";
+}
+
+export function isUKInputs(
+  inputs: CalculatorInputs,
+): inputs is UKCalculatorInputs {
+  return inputs.country === "UK";
+}
+
+export function isUKTaxBreakdown(taxes: TaxBreakdown): taxes is UKTaxBreakdown {
+  return "incomeTax" in taxes && "nationalInsurance" in taxes && !("bpjsHealth" in taxes);
+}
+
+export function isUKBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is UKBreakdown {
+  return breakdown.type === "UK";
+}
+
+export function isDEInputs(
+  inputs: CalculatorInputs,
+): inputs is DECalculatorInputs {
+  return inputs.country === "DE";
+}
+
+export function isDETaxBreakdown(taxes: TaxBreakdown): taxes is DETaxBreakdown {
+  return (
+    "solidaritySurcharge" in taxes &&
+    "churchTax" in taxes &&
+    "pensionInsurance" in taxes
+  );
+}
+
+export function isDEBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is DEBreakdown {
+  return breakdown.type === "DE";
 }
