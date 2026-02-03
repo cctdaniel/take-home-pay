@@ -60,6 +60,7 @@ export function MultiCountryResults({
   const isHK = country === "HK";
   const isID = country === "ID";
   const isDE = country === "DE";
+  const isUK = country === "UK";
 
   // US-specific data
   let stateName = usState || "";
@@ -2327,6 +2328,7 @@ export function MultiCountryResults({
                     -{formatCurrency(result.breakdown.standardDeductions.specialExpensesLumpSum, currency)}
                   </span>
                 </div>
+
                 <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
                   <span className="text-sm text-zinc-300">Taxable Income</span>
                   <span className="text-sm text-zinc-200 tabular-nums">
@@ -2431,10 +2433,179 @@ export function MultiCountryResults({
                   <p className="text-xs text-zinc-500">
                     Income tax uses progressive rates (0-45%) per §32a EStG. Solidarity surcharge
                     (5.5%) applies only above €20,350 tax (single). Church tax (8% or 9%) applies
-                    if you're a member. Social security includes pension, health, unemployment,
+                    if you&apos;re a member. Social security includes pension, health, unemployment,
                     and long-term care insurance with employer matching contributions.
                   </p>
                 </div>
+              </>
+            )}
+
+          {/* UK Tax Breakdown */}
+          {isUK &&
+            "nationalInsurance" in taxes &&
+            result.breakdown.type === "UK" && (
+              <>
+                {/* Region Info */}
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-zinc-400">Region</span>
+                  <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
+                    {result.breakdown.region === "scotland"
+                      ? "Scotland (Scottish rates)"
+                      : "England, Wales & Northern Ireland"}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-zinc-400">Residency Status</span>
+                  <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
+                    {result.breakdown.isResident
+                      ? "UK Resident"
+                      : "Non-Resident (No Personal Allowance)"}
+                  </span>
+                </div>
+
+                <Separator className="my-2" />
+
+                {/* Personal Allowance */}
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Personal Allowance
+                </p>
+                {result.breakdown.personalAllowance > 0 ? (
+                  <>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">
+                        Standard Personal Allowance
+                      </span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(12570, currency)}
+                      </span>
+                    </div>
+                    {result.breakdown.personalAllowanceReduction > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-zinc-400">
+                          Taper Reduction (above £100k)
+                        </span>
+                        <span className="text-sm text-amber-400 tabular-nums">
+                          +{formatCurrency(result.breakdown.personalAllowanceReduction, currency)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between py-1 border-t border-zinc-700/50 mt-1">
+                      <span className="text-sm text-zinc-300">
+                        Effective Personal Allowance
+                      </span>
+                      <span className="text-sm text-emerald-400 tabular-nums">
+                        -{formatCurrency(result.breakdown.personalAllowance, currency)}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">
+                      Personal Allowance
+                    </span>
+                    <span className="text-xs font-medium text-amber-400 bg-amber-400/10 px-2 py-1 rounded">
+                      Not Available
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
+                  <span className="text-sm text-zinc-300">Taxable Income</span>
+                  <span className="text-sm text-zinc-200 tabular-nums">
+                    {formatCurrency(result.taxableIncome, currency)}
+                  </span>
+                </div>
+
+                {/* Income Tax */}
+                <Separator className="my-2" />
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  Income Tax {result.breakdown.region === "scotland" ? "(Scottish Rates)" : ""}
+                </p>
+                
+                {/* Tax Bracket Breakdown */}
+                {result.breakdown.bracketTaxes.map((bracket, index) => (
+                  <div key={index} className="flex items-center justify-between py-1">
+                    <span className="text-sm text-zinc-400">
+                      {(bracket.rate * 100).toFixed(0)}% {formatCurrency(bracket.min, currency)}
+                      {bracket.max === Infinity ? "+" : ` - ${formatCurrency(bracket.max, currency)}`}
+                    </span>
+                    <span className="text-sm text-zinc-200 tabular-nums">
+                      {formatCurrency(bracket.tax, currency)}
+                    </span>
+                  </div>
+                ))}
+
+                <DeductionRow
+                  label="Total Income Tax"
+                  amount={taxes.incomeTax}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+
+                {/* National Insurance */}
+                <Separator className="my-2" />
+                <p className="text-xs text-zinc-500 pt-2 pb-1">
+                  National Insurance (Class 1 Employee)
+                </p>
+                {result.breakdown.nationalInsurance.mainContribution > 0 && (
+                  <DeductionRow
+                    label={`Main Rate (${(result.breakdown.nationalInsurance.mainRate * 100).toFixed(0)}% on £${result.breakdown.nationalInsurance.primaryThreshold.toLocaleString()} - £${result.breakdown.nationalInsurance.upperEarningsLimit.toLocaleString()})`}
+                    amount={result.breakdown.nationalInsurance.mainContribution}
+                    grossSalary={grossSalary}
+                    currency={currency}
+                  />
+                )}
+                {result.breakdown.nationalInsurance.additionalContribution > 0 && (
+                  <DeductionRow
+                    label={`Additional Rate (${(result.breakdown.nationalInsurance.additionalRate * 100).toFixed(0)}% above £${result.breakdown.nationalInsurance.upperEarningsLimit.toLocaleString()})`}
+                    amount={result.breakdown.nationalInsurance.additionalContribution}
+                    grossSalary={grossSalary}
+                    currency={currency}
+                  />
+                )}
+                <DeductionRow
+                  label="Total National Insurance"
+                  amount={taxes.nationalInsurance}
+                  grossSalary={grossSalary}
+                  currency={currency}
+                />
+
+                {/* Pension Contribution */}
+                {result.breakdown.pensionContribution > 0 && (
+                  <>
+                    <Separator className="my-2" />
+                    <p className="text-xs text-zinc-500 pt-2 pb-1">
+                      Pension Contribution
+                    </p>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-sm text-zinc-400">
+                        Gross Contribution
+                      </span>
+                      <span className="text-sm text-zinc-200 tabular-nums">
+                        {formatCurrency(result.breakdown.pensionContribution, currency)}
+                      </span>
+                    </div>
+                    {"pensionTaxRelief" in result.breakdown && result.breakdown.pensionTaxRelief > 0 && (
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-sm text-emerald-400">
+                          Tax Relief
+                        </span>
+                        <span className="text-sm text-emerald-400 tabular-nums">
+                          -{formatCurrency(result.breakdown.pensionTaxRelief, currency)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between py-1 border-t border-zinc-700/50 mt-1">
+                      <span className="text-sm text-zinc-300">
+                        Your Net Cost
+                      </span>
+                      <span className="text-sm text-zinc-100 tabular-nums font-medium">
+                        {formatCurrency(result.breakdown.pensionNetCost, currency)}
+                      </span>
+                    </div>
+                  </>
+                )}
               </>
             )}
 

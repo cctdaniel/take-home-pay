@@ -8,7 +8,7 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD" | "IDR" | "EUR";
+export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD" | "IDR" | "GBP";
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -20,7 +20,7 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK" | "ID" | "DE";
+export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK" | "ID" | "DE" | "UK";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -134,6 +134,16 @@ export interface HKContributionInputs {
 export interface IDContributionInputs {
   dplkContribution: number; // Dana Pensiun Lembaga Keuangan (voluntary pension fund)
   zakatContribution: number; // Zakat to BAZNAS or authorized amil zakat institutions
+}
+
+// ============================================================================
+// RESIDENCY TYPES - UK specific
+// ============================================================================
+export type UKResidencyType = "resident" | "non_resident";
+
+// UK-specific contribution inputs (pension contributions are voluntary)
+export interface UKContributionInputs {
+  pensionContribution: number; // Workplace/personal pension contribution (tax relief at source)
 }
 
 // Thailand additional tax reliefs/allowances
@@ -329,6 +339,17 @@ export interface IDCalculatorInputs extends BaseCalculatorInputs {
 }
 
 // ============================================================================
+// UNITED KINGDOM-SPECIFIC TYPES
+// ============================================================================
+
+export interface UKCalculatorInputs extends BaseCalculatorInputs {
+  country: "UK";
+  residencyType: UKResidencyType;
+  region: "rest_of_uk" | "scotland";
+  contributions: UKContributionInputs;
+}
+
+// ============================================================================
 // GERMANY-SPECIFIC TYPES
 // ============================================================================
 
@@ -350,6 +371,7 @@ export type CalculatorInputs =
   | THCalculatorInputs
   | HKCalculatorInputs
   | IDCalculatorInputs
+  | UKCalculatorInputs
   | DECalculatorInputs;
 
 // ============================================================================
@@ -420,6 +442,11 @@ export interface IDTaxBreakdown extends BaseTaxBreakdown {
   bpjsJp: number; // BPJS JP employee contribution
 }
 
+export interface UKTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number; // Income tax after personal allowance
+  nationalInsurance: number; // Class 1 National Insurance (employee)
+}
+
 export interface DETaxBreakdown extends BaseTaxBreakdown {
   type: "DE";
   incomeTax: number; // Einkommensteuer
@@ -442,6 +469,7 @@ export type TaxBreakdown =
   | THTaxBreakdown
   | HKTaxBreakdown
   | IDTaxBreakdown
+  | UKTaxBreakdown
   | DETaxBreakdown;
 
 // ============================================================================
@@ -816,6 +844,35 @@ export interface IDBreakdown {
   taxReliefs: IDTaxReliefInputs;
 }
 
+export interface UKBreakdown {
+  type: "UK";
+  region: "rest_of_uk" | "scotland";
+  isResident: boolean;
+  grossIncome: number;
+  personalAllowance: number;
+  personalAllowanceReduction: number;
+  taxableIncome: number;
+  bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }>;
+  incomeTax: number;
+  nationalInsurance: {
+    primaryThreshold: number;
+    upperEarningsLimit: number;
+    mainRate: number;
+    additionalRate: number;
+    mainContribution: number;
+    additionalContribution: number;
+    total: number;
+  };
+  pensionContribution: number;  // Gross amount in pension pot
+  pensionNetCost: number;        // Actual cost to employee (after tax relief)
+  pensionTaxRelief: number;     // Total tax relief amount
+}
+
 export interface DEBreakdown {
   type: "DE";
   taxableIncome: number;
@@ -878,6 +935,7 @@ export type CountrySpecificBreakdown =
   | THBreakdown
   | HKBreakdown
   | IDBreakdown
+  | UKBreakdown
   | DEBreakdown;
 
 // ============================================================================
@@ -1072,6 +1130,22 @@ export function isIDBreakdown(
   breakdown: CountrySpecificBreakdown,
 ): breakdown is IDBreakdown {
   return breakdown.type === "ID";
+}
+
+export function isUKInputs(
+  inputs: CalculatorInputs,
+): inputs is UKCalculatorInputs {
+  return inputs.country === "UK";
+}
+
+export function isUKTaxBreakdown(taxes: TaxBreakdown): taxes is UKTaxBreakdown {
+  return "incomeTax" in taxes && "nationalInsurance" in taxes && !("bpjsHealth" in taxes);
+}
+
+export function isUKBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is UKBreakdown {
+  return breakdown.type === "UK";
 }
 
 export function isDEInputs(

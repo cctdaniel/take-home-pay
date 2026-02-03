@@ -10,6 +10,7 @@ import {
 import { ContributionSlider } from "@/components/ui/contribution-slider";
 import { Separator } from "@/components/ui/separator";
 import { useMultiCountryCalculator } from "@/hooks/use-multi-country-calculator";
+import { formatCurrency } from "@/lib/format";
 import type { CountryCode } from "@/lib/countries/types";
 import { AUTaxOptions } from "./au-tax-options";
 import { DETaxOptions } from "./de-tax-options";
@@ -32,6 +33,7 @@ import { SGTaxOptions } from "./sg-tax-options";
 import { THAdditionalReliefs } from "./th-additional-reliefs";
 import { THContributionOptions } from "./th-contribution-options";
 import { THTaxOptions } from "./th-tax-options";
+import { UKTaxOptions } from "./uk-tax-options";
 import { USTaxOptions } from "./us-tax-options";
 
 interface MultiCountryCalculatorProps {
@@ -153,6 +155,14 @@ export function MultiCountryCalculator({
     setDeIsChurchMember,
     deIsChildless,
     setDeIsChildless,
+
+    // UK-specific
+    ukResidencyType,
+    setUkResidencyType,
+    ukRegion,
+    setUkRegion,
+    ukPensionContribution,
+    setUkPensionContribution,
 
     // Results
     result,
@@ -313,11 +323,21 @@ export function MultiCountryCalculator({
                 onChildlessChange={setDeIsChildless}
               />
             )}
+            {country === "UK" && (
+              <UKTaxOptions
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+                residencyType={ukResidencyType}
+                onResidencyTypeChange={setUkResidencyType}
+                region={ukRegion}
+                onRegionChange={setUkRegion}
+              />
+            )}
           </CardContent>
         </Card>
 
-        {/* Contributions Card - US, SG, PT, TH, HK, ID, and DE (info only) */}
-        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID" || country === "DE") && (
+        {/* Contributions Card - US, SG, PT, TH, HK, ID, DE, and UK */}
+        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID" || country === "DE" || country === "UK") && (
           <Card>
             <CardHeader>
               <CardTitle>
@@ -334,7 +354,9 @@ export function MultiCountryCalculator({
                         ? "Optional MPF/annuity contributions (tax deductible)"
                         : country === "ID"
                           ? "Optional tax-saving contributions (BPJS is mandatory)"
-                          : "Optional tax-saving contributions (Social Security is mandatory)"}
+                          : country === "UK"
+                            ? "Optional pension contributions (with tax relief)"
+                            : "Optional tax-saving contributions (Social Security is mandatory)"}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -463,6 +485,37 @@ export function MultiCountryCalculator({
                   </ul>
                   <p className="text-xs text-zinc-500 mt-2">
                     Contributions are capped at €101,400 (pension/unemployment) and €69,750 (health/care).
+                  </p>
+                </div>
+              )}
+              {country === "UK" && (
+                <div className="space-y-6">
+                  <ContributionSlider
+                    label="Pension Contribution (Gross)"
+                    description="Total amount going into your pension pot"
+                    value={ukPensionContribution}
+                    onChange={setUkPensionContribution}
+                    max={60000}
+                    currency="GBP"
+                  />
+                  {result.breakdown.type === "UK" && result.breakdown.pensionNetCost > 0 && (
+                    <div className="bg-zinc-800/50 rounded-lg p-3 space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-zinc-400">Gross contribution:</span>
+                        <span className="text-zinc-200">{formatCurrency(result.breakdown.pensionContribution, currency)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-emerald-400">Tax relief:</span>
+                        <span className="text-emerald-400">-{formatCurrency(result.breakdown.pensionTaxRelief, currency)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm border-t border-zinc-700 pt-2">
+                        <span className="text-zinc-300">Your actual cost:</span>
+                        <span className="text-zinc-100 font-medium">{formatCurrency(result.breakdown.pensionNetCost, currency)}</span>
+                      </div>
+                    </div>
+                  )}
+                  <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
+                    <span className="text-emerald-400">Tip:</span> Basic rate: pay £80, get £100 in pension. Higher rate: pay £80, get £100 + claim £20 back.
                   </p>
                 </div>
               )}
@@ -611,6 +664,73 @@ export function MultiCountryCalculator({
                   Note: Non-residents pay 15% flat rate or progressive, whichever is higher. 
                   Retirement savings (PVD+RMF+SSF) share a ฿500,000 combined limit.
                 </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* UK Tax & Contributions Info Card */}
+        {country === "UK" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Tax &amp; Contributions</CardTitle>
+              <CardDescription>
+                Income Tax, National Insurance, and pension contributions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  What&apos;s Included
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-1">
+                  <li>Income Tax — progressive rates (see below for regional differences)</li>
+                  <li>Personal Allowance — £12,570 (tapered above £100,000, zero at £125,140)</li>
+                  <li>Class 1 National Insurance — 8% (PT to UEL), 2% (above UEL)</li>
+                  <li>Pension contributions — Tax relief at 20% (basic), claimable 40%/45%</li>
+                </ul>
+                <p className="text-xs text-zinc-500 mt-3">
+                  Note: Scottish residents pay different tax rates (19%, 20%, 21%, 42%, 45%, 48%).
+                  Non-residents do not receive a Personal Allowance.
+                </p>
+              </div>
+              
+              <div className="mt-4 bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  England, Wales &amp; Northern Ireland Tax Bands 2026/27
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-1">
+                  <li>Personal Allowance: Up to £12,570 — 0%</li>
+                  <li>Basic Rate: £12,571 to £50,270 — 20%</li>
+                  <li>Higher Rate: £50,271 to £125,140 — 40%</li>
+                  <li>Additional Rate: Over £125,140 — 45%</li>
+                </ul>
+              </div>
+              
+              <div className="mt-4 bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  Scotland Tax Bands 2026/27
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-1">
+                  <li>Personal Allowance: Up to £12,570 — 0%</li>
+                  <li>Starter Rate: £12,571 to £16,537 — 19%</li>
+                  <li>Basic Rate: £16,538 to £28,527 — 20%</li>
+                  <li>Intermediate Rate: £28,528 to £43,662 — 21%</li>
+                  <li>Higher Rate: £43,663 to £75,000 — 42%</li>
+                  <li>Advanced Rate: £75,001 to £125,140 — 45%</li>
+                  <li>Top Rate: Over £125,140 — 48%</li>
+                </ul>
+              </div>
+              
+              <div className="mt-4 bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  National Insurance (Employee) 2026/27
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-1">
+                  <li>Below £12,570 (Primary Threshold): 0%</li>
+                  <li>£12,570 to £50,270 (UEL): 8%</li>
+                  <li>Above £50,270: 2%</li>
+                </ul>
               </div>
             </CardContent>
           </Card>
