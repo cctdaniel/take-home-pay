@@ -23,44 +23,45 @@ import type {
 } from "./types";
 import { USCalculator } from "./us";
 
+interface CountryRegistryEntry {
+  code: CountryCode;
+  calculator: CountryCalculator;
+}
+
 // ============================================================================
 // COUNTRY CALCULATORS REGISTRY
 // ============================================================================
-const countryCalculators: Record<CountryCode, CountryCalculator> = {
-  US: USCalculator,
-  SG: SGCalculator,
-  KR: KRCalculator,
-  NL: NLCalculator,
-  AU: AUCalculator,
-  PT: PTCalculator,
-  TH: THCalculator,
-  HK: HKCalculator,
-  ID: IDCalculator,
-  TW: TWCalculator,
-  UK: UKCalculator,
-  DE: DECalculator,
-};
+const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
+  { code: "US", calculator: USCalculator },
+  { code: "AU", calculator: AUCalculator },
+  { code: "DE", calculator: DECalculator },
+  { code: "HK", calculator: HKCalculator },
+  { code: "ID", calculator: IDCalculator },
+  { code: "NL", calculator: NLCalculator },
+  { code: "PT", calculator: PTCalculator },
+  { code: "SG", calculator: SGCalculator },
+  { code: "KR", calculator: KRCalculator },
+  { code: "TW", calculator: TWCalculator },
+  { code: "TH", calculator: THCalculator },
+  { code: "UK", calculator: UKCalculator },
+];
+
+const countryCalculators: Record<CountryCode, CountryCalculator> =
+  Object.fromEntries(
+    COUNTRY_REGISTRY.map(({ code, calculator }) => [code, calculator]),
+  ) as Record<CountryCode, CountryCalculator>;
 
 // ============================================================================
 // SUPPORTED COUNTRIES
 // ============================================================================
-// US first, then alphabetical by country name: Australia, Germany, Hong Kong, Indonesia, Netherlands, Portugal, Singapore, South Korea, Taiwan, Thailand, UK
-export const SUPPORTED_COUNTRIES: CountryCode[] = ["US", "AU", "DE", "HK", "ID", "NL", "PT", "SG", "KR", "TW", "TH", "UK"];
+export const SUPPORTED_COUNTRIES: CountryCode[] = COUNTRY_REGISTRY.map(
+  ({ code }) => code,
+);
 
-export const COUNTRY_CONFIGS: Record<CountryCode, CountryConfig> = {
-  US: USCalculator.config,
-  SG: SGCalculator.config,
-  KR: KRCalculator.config,
-  NL: NLCalculator.config,
-  AU: AUCalculator.config,
-  PT: PTCalculator.config,
-  TH: THCalculator.config,
-  HK: HKCalculator.config,
-  ID: IDCalculator.config,
-  TW: TWCalculator.config,
-  UK: UKCalculator.config,
-  DE: DECalculator.config,
-};
+export const COUNTRY_CONFIGS: Record<CountryCode, CountryConfig> =
+  Object.fromEntries(
+    COUNTRY_REGISTRY.map(({ code, calculator }) => [code, calculator.config]),
+  ) as Record<CountryCode, CountryConfig>;
 
 // ============================================================================
 // REGISTRY FUNCTIONS
@@ -117,8 +118,8 @@ export function isCountrySupported(
  * Get list of all supported countries with their names
  */
 export function getSupportedCountries(): { code: CountryCode; name: string }[] {
-  return SUPPORTED_COUNTRIES.map((code) => ({
+  return COUNTRY_REGISTRY.map(({ code, calculator }) => ({
     code,
-    name: COUNTRY_CONFIGS[code].name,
+    name: calculator.config.name,
   }));
 }
