@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
@@ -180,6 +180,15 @@ export function NumberField({
   description?: ReactNode;
   className?: string;
 }) {
+  const [draftValue, setDraftValue] = useState(() => value.toString());
+  const [isFocused, setIsFocused] = useState(false);
+
+  const commitDraftValue = () => {
+    const nextValue = clamp(parseNumberInput(draftValue, fallbackValue), min, max);
+    setDraftValue(nextValue.toString());
+    onChange(nextValue);
+  };
+
   return (
     <div className={cn("space-y-2", className)}>
       <Label htmlFor={id}>{label}</Label>
@@ -189,15 +198,28 @@ export function NumberField({
         min={min}
         max={max}
         step={step}
-        value={value}
-        onChange={(event) =>
-          onChange(parseNumberInput(event.target.value, fallbackValue))
-        }
-        onBlur={(event) =>
-          onChange(
-            clamp(parseNumberInput(event.target.value, fallbackValue), min, max),
-          )
-        }
+        value={isFocused ? draftValue : value}
+        onFocus={(event) => {
+          setDraftValue(event.currentTarget.value);
+          setIsFocused(true);
+        }}
+        onChange={(event) => {
+          const nextDraftValue = event.target.value;
+          setDraftValue(nextDraftValue);
+
+          if (nextDraftValue.trim() === "") {
+            return;
+          }
+
+          const parsedValue = Number(nextDraftValue);
+          if (Number.isFinite(parsedValue)) {
+            onChange(parsedValue);
+          }
+        }}
+        onBlur={() => {
+          setIsFocused(false);
+          commitDraftValue();
+        }}
         className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
       {description ? <p className="text-xs text-zinc-500">{description}</p> : null}
