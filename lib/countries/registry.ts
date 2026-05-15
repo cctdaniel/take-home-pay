@@ -23,11 +23,14 @@ import type {
 } from "./types";
 import { USCalculator } from "./us";
 
+interface CountryRegistryEntry {
+  code: CountryCode;
+  calculator: CountryCalculator;
+}
+
+// COUNTRY CALCULATORS REGISTRY
 // ============================================================================
-// SUPPORTED COUNTRIES
-// ============================================================================
-// US first, then alphabetical by country name.
-const COUNTRY_REGISTRY = [
+const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
   { code: "US", calculator: USCalculator },
   { code: "AU", calculator: AUCalculator },
   { code: "DE", calculator: DECalculator },
@@ -40,22 +43,24 @@ const COUNTRY_REGISTRY = [
   { code: "TW", calculator: TWCalculator },
   { code: "TH", calculator: THCalculator },
   { code: "UK", calculator: UKCalculator },
-] as const satisfies readonly {
-  code: CountryCode;
-  calculator: CountryCalculator;
-}[];
+];
 
-const countryCalculators = Object.fromEntries(
-  COUNTRY_REGISTRY.map(({ code, calculator }) => [code, calculator]),
-) as Record<CountryCode, CountryCalculator>;
+const countryCalculators: Record<CountryCode, CountryCalculator> =
+  Object.fromEntries(
+    COUNTRY_REGISTRY.map(({ code, calculator }) => [code, calculator]),
+  ) as Record<CountryCode, CountryCalculator>;
 
-export const SUPPORTED_COUNTRIES = COUNTRY_REGISTRY.map(
+// ============================================================================
+// SUPPORTED COUNTRIES
+// ============================================================================
+export const SUPPORTED_COUNTRIES: CountryCode[] = COUNTRY_REGISTRY.map(
   ({ code }) => code,
-) as CountryCode[];
+);
 
-export const COUNTRY_CONFIGS = Object.fromEntries(
-  COUNTRY_REGISTRY.map(({ code, calculator }) => [code, calculator.config]),
-) as Record<CountryCode, CountryConfig>;
+export const COUNTRY_CONFIGS: Record<CountryCode, CountryConfig> =
+  Object.fromEntries(
+    COUNTRY_REGISTRY.map(({ code, calculator }) => [code, calculator.config]),
+  ) as Record<CountryCode, CountryConfig>;
 
 // ============================================================================
 // REGISTRY FUNCTIONS
