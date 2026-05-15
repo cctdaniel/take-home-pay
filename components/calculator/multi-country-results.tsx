@@ -2398,7 +2398,7 @@ export function MultiCountryResults({
                   currency={currency}
                 />
                 <DeductionRow
-                  label={`Long-term Care (${result.breakdown.personalInfo.isChildless ? "2.5%" : "1.7%"})`}
+                  label={`Long-term Care (${result.breakdown.personalInfo.isChildless ? "2.4%" : "1.8%"})`}
                   amount={taxes.longTermCareInsurance}
                   grossSalary={grossSalary}
                   currency={currency}

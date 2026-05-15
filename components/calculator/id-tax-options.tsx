@@ -1,5 +1,10 @@
-import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
+"use client";
+
+import {
+  CalculatorFieldGrid,
+  PayFrequencyField,
+  SelectField,
+} from "@/components/calculator/calculator-fields";
 import { Switch } from "@/components/ui/switch";
 import type { PayFrequency } from "@/lib/countries/types";
 
@@ -27,62 +32,43 @@ export function IDTaxOptions({
   const isMarried = maritalStatus === "married";
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <div className="space-y-2">
-        <Label htmlFor="id-pay-frequency">Pay Frequency</Label>
-        <Select
-          id="id-pay-frequency"
-          value={payFrequency}
-          onChange={(e) => onPayFrequencyChange(e.target.value as PayFrequency)}
-        >
-          <option value="annual">Annual</option>
-          <option value="monthly">Monthly</option>
-          <option value="biweekly">Bi-weekly</option>
-          <option value="weekly">Weekly</option>
-        </Select>
-      </div>
+    <CalculatorFieldGrid columns={3}>
+      <PayFrequencyField
+        id="id-pay-frequency"
+        value={payFrequency}
+        onChange={onPayFrequencyChange}
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="id-marital-status">Marital Status</Label>
-        <Select
-          id="id-marital-status"
-          value={maritalStatus}
-          onChange={(e) => {
-            const value = e.target.value as "single" | "married";
-            onMaritalStatusChange(value);
-            if (value === "single") {
-              onSpouseIncomeCombinedChange(false);
-            }
-          }}
-        >
-          <option value="single">Single</option>
-          <option value="married">Married</option>
-        </Select>
-        <p className="text-xs text-zinc-500">
-          PTKP adds Rp4.500.000 for married taxpayers.
-        </p>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="id-dependents">Number of Dependents</Label>
-        <Select
-          id="id-dependents"
-          value={Math.min(numberOfDependents, 3).toString()}
-          onChange={(e) =>
-            onNumberOfDependentsChange(
-              Math.min(3, Math.max(0, parseInt(e.target.value, 10) || 0)),
-            )
+      <SelectField
+        id="id-marital-status"
+        label="Marital Status"
+        value={maritalStatus}
+        onChange={(value) => {
+          onMaritalStatusChange(value);
+          if (value === "single") {
+            onSpouseIncomeCombinedChange(false);
           }
-        >
-          <option value="0">None</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-        </Select>
-        <p className="text-xs text-zinc-500">
-          PTKP adds Rp4.500.000 per dependent (max 3).
-        </p>
-      </div>
+        }}
+        options={[
+          { value: "single", label: "Single" },
+          { value: "married", label: "Married" },
+        ]}
+        description="PTKP adds Rp4.500.000 for married taxpayers."
+      />
+
+      <SelectField
+        id="id-dependents"
+        label="Number of Dependents"
+        value={Math.min(numberOfDependents, 3).toString() as "0" | "1" | "2" | "3"}
+        onChange={(value) => onNumberOfDependentsChange(parseInt(value, 10))}
+        options={[
+          { value: "0", label: "None" },
+          { value: "1", label: "1" },
+          { value: "2", label: "2" },
+          { value: "3", label: "3" },
+        ]}
+        description="PTKP adds Rp4.500.000 per dependent (max 3)."
+      />
 
       <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/60 px-3 py-3 sm:col-span-2 lg:col-span-3">
         <div>
@@ -97,6 +83,6 @@ export function IDTaxOptions({
           disabled={!isMarried}
         />
       </div>
-    </div>
+    </CalculatorFieldGrid>
   );
 }

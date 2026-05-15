@@ -1,7 +1,10 @@
 "use client";
 
-import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
+import {
+  CalculatorFieldGrid,
+  PayFrequencyField,
+  SelectField,
+} from "@/components/calculator/calculator-fields";
 import type { PayFrequency, UKResidencyType } from "@/lib/countries/types";
 
 type UKRegion = "rest_of_uk" | "scotland";
@@ -24,48 +27,34 @@ export function UKTaxOptions({
   onRegionChange,
 }: UKTaxOptionsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div className="space-y-2">
-        <Label htmlFor="uk-region">Region</Label>
-        <Select
-          id="uk-region"
-          value={region}
-          onChange={(e) => onRegionChange(e.target.value as UKRegion)}
-        >
-          <option value="rest_of_uk">England, Wales &amp; Northern Ireland</option>
-          <option value="scotland">Scotland</option>
-        </Select>
-        <p className="text-xs text-zinc-500">Scottish rates apply to non-savings income.</p>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="uk-residency-type">Residency Status</Label>
-        <Select
-          id="uk-residency-type"
-          value={residencyType}
-          onChange={(e) => onResidencyTypeChange(e.target.value as UKResidencyType)}
-        >
-          <option value="resident">Resident</option>
-          <option value="non_resident">Non-resident</option>
-        </Select>
-        <p className="text-xs text-zinc-500">
-          Personal Allowance is applied only for residents in this calculator.
-        </p>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="uk-pay-frequency">Pay Frequency</Label>
-        <Select
-          id="uk-pay-frequency"
-          value={payFrequency}
-          onChange={(e) => onPayFrequencyChange(e.target.value as PayFrequency)}
-        >
-          <option value="annual">Annual</option>
-          <option value="monthly">Monthly</option>
-          <option value="biweekly">Bi-weekly</option>
-          <option value="weekly">Weekly</option>
-        </Select>
-      </div>
-    </div>
+    <CalculatorFieldGrid columns={2}>
+      <SelectField
+        id="uk-region"
+        label="Region"
+        value={region}
+        onChange={onRegionChange}
+        options={[
+          { value: "rest_of_uk", label: "England, Wales & Northern Ireland" },
+          { value: "scotland", label: "Scotland" },
+        ]}
+        description="Scottish rates apply to non-savings income."
+      />
+      <SelectField
+        id="uk-residency-type"
+        label="Residency Status"
+        value={residencyType}
+        onChange={onResidencyTypeChange}
+        options={[
+          { value: "resident", label: "Resident" },
+          { value: "non_resident", label: "Non-resident" },
+        ]}
+        description="Personal Allowance is applied only for residents in this calculator."
+      />
+      <PayFrequencyField
+        id="uk-pay-frequency"
+        value={payFrequency}
+        onChange={onPayFrequencyChange}
+      />
+    </CalculatorFieldGrid>
   );
 }

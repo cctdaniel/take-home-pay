@@ -17,46 +17,46 @@ import type { TaxBracket } from "../../types";
 export const PORTUGAL_IRS_BRACKETS_2026: TaxBracket[] = [
   {
     min: 0,
-    max: 7703,
-    rate: 0.13, // 13%
+    max: 8342,
+    rate: 0.125, // 12.5%
   },
   {
-    min: 7703,
-    max: 11623,
-    rate: 0.165, // 16.5%
+    min: 8342,
+    max: 12587,
+    rate: 0.157, // 15.7%
   },
   {
-    min: 11623,
-    max: 16472,
-    rate: 0.22, // 22%
+    min: 12587,
+    max: 17838,
+    rate: 0.212, // 21.2%
   },
   {
-    min: 16472,
-    max: 21321,
-    rate: 0.25, // 25%
+    min: 17838,
+    max: 23089,
+    rate: 0.241, // 24.1%
   },
   {
-    min: 21321,
-    max: 27146,
-    rate: 0.32, // 32%
+    min: 23089,
+    max: 29397,
+    rate: 0.311, // 31.1%
   },
   {
-    min: 27146,
-    max: 39791,
-    rate: 0.355, // 35.5%
+    min: 29397,
+    max: 43090,
+    rate: 0.349, // 34.9%
   },
   {
-    min: 39791,
-    max: 43081,
-    rate: 0.435, // 43.5%
+    min: 43090,
+    max: 46566,
+    rate: 0.431, // 43.1%
   },
   {
-    min: 43081,
-    max: 58528,
-    rate: 0.45, // 45%
+    min: 46566,
+    max: 86634,
+    rate: 0.446, // 44.6%
   },
   {
-    min: 58528,
+    min: 86634,
     max: Infinity,
     rate: 0.48, // 48%
   },

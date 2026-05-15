@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  PayFrequencyField,
+  SelectField,
+} from "@/components/calculator/calculator-fields";
 import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import type { USFilingStatus, PayFrequency } from "@/lib/countries/types";
@@ -71,33 +75,20 @@ export function USTaxOptions({
         </Select>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="pay-frequency">Pay Frequency</Label>
-        <Select
-          id="pay-frequency"
-          value={payFrequency}
-          onChange={(e) => onPayFrequencyChange(e.target.value as PayFrequency)}
-        >
-          <option value="annual">Annual</option>
-          <option value="monthly">Monthly</option>
-          <option value="biweekly">Bi-weekly</option>
-          <option value="weekly">Weekly</option>
-        </Select>
-      </div>
+      <PayFrequencyField value={payFrequency} onChange={onPayFrequencyChange} />
 
-      <div className="space-y-2">
-        <Label htmlFor="filing-status">Filing Status</Label>
-        <Select
-          id="filing-status"
-          value={filingStatus}
-          onChange={(e) => onFilingStatusChange(e.target.value as USFilingStatus)}
-        >
-          <option value="single">Single</option>
-          <option value="married_jointly">Married Filing Jointly</option>
-          <option value="married_separately">Married Filing Separately</option>
-          <option value="head_of_household">Head of Household</option>
-        </Select>
-      </div>
+      <SelectField
+        id="filing-status"
+        label="Filing Status"
+        value={filingStatus}
+        onChange={onFilingStatusChange}
+        options={[
+          { value: "single", label: "Single" },
+          { value: "married_jointly", label: "Married Filing Jointly" },
+          { value: "married_separately", label: "Married Filing Separately" },
+          { value: "head_of_household", label: "Head of Household" },
+        ]}
+      />
     </div>
   );
 }

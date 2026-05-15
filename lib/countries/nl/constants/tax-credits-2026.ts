@@ -17,7 +17,7 @@ export const GENERAL_TAX_CREDIT = {
 
 /**
  * Calculate the general tax credit (algemene heffingskorting) based on income.
- * The credit phases out linearly between €28,406 and €76,817.
+ * The credit phases out linearly between EUR 29,736 and EUR 78,426.
  */
 export function calculateGeneralTaxCredit(income: number): number {
   if (income <= GENERAL_TAX_CREDIT.phaseOutStart) {
@@ -66,8 +66,8 @@ export const LABOR_TAX_CREDIT = {
 
 /**
  * Calculate the labor tax credit (arbeidskorting) based on labor income.
- * The credit builds up in tiers, reaches maximum around €43,071,
- * then phases out to zero at €129,078.
+ * The credit builds up in tiers, reaches maximum around EUR 45,592,
+ * then phases out to zero at EUR 132,920.
  */
 export function calculateLaborTaxCredit(income: number): number {
   if (income <= 0) {
@@ -88,28 +88,28 @@ export function calculateLaborTaxCredit(income: number): number {
     tier4Rate,
   } = LABOR_TAX_CREDIT;
 
-  // Tier 1: 8.053% of income up to €12,169
+  // Tier 1: 8.324% of income up to EUR 11,965
   if (income <= tier1Threshold) {
     return income * tier1Rate;
   }
 
-  // Tier 2: €980 + 30.030% of income above €12,169
+  // Tier 2: EUR 996 + 31.009% of income above EUR 11,965
   if (income <= tier2Threshold) {
     return tier2Base + tier2Rate * (income - tier1Threshold);
   }
 
-  // Tier 3: €5,220 + 2.258% of income above €26,288
+  // Tier 3: EUR 5,300 + 1.950% of income above EUR 25,845
   if (income <= tier3Threshold) {
     return tier3Base + tier3Rate * (income - tier2Threshold);
   }
 
-  // Tier 4: €5,599 - 6.510% of income above €43,071 (phase-out)
+  // Tier 4: EUR 5,685 - 6.510% of income above EUR 45,592
   if (income <= tier4Threshold) {
     const reduction = tier4Rate * (income - tier3Threshold);
     return Math.max(0, tier4Base - reduction);
   }
 
-  // Above €129,078: no credit
+  // Above EUR 132,920: no credit
   return 0;
 }
 

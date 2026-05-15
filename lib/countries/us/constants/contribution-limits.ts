@@ -7,13 +7,13 @@ import type { ContributionLimits } from "../../types";
 
 export const CONTRIBUTION_LIMITS = {
   // 401(k) limits
-  traditional401k: 24000,
-  traditional401kCatchUp: 7500,
+  traditional401k: 24500,
+  traditional401kCatchUp: 8000,
   traditional401kSuperCatchUp: 11250, // For ages 60-63 (new SECURE 2.0 provision)
 
   // IRA limits
-  rothIRA: 7000,
-  rothIRACatchUp: 1000,
+  rothIRA: 7500,
+  rothIRACatchUp: 1100,
 
   // HSA limits
   hsaSelf: 4400,

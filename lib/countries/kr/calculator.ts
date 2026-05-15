@@ -350,7 +350,7 @@ export const KRCalculator: CountryCalculator = {
       nationalPension: {
         limit: KR_SOCIAL_INSURANCE.nationalPension.monthlyCeiling * 12,
         name: "National Pension",
-        description: "Mandatory pension contribution (4.5% employee share)",
+        description: "Mandatory pension contribution (4.75% employee share)",
         preTax: true,
       },
     };

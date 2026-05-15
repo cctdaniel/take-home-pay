@@ -1,47 +1,46 @@
 // ============================================================================
 // 2026 US FEDERAL TAX BRACKETS
-// Source: IRS Revenue Procedure (released October 2025)
-// Inflation adjustment: ~2.8% from 2025
+// Source: IRS Pub. 505 (2026), Tax Withholding and Estimated Tax
 // ============================================================================
 
 import type { TaxBracket, USFilingStatus } from "../../types";
 
 export const FEDERAL_TAX_BRACKETS: Record<USFilingStatus, TaxBracket[]> = {
   single: [
-    { min: 0, max: 12250, rate: 0.10 },
-    { min: 12250, max: 49850, rate: 0.12 },
-    { min: 49850, max: 106250, rate: 0.22 },
-    { min: 106250, max: 202850, rate: 0.24 },
-    { min: 202850, max: 257550, rate: 0.32 },
-    { min: 257550, max: 643900, rate: 0.35 },
-    { min: 643900, max: Infinity, rate: 0.37 },
+    { min: 0, max: 12400, rate: 0.10 },
+    { min: 12400, max: 50400, rate: 0.12 },
+    { min: 50400, max: 105700, rate: 0.22 },
+    { min: 105700, max: 201775, rate: 0.24 },
+    { min: 201775, max: 256225, rate: 0.32 },
+    { min: 256225, max: 640600, rate: 0.35 },
+    { min: 640600, max: Infinity, rate: 0.37 },
   ],
   married_jointly: [
-    { min: 0, max: 24500, rate: 0.10 },
-    { min: 24500, max: 99700, rate: 0.12 },
-    { min: 99700, max: 212500, rate: 0.22 },
-    { min: 212500, max: 405700, rate: 0.24 },
-    { min: 405700, max: 515100, rate: 0.32 },
-    { min: 515100, max: 772650, rate: 0.35 },
-    { min: 772650, max: Infinity, rate: 0.37 },
+    { min: 0, max: 24800, rate: 0.10 },
+    { min: 24800, max: 100800, rate: 0.12 },
+    { min: 100800, max: 211400, rate: 0.22 },
+    { min: 211400, max: 403550, rate: 0.24 },
+    { min: 403550, max: 512450, rate: 0.32 },
+    { min: 512450, max: 768700, rate: 0.35 },
+    { min: 768700, max: Infinity, rate: 0.37 },
   ],
   married_separately: [
-    { min: 0, max: 12250, rate: 0.10 },
-    { min: 12250, max: 49850, rate: 0.12 },
-    { min: 49850, max: 106250, rate: 0.22 },
-    { min: 106250, max: 202850, rate: 0.24 },
-    { min: 202850, max: 257550, rate: 0.32 },
-    { min: 257550, max: 386325, rate: 0.35 },
-    { min: 386325, max: Infinity, rate: 0.37 },
+    { min: 0, max: 12400, rate: 0.10 },
+    { min: 12400, max: 50400, rate: 0.12 },
+    { min: 50400, max: 105700, rate: 0.22 },
+    { min: 105700, max: 201775, rate: 0.24 },
+    { min: 201775, max: 256225, rate: 0.32 },
+    { min: 256225, max: 384350, rate: 0.35 },
+    { min: 384350, max: Infinity, rate: 0.37 },
   ],
   head_of_household: [
-    { min: 0, max: 17500, rate: 0.10 },
-    { min: 17500, max: 66700, rate: 0.12 },
-    { min: 66700, max: 106250, rate: 0.22 },
-    { min: 106250, max: 202850, rate: 0.24 },
-    { min: 202850, max: 257550, rate: 0.32 },
-    { min: 257550, max: 643900, rate: 0.35 },
-    { min: 643900, max: Infinity, rate: 0.37 },
+    { min: 0, max: 17700, rate: 0.10 },
+    { min: 17700, max: 67450, rate: 0.12 },
+    { min: 67450, max: 105700, rate: 0.22 },
+    { min: 105700, max: 201750, rate: 0.24 },
+    { min: 201750, max: 256200, rate: 0.32 },
+    { min: 256200, max: 640600, rate: 0.35 },
+    { min: 640600, max: Infinity, rate: 0.37 },
   ],
 };
 
@@ -49,10 +48,10 @@ export const FEDERAL_TAX_BRACKETS: Record<USFilingStatus, TaxBracket[]> = {
 // 2026 STANDARD DEDUCTIONS
 // ============================================================================
 export const STANDARD_DEDUCTIONS: Record<USFilingStatus, number> = {
-  single: 15400,
-  married_jointly: 30800,
-  married_separately: 15400,
-  head_of_household: 23100,
+  single: 16100,
+  married_jointly: 32200,
+  married_separately: 16100,
+  head_of_household: 24150,
 };
 
 // ============================================================================

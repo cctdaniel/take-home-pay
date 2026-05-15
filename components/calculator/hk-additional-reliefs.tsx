@@ -2,9 +2,8 @@
 
 import { Label } from "@/components/ui/label";
 import { NumberStepper } from "@/components/ui/number-stepper";
-import { Slider } from "@/components/ui/slider";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
 import { Switch } from "@/components/ui/switch";
-import { formatCurrency } from "@/lib/format";
 import type { HKTaxReliefInputs } from "@/lib/countries/types";
 
 interface HKAdditionalReliefsProps {
@@ -161,98 +160,59 @@ export function HKAdditionalReliefs({ reliefs, onChange }: HKAdditionalReliefsPr
         <h4 className="text-xs font-medium text-zinc-500">Deductions</h4>
 
         <div className="space-y-2 pl-4 border-l-2 border-zinc-700">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm">Self-education Expenses</Label>
-            <span className="text-sm font-medium text-zinc-300 tabular-nums">
-              {formatCurrency(reliefs.selfEducationExpenses, "HKD")}
-            </span>
-          </div>
-          <Slider
+          <ContributionSlider
+            label="Self-education Expenses"
             value={reliefs.selfEducationExpenses}
             onChange={(value) => updateRelief("selfEducationExpenses", value)}
             max={100000}
             step={1000}
+            currency="HKD"
           />
-          <div className="flex justify-between text-xs text-zinc-500">
-            <span>HK$0</span>
-            <span>Max HK$100,000</span>
-          </div>
         </div>
 
         <div className="space-y-2 pl-4 border-l-2 border-zinc-700">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm">Home Loan Interest</Label>
-            <span className="text-sm font-medium text-zinc-300 tabular-nums">
-              {formatCurrency(reliefs.homeLoanInterest, "HKD")}
-            </span>
-          </div>
-          <Slider
+          <ContributionSlider
+            label="Home Loan Interest"
             value={reliefs.homeLoanInterest}
             onChange={(value) => updateRelief("homeLoanInterest", value)}
             max={100000}
             step={1000}
+            currency="HKD"
           />
-          <div className="flex justify-between text-xs text-zinc-500">
-            <span>HK$0</span>
-            <span>Max HK$100,000</span>
-          </div>
         </div>
 
         <div className="space-y-2 pl-4 border-l-2 border-zinc-700">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm">Domestic Rent</Label>
-            <span className="text-sm font-medium text-zinc-300 tabular-nums">
-              {formatCurrency(reliefs.domesticRent, "HKD")}
-            </span>
-          </div>
-          <Slider
+          <ContributionSlider
+            label="Domestic Rent"
             value={reliefs.domesticRent}
             onChange={(value) => updateRelief("domesticRent", value)}
             max={100000}
             step={1000}
+            currency="HKD"
           />
-          <div className="flex justify-between text-xs text-zinc-500">
-            <span>HK$0</span>
-            <span>Max HK$100,000</span>
-          </div>
         </div>
 
         <div className="space-y-2 pl-4 border-l-2 border-zinc-700">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm">Elderly Residential Care Expenses</Label>
-            <span className="text-sm font-medium text-zinc-300 tabular-nums">
-              {formatCurrency(reliefs.elderlyResidentialCareExpenses, "HKD")}
-            </span>
-          </div>
-          <Slider
+          <ContributionSlider
+            label="Elderly Residential Care Expenses"
             value={reliefs.elderlyResidentialCareExpenses}
             onChange={(value) => updateRelief("elderlyResidentialCareExpenses", value)}
             max={100000}
             step={1000}
+            currency="HKD"
           />
-          <div className="flex justify-between text-xs text-zinc-500">
-            <span>HK$0</span>
-            <span>Max HK$100,000</span>
-          </div>
         </div>
 
         <div className="space-y-2 pl-4 border-l-2 border-zinc-700">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm">Approved Charitable Donations</Label>
-            <span className="text-sm font-medium text-zinc-300 tabular-nums">
-              {formatCurrency(reliefs.charitableDonations, "HKD")}
-            </span>
-          </div>
-          <Slider
+          <ContributionSlider
+            label="Approved Charitable Donations"
+            description="Capped at 35% of net income"
             value={reliefs.charitableDonations}
             onChange={(value) => updateRelief("charitableDonations", value)}
             max={500000}
             step={5000}
+            currency="HKD"
           />
-          <div className="flex justify-between text-xs text-zinc-500">
-            <span>HK$0</span>
-            <span>Capped at 35% of net income</span>
-          </div>
         </div>
       </div>
     </div>

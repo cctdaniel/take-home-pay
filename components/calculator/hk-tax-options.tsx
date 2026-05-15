@@ -1,7 +1,10 @@
 "use client";
 
-import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
+import {
+  CalculatorFieldGrid,
+  PayFrequencyField,
+  SelectField,
+} from "@/components/calculator/calculator-fields";
 import type { HKResidencyType, PayFrequency } from "@/lib/countries/types";
 
 interface HKTaxOptionsProps {
@@ -18,35 +21,23 @@ export function HKTaxOptions({
   onPayFrequencyChange,
 }: HKTaxOptionsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div className="space-y-2">
-        <Label htmlFor="hk-residency-type">Residency Status</Label>
-        <Select
-          id="hk-residency-type"
-          value={residencyType}
-          onChange={(e) => onResidencyTypeChange(e.target.value as HKResidencyType)}
-        >
-          <option value="resident">Resident</option>
-          <option value="non_resident">Non-resident</option>
-        </Select>
-        <p className="text-xs text-zinc-500">
-          Allowances are applied only for residents.
-        </p>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="hk-pay-frequency">Pay Frequency</Label>
-        <Select
-          id="hk-pay-frequency"
-          value={payFrequency}
-          onChange={(e) => onPayFrequencyChange(e.target.value as PayFrequency)}
-        >
-          <option value="annual">Annual</option>
-          <option value="monthly">Monthly</option>
-          <option value="biweekly">Bi-weekly</option>
-          <option value="weekly">Weekly</option>
-        </Select>
-      </div>
-    </div>
+    <CalculatorFieldGrid columns={2}>
+      <SelectField
+        id="hk-residency-type"
+        label="Residency Status"
+        value={residencyType}
+        onChange={onResidencyTypeChange}
+        options={[
+          { value: "resident", label: "Resident" },
+          { value: "non_resident", label: "Non-resident" },
+        ]}
+        description="Allowances are applied only for residents."
+      />
+      <PayFrequencyField
+        id="hk-pay-frequency"
+        value={payFrequency}
+        onChange={onPayFrequencyChange}
+      />
+    </CalculatorFieldGrid>
   );
 }

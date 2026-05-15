@@ -1,7 +1,11 @@
 "use client";
 
-import { Select } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import {
+  BooleanSelectField,
+  CalculatorFieldGrid,
+  PayFrequencyField,
+  SelectField,
+} from "@/components/calculator/calculator-fields";
 import type { PayFrequency } from "@/lib/countries/types";
 
 interface TWTaxOptionsProps {
@@ -26,69 +30,45 @@ export function TWTaxOptions({
   onPayFrequencyChange,
 }: TWTaxOptionsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div className="space-y-2">
-        <Label htmlFor="pay-frequency">Pay Frequency</Label>
-        <Select
-          id="pay-frequency"
-          value={payFrequency}
-          onChange={(e) => onPayFrequencyChange(e.target.value as PayFrequency)}
-        >
-          <option value="annual">Annual</option>
-          <option value="monthly">Monthly</option>
-          <option value="biweekly">Bi-weekly</option>
-          <option value="weekly">Weekly</option>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="filing-status">Filing Status</Label>
-        <Select
-          id="filing-status"
-          value={isMarried ? "married" : "single"}
-          onChange={(e) => onMarriedChange(e.target.value === "married")}
-        >
-          <option value="single">Single</option>
-          <option value="married">Married (Joint)</option>
-        </Select>
-        <p className="text-xs text-zinc-500">
-          Flat deduction reducing taxable income. {isMarried ? "NT$272,000 for married joint filers" : "NT$136,000 for single filers"}.
-        </p>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="disability-status">Disability Status</Label>
-        <Select
-          id="disability-status"
-          value={hasDisability ? "disabled" : "none"}
-          onChange={(e) => onDisabilityChange(e.target.value === "disabled")}
-        >
-          <option value="none">No Disability</option>
-          <option value="disabled">Person with Disability</option>
-        </Select>
-        {hasDisability && (
-          <p className="text-xs text-zinc-500">
-            Additional deduction: NT$227,000
-          </p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="gold-card-status">Employment Gold Card</Label>
-        <Select
-          id="gold-card-status"
-          value={isGoldCardHolder ? "goldcard" : "regular"}
-          onChange={(e) => onGoldCardChange(e.target.value === "goldcard")}
-        >
-          <option value="regular">Regular Taxpayer</option>
-          <option value="goldcard">Gold Card Holder (50% exemption on income &gt; NT$3M)</option>
-        </Select>
-        {isGoldCardHolder && (
-          <p className="text-xs text-zinc-500">
-            50% of income above NT$3M is tax-exempt for first 5 years as tax resident
-          </p>
-        )}
-      </div>
-    </div>
+    <CalculatorFieldGrid columns={3}>
+      <PayFrequencyField value={payFrequency} onChange={onPayFrequencyChange} />
+      <SelectField
+        id="filing-status"
+        label="Filing Status"
+        value={isMarried ? "married" : "single"}
+        onChange={(nextValue) => onMarriedChange(nextValue === "married")}
+        options={[
+          { value: "single", label: "Single" },
+          { value: "married", label: "Married (Joint)" },
+        ]}
+        description={`Flat deduction reducing taxable income. ${
+          isMarried
+            ? "NT$272,000 for married joint filers"
+            : "NT$136,000 for single filers"
+        }.`}
+      />
+      <BooleanSelectField
+        id="disability-status"
+        label="Disability Status"
+        value={hasDisability}
+        onChange={onDisabilityChange}
+        trueLabel="Person with Disability"
+        falseLabel="No Disability"
+        description={hasDisability ? "Additional deduction: NT$227,000" : undefined}
+      />
+      <BooleanSelectField
+        id="gold-card-status"
+        label="Employment Gold Card"
+        value={isGoldCardHolder}
+        onChange={onGoldCardChange}
+        trueLabel="Gold Card Holder (50% exemption on income > NT$3M)"
+        falseLabel="Regular Taxpayer"
+        description={
+          isGoldCardHolder
+            ? "50% of income above NT$3M is tax-exempt for first 5 years as tax resident"
+            : undefined
+        }
+      />
+    </CalculatorFieldGrid>
   );
 }
