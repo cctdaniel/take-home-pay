@@ -190,7 +190,14 @@ export function NumberField({
         max={max}
         step={step}
         value={value}
-        onChange={(event) => onChange(clamp(parseNumberInput(event.target.value, fallbackValue), min, max))}
+        onChange={(event) =>
+          onChange(parseNumberInput(event.target.value, fallbackValue))
+        }
+        onBlur={(event) =>
+          onChange(
+            clamp(parseNumberInput(event.target.value, fallbackValue), min, max),
+          )
+        }
         className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
       {description ? <p className="text-xs text-zinc-500">{description}</p> : null}
