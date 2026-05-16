@@ -22,6 +22,11 @@ export interface CurrencyCodeMap {
   GBP: true;
   TWD: true;
   MYR: true;
+  CNY: true;
+  JPY: true;
+  INR: true;
+  PHP: true;
+  VND: true;
 }
 
 export type CurrencyCode = Extract<keyof CurrencyCodeMap, string>;
@@ -51,6 +56,11 @@ export interface CountryCodeMap {
   UK: true;
   TW: true;
   MY: true;
+  CN: true;
+  JP: true;
+  IN: true;
+  PH: true;
+  VN: true;
 }
 
 export type CountryCode = Extract<keyof CountryCodeMap, string>;
@@ -156,6 +166,37 @@ export type MYResidencyType = "resident" | "non_resident";
 
 export type MYEpfCategory = "citizen" | "pr_or_legacy" | "foreigner_post_1998";
 
+// ============================================================================
+// RESIDENCY TYPES - China specific
+// ============================================================================
+export type CNResidencyType = "resident";
+
+// ============================================================================
+// RESIDENCY TYPES - Japan specific
+// ============================================================================
+export type JPResidencyType = "resident";
+
+// ============================================================================
+// RESIDENCY TYPES - India specific
+// ============================================================================
+export type INRegime = "new" | "old";
+
+// ============================================================================
+// RESIDENCY TYPES - Philippines specific
+// ============================================================================
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface PHContributionInputs {
+  // All contributions are mandatory and calculated automatically
+}
+
+// ============================================================================
+// RESIDENCY TYPES - Vietnam specific
+// ============================================================================
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface VNContributionInputs {
+  // All contributions are mandatory and calculated automatically
+}
+
 // Thailand-specific contributions (voluntary retirement savings)
 export interface THContributionInputs {
   providentFundContribution: number; // Provident Fund (tax deductible, max 15% of income or 500,000 THB)
@@ -202,6 +243,35 @@ export interface DEContributionInputs {
   occupationalPension: number; // bAV / Entgeltumwandlung (salary conversion)
   riesterContribution: number; // Riester pension
   ruerupContribution: number; // Ruerup (Basisrente)
+}
+
+// China-specific contribution inputs
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CNContributionInputs {
+  // All social insurance and housing fund contributions are mandatory
+}
+
+// China-specific special deductions (专项附加扣除)
+export interface CNSpecialDeductions {
+  numberOfChildren: number; // 2,000 CNY/month per child (age 3+)
+  numberOfChildrenUnder3: number; // 2,000 CNY/month per child under 3
+  numberOfElderlyCare: number; // Up to 1,500 CNY/month (only child) or 1,500 shared
+  isOnlyChild: boolean; // Affects elderly care deduction (3,000 vs 1,500)
+  housingRentCity: "tier1" | "tier2" | "tier3" | "none"; // 1,500/1,100/800 CNY/month
+  housingLoanInterest: boolean; // 1,000 CNY/month (mutually exclusive with rent)
+  continuingEducation: boolean; // 400 CNY/month (self)
+}
+
+// Japan-specific contribution inputs
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface JPContributionInputs {
+  // All social insurance is mandatory and calculated automatically
+}
+
+// India-specific contribution inputs
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface INContributionInputs {
+  // EPF is mandatory (12%) for organized sector
 }
 
 // Thailand additional tax reliefs/allowances
@@ -340,6 +410,11 @@ export interface ContributionInputMap {
   TW: TWContributionInputs;
   UK: UKContributionInputs;
   DE: DEContributionInputs;
+  CN: CNContributionInputs;
+  JP: JPContributionInputs;
+  IN: INContributionInputs;
+  PH: PHContributionInputs;
+  VN: VNContributionInputs;
 }
 
 export type ContributionInputs =
@@ -436,6 +511,32 @@ export interface TWCalculatorInputs extends BaseCalculatorInputs {
   taxReliefs: TWTaxReliefInputs;
 }
 
+export interface CNCalculatorInputs extends BaseCalculatorInputs {
+  country: "CN";
+  socialInsuranceBase: number; // Monthly base for social insurance (capped)
+  housingFundRate: number; // 5-12% of monthly salary
+  specialDeductions: CNSpecialDeductions;
+}
+
+export interface JPCalculatorInputs extends BaseCalculatorInputs {
+  country: "JP";
+}
+
+export interface INCalculatorInputs extends BaseCalculatorInputs {
+  country: "IN";
+  regime: INRegime; // "new" (default, 2026) or "old"
+  isEpfApplicable: boolean; // Whether EPF (12% employee) applies
+}
+
+export interface PHCalculatorInputs extends BaseCalculatorInputs {
+  country: "PH";
+}
+
+export interface VNCalculatorInputs extends BaseCalculatorInputs {
+  country: "VN";
+  numberOfDependents: number; // Number of tax dependents
+}
+
 // ============================================================================
 // UNITED KINGDOM-SPECIFIC TYPES
 // ============================================================================
@@ -474,6 +575,11 @@ export interface CalculatorInputMap {
   TW: TWCalculatorInputs;
   UK: UKCalculatorInputs;
   DE: DECalculatorInputs;
+  CN: CNCalculatorInputs;
+  JP: JPCalculatorInputs;
+  IN: INCalculatorInputs;
+  PH: PHCalculatorInputs;
+  VN: VNCalculatorInputs;
 }
 
 export type CalculatorInputs = CalculatorInputMap[keyof CalculatorInputMap];
@@ -577,6 +683,44 @@ export interface DETaxBreakdown extends BaseTaxBreakdown {
   totalSocialSecurity: number;
 }
 
+export interface CNTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number; // Individual income tax (IIT)
+  pensionInsurance: number; // 8% employee contribution
+  medicalInsurance: number; // 2% employee contribution
+  unemploymentInsurance: number; // 0.5% employee contribution
+  housingFund: number; // 5-12% employee contribution
+}
+
+export interface JPTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number; // National income tax
+  reconstructionSurtax: number; // 2.1% of national income tax
+  residentTax: number; // 10% flat resident tax
+  pensionInsurance: number; // 9.15%
+  healthInsurance: number; // ~5%
+  employmentInsurance: number; // 0.6%
+}
+
+export interface INTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number; // Income tax before cess
+  surcharge: number; // Surcharge for high incomes
+  cess: number; // 4% health & education cess
+  epfEmployee: number; // Employee Provident Fund (12%)
+}
+
+export interface PHTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number; // Individual income tax
+  sssEmployee: number; // Social Security System
+  philHealthEmployee: number; // PhilHealth
+  pagIbigEmployee: number; // Pag-IBIG Fund
+}
+
+export interface VNTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number; // Personal income tax
+  socialInsurance: number; // 8% social insurance
+  healthInsurance: number; // 1.5% health insurance
+  unemploymentInsurance: number; // 1% unemployment insurance
+}
+
 export interface TaxBreakdownMap {
   US: USTaxBreakdown;
   SG: SGTaxBreakdown;
@@ -591,6 +735,11 @@ export interface TaxBreakdownMap {
   TW: TWTaxBreakdown;
   UK: UKTaxBreakdown;
   DE: DETaxBreakdown;
+  CN: CNTaxBreakdown;
+  JP: JPTaxBreakdown;
+  IN: INTaxBreakdown;
+  PH: PHTaxBreakdown;
+  VN: VNTaxBreakdown;
 }
 
 export type TaxBreakdown = TaxBreakdownMap[keyof TaxBreakdownMap];
@@ -1159,6 +1308,152 @@ export interface DEBreakdown {
   };
 }
 
+export interface CNBreakdown {
+  type: "CN";
+  grossIncome: number;
+  taxableIncome: number;
+  standardDeduction: number; // 60,000 CNY/year
+  specialDeductions: {
+    children: number;
+    childrenUnder3: number;
+    elderlyCare: number;
+    housingRent: number;
+    housingLoanInterest: number;
+    continuingEducation: number;
+    total: number;
+  };
+  socialInsurance: {
+    pension: { rate: number; employee: number; ceiling: number };
+    medical: { rate: number; employee: number; ceiling: number };
+    unemployment: { rate: number; employee: number; ceiling: number };
+    total: number;
+  };
+  housingFund: {
+    rate: number;
+    employee: number;
+    base: number;
+  };
+  bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+    quickDeduction: number;
+  }>;
+}
+
+export interface JPBreakdown {
+  type: "JP";
+  grossIncome: number;
+  employmentIncomeDeduction: number;
+  basicDeduction: number; // 480,000 JPY
+  socialInsuranceDeduction: number;
+  taxableIncome: number;
+  nationalIncomeTax: number;
+  reconstructionSurtax: number; // 2.1% of national tax
+  residentTax: number; // 10% flat
+  socialInsurance: {
+    pension: { rate: number; employee: number; monthlyCeiling: number };
+    health: { rate: number; employee: number; monthlyCeiling: number };
+    employment: { rate: number; employee: number };
+    total: number;
+  };
+  bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+    deduction: number;
+  }>;
+}
+
+export interface INBreakdown {
+  type: "IN";
+  grossIncome: number;
+  regime: INRegime;
+  standardDeduction: number; // 75,000 INR (new regime)
+  taxableIncome: number;
+  grossTax: number;
+  rebateUnder87A: number; // Up to 60,000
+  surcharge: number;
+  cess: number; // 4% health & education
+  epf: {
+    rate: number;
+    employee: number;
+    ceiling: number; // Monthly wage ceiling
+    monthlyBase: number;
+  };
+  bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }>;
+}
+
+export interface PHBreakdown {
+  type: "PH";
+  grossIncome: number;
+  taxableIncome: number;
+  sss: {
+    rate: number;
+    employee: number;
+    msc: number; // Monthly Salary Credit
+    minMsc: number;
+    maxMsc: number;
+  };
+  philHealth: {
+    rate: number;
+    employee: number;
+    monthlyBase: number;
+    floor: number; // 10,000 PHP
+    ceiling: number; // 100,000 PHP
+  };
+  pagIbig: {
+    rate: number;
+    employee: number;
+    mfs: number; // Monthly Fund Salary
+    ceiling: number;
+  };
+  bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }>;
+}
+
+export interface VNBreakdown {
+  type: "VN";
+  grossIncome: number;
+  personalDeduction: number; // 132,000,000 VND/year (11M/month)
+  dependentDeduction: number; // 52,800,000 VND/year/dependent
+  numberOfDependents: number;
+  totalDeductions: number;
+  taxableIncome: number;
+  socialInsurance: {
+    rate: number;
+    employee: number;
+    ceiling: number; // 20x base salary
+  };
+  healthInsurance: {
+    rate: number;
+    employee: number;
+    ceiling: number;
+  };
+  unemploymentInsurance: {
+    rate: number;
+    employee: number;
+    ceiling: number;
+  };
+  bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }>;
+}
+
 export interface CountrySpecificBreakdownMap {
   US: USBreakdown;
   SG: SGBreakdown;
@@ -1173,6 +1468,11 @@ export interface CountrySpecificBreakdownMap {
   TW: TWBreakdown;
   UK: UKBreakdown;
   DE: DEBreakdown;
+  CN: CNBreakdown;
+  JP: JPBreakdown;
+  IN: INBreakdown;
+  PH: PHBreakdown;
+  VN: VNBreakdown;
 }
 
 export type CountrySpecificBreakdown =
@@ -1438,4 +1738,84 @@ export function isDEBreakdown(
   breakdown: CountrySpecificBreakdown,
 ): breakdown is DEBreakdown {
   return breakdown.type === "DE";
+}
+
+export function isCNInputs(
+  inputs: CalculatorInputs,
+): inputs is CNCalculatorInputs {
+  return inputs.country === "CN";
+}
+
+export function isCNTaxBreakdown(taxes: TaxBreakdown): taxes is CNTaxBreakdown {
+  return "housingFund" in taxes && "pensionInsurance" in taxes && "medicalInsurance" in taxes;
+}
+
+export function isCNBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is CNBreakdown {
+  return breakdown.type === "CN";
+}
+
+export function isJPInputs(
+  inputs: CalculatorInputs,
+): inputs is JPCalculatorInputs {
+  return inputs.country === "JP";
+}
+
+export function isJPTaxBreakdown(taxes: TaxBreakdown): taxes is JPTaxBreakdown {
+  return "reconstructionSurtax" in taxes && "residentTax" in taxes;
+}
+
+export function isJPBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is JPBreakdown {
+  return breakdown.type === "JP";
+}
+
+export function isINInputs(
+  inputs: CalculatorInputs,
+): inputs is INCalculatorInputs {
+  return inputs.country === "IN";
+}
+
+export function isINTaxBreakdown(taxes: TaxBreakdown): taxes is INTaxBreakdown {
+  return "cess" in taxes && "surcharge" in taxes && "epfEmployee" in taxes;
+}
+
+export function isINBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is INBreakdown {
+  return breakdown.type === "IN";
+}
+
+export function isPHInputs(
+  inputs: CalculatorInputs,
+): inputs is PHCalculatorInputs {
+  return inputs.country === "PH";
+}
+
+export function isPHTaxBreakdown(taxes: TaxBreakdown): taxes is PHTaxBreakdown {
+  return "sssEmployee" in taxes && "philHealthEmployee" in taxes && "pagIbigEmployee" in taxes;
+}
+
+export function isPHBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is PHBreakdown {
+  return breakdown.type === "PH";
+}
+
+export function isVNInputs(
+  inputs: CalculatorInputs,
+): inputs is VNCalculatorInputs {
+  return inputs.country === "VN";
+}
+
+export function isVNTaxBreakdown(taxes: TaxBreakdown): taxes is VNTaxBreakdown {
+  return "socialInsurance" in taxes && "unemploymentInsurance" in taxes && "healthInsurance" in taxes && !("pensionInsurance" in taxes);
+}
+
+export function isVNBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is VNBreakdown {
+  return breakdown.type === "VN";
 }

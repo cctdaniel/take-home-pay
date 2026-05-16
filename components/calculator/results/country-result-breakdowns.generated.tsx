@@ -5,6 +5,7 @@ import type { CountryCode } from "@/lib/countries/types";
 import type { ReactNode } from "react";
 import { AEResultBreakdown } from "./ae-result-breakdown";
 import { CYResultBreakdown } from "./cy-result-breakdown";
+import { CZResultBreakdown } from "./cz-result-breakdown";
 import { ESResultBreakdown } from "./es-result-breakdown";
 import { GEResultBreakdown } from "./ge-result-breakdown";
 import { GRResultBreakdown } from "./gr-result-breakdown";
@@ -22,6 +23,7 @@ export const COUNTRY_RESULT_BREAKDOWNS: Partial<
 > = {
   AE: AEResultBreakdown,
   CY: CYResultBreakdown,
+  CZ: CZResultBreakdown,
   ES: ESResultBreakdown,
   GE: GEResultBreakdown,
   GR: GRResultBreakdown,

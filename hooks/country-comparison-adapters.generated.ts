@@ -4,6 +4,7 @@
 import type { CountryCode } from "@/lib/countries/types";
 import { buildCountryComparison as AECountryComparisonAdapter } from "@/lib/countries/ae/compare";
 import { buildCountryComparison as CYCountryComparisonAdapter } from "@/lib/countries/cy/compare";
+import { buildCountryComparison as CZCountryComparisonAdapter } from "@/lib/countries/cz/compare";
 import { buildCountryComparison as GECountryComparisonAdapter } from "@/lib/countries/ge/compare";
 import { buildCountryComparison as HRCountryComparisonAdapter } from "@/lib/countries/hr/compare";
 import { buildCountryComparison as MTCountryComparisonAdapter } from "@/lib/countries/mt/compare";
@@ -14,6 +15,7 @@ export const COUNTRY_COMPARISON_ADAPTERS: Partial<
 > = {
   AE: AECountryComparisonAdapter,
   CY: CYCountryComparisonAdapter,
+  CZ: CZCountryComparisonAdapter,
   GE: GECountryComparisonAdapter,
   HR: HRCountryComparisonAdapter,
   MT: MTCountryComparisonAdapter,

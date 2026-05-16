@@ -216,7 +216,7 @@ export function CompareBreakdown({
     pushLine(mandatoryBreakdown, "BPJS Health", taxes.bpjsHealth);
     pushLine(mandatoryBreakdown, "BPJS JHT", taxes.bpjsJht);
     pushLine(mandatoryBreakdown, "BPJS JP", taxes.bpjsJp);
-  } else if ("epfEmployee" in taxes) {
+  } else if ("socsoEmployee" in taxes) {
     pushLine(incomeTaxBreakdown, "Income tax", taxes.incomeTax);
     pushLine(mandatoryBreakdown, "EPF", taxes.epfEmployee);
     pushLine(mandatoryBreakdown, "SOCSO", taxes.socsoEmployee);

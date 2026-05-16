@@ -10,7 +10,7 @@ export function MYResultBreakdown({
 }: CountryResultBreakdownProps) {
   const { taxes, breakdown } = result;
 
-  if (!("epfEmployee" in taxes) || breakdown.type !== "MY") {
+  if (!("socsoEmployee" in taxes) || breakdown.type !== "MY") {
     return null;
   }
 

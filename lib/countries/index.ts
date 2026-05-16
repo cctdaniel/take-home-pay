@@ -39,6 +39,21 @@ export { IDCalculator, calculateID, ID_CONFIG, ID_CURRENCY } from "./id";
 // Malaysia Calculator
 export { MYCalculator, calculateMY, MY_CONFIG, MY_CURRENCY } from "./my";
 
+// China Calculator
+export { CNCalculator, calculateCN, CN_CONFIG, CN_CURRENCY } from "./cn";
+
+// Japan Calculator
+export { JPCalculator, calculateJP, JP_CONFIG, JP_CURRENCY } from "./jp";
+
+// India Calculator
+export { INCalculator, calculateIN, IN_CONFIG, IN_CURRENCY } from "./in";
+
+// Philippines Calculator
+export { PHCalculator, calculatePH, PH_CONFIG, PH_CURRENCY } from "./ph";
+
+// Vietnam Calculator
+export { VNCalculator, calculateVN, VN_CONFIG, VN_CURRENCY } from "./vn";
+
 // Netherlands Calculator
 export { NLCalculator, calculateNL, NL_CONFIG, NL_CURRENCY } from "./nl";
 

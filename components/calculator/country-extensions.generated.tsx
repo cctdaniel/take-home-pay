@@ -4,6 +4,7 @@
 import type { CountryCode } from "@/lib/countries/types";
 import AECountryExtension from "./country-extensions/ae";
 import CYCountryExtension from "./country-extensions/cy";
+import CZCountryExtension from "./country-extensions/cz";
 import GECountryExtension from "./country-extensions/ge";
 import HRCountryExtension from "./country-extensions/hr";
 import MTCountryExtension from "./country-extensions/mt";
@@ -14,6 +15,7 @@ export const COUNTRY_CALCULATOR_EXTENSIONS: Partial<
 > = {
   AE: AECountryExtension,
   CY: CYCountryExtension,
+  CZ: CZCountryExtension,
   GE: GECountryExtension,
   HR: HRCountryExtension,
   MT: MTCountryExtension,

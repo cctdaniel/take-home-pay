@@ -18,6 +18,11 @@ const COUNTRY_DESCRIPTIONS: Partial<Record<CountryCode, string>> = {
   UK: `Free ${TAX_YEAR} take home pay calculator for the United Kingdom. Calculate your salary after taxes including Income Tax (with Personal Allowance taper), Class 1 National Insurance (employee), and Scottish Income Tax rates if applicable.`,
   DE: `Free ${TAX_YEAR} take home pay calculator for Germany. Calculate your salary after taxes including income tax (Einkommensteuer) per §32a EStG, Solidarity Surcharge (Solidaritätszuschlag), and social security contributions (pension, health, unemployment, and long-term care insurance).`,
   AE: `Free 2026 take home pay calculator for the United Arab Emirates. Calculate UAE salary after 0% personal income tax and modeled GPSSA or GCC insurance extension employee pension contributions.`,
+  CN: `Free 2026 take home pay calculator for China. Calculate your salary after taxes including Individual Income Tax (IIT, progressive 3%-45%), social insurance (pension 8%, medical 2%, unemployment 0.5%), housing fund contributions, and special additional deductions.`,
+  JP: `Free 2026 take home pay calculator for Japan. Calculate your salary after taxes including national income tax (progressive 5%-45%), reconstruction surtax (2.1%), resident tax (10%), and social insurance (pension 9.15%, health ~5%, employment 0.6%).`,
+  IN: `Free 2026 take home pay calculator for India. Calculate your salary after taxes including income tax under new regime FY 2025-26 (progressive 0-30%), surcharge, health & education cess (4%), EPF contributions (12%), and Section 87A rebate.`,
+  PH: `Free 2026 take home pay calculator for the Philippines. Calculate your salary after taxes including income tax (progressive 0-35% under TRAIN law), SSS contributions (5%), PhilHealth (2.5%), and Pag-IBIG Fund (2%).`,
+  VN: `Free 2026 take home pay calculator for Vietnam. Calculate your salary after taxes including personal income tax (progressive 5-35%), social insurance (8%), health insurance (1.5%), unemployment insurance (1%), and personal/dependent deductions.`,
 };
 
 // Country-specific keywords for SEO
@@ -184,6 +189,67 @@ const COUNTRY_KEYWORDS: Partial<Record<CountryCode, string[]>> = {
     "gcc pension uae",
     "uae expat salary calculator",
   ],
+  CN: [
+    "china take home pay calculator",
+    "china salary after tax",
+    "2026 china tax calculator",
+    "china iit calculator",
+    "individual income tax china",
+    "china social insurance calculator",
+    "中国税后工资计算器",
+    "china housing fund calculator",
+    "china five insurance one fund",
+    "五险一金计算器",
+  ],
+  JP: [
+    "japan take home pay calculator",
+    "japan salary after tax",
+    "2026 japan tax calculator",
+    "japanese income tax calculator",
+    "japan resident tax calculator",
+    "japan social insurance calculator",
+    "japan pension calculator",
+    "shakai hoken calculator",
+    "japan payroll calculator",
+    "給与計算 手取り",
+  ],
+  IN: [
+    "india take home pay calculator",
+    "india salary after tax",
+    "2026 india tax calculator",
+    "india income tax calculator",
+    "new tax regime calculator",
+    "india epf calculator",
+    "section 87a rebate calculator",
+    "india cess calculator",
+    "indian payroll calculator",
+    "भारत टैक्स कैलकुलेटर",
+    "income tax slabs 2026",
+  ],
+  PH: [
+    "philippines take home pay calculator",
+    "philippines salary after tax",
+    "2026 philippines tax calculator",
+    "philippine income tax calculator",
+    "train law tax calculator",
+    "philippines sss calculator",
+    "philhealth contribution calculator",
+    "pag ibig calculator",
+    "philippines payroll calculator",
+    "sweldo calculator philippines",
+  ],
+  VN: [
+    "vietnam take home pay calculator",
+    "vietnam salary after tax",
+    "2026 vietnam tax calculator",
+    "vietnam income tax calculator",
+    "vietnam social insurance calculator",
+    "thuế thu nhập cá nhân",
+    "lương gross sang net",
+    "vietnam payroll calculator",
+    "bảo hiểm xã hội calculator",
+    "tính lương sau thuế",
+  ],
 };
 
 
@@ -260,6 +326,31 @@ const COUNTRY_HEADER_INFO: Partial<Record<
     tagline: "Calculate your actual salary after deductions in the United Arab Emirates.",
     details:
       "0% personal income tax, GPSSA pension for UAE nationals, and GCC insurance extension contributions",
+  },
+  CN: {
+    tagline: "Calculate your actual salary after taxes in China.",
+    details:
+      "Individual Income Tax (IIT, 3-45%), social insurance (pension 8%, medical 2%, unemployment 0.5%), housing fund (5-12%), and special additional deductions",
+  },
+  JP: {
+    tagline: "Calculate your actual salary after taxes in Japan.",
+    details:
+      "National income tax (5-45%), reconstruction surtax (2.1%), resident tax (10%), and social insurance (pension 9.15%, health ~5%, employment 0.6%)",
+  },
+  IN: {
+    tagline: "Calculate your actual salary after taxes in India.",
+    details:
+      "Income tax (new regime 0-30%), surcharge, 4% cess, EPF (12%), Section 87A rebate up to ₹60,000",
+  },
+  PH: {
+    tagline: "Calculate your actual salary after taxes in the Philippines.",
+    details:
+      "Income tax (TRAIN law 0-35%), SSS (5%), PhilHealth (2.5%), Pag-IBIG Fund (2%)",
+  },
+  VN: {
+    tagline: "Calculate your actual salary after taxes in Vietnam.",
+    details:
+      "Personal income tax (5-35%), social insurance (8%), health insurance (1.5%), unemployment insurance (1%), personal deduction (11M VND/month), dependent deduction (4.4M/month/person)",
   },
 };
 
