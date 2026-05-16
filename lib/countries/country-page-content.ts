@@ -1,8 +1,9 @@
 import { TAX_YEAR } from "@/lib/constants/tax-year";
+import { getCountryConfig } from "@/lib/countries/registry";
 import type { CountryCode } from "@/lib/countries/types";
 
 // Country-specific descriptions for SEO
-const COUNTRY_DESCRIPTIONS: Record<CountryCode, string> = {
+const COUNTRY_DESCRIPTIONS: Partial<Record<CountryCode, string>> = {
   US: `Free ${TAX_YEAR} take home pay calculator for all 50 US states + DC. Calculate your salary after taxes including federal, state, Social Security, Medicare, 401(k), HSA, and IRA deductions.`,
   SG: `Free ${TAX_YEAR} take home pay calculator for Singapore. Calculate your salary after taxes including income tax, CPF contributions based on age and residency, and SRS deductions.`,
   KR: `Free ${TAX_YEAR} take home pay calculator for South Korea. Calculate your salary after taxes including income tax, local tax, national pension, health insurance, and employment insurance.`,
@@ -19,7 +20,7 @@ const COUNTRY_DESCRIPTIONS: Record<CountryCode, string> = {
 };
 
 // Country-specific keywords for SEO
-const COUNTRY_KEYWORDS: Record<CountryCode, string[]> = {
+const COUNTRY_KEYWORDS: Partial<Record<CountryCode, string[]>> = {
   US: [
     "us take home pay calculator",
     "usa salary after tax",
@@ -175,10 +176,10 @@ const COUNTRY_KEYWORDS: Record<CountryCode, string[]> = {
 
 
 // Country-specific header descriptions
-const COUNTRY_HEADER_INFO: Record<
+const COUNTRY_HEADER_INFO: Partial<Record<
   CountryCode,
   { tagline: string; details: string }
-> = {
+>> = {
   US: {
     tagline:
       "Calculate your actual salary after taxes for all 50 US states + D.C.",
@@ -244,5 +245,48 @@ const COUNTRY_HEADER_INFO: Record<
       "Income tax (Einkommensteuer §32a EStG, progressive 0-45%), Solidarity Surcharge (Solidaritätszuschlag 5.5%), Pension Insurance (9.3%), Health Insurance (7.3% + Zusatzbeitrag), Unemployment Insurance (1.3%), Long-term Care Insurance (1.8-2.4%)",
   },
 };
+
+function getGenericCountryDescription(country: CountryCode): string {
+  const config = getCountryConfig(country);
+  return `Free ${config.taxYear} take home pay calculator for ${config.name}. Calculate your estimated salary after income tax, statutory payroll contributions, and modeled deductions.`;
+}
+
+function getGenericCountryKeywords(country: CountryCode): string[] {
+  const config = getCountryConfig(country);
+  const countryName = config.name.toLowerCase();
+  return [
+    `${countryName} take home pay calculator`,
+    `${countryName} salary after tax`,
+    `${config.taxYear} ${countryName} tax calculator`,
+    `${countryName} paycheck calculator`,
+  ];
+}
+
+function getGenericCountryHeaderInfo(country: CountryCode): {
+  tagline: string;
+  details: string;
+} {
+  const config = getCountryConfig(country);
+  return {
+    tagline: `Calculate your actual salary after taxes in ${config.name}.`,
+    details:
+      "Income tax, statutory payroll contributions, and modeled deductions",
+  };
+}
+
+export function getCountryDescription(country: CountryCode): string {
+  return COUNTRY_DESCRIPTIONS[country] ?? getGenericCountryDescription(country);
+}
+
+export function getCountryKeywords(country: CountryCode): string[] {
+  return COUNTRY_KEYWORDS[country] ?? getGenericCountryKeywords(country);
+}
+
+export function getCountryHeaderInfo(country: CountryCode): {
+  tagline: string;
+  details: string;
+} {
+  return COUNTRY_HEADER_INFO[country] ?? getGenericCountryHeaderInfo(country);
+}
 
 export { COUNTRY_DESCRIPTIONS, COUNTRY_KEYWORDS, COUNTRY_HEADER_INFO };

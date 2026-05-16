@@ -8,7 +8,23 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD" | "IDR" | "GBP" | "TWD" | "MYR";
+// New country modules should augment these maps from their own
+// `lib/countries/{code}/types.ts` files instead of editing union aliases here.
+export interface CurrencyCodeMap {
+  USD: true;
+  SGD: true;
+  KRW: true;
+  EUR: true;
+  AUD: true;
+  THB: true;
+  HKD: true;
+  IDR: true;
+  GBP: true;
+  TWD: true;
+  MYR: true;
+}
+
+export type CurrencyCode = Extract<keyof CurrencyCodeMap, string>;
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -20,7 +36,24 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK" | "ID" | "DE" | "UK" | "TW" | "MY";
+// New country modules should add their country code through module augmentation.
+export interface CountryCodeMap {
+  US: true;
+  SG: true;
+  KR: true;
+  NL: true;
+  AU: true;
+  PT: true;
+  TH: true;
+  HK: true;
+  ID: true;
+  DE: true;
+  UK: true;
+  TW: true;
+  MY: true;
+}
+
+export type CountryCode = Extract<keyof CountryCodeMap, string>;
 
 export interface CountryConfig {
   code: CountryCode;
@@ -293,19 +326,24 @@ export interface SGTaxReliefInputs {
   courseFees: number; // Up to S$5,500
 }
 
-// Union type for all contribution inputs
+export interface ContributionInputMap {
+  US: USContributionInputs;
+  SG: SGContributionInputs;
+  KR: KRContributionInputs;
+  NL: NLContributionInputs;
+  AU: AUContributionInputs;
+  PT: PTContributionInputs;
+  TH: THContributionInputs;
+  HK: HKContributionInputs;
+  ID: IDContributionInputs;
+  MY: MYContributionInputs;
+  TW: TWContributionInputs;
+  UK: UKContributionInputs;
+  DE: DEContributionInputs;
+}
+
 export type ContributionInputs =
-  | USContributionInputs
-  | SGContributionInputs
-  | KRContributionInputs
-  | NLContributionInputs
-  | AUContributionInputs
-  | PTContributionInputs
-  | HKContributionInputs
-  | IDContributionInputs
-  | MYContributionInputs
-  | TWContributionInputs
-  | DEContributionInputs;
+  ContributionInputMap[keyof ContributionInputMap];
 
 // ============================================================================
 // CALCULATOR INPUT TYPES
@@ -422,20 +460,23 @@ export interface DECalculatorInputs extends BaseCalculatorInputs {
   contributions: DEContributionInputs;
 }
 
-export type CalculatorInputs =
-  | USCalculatorInputs
-  | SGCalculatorInputs
-  | KRCalculatorInputs
-  | NLCalculatorInputs
-  | AUCalculatorInputs
-  | PTCalculatorInputs
-  | THCalculatorInputs
-  | HKCalculatorInputs
-  | IDCalculatorInputs
-  | MYCalculatorInputs
-  | TWCalculatorInputs
-  | UKCalculatorInputs
-  | DECalculatorInputs;
+export interface CalculatorInputMap {
+  US: USCalculatorInputs;
+  SG: SGCalculatorInputs;
+  KR: KRCalculatorInputs;
+  NL: NLCalculatorInputs;
+  AU: AUCalculatorInputs;
+  PT: PTCalculatorInputs;
+  TH: THCalculatorInputs;
+  HK: HKCalculatorInputs;
+  ID: IDCalculatorInputs;
+  MY: MYCalculatorInputs;
+  TW: TWCalculatorInputs;
+  UK: UKCalculatorInputs;
+  DE: DECalculatorInputs;
+}
+
+export type CalculatorInputs = CalculatorInputMap[keyof CalculatorInputMap];
 
 // ============================================================================
 // TAX BREAKDOWN TYPES
@@ -536,20 +577,23 @@ export interface DETaxBreakdown extends BaseTaxBreakdown {
   totalSocialSecurity: number;
 }
 
-export type TaxBreakdown =
-  | USTaxBreakdown
-  | SGTaxBreakdown
-  | KRTaxBreakdown
-  | NLTaxBreakdown
-  | AUTaxBreakdown
-  | PTTaxBreakdown
-  | THTaxBreakdown
-  | HKTaxBreakdown
-  | IDTaxBreakdown
-  | MYTaxBreakdown
-  | TWTaxBreakdown
-  | UKTaxBreakdown
-  | DETaxBreakdown;
+export interface TaxBreakdownMap {
+  US: USTaxBreakdown;
+  SG: SGTaxBreakdown;
+  KR: KRTaxBreakdown;
+  NL: NLTaxBreakdown;
+  AU: AUTaxBreakdown;
+  PT: PTTaxBreakdown;
+  TH: THTaxBreakdown;
+  HK: HKTaxBreakdown;
+  ID: IDTaxBreakdown;
+  MY: MYTaxBreakdown;
+  TW: TWTaxBreakdown;
+  UK: UKTaxBreakdown;
+  DE: DETaxBreakdown;
+}
+
+export type TaxBreakdown = TaxBreakdownMap[keyof TaxBreakdownMap];
 
 // ============================================================================
 // CALCULATION RESULT TYPES
@@ -1115,20 +1159,24 @@ export interface DEBreakdown {
   };
 }
 
+export interface CountrySpecificBreakdownMap {
+  US: USBreakdown;
+  SG: SGBreakdown;
+  KR: KRBreakdown;
+  NL: NLBreakdown;
+  AU: AUBreakdown;
+  PT: PTBreakdown;
+  TH: THBreakdown;
+  HK: HKBreakdown;
+  ID: IDBreakdown;
+  MY: MYBreakdown;
+  TW: TWBreakdown;
+  UK: UKBreakdown;
+  DE: DEBreakdown;
+}
+
 export type CountrySpecificBreakdown =
-  | USBreakdown
-  | SGBreakdown
-  | KRBreakdown
-  | NLBreakdown
-  | AUBreakdown
-  | PTBreakdown
-  | THBreakdown
-  | HKBreakdown
-  | IDBreakdown
-  | MYBreakdown
-  | TWBreakdown
-  | UKBreakdown
-  | DEBreakdown
+  CountrySpecificBreakdownMap[keyof CountrySpecificBreakdownMap];
 
 // ============================================================================
 // COUNTRY CALCULATOR INTERFACE

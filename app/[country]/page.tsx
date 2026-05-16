@@ -1,7 +1,11 @@
 import { MultiCountryCalculator } from "@/components/calculator/multi-country-calculator";
 import { TaxYearBadge } from "@/components/calculator/tax-year-badge";
 import { LAST_UPDATED, TAX_YEAR } from "@/lib/constants/tax-year";
-import { COUNTRY_DESCRIPTIONS, COUNTRY_HEADER_INFO, COUNTRY_KEYWORDS } from "@/lib/countries/country-page-content";
+import {
+  getCountryDescription,
+  getCountryHeaderInfo,
+  getCountryKeywords,
+} from "@/lib/countries/country-page-content";
 import {
   SUPPORTED_COUNTRIES,
   getCountryConfig,
@@ -42,8 +46,8 @@ export async function generateMetadata({
   }
 
   const config = getCountryConfig(countryCode as CountryCode);
-  const description = COUNTRY_DESCRIPTIONS[countryCode as CountryCode];
-  const keywords = COUNTRY_KEYWORDS[countryCode as CountryCode];
+  const description = getCountryDescription(countryCode as CountryCode);
+  const keywords = getCountryKeywords(countryCode as CountryCode);
 
   return {
     title: `Take Home Pay Calculator ${TAX_YEAR} | ${config.name} Salary After Tax`,
@@ -92,7 +96,7 @@ export default async function CountryPage({ params }: PageProps) {
 
   const validCountryCode = countryCode as CountryCode;
   const config = getCountryConfig(validCountryCode);
-  const headerInfo = COUNTRY_HEADER_INFO[validCountryCode];
+  const headerInfo = getCountryHeaderInfo(validCountryCode);
 
   return (
     <div className="min-h-screen bg-zinc-950">

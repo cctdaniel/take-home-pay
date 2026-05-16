@@ -18,16 +18,7 @@ import { getSupportedStates } from "@/lib/countries/us/state-tax";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
 
-const BASE_CURRENCIES: CurrencyCode[] = [
-  "USD",
-  "EUR",
-  "SGD",
-  "AUD",
-  "HKD",
-  "KRW",
-  "THB",
-  "IDR",
-];
+const BASE_CURRENCIES = Object.keys(CURRENCIES).sort() as CurrencyCode[];
 
 const COUNTRIES = getSupportedCountries();
 const US_STATES = getSupportedStates();
