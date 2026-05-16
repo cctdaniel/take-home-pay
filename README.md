@@ -17,6 +17,7 @@ Each country has its own page for better SEO and shareability:
 | Thailand      | [/th](http://localhost:3000/th)           |
 | Hong Kong     | [/hk](http://localhost:3000/hk)           |
 | Indonesia     | [/id](http://localhost:3000/id)           |
+| Malaysia      | [/my](http://localhost:3000/my)           |
 | Compare All   | [/compare](http://localhost:3000/compare) |
 
 Root `/` redirects to `/us` by default.
@@ -107,6 +108,14 @@ FX rates are fetched from Exchangerate-API and cached on the server for performa
 - **BPJS JHT** — 2% employee contribution (no cap)
 - **BPJS JP** — 1% employee contribution (capped at Rp10,547,400/month)
 
+### Malaysia
+
+- **Income Tax** — YA 2025 progressive resident rates from 0% to 30%
+- **Non-Residents** — Flat 30% employment income tax estimate
+- **EPF/KWSP** — Employee contributions by citizenship and age category
+- **SOCSO and EIS** — PERKESO employee contributions with wage ceiling handling
+- **Resident Reliefs** — Individual, spouse, child, EPF, PRS, SOCSO, lifestyle, and medical reliefs
+
 ## Getting Started
 
 ```bash
@@ -133,7 +142,7 @@ Open [http://localhost:3000](http://localhost:3000) to use the calculator. You'l
 
 ```
 /app/
-  [country]/page.tsx     # Dynamic country pages (/us, /au, /hk, /id, /sg, /kr, /nl, /pt, /th)
+  [country]/page.tsx     # Dynamic country pages (/us, /au, /hk, /id, /my, /sg, /kr, /nl, /pt, /th)
   page.tsx               # Redirect to /us
   compare/page.tsx       # Compare flow
   api/fx/route.ts         # FX rates proxy (Exchangerate-API)
@@ -144,6 +153,7 @@ Open [http://localhost:3000](http://localhost:3000) to use the calculator. You'l
   /kr/                   # South Korea tax calculations
   /nl/                   # Netherlands tax calculations
   /id/                   # Indonesia tax calculations
+  /my/                   # Malaysia tax calculations
   registry.ts            # Country calculator factory
   types.ts               # Shared interfaces
 /components/calculator/  # Calculator UI components
@@ -162,6 +172,7 @@ Open [http://localhost:3000](http://localhost:3000) to use the calculator. You'l
 - **Thailand:** Revenue Department tax brackets and Social Security Fund rates for 2026
 - **Hong Kong:** IRD salaries tax rates/allowances and MPFA MPF contribution rates for 2026
 - **Indonesia:** PPh 21 tax rates from UU No. 7/2021 (HPP Law), BPJS rates from BPJS regulations for 2026
+- **Malaysia:** HASiL/LHDN YA 2025 individual rates and reliefs, KWSP/EPF contribution categories, and PERKESO SOCSO/EIS employee rates
 - **FX Rates:** Exchangerate-API (cached, used for `/compare`)
 
 ## Disclaimer

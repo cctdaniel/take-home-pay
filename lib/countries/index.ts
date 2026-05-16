@@ -36,6 +36,9 @@ export { HKCalculator, calculateHK, HK_CONFIG, HK_CURRENCY } from "./hk";
 // Indonesia Calculator
 export { IDCalculator, calculateID, ID_CONFIG, ID_CURRENCY } from "./id";
 
+// Malaysia Calculator
+export { MYCalculator, calculateMY, MY_CONFIG, MY_CURRENCY } from "./my";
+
 // Netherlands Calculator
 export { NLCalculator, calculateNL, NL_CONFIG, NL_CURRENCY } from "./nl";
 

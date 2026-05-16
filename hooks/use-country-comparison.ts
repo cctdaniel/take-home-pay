@@ -19,6 +19,7 @@ import type {
   HKCalculatorInputs,
   IDCalculatorInputs,
   KRCalculatorInputs,
+  MYCalculatorInputs,
   NLCalculatorInputs,
   PayFrequency,
   PTCalculatorInputs,
@@ -150,6 +151,7 @@ function buildAssumptionsSummary(
     country === "AU" ||
     country === "PT" ||
     country === "ID" ||
+    country === "MY" ||
     country === "DE" ||
     country === "UK" ||
     country === "TW"
@@ -592,6 +594,64 @@ export function useCountryComparison(
             deltaBase: 0,
             deltaPercent: 0,
             assumptions: buildAssumptionsSummary(country, inputs, false),
+            calculation: result,
+          });
+          return acc;
+        }
+
+        if (country === "MY") {
+          const defaultInputs = getDefaultInputs(country) as MYCalculatorInputs;
+          const prsContribution =
+            isMaxRetirement && inputs.assumptions.isResident
+              ? Math.min(3000, grossLocal)
+              : 0;
+          const myInputs: MYCalculatorInputs = {
+            ...defaultInputs,
+            grossSalary: grossLocal,
+            payFrequency,
+            residencyType: inputs.assumptions.isResident
+              ? "resident"
+              : "non_resident",
+            age: inputs.assumptions.age,
+            epfCategory: inputs.assumptions.isResident
+              ? "citizen"
+              : "foreigner_post_1998",
+            contributions: {
+              ...defaultInputs.contributions,
+              voluntaryEpfContribution: 0,
+              prsContribution,
+            },
+            taxReliefs: {
+              ...defaultInputs.taxReliefs,
+              hasSpouseRelief:
+                inputs.maritalStatus === "married" &&
+                inputs.assumptions.spouseHasNoIncome,
+              numberOfChildrenUnder18: inputs.numberOfChildren,
+              numberOfChildrenTertiary: 0,
+              isDisabled: false,
+              lifestyleRelief: 0,
+              medicalRelief: 0,
+            },
+          };
+          const result = calculateNetSalary(myInputs);
+          const retirementApplied = prsContribution > 0;
+          acc.push({
+            country,
+            name: config.name,
+            currency,
+            rate,
+            grossLocal,
+            netLocal: result.netSalary,
+            netBase: result.netSalary / rate,
+            takeHomeRate: grossLocal > 0 ? result.netSalary / grossLocal : 0,
+            effectiveTaxRate: result.effectiveTaxRate,
+            deltaBase: 0,
+            deltaPercent: 0,
+            assumptions: buildAssumptionsSummary(
+              country,
+              inputs,
+              retirementApplied
+            ),
             calculation: result,
           });
           return acc;

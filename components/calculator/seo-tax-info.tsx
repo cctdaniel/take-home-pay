@@ -26,6 +26,7 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "TH" && <THTaxInfo />}
         {country === "HK" && <HKTaxInfo />}
         {country === "ID" && <IDTaxInfo />}
+        {country === "MY" && <MYTaxInfo />}
         {country === "TW" && <TWTaxInfo />}
         {country === "UK" && <UKTaxInfo />}
       </div>
@@ -751,6 +752,81 @@ function IDTaxInfo() {
       <p className="text-zinc-400 text-sm">
         Tax rates based on Undang-Undang Nomor 7 Tahun 2021 (HPP Law) and PMK 168/2023.
         BPJS rates based on BPJS Ketenagakerjaan and BPJS Kesehatan regulations effective 2026.
+      </p>
+    </div>
+  );
+}
+
+// ============================================================================
+// MALAYSIA TAX INFO
+// ============================================================================
+function MYTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Malaysia</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li>
+          <strong className="text-zinc-300">Individual Income Tax</strong> –
+          Resident YA 2025 progressive rates from 0% to 30%
+        </li>
+        <li>
+          <strong className="text-zinc-300">Non-Residents</strong> – Employment
+          income modeled at the flat 30% non-resident individual rate
+        </li>
+        <li>
+          <strong className="text-zinc-300">EPF/KWSP</strong> – Mandatory
+          employee retirement contribution by age and membership category
+        </li>
+        <li>
+          <strong className="text-zinc-300">SOCSO</strong> – 0.5% employee share,
+          capped at the RM6,000 monthly wage ceiling
+        </li>
+        <li>
+          <strong className="text-zinc-300">EIS</strong> – 0.2% employee share for
+          eligible employees below age 60, also capped at RM6,000/month
+        </li>
+        <li>
+          <strong className="text-zinc-300">Resident Reliefs</strong> – Personal,
+          spouse, child, disability, EPF, PRS, SOCSO, lifestyle, and medical
+          reliefs are modeled
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        YA 2025 Resident Tax Brackets
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>RM0 – RM5,000: 0%</li>
+        <li>RM5,001 – RM20,000: 1%</li>
+        <li>RM20,001 – RM35,000: 3%</li>
+        <li>RM35,001 – RM50,000: 8%</li>
+        <li>RM50,001 – RM70,000: 13%</li>
+        <li>RM70,001 – RM100,000: 21%</li>
+        <li>RM100,001 – RM250,000: 24%</li>
+        <li>RM250,001 – RM400,000: 24.5%</li>
+        <li>RM400,001 – RM600,000: 25%</li>
+        <li>RM600,001 – RM1,000,000: 26%</li>
+        <li>RM1,000,001 – RM2,000,000: 28%</li>
+        <li>RM2,000,001+: 30%</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        EPF, SOCSO, and EIS Assumptions
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Citizen EPF below age 60: 11% employee share</li>
+        <li>Citizen EPF age 60 and above: 0% employee share</li>
+        <li>Non-citizen post-1998 EPF: 2% employee share</li>
+        <li>SOCSO employee share: 0.5% up to RM6,000 monthly wage base</li>
+        <li>EIS employee share: 0.2% up to RM6,000 monthly wage base</li>
+      </ul>
+
+      <p className="text-zinc-400 text-sm mt-3">
+        The calculator uses HASiL YA 2025 rates and reliefs, KWSP rates effective
+        for October 2025 wages onward, and PERKESO contribution rates with the
+        RM6,000 wage ceiling. It is a simplified salary estimate and does not
+        model every rebate, zakat item, director fee treatment, or irregular wage
+        contribution table.
       </p>
     </div>
   );

@@ -8,6 +8,7 @@ import { DECalculator } from "./de";
 import { HKCalculator } from "./hk";
 import { IDCalculator } from "./id";
 import { KRCalculator } from "./kr";
+import { MYCalculator } from "./my";
 import { NLCalculator } from "./nl";
 import { PTCalculator } from "./pt";
 import { SGCalculator } from "./sg";
@@ -36,6 +37,7 @@ const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
   { code: "DE", calculator: DECalculator },
   { code: "HK", calculator: HKCalculator },
   { code: "ID", calculator: IDCalculator },
+  { code: "MY", calculator: MYCalculator },
   { code: "NL", calculator: NLCalculator },
   { code: "PT", calculator: PTCalculator },
   { code: "SG", calculator: SGCalculator },
