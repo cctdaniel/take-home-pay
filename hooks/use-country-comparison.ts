@@ -1,6 +1,7 @@
 "use client";
 
 import { DECalculator } from "@/lib/countries/de";
+import { ESCalculator } from "@/lib/countries/es";
 import type { ESCalculatorInputs } from "@/lib/countries/es/types";
 import { HK_DEDUCTIONS_2026 } from "@/lib/countries/hk/constants/tax-brackets-2026";
 import { GREECE_OCCUPATIONAL_PENSION_CONTRIBUTION_LIMIT_RATE } from "@/lib/countries/gr/constants/tax-brackets-2026";
@@ -758,13 +759,24 @@ export function useCountryComparison(
 
         if (country === "ES") {
           const defaultInputs = getDefaultInputs(country) as ESCalculatorInputs;
+          const residencyType = inputs.assumptions.isResident
+            ? "resident"
+            : "non_resident_other";
+          const pensionContribution =
+            isMaxRetirement && inputs.assumptions.isResident
+              ? (ESCalculator.getContributionLimits({
+                  country: "ES",
+                  grossSalary: grossLocal,
+                  residencyType,
+                  employmentContractType: "permanent",
+                } as Partial<ESCalculatorInputs>).pensionContribution?.limit ??
+                0)
+              : 0;
           const esInputs: ESCalculatorInputs = {
             ...defaultInputs,
             grossSalary: grossLocal,
             payFrequency,
-            residencyType: inputs.assumptions.isResident
-              ? "resident"
-              : "non_resident_other",
+            residencyType,
             region: "general",
             filingStatus:
               inputs.maritalStatus === "married"
@@ -776,9 +788,12 @@ export function useCountryComparison(
             numberOfChildren: inputs.numberOfChildren,
             numberOfChildrenUnderThree: 0,
             employmentContractType: "permanent",
-            contributions: {},
+            contributions: {
+              pensionContribution,
+            },
           };
           const result = calculateNetSalary(esInputs);
+          const retirementApplied = pensionContribution > 0;
           acc.push({
             country,
             name: config.name,
@@ -791,7 +806,11 @@ export function useCountryComparison(
             effectiveTaxRate: result.effectiveTaxRate,
             deltaBase: 0,
             deltaPercent: 0,
-            assumptions: buildAssumptionsSummary(country, inputs, false),
+            assumptions: buildAssumptionsSummary(
+              country,
+              inputs,
+              retirementApplied
+            ),
             calculation: result,
           });
           return acc;

@@ -359,6 +359,11 @@ function ESTaxInfo() {
           EUR 2,000 general work expense deduction for residents
         </li>
         <li>
+          <strong className="text-zinc-300">Pension Contributions</strong> –
+          Basic resident pension/social welfare reduction capped at EUR 1,500
+          and 30% of net work income
+        </li>
+        <li>
           <strong className="text-zinc-300">Social Security</strong> – Employee
           common contingencies, unemployment, professional training, and MEI
           contributions, capped by the 2026 monthly base

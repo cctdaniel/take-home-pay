@@ -6,7 +6,9 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type ESContributionInputs = Record<never, never>;
+export interface ESContributionInputs {
+  pensionContribution: number;
+}
 
 export type ESResidencyType =
   | "resident"
@@ -61,6 +63,11 @@ export interface ESBreakdown {
   taxableIncome: number;
   workExpenseDeduction: number;
   jointTaxationReduction: number;
+  voluntaryContributions: {
+    pensionContribution: number;
+    pensionContributionLimit: number;
+    total: number;
+  };
   taxpayerMinimum: number;
   descendantMinimum: number;
   personalFamilyMinimum: number;

@@ -66,6 +66,20 @@ export function ESResultBreakdown({
               </span>
             </div>
           )}
+          {breakdown.voluntaryContributions.pensionContribution > 0 && (
+            <div className="flex items-center justify-between py-1">
+              <span className="text-sm text-zinc-400">
+                Pension Plan Contribution
+              </span>
+              <span className="text-sm text-emerald-400 tabular-nums">
+                -
+                {formatCurrency(
+                  breakdown.voluntaryContributions.pensionContribution,
+                  currency,
+                )}
+              </span>
+            </div>
+          )}
           <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
             <span className="text-sm text-zinc-300">Taxable Income</span>
             <span className="text-sm text-zinc-200 tabular-nums">
@@ -178,6 +192,21 @@ export function ESResultBreakdown({
         Employer amount excludes sector-specific accident premiums and is not
         deducted from take-home pay.
       </p>
+
+      {breakdown.voluntaryContributions.pensionContribution > 0 && (
+        <>
+          <Separator className="my-2" />
+          <p className="text-xs text-zinc-500 pt-2 pb-1">
+            Voluntary Contributions
+          </p>
+          <DeductionRow
+            label="Pension Plan Contribution"
+            amount={breakdown.voluntaryContributions.pensionContribution}
+            grossSalary={grossSalary}
+            currency={currency}
+          />
+        </>
+      )}
 
       <Separator className="my-2" />
       <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">

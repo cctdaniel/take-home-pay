@@ -6,6 +6,7 @@ import {
   getDefaultInputs,
 } from "@/lib/countries/registry";
 import { DECalculator } from "@/lib/countries/de/calculator";
+import { ESCalculator } from "@/lib/countries/es/calculator";
 import type {
   ESCalculatorInputs,
   ESEmploymentContractType,
@@ -360,6 +361,11 @@ export interface UseMultiCountryCalculatorReturn {
   setEsNumberOfChildrenUnderThree: (value: number) => void;
   esEmploymentContractType: ESEmploymentContractType;
   setEsEmploymentContractType: (value: ESEmploymentContractType) => void;
+  esPensionContribution: number;
+  setEsPensionContribution: (value: number) => void;
+  esLimits: {
+    pensionContribution: number;
+  };
 
   // Limits
   usLimits: {
@@ -517,6 +523,7 @@ export function useMultiCountryCalculator(
     useState(0);
   const [esEmploymentContractType, setEsEmploymentContractType] =
     useState<ESEmploymentContractType>("permanent");
+  const [esPensionContribution, setEsPensionContributionState] = useState(0);
 
   // Track previous country using state (React docs pattern for adjusting state when props change)
   const [prevCountry, setPrevCountry] = useState(country);
@@ -606,6 +613,7 @@ export function useMultiCountryCalculator(
       setEsNumberOfChildren(0);
       setEsNumberOfChildrenUnderThree(0);
       setEsEmploymentContractType("permanent");
+      setEsPensionContributionState(0);
     }
   }
 
@@ -723,6 +731,19 @@ export function useMultiCountryCalculator(
     deRuerupContribution,
     deLimits.ruerup,
   );
+
+  const esLimits = useMemo(() => {
+    const limits = ESCalculator.getContributionLimits({
+      country: "ES",
+      grossSalary,
+      residencyType: esResidencyType,
+      employmentContractType: esEmploymentContractType,
+    } as Partial<ESCalculatorInputs>);
+
+    return {
+      pensionContribution: limits.pensionContribution?.limit ?? 0,
+    };
+  }, [grossSalary, esResidencyType, esEmploymentContractType]);
 
   // US contribution handlers with validation
   const setTraditional401k = useCallback((value: number) => {
@@ -857,6 +878,14 @@ export function useMultiCountryCalculator(
       setDeRuerupContributionState(Math.min(value, deLimits.ruerup)),
     [deLimits.ruerup],
   );
+
+  const setEsPensionContribution = useCallback(
+    (value: number) =>
+      setEsPensionContributionState(
+        Math.min(value, esLimits.pensionContribution),
+      ),
+    [esLimits.pensionContribution],
+  );
   
   // UK pension contribution handler with validation
   // Pension contribution cannot exceed gross salary (calculator will further cap based on taxes)
@@ -977,7 +1006,12 @@ export function useMultiCountryCalculator(
           esNumberOfChildren,
         ),
         employmentContractType: esEmploymentContractType,
-        contributions: {},
+        contributions: {
+          pensionContribution: Math.min(
+            esPensionContribution,
+            esLimits.pensionContribution,
+          ),
+        },
       };
       return esInputs;
     } else if (country === "ID") {
@@ -1130,6 +1164,8 @@ export function useMultiCountryCalculator(
     esNumberOfChildren,
     esNumberOfChildrenUnderThree,
     esEmploymentContractType,
+    esPensionContribution,
+    esLimits,
     thResidencyType,
     thTaxReliefs,
     thProvidentFund,
@@ -1345,6 +1381,9 @@ export function useMultiCountryCalculator(
     setEsNumberOfChildrenUnderThree,
     esEmploymentContractType,
     setEsEmploymentContractType,
+    esPensionContribution,
+    setEsPensionContribution,
+    esLimits,
 
     // Limits
     usLimits,

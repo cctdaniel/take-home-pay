@@ -26,6 +26,7 @@ import { ES_CONFIG } from "./config";
 import {
   SPAIN_IRNR_RATES_2026,
   SPAIN_JOINT_TAXATION_REDUCTIONS_2025,
+  SPAIN_PENSION_CONTRIBUTION_REDUCTION_2025,
   SPAIN_PERSONAL_FAMILY_MINIMUMS_2025,
   SPAIN_REGIONS,
   SPAIN_SOCIAL_SECURITY_2026,
@@ -243,6 +244,33 @@ function getNonResidentRate(residencyType: ESResidencyType): number {
     : SPAIN_IRNR_RATES_2026.other;
 }
 
+function calculatePensionContributionLimit({
+  grossSalary,
+  socialSecurityTotal,
+  workExpenseDeduction,
+  isResident,
+}: {
+  grossSalary: number;
+  socialSecurityTotal: number;
+  workExpenseDeduction: number;
+  isResident: boolean;
+}): number {
+  if (!isResident) {
+    return 0;
+  }
+
+  const pensionReductionBase = Math.max(
+    0,
+    grossSalary - socialSecurityTotal - workExpenseDeduction,
+  );
+
+  return Math.min(
+    SPAIN_PENSION_CONTRIBUTION_REDUCTION_2025.individualLimit,
+    pensionReductionBase *
+      SPAIN_PENSION_CONTRIBUTION_REDUCTION_2025.netIncomeLimitRate,
+  );
+}
+
 export function calculateES(inputs: ESCalculatorInputs): CalculationResult {
   const {
     grossSalary,
@@ -254,6 +282,7 @@ export function calculateES(inputs: ESCalculatorInputs): CalculationResult {
     numberOfChildren,
     numberOfChildrenUnderThree,
     employmentContractType,
+    contributions,
   } = inputs;
 
   const isResident = residencyType === "resident";
@@ -278,12 +307,25 @@ export function calculateES(inputs: ESCalculatorInputs): CalculationResult {
         Math.max(0, grossSalary - socialSecurity.total),
       )
     : 0;
+  const pensionContributionLimit = calculatePensionContributionLimit({
+    grossSalary,
+    socialSecurityTotal: socialSecurity.total,
+    workExpenseDeduction,
+    isResident,
+  });
+  const pensionContribution = isResident
+    ? Math.min(
+        Math.max(0, contributions.pensionContribution || 0),
+        pensionContributionLimit,
+      )
+    : 0;
   const taxableIncome = isResident
     ? Math.max(
         0,
         grossSalary -
           socialSecurity.total -
           workExpenseDeduction -
+          pensionContribution -
           jointTaxationReduction,
       )
     : grossSalary;
@@ -302,7 +344,7 @@ export function calculateES(inputs: ESCalculatorInputs): CalculationResult {
   const stateIncomeTax = residentTax?.stateIncomeTax ?? incomeTax;
   const regionalIncomeTax = residentTax?.regionalIncomeTax ?? 0;
   const totalTax = incomeTax + socialSecurity.total;
-  const totalDeductions = totalTax;
+  const totalDeductions = totalTax + pensionContribution;
   const netSalary = grossSalary - totalDeductions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(payFrequency);
@@ -331,6 +373,11 @@ export function calculateES(inputs: ESCalculatorInputs): CalculationResult {
     taxableIncome,
     workExpenseDeduction,
     jointTaxationReduction,
+    voluntaryContributions: {
+      pensionContribution,
+      pensionContributionLimit,
+      total: pensionContribution,
+    },
     taxpayerMinimum,
     descendantMinimum,
     personalFamilyMinimum,
@@ -414,8 +461,39 @@ export const ESCalculator: CountryCalculator = {
     }));
   },
 
-  getContributionLimits(): ContributionLimits {
-    return {};
+  getContributionLimits(inputs?: Partial<CalculatorInputs>): ContributionLimits {
+    const esInputs = inputs as Partial<ESCalculatorInputs> | undefined;
+    const grossSalary = Math.max(0, esInputs?.grossSalary ?? 36_000);
+    const residencyType = esInputs?.residencyType ?? "resident";
+    const employmentContractType =
+      esInputs?.employmentContractType ?? "permanent";
+    const socialSecurity = calculateSocialSecurity(
+      grossSalary,
+      employmentContractType,
+    );
+    const workExpenseDeduction =
+      residencyType === "resident"
+        ? Math.min(
+            SPAIN_WORK_EXPENSE_DEDUCTION_2025,
+            Math.max(0, grossSalary - socialSecurity.total),
+          )
+        : 0;
+    const limit = calculatePensionContributionLimit({
+      grossSalary,
+      socialSecurityTotal: socialSecurity.total,
+      workExpenseDeduction,
+      isResident: residencyType === "resident",
+    });
+
+    return {
+      pensionContribution: {
+        limit,
+        name: "Pension Plan Contribution",
+        description:
+          "Resident pension/social welfare contribution reduction, capped at EUR 1,500 and 30% of net work income.",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): ESCalculatorInputs {
@@ -430,7 +508,9 @@ export const ESCalculator: CountryCalculator = {
       numberOfChildren: 0,
       numberOfChildrenUnderThree: 0,
       employmentContractType: "permanent",
-      contributions: {},
+      contributions: {
+        pensionContribution: 0,
+      },
     };
   },
 };

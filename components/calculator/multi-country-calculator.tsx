@@ -216,6 +216,9 @@ export function MultiCountryCalculator({
     setEsNumberOfChildrenUnderThree,
     esEmploymentContractType,
     setEsEmploymentContractType,
+    esPensionContribution,
+    setEsPensionContribution,
+    esLimits,
 
     // UK-specific
     ukResidencyType,
@@ -484,7 +487,7 @@ export function MultiCountryCalculator({
         </Card>
 
         {/* Contributions Card - country-specific voluntary contribution controls */}
-        {(country === "US" || country === "SG" || country === "PT" || country === "GR" || country === "TH" || country === "HK" || country === "ID" || country === "MY" || country === "DE" || country === "UK" || country === "TW") && (
+        {(country === "US" || country === "SG" || country === "PT" || country === "ES" || country === "GR" || country === "TH" || country === "HK" || country === "ID" || country === "MY" || country === "DE" || country === "UK" || country === "TW") && (
           <Card>
             <CardHeader>
               <CardTitle>
@@ -497,6 +500,8 @@ export function MultiCountryCalculator({
                     ? "Optional tax-saving contributions to PPR (Retirement Savings Plan)"
                     : country === "SG"
                       ? "Optional tax-saving contributions (CPF is mandatory)"
+                      : country === "ES"
+                        ? "Optional resident pension contributions (Social Security is mandatory)"
                       : country === "GR"
                         ? "Optional occupational pension contributions (e-EFKA is mandatory)"
                       : country === "HK"
@@ -588,6 +593,31 @@ export function MultiCountryCalculator({
                     Applies to qualifying occupational pension funds (TEA) or
                     group pension insurance plans. Mandatory e-EFKA is calculated
                     automatically.
+                  </p>
+                </div>
+              )}
+
+              {country === "ES" && (
+                <div className="space-y-6">
+                  {esLimits.pensionContribution > 0 ? (
+                    <ContributionSlider
+                      label="Pension Plan Contribution"
+                      description="Resident pension/social welfare contributions reduce the general taxable base, capped at EUR 1,500 and 30% of net work income."
+                      value={esPensionContribution}
+                      onChange={setEsPensionContribution}
+                      max={esLimits.pensionContribution}
+                      currency="EUR"
+                    />
+                  ) : (
+                    <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
+                      Pension contribution reductions are modeled for Spanish
+                      tax residents only.
+                    </p>
+                  )}
+                  <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
+                    Models the basic individual reduction. Employment-plan
+                    additional limits are not modeled because they depend on
+                    employer plan contributions and plan-specific conditions.
                   </p>
                 </div>
               )}
@@ -1044,6 +1074,7 @@ export function MultiCountryCalculator({
                   <li>IRPF state scale plus selected autonomous community scale</li>
                   <li>Personal and family minimums for age and descendants</li>
                   <li>Employee Social Security: common contingencies, unemployment, training, and MEI</li>
+                  <li>Resident pension plan contributions — basic individual reduction capped at EUR 1,500 and 30% of net work income</li>
                   <li>General EUR 2,000 employment expense deduction for residents</li>
                   <li>Joint-return reductions for married and single-parent family units</li>
                   <li>IRNR flat rates for non-residents (19% EU/EEA, 24% other)</li>

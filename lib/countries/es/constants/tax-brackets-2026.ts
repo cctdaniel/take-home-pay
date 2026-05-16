@@ -17,6 +17,8 @@
 //   https://www.seg-social.es/wps/portal/wss/internet/Trabajadores/CotizacionRecaudacionTrabajadores/36537
 // - AEAT IRNR general non-resident rates:
 //   https://sede.agenciatributaria.gob.es/Sede/no-residentes/irnr-sin-establecimiento-permanente/tipos-gravamen-irnr-sin-establecimiento-permanente.html
+// - AEAT pension and social welfare contribution reduction limits:
+//   https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-ayuda-presentacion/irpf-2025/8-cumplimentacion-irpf/8_2-base-liquidable-general-base-ahorro/8_2_2-reducciones-aportaciones-prevision-social/8_2_2_6-aportaciones-anuales-maximas-limite-reduccion.html
 // ============================================================================
 
 import type { TaxBracket } from "../../types";
@@ -145,6 +147,12 @@ export const SPAIN_PERSONAL_FAMILY_MINIMUMS_2025 = {
   descendants: [2_400, 2_700, 4_000],
   fourthAndLaterDescendant: 4_500,
   descendantUnderThreeIncrease: 2_800,
+};
+
+export const SPAIN_PENSION_CONTRIBUTION_REDUCTION_2025 = {
+  individualLimit: 1_500,
+  netIncomeLimitRate: 0.3,
+  employmentPlanAdditionalLimit: 8_500,
 };
 
 export const SPAIN_IRNR_RATES_2026 = {
