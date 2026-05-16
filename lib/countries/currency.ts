@@ -71,6 +71,12 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
     name: "British Pound",
     locale: "en-GB",
   },
+  MYR: {
+    code: "MYR",
+    symbol: "RM",
+    name: "Malaysian Ringgit",
+    locale: "ms-MY",
+  },
 };
 
 // ============================================================================
@@ -89,6 +95,7 @@ export const COUNTRY_CURRENCY: Record<CountryCode, CurrencyCode> = {
   TW: "TWD",
   UK: "GBP",
   DE: "EUR",
+  MY: "MYR",
 };
 
 // ============================================================================
@@ -150,6 +157,9 @@ export function getCurrencyForCountry(countryCode: CountryCode): CurrencyConfig 
   }
   if (countryCode === "DE") {
     return { ...baseConfig, locale: "de-DE" };
+  }
+  if (countryCode === "MY") {
+    return { ...baseConfig, locale: "ms-MY" };
   }
   
   return baseConfig;

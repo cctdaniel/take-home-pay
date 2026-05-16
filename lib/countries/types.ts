@@ -8,7 +8,7 @@ export type PayFrequency = "annual" | "monthly" | "biweekly" | "weekly";
 // ============================================================================
 // CURRENCY TYPES
 // ============================================================================
-export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD" | "IDR" | "GBP" | "TWD";
+export type CurrencyCode = "USD" | "SGD" | "KRW" | "EUR" | "AUD" | "THB" | "HKD" | "IDR" | "GBP" | "TWD" | "MYR";
 
 export interface CurrencyConfig {
   code: CurrencyCode;
@@ -20,7 +20,7 @@ export interface CurrencyConfig {
 // ============================================================================
 // COUNTRY TYPES
 // ============================================================================
-export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK" | "ID" | "DE" | "UK" | "TW";
+export type CountryCode = "US" | "SG" | "KR" | "NL" | "AU" | "PT" | "TH" | "HK" | "ID" | "DE" | "UK" | "TW" | "MY";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -116,6 +116,13 @@ export type THResidencyType = "resident" | "non_resident";
 // ============================================================================
 export type HKResidencyType = "resident" | "non_resident";
 
+// ============================================================================
+// RESIDENCY TYPES - Malaysia specific
+// ============================================================================
+export type MYResidencyType = "resident" | "non_resident";
+
+export type MYEpfCategory = "citizen" | "pr_or_legacy" | "foreigner_post_1998";
+
 // Thailand-specific contributions (voluntary retirement savings)
 export interface THContributionInputs {
   providentFundContribution: number; // Provident Fund (tax deductible, max 15% of income or 500,000 THB)
@@ -134,6 +141,12 @@ export interface HKContributionInputs {
 export interface IDContributionInputs {
   dplkContribution: number; // Dana Pensiun Lembaga Keuangan (voluntary pension fund)
   zakatContribution: number; // Zakat to BAZNAS or authorized amil zakat institutions
+}
+
+// Malaysia-specific contributions (mandatory EPF/PERKESO plus modest optional retirement savings)
+export interface MYContributionInputs {
+  voluntaryEpfContribution: number; // Extra EPF/i-Topup contribution by employee
+  prsContribution: number; // Private Retirement Scheme contribution, relief capped at RM3,000
 }
 
 // Taiwan-specific contributions (voluntary labor pension)
@@ -216,6 +229,16 @@ export interface IDTaxReliefInputs {
   spouseIncomeCombined: boolean; // Additional PTKP if spouse income is combined
 }
 
+// Malaysia tax relief inputs (selected YA 2025 resident individual reliefs)
+export interface MYTaxReliefInputs {
+  hasSpouseRelief: boolean; // Husband/wife/alimony relief, RM4,000
+  numberOfChildrenUnder18: number; // RM2,000 each
+  numberOfChildrenTertiary: number; // RM8,000 each for qualifying tertiary education
+  isDisabled: boolean; // Disabled individual relief, RM7,000
+  lifestyleRelief: number; // Lifestyle relief, capped at RM2,500
+  medicalRelief: number; // Selected medical expenses, capped at RM10,000
+}
+
 // Taiwan tax relief inputs
 export interface TWTaxReliefInputs {
   isMarried: boolean; // Affects standard deduction amount
@@ -280,6 +303,7 @@ export type ContributionInputs =
   | PTContributionInputs
   | HKContributionInputs
   | IDContributionInputs
+  | MYContributionInputs
   | TWContributionInputs
   | DEContributionInputs;
 
@@ -359,6 +383,15 @@ export interface IDCalculatorInputs extends BaseCalculatorInputs {
   taxReliefs: IDTaxReliefInputs;
 }
 
+export interface MYCalculatorInputs extends BaseCalculatorInputs {
+  country: "MY";
+  residencyType: MYResidencyType;
+  age: number;
+  epfCategory: MYEpfCategory;
+  contributions: MYContributionInputs;
+  taxReliefs: MYTaxReliefInputs;
+}
+
 export interface TWCalculatorInputs extends BaseCalculatorInputs {
   country: "TW";
   contributions: TWContributionInputs;
@@ -399,6 +432,7 @@ export type CalculatorInputs =
   | THCalculatorInputs
   | HKCalculatorInputs
   | IDCalculatorInputs
+  | MYCalculatorInputs
   | TWCalculatorInputs
   | UKCalculatorInputs
   | DECalculatorInputs;
@@ -471,6 +505,13 @@ export interface IDTaxBreakdown extends BaseTaxBreakdown {
   bpjsJp: number; // BPJS JP employee contribution
 }
 
+export interface MYTaxBreakdown extends BaseTaxBreakdown {
+  incomeTax: number; // Malaysia individual income tax
+  epfEmployee: number; // KWSP/EPF employee contribution
+  socsoEmployee: number; // PERKESO SOCSO employee contribution
+  eisEmployee: number; // PERKESO EIS employee contribution
+}
+
 export interface TWTaxBreakdown extends BaseTaxBreakdown {
   incomeTax: number; // Comprehensive Income Tax
   laborInsurance: number; // Labor Insurance (employee portion)
@@ -505,6 +546,7 @@ export type TaxBreakdown =
   | THTaxBreakdown
   | HKTaxBreakdown
   | IDTaxBreakdown
+  | MYTaxBreakdown
   | TWTaxBreakdown
   | UKTaxBreakdown
   | DETaxBreakdown;
@@ -881,6 +923,50 @@ export interface IDBreakdown {
   taxReliefs: IDTaxReliefInputs;
 }
 
+export interface MYBreakdown {
+  type: "MY";
+  grossIncome: number;
+  isResident: boolean;
+  epfCategory: MYEpfCategory;
+  age: number;
+  taxableIncome: number;
+  chargeableIncome: number;
+  taxReliefs: {
+    individual: number;
+    spouse: number;
+    childUnder18: number;
+    childTertiary: number;
+    disabledIndividual: number;
+    epf: number;
+    prs: number;
+    socso: number;
+    lifestyle: number;
+    medical: number;
+    total: number;
+  };
+  bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }>;
+  statutoryContributions: {
+    epfEmployee: number;
+    epfEmployer: number;
+    epfEmployeeRate: number;
+    epfEmployerRate: number;
+    socsoEmployee: number;
+    eisEmployee: number;
+    perkesoMonthlyWageBase: number;
+    perkesoMonthlyWageCeiling: number;
+  };
+  voluntaryContributions: {
+    voluntaryEpf: number;
+    prs: number;
+    total: number;
+  };
+}
+
 export interface TWBreakdown {
   type: "TW";
   grossIncome: number;
@@ -1039,6 +1125,7 @@ export type CountrySpecificBreakdown =
   | THBreakdown
   | HKBreakdown
   | IDBreakdown
+  | MYBreakdown
   | TWBreakdown
   | UKBreakdown
   | DEBreakdown
@@ -1235,6 +1322,22 @@ export function isIDBreakdown(
   breakdown: CountrySpecificBreakdown,
 ): breakdown is IDBreakdown {
   return breakdown.type === "ID";
+}
+
+export function isMYInputs(
+  inputs: CalculatorInputs,
+): inputs is MYCalculatorInputs {
+  return inputs.country === "MY";
+}
+
+export function isMYTaxBreakdown(taxes: TaxBreakdown): taxes is MYTaxBreakdown {
+  return "epfEmployee" in taxes && "socsoEmployee" in taxes && "eisEmployee" in taxes;
+}
+
+export function isMYBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is MYBreakdown {
+  return breakdown.type === "MY";
 }
 
 export function isTWInputs(

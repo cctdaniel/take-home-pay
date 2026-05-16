@@ -19,6 +19,8 @@ import { HKAdditionalReliefs } from "./hk-additional-reliefs";
 import { HKTaxOptions } from "./hk-tax-options";
 import { IDContributionOptions } from "./id-contribution-options";
 import { IDTaxOptions } from "./id-tax-options";
+import { MYContributionOptions } from "./my-contribution-options";
+import { MYTaxOptions } from "./my-tax-options";
 import { TWTaxOptions } from "./tw-tax-options";
 import { PTTaxOptions } from "./pt-tax-options";
 import { ContributionOptions } from "./contribution-options";
@@ -147,6 +149,21 @@ export function MultiCountryCalculator({
     setIdDplkContribution,
     idZakatContribution,
     setIdZakatContribution,
+
+    // MY-specific
+    myResidencyType,
+    setMyResidencyType,
+    myAge,
+    setMyAge,
+    myEpfCategory,
+    setMyEpfCategory,
+    myTaxReliefs,
+    setMyTaxReliefs,
+    myVoluntaryEpfContribution,
+    setMyVoluntaryEpfContribution,
+    myPrsContribution,
+    setMyPrsContribution,
+    myLimits,
 
     // TW-specific
     twTaxReliefs,
@@ -324,6 +341,41 @@ export function MultiCountryCalculator({
               />
             )}
 
+            {country === "MY" && (
+              <MYTaxOptions
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+                residencyType={myResidencyType}
+                onResidencyTypeChange={setMyResidencyType}
+                age={myAge}
+                onAgeChange={setMyAge}
+                epfCategory={myEpfCategory}
+                onEpfCategoryChange={setMyEpfCategory}
+                hasSpouseRelief={myTaxReliefs.hasSpouseRelief}
+                onSpouseReliefChange={(value) =>
+                  setMyTaxReliefs({ ...myTaxReliefs, hasSpouseRelief: value })
+                }
+                numberOfChildrenUnder18={myTaxReliefs.numberOfChildrenUnder18}
+                onNumberOfChildrenUnder18Change={(value) =>
+                  setMyTaxReliefs({
+                    ...myTaxReliefs,
+                    numberOfChildrenUnder18: value,
+                  })
+                }
+                numberOfChildrenTertiary={myTaxReliefs.numberOfChildrenTertiary}
+                onNumberOfChildrenTertiaryChange={(value) =>
+                  setMyTaxReliefs({
+                    ...myTaxReliefs,
+                    numberOfChildrenTertiary: value,
+                  })
+                }
+                isDisabled={myTaxReliefs.isDisabled}
+                onDisabledChange={(value) =>
+                  setMyTaxReliefs({ ...myTaxReliefs, isDisabled: value })
+                }
+              />
+            )}
+
             {country === "TW" && (
               <TWTaxOptions
                 isMarried={twTaxReliefs.isMarried}
@@ -369,8 +421,8 @@ export function MultiCountryCalculator({
           </CardContent>
         </Card>
 
-        {/* Contributions Card - US, SG, PT, TH, HK, ID, DE, UK and TW */}
-        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID" || country === "DE" || country === "UK" || country === "TW") && (
+        {/* Contributions Card - US, SG, PT, TH, HK, ID, MY, DE, UK and TW */}
+        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID" || country === "MY" || country === "DE" || country === "UK" || country === "TW") && (
           <Card>
             <CardHeader>
               <CardTitle>
@@ -387,11 +439,13 @@ export function MultiCountryCalculator({
                         ? "Optional MPF/annuity contributions (tax deductible)"
                       : country === "ID"
                         ? "Optional tax-saving contributions (BPJS is mandatory)"
-                        : country === "UK"
-                          ? "Optional pension contributions (with tax relief)"
-                          : country === "DE"
-                            ? "Optional pension contributions (bAV, Riester, Ruerup)"
-                            : "Optional tax-saving contributions (Social Security is mandatory)"}
+                        : country === "MY"
+                          ? "Optional tax-saving contributions and selected reliefs (EPF, SOCSO, and EIS are mandatory)"
+                          : country === "UK"
+                            ? "Optional pension contributions (with tax relief)"
+                            : country === "DE"
+                              ? "Optional pension contributions (bAV, Riester, Ruerup)"
+                              : "Optional tax-saving contributions (Social Security is mandatory)"}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -501,6 +555,25 @@ export function MultiCountryCalculator({
                   onDplkContributionChange={setIdDplkContribution}
                   zakatContribution={idZakatContribution}
                   onZakatContributionChange={setIdZakatContribution}
+                />
+              )}
+
+              {country === "MY" && (
+                <MYContributionOptions
+                  voluntaryEpfContribution={myVoluntaryEpfContribution}
+                  onVoluntaryEpfContributionChange={setMyVoluntaryEpfContribution}
+                  voluntaryEpfLimit={myLimits.voluntaryEpfContribution}
+                  prsContribution={myPrsContribution}
+                  onPrsContributionChange={setMyPrsContribution}
+                  prsLimit={myLimits.prsContribution}
+                  lifestyleRelief={myTaxReliefs.lifestyleRelief}
+                  onLifestyleReliefChange={(value) =>
+                    setMyTaxReliefs({ ...myTaxReliefs, lifestyleRelief: value })
+                  }
+                  medicalRelief={myTaxReliefs.medicalRelief}
+                  onMedicalReliefChange={(value) =>
+                    setMyTaxReliefs({ ...myTaxReliefs, medicalRelief: value })
+                  }
                 />
               )}
 
@@ -621,6 +694,38 @@ export function MultiCountryCalculator({
                 (child) tax credits and supports the optional 30% ruling.
                 Additional deductions are not modeled.
               </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* MY Tax & Contributions Info Card */}
+        {country === "MY" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Tax &amp; Contributions</CardTitle>
+              <CardDescription>
+                Individual income tax, EPF, SOCSO, EIS, and selected reliefs
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  What&apos;s Included
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-1">
+                  <li>Resident individual tax — YA 2025 progressive rates from 0% to 30%</li>
+                  <li>Non-resident employment income — flat 30%</li>
+                  <li>EPF/KWSP employee contributions by age and member category</li>
+                  <li>SOCSO — 0.5% employee share, capped at RM6,000/month wage base</li>
+                  <li>EIS — 0.2% employee share for eligible employees below age 60</li>
+                  <li>Selected reliefs — individual, spouse, child, disability, EPF, PRS, SOCSO, lifestyle, and medical</li>
+                </ul>
+                <p className="text-xs text-zinc-500 mt-3">
+                  Note: Malaysia-specific reliefs use the latest HASiL YA 2025
+                  table available when this calculator was added. Not every
+                  rebate, zakat item, or special deduction is modeled.
+                </p>
+              </div>
             </CardContent>
           </Card>
         )}

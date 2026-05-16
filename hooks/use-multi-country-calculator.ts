@@ -7,6 +7,7 @@ import {
 } from "@/lib/countries/registry";
 import { DECalculator } from "@/lib/countries/de/calculator";
 import { HKCalculator } from "@/lib/countries/hk/calculator";
+import { MYCalculator } from "@/lib/countries/my/calculator";
 import { PTCalculator } from "@/lib/countries/pt/calculator";
 import { THCalculator } from "@/lib/countries/th/calculator";
 import {
@@ -29,6 +30,10 @@ import type {
   KRCalculatorInputs,
   KRResidencyType,
   KRTaxReliefInputs,
+  MYCalculatorInputs,
+  MYEpfCategory,
+  MYResidencyType,
+  MYTaxReliefInputs,
   NLCalculatorInputs,
   PTCalculatorInputs,
   PTResidencyType,
@@ -124,6 +129,15 @@ const DEFAULT_ID_TAX_RELIEFS: IDTaxReliefInputs = {
   maritalStatus: "single",
   numberOfDependents: 0,
   spouseIncomeCombined: false,
+};
+
+const DEFAULT_MY_TAX_RELIEFS: MYTaxReliefInputs = {
+  hasSpouseRelief: false,
+  numberOfChildrenUnder18: 0,
+  numberOfChildrenTertiary: 0,
+  isDisabled: false,
+  lifestyleRelief: 0,
+  medicalRelief: 0,
 };
 
 const DEFAULT_TW_TAX_RELIEFS: TWTaxReliefInputs = {
@@ -250,6 +264,24 @@ export interface UseMultiCountryCalculatorReturn {
   setIdDplkContribution: (value: number) => void;
   idZakatContribution: number;
   setIdZakatContribution: (value: number) => void;
+
+  // MY-specific
+  myResidencyType: MYResidencyType;
+  setMyResidencyType: (value: MYResidencyType) => void;
+  myAge: number;
+  setMyAge: (value: number) => void;
+  myEpfCategory: MYEpfCategory;
+  setMyEpfCategory: (value: MYEpfCategory) => void;
+  myTaxReliefs: MYTaxReliefInputs;
+  setMyTaxReliefs: (value: MYTaxReliefInputs) => void;
+  myVoluntaryEpfContribution: number;
+  setMyVoluntaryEpfContribution: (value: number) => void;
+  myPrsContribution: number;
+  setMyPrsContribution: (value: number) => void;
+  myLimits: {
+    voluntaryEpfContribution: number;
+    prsContribution: number;
+  };
 
   // TW-specific
   twTaxReliefs: TWTaxReliefInputs;
@@ -390,6 +422,19 @@ export function useMultiCountryCalculator(
   const [idDplkContribution, setIdDplkContribution] = useState(0);
   const [idZakatContribution, setIdZakatContribution] = useState(0);
 
+  // MY-specific state
+  const [myResidencyType, setMyResidencyType] =
+    useState<MYResidencyType>("resident");
+  const [myAge, setMyAge] = useState(30);
+  const [myEpfCategory, setMyEpfCategory] =
+    useState<MYEpfCategory>("citizen");
+  const [myTaxReliefs, setMyTaxReliefs] = useState<MYTaxReliefInputs>(
+    DEFAULT_MY_TAX_RELIEFS,
+  );
+  const [myVoluntaryEpfContribution, setMyVoluntaryEpfContributionState] =
+    useState(0);
+  const [myPrsContribution, setMyPrsContributionState] = useState(0);
+
   // TW-specific state
   const [twTaxReliefs, setTwTaxReliefs] = useState<TWTaxReliefInputs>(
     DEFAULT_TW_TAX_RELIEFS,
@@ -463,6 +508,13 @@ export function useMultiCountryCalculator(
       setIdTaxReliefs(DEFAULT_ID_TAX_RELIEFS);
       setIdDplkContribution(0);
       setIdZakatContribution(0);
+    } else if (country === "MY") {
+      setMyResidencyType("resident");
+      setMyAge(30);
+      setMyEpfCategory("citizen");
+      setMyTaxReliefs(DEFAULT_MY_TAX_RELIEFS);
+      setMyVoluntaryEpfContributionState(0);
+      setMyPrsContributionState(0);
     } else if (country === "TW") {
       setTwTaxReliefs(DEFAULT_TW_TAX_RELIEFS);
       setTwVoluntaryPensionState(0);
@@ -534,6 +586,15 @@ export function useMultiCountryCalculator(
     return {
       taxDeductibleVoluntaryContributions:
         limits.taxDeductibleVoluntaryContributions?.limit ?? 60000,
+    };
+  }, []);
+
+  const myLimits = useMemo(() => {
+    const limits = MYCalculator.getContributionLimits();
+    return {
+      voluntaryEpfContribution:
+        limits.voluntaryEpfContribution?.limit ?? 100000,
+      prsContribution: limits.prsContribution?.limit ?? 3000,
     };
   }, []);
 
@@ -660,11 +721,25 @@ export function useMultiCountryCalculator(
     [hkLimits.taxDeductibleVoluntaryContributions],
   );
 
+  const setMyVoluntaryEpfContribution = useCallback(
+    (value: number) =>
+      setMyVoluntaryEpfContributionState(
+        Math.min(value, myLimits.voluntaryEpfContribution),
+      ),
+    [myLimits.voluntaryEpfContribution],
+  );
+
   // TW contribution handler with validation
   const setTwVoluntaryPension = useCallback(
     (value: number) =>
       setTwVoluntaryPensionState(Math.min(value, twLimits.voluntaryPensionContribution)),
     [twLimits.voluntaryPensionContribution],
+  );
+
+  const setMyPrsContribution = useCallback(
+    (value: number) =>
+      setMyPrsContributionState(Math.min(value, myLimits.prsContribution)),
+    [myLimits.prsContribution],
   );
 
   // DE contribution handlers with validation
@@ -785,6 +860,21 @@ export function useMultiCountryCalculator(
         taxReliefs: idTaxReliefs,
       };
       return idInputs;
+    } else if (country === "MY") {
+      const myInputs: MYCalculatorInputs = {
+        country: "MY",
+        grossSalary,
+        payFrequency,
+        residencyType: myResidencyType,
+        age: myAge,
+        epfCategory: myEpfCategory,
+        contributions: {
+          voluntaryEpfContribution: myVoluntaryEpfContribution,
+          prsContribution: Math.min(myPrsContribution, myLimits.prsContribution),
+        },
+        taxReliefs: myTaxReliefs,
+      };
+      return myInputs;
     } else if (country === "TW") {
       const twInputs: TWCalculatorInputs = {
         country: "TW",
@@ -909,6 +999,13 @@ export function useMultiCountryCalculator(
     idTaxReliefs,
     idDplkContribution,
     idZakatContribution,
+    myResidencyType,
+    myAge,
+    myEpfCategory,
+    myTaxReliefs,
+    myVoluntaryEpfContribution,
+    myPrsContribution,
+    myLimits,
     twTaxReliefs,
     twVoluntaryPension,
     twLimits,
@@ -1031,6 +1128,21 @@ export function useMultiCountryCalculator(
     setIdDplkContribution,
     idZakatContribution,
     setIdZakatContribution,
+
+    // MY-specific
+    myResidencyType,
+    setMyResidencyType,
+    myAge,
+    setMyAge,
+    myEpfCategory,
+    setMyEpfCategory,
+    myTaxReliefs,
+    setMyTaxReliefs,
+    myVoluntaryEpfContribution,
+    setMyVoluntaryEpfContribution,
+    myPrsContribution,
+    setMyPrsContribution,
+    myLimits,
 
     // TW-specific
     twTaxReliefs,
