@@ -72,7 +72,7 @@ export function GEResultBreakdown({
           </div>
           <div className="flex items-center justify-between py-2 opacity-60">
             <span className="text-sm text-zinc-400">
-              State Contribution
+              State Contribution ({(breakdown.pension.stateRate * 100).toFixed(0)}%)
             </span>
             <span className="tabular-nums text-sm text-zinc-500">
               +{formatCurrency(breakdown.pension.state, currency)}
@@ -86,35 +86,43 @@ export function GEResultBreakdown({
           <Separator className="my-2" />
           <div className="mt-2 rounded-lg bg-zinc-800/50 p-3">
             <p className="mb-1 text-xs font-medium text-zinc-400">
-              State Pension Banding
+              State Pension Salary Bracket
             </p>
             <div className="space-y-1 text-xs text-zinc-500">
               <div className="flex justify-between gap-4">
                 <span>
-                  First {formatCurrency(breakdown.pension.stateFirstBandLimit, currency)} at {" "}
-                  {(breakdown.pension.stateFirstBandRate * 100).toFixed(0)}%
-                </span>
-                <span className="tabular-nums">
+                  Up to{" "}
                   {formatCurrency(
-                    breakdown.pension.stateFirstBandContribution,
+                    breakdown.pension.stateFirstBandLimit,
                     currency,
                   )}
+                </span>
+                <span className="tabular-nums">
+                  {(breakdown.pension.stateFirstBandRate * 100).toFixed(0)}%
                 </span>
               </div>
               <div className="flex justify-between gap-4">
                 <span>
-                  Next {" "}
+                  Over {formatCurrency(breakdown.pension.stateFirstBandLimit, currency)} to{" "}
                   {formatCurrency(
-                    breakdown.pension.stateSecondBandLimit -
-                      breakdown.pension.stateFirstBandLimit,
-                    currency,
-                  )} at {(breakdown.pension.stateSecondBandRate * 100).toFixed(0)}%
-                </span>
-                <span className="tabular-nums">
-                  {formatCurrency(
-                    breakdown.pension.stateSecondBandContribution,
+                    breakdown.pension.stateSecondBandLimit,
                     currency,
                   )}
+                </span>
+                <span className="tabular-nums">
+                  {(breakdown.pension.stateSecondBandRate * 100).toFixed(0)}%
+                </span>
+              </div>
+              <div className="flex justify-between gap-4">
+                <span>
+                  Over{" "}
+                  {formatCurrency(
+                    breakdown.pension.stateSecondBandLimit,
+                    currency,
+                  )}
+                </span>
+                <span className="tabular-nums">
+                  {(breakdown.pension.stateAboveSecondBandRate * 100).toFixed(0)}%
                 </span>
               </div>
               <div className="flex justify-between gap-4 pt-1 text-zinc-400">

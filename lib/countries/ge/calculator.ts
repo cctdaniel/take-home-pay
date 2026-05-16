@@ -59,8 +59,8 @@ export function calculateGE(inputs: GECalculatorInputs): CalculationResult {
   const statePension = isPensionParticipant
     ? calculateGeorgiaStatePensionContribution(taxableIncome)
     : {
-        firstBandContribution: 0,
-        secondBandContribution: 0,
+        contributionSalary: 0,
+        rate: 0,
         total: 0,
       };
 
@@ -103,8 +103,8 @@ export function calculateGE(inputs: GECalculatorInputs): CalculationResult {
       stateFirstBandRate: GE_PENSION_2026.stateFirstBandRate,
       stateSecondBandRate: GE_PENSION_2026.stateSecondBandRate,
       stateAboveSecondBandRate: GE_PENSION_2026.stateAboveSecondBandRate,
-      stateFirstBandContribution: statePension.firstBandContribution,
-      stateSecondBandContribution: statePension.secondBandContribution,
+      stateContributionSalary: statePension.contributionSalary,
+      stateRate: statePension.rate,
     },
     assumptions: {
       ordinaryEmploymentSalaryOnly: true,

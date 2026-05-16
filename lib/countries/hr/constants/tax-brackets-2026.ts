@@ -38,7 +38,7 @@ export const CROATIA_TAX_YEAR = 2026;
 export const CROATIA_PERSONAL_ALLOWANCE_2026 = {
   monthlyBasic: 600,
   annualBasic: 7_200,
-  dependentSpouseFactor: 0.7,
+  dependentSpouseFactor: 0.5,
   childFactors: [0.5, 0.7, 1.0, 1.4, 1.9, 2.5, 3.2, 4.0, 4.9],
 };
 

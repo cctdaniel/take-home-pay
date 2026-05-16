@@ -89,16 +89,23 @@ export function calculateAE(inputs: AECalculatorInputs): CalculationResult {
   const pensionEmployee = roundCurrency(
     contributionSalary.annual * settings.employeeRate,
   );
-  const pensionEmployer = roundCurrency(
-    contributionSalary.annual * settings.employerRate,
-  );
   const receivesGovernmentSupport =
     settings.governmentSupportMonthlyThreshold !== undefined &&
     contributionSalary.monthly > 0 &&
     contributionSalary.monthly < settings.governmentSupportMonthlyThreshold;
-  const governmentSupport = receivesGovernmentSupport
-    ? roundCurrency(contributionSalary.annual * settings.governmentSupportRate)
+  const governmentSupportRate = receivesGovernmentSupport
+    ? settings.governmentSupportRate
     : 0;
+  const employerCashRate = Math.max(
+    0,
+    settings.employerRate - governmentSupportRate,
+  );
+  const pensionEmployer = roundCurrency(
+    contributionSalary.annual * employerCashRate,
+  );
+  const governmentSupport = roundCurrency(
+    contributionSalary.annual * governmentSupportRate,
+  );
 
   const taxes: AETaxBreakdown = {
     type: "AE",
@@ -124,8 +131,9 @@ export function calculateAE(inputs: AECalculatorInputs): CalculationResult {
       employer: pensionEmployer,
       governmentSupport,
       employeeRate: settings.employeeRate,
-      employerRate: settings.employerRate,
-      governmentSupportRate: settings.governmentSupportRate,
+      employerRate: employerCashRate,
+      statutoryEmployerRate: settings.employerRate,
+      governmentSupportRate,
       contributionSalaryAnnual: contributionSalary.annual,
       contributionSalaryMonthly: contributionSalary.monthly,
       monthlyMinimum: settings.monthlyMinimum,

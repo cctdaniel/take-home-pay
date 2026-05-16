@@ -51,8 +51,8 @@ export interface GEBreakdown {
     stateFirstBandRate: number;
     stateSecondBandRate: number;
     stateAboveSecondBandRate: number;
-    stateFirstBandContribution: number;
-    stateSecondBandContribution: number;
+    stateContributionSalary: number;
+    stateRate: number;
   };
   assumptions: {
     ordinaryEmploymentSalaryOnly: boolean;

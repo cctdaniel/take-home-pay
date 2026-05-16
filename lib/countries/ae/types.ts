@@ -43,6 +43,7 @@ export interface AEBreakdown {
     governmentSupport: number;
     employeeRate: number;
     employerRate: number;
+    statutoryEmployerRate: number;
     governmentSupportRate: number;
     contributionSalaryAnnual: number;
     contributionSalaryMonthly: number;

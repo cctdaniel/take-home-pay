@@ -18,7 +18,6 @@ import {
   CYPRUS_TD59_DEDUCTIONS_2026,
   calculateCyprusDependentChildDeduction,
   calculateCyprusProgressiveTax,
-  getCyprusSingleParentMultiplier,
 } from "./constants/tax-brackets-2026";
 import type {
   CYBreakdown,
@@ -60,25 +59,20 @@ function getPensionProvidentModeledLimit(grossSalary: number): number {
   );
 }
 
-function getResidentReliefMultiplier(inputs: CYCalculatorInputs): number {
+function isResidentReliefEligible(inputs: CYCalculatorInputs): boolean {
   return inputs.residencyType === "resident" &&
-    inputs.taxReliefs.meetsFamilyIncomeCriteria
-    ? getCyprusSingleParentMultiplier(
-        inputs.taxReliefs.familyStatus,
-        inputs.taxReliefs.numberOfDependentChildren,
-      )
-    : 0;
+    inputs.taxReliefs.meetsFamilyIncomeCriteria;
 }
 
 function normalizeContributions(
   inputs: CYCalculatorInputs,
 ): CYContributionInputs {
-  const residentReliefMultiplier = getResidentReliefMultiplier(inputs);
+  const hasResidentRelief = isResidentReliefEligible(inputs);
   const pensionProvidentLimit = getPensionProvidentModeledLimit(
     inputs.grossSalary,
   );
   const residentReliefLimit = (baseLimit: number) =>
-    residentReliefMultiplier > 0 ? baseLimit * residentReliefMultiplier : 0;
+    hasResidentRelief ? baseLimit : 0;
   const residentOnlyLimit = (baseLimit: number) =>
     inputs.residencyType === "resident" ? baseLimit : 0;
 
@@ -334,17 +328,12 @@ export const CYCalculator: CountryCalculator = {
       numberOfDependentChildren: 0,
       meetsFamilyIncomeCriteria: true,
     };
-    const residentReliefMultiplier =
-      residencyType === "resident" && taxReliefs.meetsFamilyIncomeCriteria
-        ? getCyprusSingleParentMultiplier(
-            taxReliefs.familyStatus,
-            taxReliefs.numberOfDependentChildren,
-          )
-        : 0;
+    const hasResidentRelief =
+      residencyType === "resident" && taxReliefs.meetsFamilyIncomeCriteria;
     const residentOnlyLimit = (baseLimit: number) =>
       residencyType === "resident" ? baseLimit : 0;
     const residentReliefLimit = (baseLimit: number) =>
-      residentReliefMultiplier > 0 ? baseLimit * residentReliefMultiplier : 0;
+      hasResidentRelief ? baseLimit : 0;
 
     return {
       approvedPensionProvidentFund: {
