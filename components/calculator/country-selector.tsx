@@ -3,6 +3,10 @@
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { getSupportedCountries } from "@/lib/countries/registry";
+import {
+  groupCountriesByRegion,
+  type CountryGroup,
+} from "@/lib/countries/country-groups";
 import type { CountryCode } from "@/lib/countries/types";
 import { useRouter } from "next/navigation";
 
@@ -10,7 +14,19 @@ interface CountrySelectorProps {
   value: CountryCode;
 }
 
-const countries = getSupportedCountries();
+const countryGroups = groupCountriesByRegion(getSupportedCountries());
+
+function renderCountryGroup(group: CountryGroup) {
+  return (
+    <optgroup key={group.region} label={group.region}>
+      {group.countries.map((country) => (
+        <option key={country.code} value={country.code}>
+          {country.name}
+        </option>
+      ))}
+    </optgroup>
+  );
+}
 
 /**
  * Country selector that navigates to the selected country's page.
@@ -27,11 +43,7 @@ export function CountrySelector({ value }: CountrySelectorProps) {
         value={value}
         onChange={(e) => router.push(`/${e.target.value.toLowerCase()}`)}
       >
-        {countries.map((country) => (
-          <option key={country.code} value={country.code}>
-            {country.name}
-          </option>
-        ))}
+        {countryGroups.map(renderCountryGroup)}
       </Select>
     </div>
   );
