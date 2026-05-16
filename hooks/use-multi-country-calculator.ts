@@ -6,6 +6,7 @@ import {
   getDefaultInputs,
 } from "@/lib/countries/registry";
 import { DECalculator } from "@/lib/countries/de/calculator";
+import { GRCalculator } from "@/lib/countries/gr/calculator";
 import type {
   GRCalculatorInputs,
   GRResidencyType,
@@ -234,6 +235,11 @@ export interface UseMultiCountryCalculatorReturn {
   setGrAge: (value: number) => void;
   grNumberOfDependents: number;
   setGrNumberOfDependents: (value: number) => void;
+  grOccupationalPensionContribution: number;
+  setGrOccupationalPensionContribution: (value: number) => void;
+  grLimits: {
+    occupationalPensionContribution: number;
+  };
 
   // TH-specific
   thResidencyType: THResidencyType;
@@ -414,6 +420,10 @@ export function useMultiCountryCalculator(
     useState<GRResidencyType>("resident");
   const [grAge, setGrAge] = useState(31);
   const [grNumberOfDependents, setGrNumberOfDependents] = useState(0);
+  const [
+    grOccupationalPensionContribution,
+    setGrOccupationalPensionContributionState,
+  ] = useState(0);
 
   // TH-specific state
   const [thResidencyType, setThResidencyType] = useState<THResidencyType>("resident");
@@ -514,6 +524,7 @@ export function useMultiCountryCalculator(
       setGrResidencyType("resident");
       setGrAge(31);
       setGrNumberOfDependents(0);
+      setGrOccupationalPensionContributionState(0);
     } else if (country === "TH") {
       setThResidencyType("resident");
       setThTaxReliefs(DEFAULT_TH_TAX_RELIEFS);
@@ -589,6 +600,19 @@ export function useMultiCountryCalculator(
       pprMaxTaxCredit: maxTaxCredit,
     };
   }, [ptAge]);
+
+  const grLimits = useMemo(() => {
+    const limits = GRCalculator.getContributionLimits({
+      country: "GR",
+      grossSalary,
+      residencyType: grResidencyType,
+    } as Partial<GRCalculatorInputs>);
+
+    return {
+      occupationalPensionContribution:
+        limits.occupationalPensionContribution?.limit ?? grossSalary * 0.2,
+    };
+  }, [grossSalary, grResidencyType]);
 
   // TH limits
   const thLimits = useMemo(() => {
@@ -707,6 +731,15 @@ export function useMultiCountryCalculator(
       setPtPprContributionState(Math.min(value, ptLimits.pprMaxContribution));
     },
     [ptLimits.pprMaxContribution],
+  );
+
+  const setGrOccupationalPensionContribution = useCallback(
+    (value: number) => {
+      setGrOccupationalPensionContributionState(
+        Math.min(value, grLimits.occupationalPensionContribution),
+      );
+    },
+    [grLimits.occupationalPensionContribution],
   );
 
   // TH contribution handlers with validation
@@ -878,7 +911,12 @@ export function useMultiCountryCalculator(
         residencyType: grResidencyType,
         age: grAge,
         numberOfDependents: grNumberOfDependents,
-        contributions: {},
+        contributions: {
+          occupationalPensionContribution: Math.min(
+            grOccupationalPensionContribution,
+            grLimits.occupationalPensionContribution,
+          ),
+        },
       };
       return grInputs;
     } else if (country === "ID") {
@@ -1022,6 +1060,8 @@ export function useMultiCountryCalculator(
     grResidencyType,
     grAge,
     grNumberOfDependents,
+    grOccupationalPensionContribution,
+    grLimits,
     thResidencyType,
     thTaxReliefs,
     thProvidentFund,
@@ -1140,6 +1180,9 @@ export function useMultiCountryCalculator(
     setGrAge,
     grNumberOfDependents,
     setGrNumberOfDependents,
+    grOccupationalPensionContribution,
+    setGrOccupationalPensionContribution,
+    grLimits,
 
     // TH-specific
     thResidencyType,

@@ -13,6 +13,9 @@
 // https://www.oecd.org/en/publications/taxing-wages-2026_3a5169ef-en/full-report/greece_027f4efa.html
 // PwC Greece summary for 2026 EFKA monthly ceiling:
 // https://taxsummaries.pwc.com/greece/corporate/other-taxes
+// KPMG/Mercer summaries of Law 5078/2023 occupational pension contribution cap:
+// https://kpmg.com/xx/en/our-insights/gms-flash-alert/flash-alert-2024-042.html
+// https://www.mercer.com/en-us/insights/law-and-policy/occupational-pension-plans-in-greece/
 //
 // Assumptions:
 // - Models dependent employment income for ordinary white-collar employees.
@@ -61,6 +64,8 @@ export const GREECE_SOCIAL_INSURANCE_2026 = {
     employerRate: 0.0141,
   },
 };
+
+export const GREECE_OCCUPATIONAL_PENSION_CONTRIBUTION_LIMIT_RATE = 0.2;
 
 function normalizeDependents(numberOfDependents: number): number {
   if (!Number.isFinite(numberOfDependents)) {

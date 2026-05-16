@@ -17,6 +17,7 @@ import {
   calculateGreekProgressiveIncomeTax,
   calculateGreekSocialInsurance,
   getGreekEmploymentTaxBrackets2026,
+  GREECE_OCCUPATIONAL_PENSION_CONTRIBUTION_LIMIT_RATE,
   GREECE_SOCIAL_INSURANCE_2026,
 } from "./constants/tax-brackets-2026";
 import type { GRBreakdown, GRCalculatorInputs, GRTaxBreakdown } from "./types";
@@ -41,6 +42,7 @@ export function calculateGR(inputs: GRCalculatorInputs): CalculationResult {
     residencyType,
     age,
     numberOfDependents,
+    contributions,
   } = inputs;
 
   const isResident = residencyType === "resident";
@@ -49,7 +51,20 @@ export function calculateGR(inputs: GRCalculatorInputs): CalculationResult {
 
   // e-EFKA employee contributions are deductible for income tax purposes.
   const socialInsurance = calculateGreekSocialInsurance(grossSalary);
-  const taxableIncome = Math.max(0, grossSalary - socialInsurance.employeeTotal);
+  const pensionContributionLimit =
+    grossSalary * GREECE_OCCUPATIONAL_PENSION_CONTRIBUTION_LIMIT_RATE;
+  const occupationalPensionContribution = isResident
+    ? Math.min(
+        Math.max(0, contributions.occupationalPensionContribution || 0),
+        pensionContributionLimit,
+      )
+    : 0;
+  const taxableIncome = Math.max(
+    0,
+    grossSalary -
+      socialInsurance.employeeTotal -
+      occupationalPensionContribution,
+  );
 
   // Conservative non-resident treatment: use the standard no-child adult scale
   // and do not apply resident employment tax reductions.
@@ -87,7 +102,7 @@ export function calculateGR(inputs: GRCalculatorInputs): CalculationResult {
   };
 
   const totalTax = incomeTax + socialInsurance.employeeTotal;
-  const totalDeductions = totalTax;
+  const totalDeductions = totalTax + occupationalPensionContribution;
   const netSalary = grossSalary - totalDeductions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(payFrequency);
@@ -125,6 +140,11 @@ export function calculateGR(inputs: GRCalculatorInputs): CalculationResult {
       healthcareEmployee: socialInsurance.healthcareEmployee,
       otherFundsEmployee: socialInsurance.otherFundsEmployee,
     },
+    voluntaryContributions: {
+      occupationalPension: occupationalPensionContribution,
+      pensionContributionLimit,
+      total: occupationalPensionContribution,
+    },
   };
 
   return {
@@ -161,8 +181,22 @@ export const GRCalculator: CountryCalculator = {
     return [];
   },
 
-  getContributionLimits(): ContributionLimits {
-    return {};
+  getContributionLimits(inputs?: Partial<CalculatorInputs>): ContributionLimits {
+    const grInputs = inputs as Partial<GRCalculatorInputs> | undefined;
+    const salary = Math.max(0, grInputs?.grossSalary ?? 24_000);
+    const isResident = (grInputs?.residencyType ?? "resident") === "resident";
+
+    return {
+      occupationalPensionContribution: {
+        limit: isResident
+          ? salary * GREECE_OCCUPATIONAL_PENSION_CONTRIBUTION_LIMIT_RATE
+          : 0,
+        name: "Occupational Pension",
+        description:
+          "Voluntary occupational pension or group pension insurance contribution, capped at 20% of gross employment income.",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): GRCalculatorInputs {
@@ -173,7 +207,9 @@ export const GRCalculator: CountryCalculator = {
       residencyType: "resident",
       age: 31,
       numberOfDependents: 0,
-      contributions: {},
+      contributions: {
+        occupationalPensionContribution: 0,
+      },
     };
   },
 };

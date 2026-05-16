@@ -8,7 +8,9 @@ import type {
 
 export type GRResidencyType = "resident" | "non_resident";
 
-export type GRContributionInputs = Record<never, never>;
+export interface GRContributionInputs {
+  occupationalPensionContribution: number;
+}
 
 export interface GRCalculatorInputs extends BaseCalculatorInputs {
   country: "GR";
@@ -60,6 +62,11 @@ export interface GRBreakdown {
     supplementaryPensionEmployee: number;
     healthcareEmployee: number;
     otherFundsEmployee: number;
+  };
+  voluntaryContributions: {
+    occupationalPension: number;
+    pensionContributionLimit: number;
+    total: number;
   };
 }
 

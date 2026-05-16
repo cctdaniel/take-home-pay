@@ -365,6 +365,11 @@ function GRTaxInfo() {
           13.37% employee contribution for ordinary salaried employees, capped
           at EUR 7,761.94 per month of insurable earnings
         </li>
+        <li>
+          <strong className="text-zinc-300">Occupational Pension</strong> –
+          Qualifying TEA or group pension plan contributions can reduce taxable
+          employment income, capped at 20% of gross salary
+        </li>
       </ul>
 
       <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">

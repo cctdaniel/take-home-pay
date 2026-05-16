@@ -53,6 +53,20 @@ export function GRResultBreakdown({
           </span>
         </div>
       )}
+      {breakdown.voluntaryContributions.occupationalPension > 0 && (
+        <div className="flex items-center justify-between py-1">
+          <span className="text-sm text-zinc-400">
+            Occupational Pension Deduction
+          </span>
+          <span className="text-sm text-emerald-400 tabular-nums">
+            -
+            {formatCurrency(
+              breakdown.voluntaryContributions.occupationalPension,
+              currency,
+            )}
+          </span>
+        </div>
+      )}
 
       <Separator className="my-2" />
 
@@ -80,6 +94,21 @@ export function GRResultBreakdown({
         Employer pays this on top of your salary and is not deducted from
         take-home pay.
       </p>
+
+      {breakdown.voluntaryContributions.occupationalPension > 0 && (
+        <>
+          <Separator className="my-2" />
+          <p className="text-xs text-zinc-500 pt-2 pb-1">
+            Voluntary Contributions
+          </p>
+          <DeductionRow
+            label="Occupational Pension"
+            amount={breakdown.voluntaryContributions.occupationalPension}
+            grossSalary={grossSalary}
+            currency={currency}
+          />
+        </>
+      )}
 
       <Separator className="my-2" />
       <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">

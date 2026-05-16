@@ -124,6 +124,9 @@ export function MultiCountryCalculator({
     setGrAge,
     grNumberOfDependents,
     setGrNumberOfDependents,
+    grOccupationalPensionContribution,
+    setGrOccupationalPensionContribution,
+    grLimits,
 
     // TH-specific
     thResidencyType,
@@ -443,8 +446,8 @@ export function MultiCountryCalculator({
           </CardContent>
         </Card>
 
-        {/* Contributions Card - US, SG, PT, TH, HK, ID, MY, DE, UK and TW */}
-        {(country === "US" || country === "SG" || country === "PT" || country === "TH" || country === "HK" || country === "ID" || country === "MY" || country === "DE" || country === "UK" || country === "TW") && (
+        {/* Contributions Card - country-specific voluntary contribution controls */}
+        {(country === "US" || country === "SG" || country === "PT" || country === "GR" || country === "TH" || country === "HK" || country === "ID" || country === "MY" || country === "DE" || country === "UK" || country === "TW") && (
           <Card>
             <CardHeader>
               <CardTitle>
@@ -457,6 +460,8 @@ export function MultiCountryCalculator({
                     ? "Optional tax-saving contributions to PPR (Retirement Savings Plan)"
                     : country === "SG"
                       ? "Optional tax-saving contributions (CPF is mandatory)"
+                      : country === "GR"
+                        ? "Optional occupational pension contributions (e-EFKA is mandatory)"
                       : country === "HK"
                         ? "Optional MPF/annuity contributions (tax deductible)"
                       : country === "ID"
@@ -521,6 +526,31 @@ export function MultiCountryCalculator({
                     <span className="text-emerald-400">Tip:</span> PPR (Plano de Poupança Reforma) 
                     contributions qualify for a 20% tax credit. Limits vary by age: 
                     Under 35: €2,000, 35-50: €1,750, Over 50: €1,500.
+                  </p>
+                </div>
+              )}
+
+              {country === "GR" && (
+                <div className="space-y-6">
+                  {grLimits.occupationalPensionContribution > 0 ? (
+                    <ContributionSlider
+                      label="Occupational Pension / Group Pension Plan"
+                      description="Resident employee contributions can reduce taxable employment income, capped at 20% of gross salary."
+                      value={grOccupationalPensionContribution}
+                      onChange={setGrOccupationalPensionContribution}
+                      max={grLimits.occupationalPensionContribution}
+                      currency="EUR"
+                    />
+                  ) : (
+                    <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
+                      Occupational pension deductions are modeled for Greek tax
+                      residents only.
+                    </p>
+                  )}
+                  <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
+                    Applies to qualifying occupational pension funds (TEA) or
+                    group pension insurance plans. Mandatory e-EFKA is calculated
+                    automatically.
                   </p>
                 </div>
               )}
@@ -947,6 +977,7 @@ export function MultiCountryCalculator({
                   <li>Youth rates for employees up to age 30</li>
                   <li>Employment tax reduction with income taper above EUR 12,000</li>
                   <li>Employee e-EFKA social insurance — 13.37% up to the monthly ceiling</li>
+                  <li>Optional occupational pension/group pension contributions — tax-deductible up to 20% of gross salary</li>
                 </ul>
                 <p className="text-xs text-zinc-500 mt-3">
                   Note: This models ordinary salaried employment. Special EFKA

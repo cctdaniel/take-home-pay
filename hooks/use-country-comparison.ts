@@ -2,6 +2,7 @@
 
 import { DECalculator } from "@/lib/countries/de";
 import { HK_DEDUCTIONS_2026 } from "@/lib/countries/hk/constants/tax-brackets-2026";
+import { GREECE_OCCUPATIONAL_PENSION_CONTRIBUTION_LIMIT_RATE } from "@/lib/countries/gr/constants/tax-brackets-2026";
 import {
   calculateNetSalary,
   getCountryConfig,
@@ -498,6 +499,10 @@ export function useCountryComparison(
 
         if (country === "GR") {
           const defaultInputs = getDefaultInputs(country) as GRCalculatorInputs;
+          const occupationalPensionContribution =
+            isMaxRetirement && inputs.assumptions.isResident
+              ? grossLocal * GREECE_OCCUPATIONAL_PENSION_CONTRIBUTION_LIMIT_RATE
+              : 0;
           const grInputs: GRCalculatorInputs = {
             ...defaultInputs,
             grossSalary: grossLocal,
@@ -507,9 +512,12 @@ export function useCountryComparison(
               : "non_resident",
             age: inputs.assumptions.age,
             numberOfDependents: inputs.numberOfChildren,
-            contributions: {},
+            contributions: {
+              occupationalPensionContribution,
+            },
           };
           const result = calculateNetSalary(grInputs);
+          const retirementApplied = occupationalPensionContribution > 0;
           acc.push({
             country,
             name: config.name,
@@ -522,7 +530,11 @@ export function useCountryComparison(
             effectiveTaxRate: result.effectiveTaxRate,
             deltaBase: 0,
             deltaPercent: 0,
-            assumptions: buildAssumptionsSummary(country, inputs, false),
+            assumptions: buildAssumptionsSummary(
+              country,
+              inputs,
+              retirementApplied
+            ),
             calculation: result,
           });
           return acc;
