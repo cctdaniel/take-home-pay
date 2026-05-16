@@ -3,28 +3,40 @@
 
 import type { CountryCode } from "@/lib/countries/types";
 import AECountryExtension from "./country-extensions/ae";
+import CNCountryExtension from "./country-extensions/cn";
 import CYCountryExtension from "./country-extensions/cy";
+import CZCountryExtension from "./country-extensions/cz";
 import DKCountryExtension from "./country-extensions/dk";
 import FICountryExtension from "./country-extensions/fi";
 import GECountryExtension from "./country-extensions/ge";
 import HRCountryExtension from "./country-extensions/hr";
+import INCountryExtension from "./country-extensions/in";
 import ISCountryExtension from "./country-extensions/is";
+import JPCountryExtension from "./country-extensions/jp";
 import MTCountryExtension from "./country-extensions/mt";
 import NOCountryExtension from "./country-extensions/no";
+import PHCountryExtension from "./country-extensions/ph";
 import SECountryExtension from "./country-extensions/se";
+import VNCountryExtension from "./country-extensions/vn";
 import type { CountryCalculatorExtensionComponent } from "./country-extension";
 
 export const COUNTRY_CALCULATOR_EXTENSIONS: Partial<
   Record<CountryCode, CountryCalculatorExtensionComponent>
 > = {
   AE: AECountryExtension,
+  CN: CNCountryExtension,
   CY: CYCountryExtension,
+  CZ: CZCountryExtension,
   DK: DKCountryExtension,
   FI: FICountryExtension,
   GE: GECountryExtension,
   HR: HRCountryExtension,
+  IN: INCountryExtension,
   IS: ISCountryExtension,
+  JP: JPCountryExtension,
   MT: MTCountryExtension,
   NO: NOCountryExtension,
+  PH: PHCountryExtension,
   SE: SECountryExtension,
+  VN: VNCountryExtension,
 };

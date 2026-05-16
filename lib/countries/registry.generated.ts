@@ -3,7 +3,9 @@
 
 import { AECalculator } from "./ae";
 import { AUCalculator } from "./au";
+import { CNCalculator } from "./cn";
 import { CYCalculator } from "./cy";
+import { CZCalculator } from "./cz";
 import { DECalculator } from "./de";
 import { DKCalculator } from "./dk";
 import { ESCalculator } from "./es";
@@ -13,12 +15,15 @@ import { GRCalculator } from "./gr";
 import { HKCalculator } from "./hk";
 import { HRCalculator } from "./hr";
 import { IDCalculator } from "./id";
+import { INCalculator } from "./in";
 import { ISCalculator } from "./is";
+import { JPCalculator } from "./jp";
 import { KRCalculator } from "./kr";
 import { MTCalculator } from "./mt";
 import { MYCalculator } from "./my";
 import { NLCalculator } from "./nl";
 import { NOCalculator } from "./no";
+import { PHCalculator } from "./ph";
 import { PTCalculator } from "./pt";
 import { SECalculator } from "./se";
 import { SGCalculator } from "./sg";
@@ -26,6 +31,7 @@ import { THCalculator } from "./th";
 import { TWCalculator } from "./tw";
 import { UKCalculator } from "./uk";
 import { USCalculator } from "./us";
+import { VNCalculator } from "./vn";
 import type { CountryCalculator, CountryCode } from "./types";
 
 export interface CountryRegistryEntry {
@@ -36,7 +42,9 @@ export interface CountryRegistryEntry {
 export const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
   { code: AECalculator.countryCode, calculator: AECalculator },
   { code: AUCalculator.countryCode, calculator: AUCalculator },
+  { code: CNCalculator.countryCode, calculator: CNCalculator },
   { code: CYCalculator.countryCode, calculator: CYCalculator },
+  { code: CZCalculator.countryCode, calculator: CZCalculator },
   { code: DECalculator.countryCode, calculator: DECalculator },
   { code: DKCalculator.countryCode, calculator: DKCalculator },
   { code: ESCalculator.countryCode, calculator: ESCalculator },
@@ -46,12 +54,15 @@ export const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
   { code: HKCalculator.countryCode, calculator: HKCalculator },
   { code: HRCalculator.countryCode, calculator: HRCalculator },
   { code: IDCalculator.countryCode, calculator: IDCalculator },
+  { code: INCalculator.countryCode, calculator: INCalculator },
   { code: ISCalculator.countryCode, calculator: ISCalculator },
+  { code: JPCalculator.countryCode, calculator: JPCalculator },
   { code: KRCalculator.countryCode, calculator: KRCalculator },
   { code: MTCalculator.countryCode, calculator: MTCalculator },
   { code: MYCalculator.countryCode, calculator: MYCalculator },
   { code: NLCalculator.countryCode, calculator: NLCalculator },
   { code: NOCalculator.countryCode, calculator: NOCalculator },
+  { code: PHCalculator.countryCode, calculator: PHCalculator },
   { code: PTCalculator.countryCode, calculator: PTCalculator },
   { code: SECalculator.countryCode, calculator: SECalculator },
   { code: SGCalculator.countryCode, calculator: SGCalculator },
@@ -59,4 +70,5 @@ export const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
   { code: TWCalculator.countryCode, calculator: TWCalculator },
   { code: UKCalculator.countryCode, calculator: UKCalculator },
   { code: USCalculator.countryCode, calculator: USCalculator },
+  { code: VNCalculator.countryCode, calculator: VNCalculator },
 ].sort((a, b) => a.calculator.config.name.localeCompare(b.calculator.config.name));

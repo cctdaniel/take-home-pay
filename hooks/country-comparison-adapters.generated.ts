@@ -3,28 +3,40 @@
 
 import type { CountryCode } from "@/lib/countries/types";
 import { buildCountryComparison as AECountryComparisonAdapter } from "@/lib/countries/ae/compare";
+import { buildCountryComparison as CNCountryComparisonAdapter } from "@/lib/countries/cn/compare";
 import { buildCountryComparison as CYCountryComparisonAdapter } from "@/lib/countries/cy/compare";
+import { buildCountryComparison as CZCountryComparisonAdapter } from "@/lib/countries/cz/compare";
 import { buildCountryComparison as DKCountryComparisonAdapter } from "@/lib/countries/dk/compare";
 import { buildCountryComparison as FICountryComparisonAdapter } from "@/lib/countries/fi/compare";
 import { buildCountryComparison as GECountryComparisonAdapter } from "@/lib/countries/ge/compare";
 import { buildCountryComparison as HRCountryComparisonAdapter } from "@/lib/countries/hr/compare";
+import { buildCountryComparison as INCountryComparisonAdapter } from "@/lib/countries/in/compare";
 import { buildCountryComparison as ISCountryComparisonAdapter } from "@/lib/countries/is/compare";
+import { buildCountryComparison as JPCountryComparisonAdapter } from "@/lib/countries/jp/compare";
 import { buildCountryComparison as MTCountryComparisonAdapter } from "@/lib/countries/mt/compare";
 import { buildCountryComparison as NOCountryComparisonAdapter } from "@/lib/countries/no/compare";
+import { buildCountryComparison as PHCountryComparisonAdapter } from "@/lib/countries/ph/compare";
 import { buildCountryComparison as SECountryComparisonAdapter } from "@/lib/countries/se/compare";
+import { buildCountryComparison as VNCountryComparisonAdapter } from "@/lib/countries/vn/compare";
 import type { CountryComparisonAdapter } from "./use-country-comparison";
 
 export const COUNTRY_COMPARISON_ADAPTERS: Partial<
   Record<CountryCode, CountryComparisonAdapter>
 > = {
   AE: AECountryComparisonAdapter,
+  CN: CNCountryComparisonAdapter,
   CY: CYCountryComparisonAdapter,
+  CZ: CZCountryComparisonAdapter,
   DK: DKCountryComparisonAdapter,
   FI: FICountryComparisonAdapter,
   GE: GECountryComparisonAdapter,
   HR: HRCountryComparisonAdapter,
+  IN: INCountryComparisonAdapter,
   IS: ISCountryComparisonAdapter,
+  JP: JPCountryComparisonAdapter,
   MT: MTCountryComparisonAdapter,
   NO: NOCountryComparisonAdapter,
+  PH: PHCountryComparisonAdapter,
   SE: SECountryComparisonAdapter,
+  VN: VNCountryComparisonAdapter,
 };
