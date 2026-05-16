@@ -21,6 +21,7 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "KR" && <KRTaxInfo />}
         {country === "NL" && <NLTaxInfo />}
         {country === "DE" && <DETaxInfo />}
+        {country === "ES" && <ESTaxInfo />}
         {country === "GR" && <GRTaxInfo />}
         {country === "AU" && <AUTaxInfo />}
         {country === "PT" && <PTTaxInfo />}
@@ -328,6 +329,84 @@ function DETaxInfo() {
         Income tax is calculated per Section 32a formula, then solidarity surcharge
         and optional church tax are added. Social security is deducted
         separately.
+      </p>
+    </div>
+  );
+}
+
+// ============================================================================
+// SPAIN TAX INFO
+// ============================================================================
+function ESTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Spain</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li>
+          <strong className="text-zinc-300">IRPF Income Tax</strong> – State
+          scale plus autonomous community scale for Spanish tax residents
+        </li>
+        <li>
+          <strong className="text-zinc-300">Regional Support</strong> – General
+          estimate plus Madrid, Catalonia, Andalusia, and Valencian Community
+        </li>
+        <li>
+          <strong className="text-zinc-300">Personal &amp; Family Minimums</strong> –
+          Tax relief for taxpayer age and qualifying descendants
+        </li>
+        <li>
+          <strong className="text-zinc-300">Employment Expense Deduction</strong> –
+          EUR 2,000 general work expense deduction for residents
+        </li>
+        <li>
+          <strong className="text-zinc-300">Pension Contributions</strong> –
+          Basic resident pension/social welfare reduction capped at EUR 1,500
+          and 30% of net work income
+        </li>
+        <li>
+          <strong className="text-zinc-300">Social Security</strong> – Employee
+          common contingencies, unemployment, professional training, and MEI
+          contributions, capped by the 2026 monthly base
+        </li>
+        <li>
+          <strong className="text-zinc-300">Non-Residents</strong> – Simplified
+          IRNR flat rates: 19% for EU/EEA/Liechtenstein residents and 24% for
+          other non-residents
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        State IRPF Scale Used
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>EUR 0 – EUR 12,450: 9.5%</li>
+        <li>EUR 12,450 – EUR 20,200: 12%</li>
+        <li>EUR 20,200 – EUR 35,200: 15%</li>
+        <li>EUR 35,200 – EUR 60,000: 18.5%</li>
+        <li>EUR 60,000 – EUR 300,000: 22.5%</li>
+        <li>EUR 300,000+: 24.5%</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Employee Social Security 2026
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Common contingencies: 4.70%</li>
+        <li>Unemployment: 1.55% permanent contracts, 1.60% fixed-term contracts</li>
+        <li>Professional training: 0.10%</li>
+        <li>MEI: 0.15%</li>
+        <li>Monthly contribution base capped at EUR 5,101.20</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Important Assumptions
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        IRPF uses the latest AEAT Renta 2025 state and autonomous community
+        scales currently published, while payroll contributions use 2026 BOE and
+        Seguridad Social rates. This calculator does not model regional
+        deductions, itemized personal deductions, special expat regimes, or the
+        Basque/Navarre foral systems.
       </p>
     </div>
   );

@@ -1,6 +1,8 @@
 "use client";
 
 import { DECalculator } from "@/lib/countries/de";
+import { ESCalculator } from "@/lib/countries/es";
+import type { ESCalculatorInputs } from "@/lib/countries/es/types";
 import { HK_DEDUCTIONS_2026 } from "@/lib/countries/hk/constants/tax-brackets-2026";
 import { GREECE_OCCUPATIONAL_PENSION_CONTRIBUTION_LIMIT_RATE } from "@/lib/countries/gr/constants/tax-brackets-2026";
 import {
@@ -179,6 +181,12 @@ function buildAssumptionsSummary(
         } (no childless surcharge)`
       );
     }
+  }
+
+  if (country === "ES") {
+    summary.push(assumptions.isResident ? "Resident" : "Non-resident");
+    summary.push("General autonomous scale");
+    summary.push(`Age ${assumptions.age}`);
   }
 
   if (
@@ -727,6 +735,65 @@ export function useCountryComparison(
           };
           const result = calculateNetSalary(twInputs);
           const retirementApplied = voluntaryPension > 0;
+          acc.push({
+            country,
+            name: config.name,
+            currency,
+            rate,
+            grossLocal,
+            netLocal: result.netSalary,
+            netBase: result.netSalary / rate,
+            takeHomeRate: grossLocal > 0 ? result.netSalary / grossLocal : 0,
+            effectiveTaxRate: result.effectiveTaxRate,
+            deltaBase: 0,
+            deltaPercent: 0,
+            assumptions: buildAssumptionsSummary(
+              country,
+              inputs,
+              retirementApplied
+            ),
+            calculation: result,
+          });
+          return acc;
+        }
+
+        if (country === "ES") {
+          const defaultInputs = getDefaultInputs(country) as ESCalculatorInputs;
+          const residencyType = inputs.assumptions.isResident
+            ? "resident"
+            : "non_resident_other";
+          const pensionContribution =
+            isMaxRetirement && inputs.assumptions.isResident
+              ? (ESCalculator.getContributionLimits({
+                  country: "ES",
+                  grossSalary: grossLocal,
+                  residencyType,
+                  employmentContractType: "permanent",
+                } as Partial<ESCalculatorInputs>).pensionContribution?.limit ??
+                0)
+              : 0;
+          const esInputs: ESCalculatorInputs = {
+            ...defaultInputs,
+            grossSalary: grossLocal,
+            payFrequency,
+            residencyType,
+            region: "general",
+            filingStatus:
+              inputs.maritalStatus === "married"
+                ? "married_jointly"
+                : inputs.numberOfChildren > 0
+                  ? "single_parent"
+                  : "individual",
+            age: inputs.assumptions.age,
+            numberOfChildren: inputs.numberOfChildren,
+            numberOfChildrenUnderThree: 0,
+            employmentContractType: "permanent",
+            contributions: {
+              pensionContribution,
+            },
+          };
+          const result = calculateNetSalary(esInputs);
+          const retirementApplied = pensionContribution > 0;
           acc.push({
             country,
             name: config.name,

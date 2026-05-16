@@ -5,6 +5,7 @@
 
 import { AUCalculator } from "./au";
 import { DECalculator } from "./de";
+import { ESCalculator } from "./es";
 import { GRCalculator } from "./gr";
 import { HKCalculator } from "./hk";
 import { IDCalculator } from "./id";
@@ -36,6 +37,7 @@ const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
   { code: "US", calculator: USCalculator },
   { code: "AU", calculator: AUCalculator },
   { code: "DE", calculator: DECalculator },
+  { code: "ES", calculator: ESCalculator },
   { code: "GR", calculator: GRCalculator },
   { code: "HK", calculator: HKCalculator },
   { code: "ID", calculator: IDCalculator },

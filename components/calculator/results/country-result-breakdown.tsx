@@ -1,5 +1,6 @@
 import type { CountryCode } from "@/lib/countries/types";
 import type { ReactNode } from "react";
+import { ESResultBreakdown } from "./es-result-breakdown";
 import { GRResultBreakdown } from "./gr-result-breakdown";
 import { MYResultBreakdown } from "./my-result-breakdown";
 import type { CountryResultBreakdownProps } from "./types";
@@ -11,6 +12,7 @@ type CountryResultBreakdownComponent = (
 const COUNTRY_RESULT_BREAKDOWNS: Partial<
   Record<CountryCode, CountryResultBreakdownComponent>
 > = {
+  ES: ESResultBreakdown,
   GR: GRResultBreakdown,
   MY: MYResultBreakdown,
 };

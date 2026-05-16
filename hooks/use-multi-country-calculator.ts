@@ -6,6 +6,13 @@ import {
   getDefaultInputs,
 } from "@/lib/countries/registry";
 import { DECalculator } from "@/lib/countries/de/calculator";
+import { ESCalculator } from "@/lib/countries/es/calculator";
+import type {
+  ESCalculatorInputs,
+  ESEmploymentContractType,
+  ESFilingStatus,
+  ESResidencyType,
+} from "@/lib/countries/es/types";
 import { GRCalculator } from "@/lib/countries/gr/calculator";
 import type {
   GRCalculatorInputs,
@@ -339,6 +346,27 @@ export interface UseMultiCountryCalculatorReturn {
     ruerup: number;
   };
 
+  // ES-specific
+  esResidencyType: ESResidencyType;
+  setEsResidencyType: (value: ESResidencyType) => void;
+  esRegion: string;
+  setEsRegion: (value: string) => void;
+  esFilingStatus: ESFilingStatus;
+  setEsFilingStatus: (value: ESFilingStatus) => void;
+  esAge: number;
+  setEsAge: (value: number) => void;
+  esNumberOfChildren: number;
+  setEsNumberOfChildren: (value: number) => void;
+  esNumberOfChildrenUnderThree: number;
+  setEsNumberOfChildrenUnderThree: (value: number) => void;
+  esEmploymentContractType: ESEmploymentContractType;
+  setEsEmploymentContractType: (value: ESEmploymentContractType) => void;
+  esPensionContribution: number;
+  setEsPensionContribution: (value: number) => void;
+  esLimits: {
+    pensionContribution: number;
+  };
+
   // Limits
   usLimits: {
     traditional401k: number;
@@ -483,6 +511,20 @@ export function useMultiCountryCalculator(
   const [deRiesterContribution, setDeRiesterContributionState] = useState(0);
   const [deRuerupContribution, setDeRuerupContributionState] = useState(0);
 
+  // ES-specific state
+  const [esResidencyType, setEsResidencyType] =
+    useState<ESResidencyType>("resident");
+  const [esRegion, setEsRegion] = useState("general");
+  const [esFilingStatus, setEsFilingStatus] =
+    useState<ESFilingStatus>("individual");
+  const [esAge, setEsAge] = useState(30);
+  const [esNumberOfChildren, setEsNumberOfChildren] = useState(0);
+  const [esNumberOfChildrenUnderThree, setEsNumberOfChildrenUnderThree] =
+    useState(0);
+  const [esEmploymentContractType, setEsEmploymentContractType] =
+    useState<ESEmploymentContractType>("permanent");
+  const [esPensionContribution, setEsPensionContributionState] = useState(0);
+
   // Track previous country using state (React docs pattern for adjusting state when props change)
   const [prevCountry, setPrevCountry] = useState(country);
 
@@ -563,6 +605,15 @@ export function useMultiCountryCalculator(
       setDeBavContributionState(0);
       setDeRiesterContributionState(0);
       setDeRuerupContributionState(0);
+    } else if (country === "ES") {
+      setEsResidencyType("resident");
+      setEsRegion("general");
+      setEsFilingStatus("individual");
+      setEsAge(30);
+      setEsNumberOfChildren(0);
+      setEsNumberOfChildrenUnderThree(0);
+      setEsEmploymentContractType("permanent");
+      setEsPensionContributionState(0);
     }
   }
 
@@ -680,6 +731,19 @@ export function useMultiCountryCalculator(
     deRuerupContribution,
     deLimits.ruerup,
   );
+
+  const esLimits = useMemo(() => {
+    const limits = ESCalculator.getContributionLimits({
+      country: "ES",
+      grossSalary,
+      residencyType: esResidencyType,
+      employmentContractType: esEmploymentContractType,
+    } as Partial<ESCalculatorInputs>);
+
+    return {
+      pensionContribution: limits.pensionContribution?.limit ?? 0,
+    };
+  }, [grossSalary, esResidencyType, esEmploymentContractType]);
 
   // US contribution handlers with validation
   const setTraditional401k = useCallback((value: number) => {
@@ -814,6 +878,14 @@ export function useMultiCountryCalculator(
       setDeRuerupContributionState(Math.min(value, deLimits.ruerup)),
     [deLimits.ruerup],
   );
+
+  const setEsPensionContribution = useCallback(
+    (value: number) =>
+      setEsPensionContributionState(
+        Math.min(value, esLimits.pensionContribution),
+      ),
+    [esLimits.pensionContribution],
+  );
   
   // UK pension contribution handler with validation
   // Pension contribution cannot exceed gross salary (calculator will further cap based on taxes)
@@ -919,6 +991,29 @@ export function useMultiCountryCalculator(
         },
       };
       return grInputs;
+    } else if (country === "ES") {
+      const esInputs: ESCalculatorInputs = {
+        country: "ES",
+        grossSalary,
+        payFrequency,
+        residencyType: esResidencyType,
+        region: esRegion,
+        filingStatus: esFilingStatus,
+        age: esAge,
+        numberOfChildren: esNumberOfChildren,
+        numberOfChildrenUnderThree: Math.min(
+          esNumberOfChildrenUnderThree,
+          esNumberOfChildren,
+        ),
+        employmentContractType: esEmploymentContractType,
+        contributions: {
+          pensionContribution: Math.min(
+            esPensionContribution,
+            esLimits.pensionContribution,
+          ),
+        },
+      };
+      return esInputs;
     } else if (country === "ID") {
       const idInputs: IDCalculatorInputs = {
         country: "ID",
@@ -1062,6 +1157,15 @@ export function useMultiCountryCalculator(
     grNumberOfDependents,
     grOccupationalPensionContribution,
     grLimits,
+    esResidencyType,
+    esRegion,
+    esFilingStatus,
+    esAge,
+    esNumberOfChildren,
+    esNumberOfChildrenUnderThree,
+    esEmploymentContractType,
+    esPensionContribution,
+    esLimits,
     thResidencyType,
     thTaxReliefs,
     thProvidentFund,
@@ -1261,6 +1365,25 @@ export function useMultiCountryCalculator(
     deRuerupContribution: deRuerupContributionClamped,
     setDeRuerupContribution,
     deLimits,
+
+    // ES-specific
+    esResidencyType,
+    setEsResidencyType,
+    esRegion,
+    setEsRegion,
+    esFilingStatus,
+    setEsFilingStatus,
+    esAge,
+    setEsAge,
+    esNumberOfChildren,
+    setEsNumberOfChildren,
+    esNumberOfChildrenUnderThree,
+    setEsNumberOfChildrenUnderThree,
+    esEmploymentContractType,
+    setEsEmploymentContractType,
+    esPensionContribution,
+    setEsPensionContribution,
+    esLimits,
 
     // Limits
     usLimits,
