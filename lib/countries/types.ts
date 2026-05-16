@@ -684,6 +684,7 @@ export interface DETaxBreakdown extends BaseTaxBreakdown {
 }
 
 export interface CNTaxBreakdown extends BaseTaxBreakdown {
+  type: "CN";
   incomeTax: number; // Individual income tax (IIT)
   pensionInsurance: number; // 8% employee contribution
   medicalInsurance: number; // 2% employee contribution
@@ -692,6 +693,7 @@ export interface CNTaxBreakdown extends BaseTaxBreakdown {
 }
 
 export interface JPTaxBreakdown extends BaseTaxBreakdown {
+  type: "JP";
   incomeTax: number; // National income tax
   reconstructionSurtax: number; // 2.1% of national income tax
   residentTax: number; // 10% flat resident tax
@@ -701,6 +703,7 @@ export interface JPTaxBreakdown extends BaseTaxBreakdown {
 }
 
 export interface INTaxBreakdown extends BaseTaxBreakdown {
+  type: "IN";
   incomeTax: number; // Income tax before cess
   surcharge: number; // Surcharge for high incomes
   cess: number; // 4% health & education cess
@@ -708,6 +711,7 @@ export interface INTaxBreakdown extends BaseTaxBreakdown {
 }
 
 export interface PHTaxBreakdown extends BaseTaxBreakdown {
+  type: "PH";
   incomeTax: number; // Individual income tax
   sssEmployee: number; // Social Security System
   philHealthEmployee: number; // PhilHealth
@@ -715,6 +719,7 @@ export interface PHTaxBreakdown extends BaseTaxBreakdown {
 }
 
 export interface VNTaxBreakdown extends BaseTaxBreakdown {
+  type: "VN";
   incomeTax: number; // Personal income tax
   socialInsurance: number; // 8% social insurance
   healthInsurance: number; // 1.5% health insurance

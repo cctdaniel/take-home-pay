@@ -99,6 +99,7 @@ export function calculatePH(inputs: PHCalculatorInputs): CalculationResult {
   const taxResult = calculatePHProgressiveTax(taxableIncome);
 
   const taxes: PHTaxBreakdown = {
+    type: "PH",
     totalIncomeTax: taxResult.totalTax + totalMandatoryContributions,
     incomeTax: taxResult.totalTax,
     sssEmployee: sss.employee,

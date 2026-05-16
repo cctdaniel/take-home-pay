@@ -7,20 +7,25 @@ import { CNCalculator } from "./cn";
 import { CYCalculator } from "./cy";
 import { CZCalculator } from "./cz";
 import { DECalculator } from "./de";
+import { DKCalculator } from "./dk";
 import { ESCalculator } from "./es";
+import { FICalculator } from "./fi";
 import { GECalculator } from "./ge";
 import { GRCalculator } from "./gr";
 import { HKCalculator } from "./hk";
 import { HRCalculator } from "./hr";
 import { IDCalculator } from "./id";
 import { INCalculator } from "./in";
+import { ISCalculator } from "./is";
 import { JPCalculator } from "./jp";
 import { KRCalculator } from "./kr";
 import { MTCalculator } from "./mt";
 import { MYCalculator } from "./my";
 import { NLCalculator } from "./nl";
+import { NOCalculator } from "./no";
 import { PHCalculator } from "./ph";
 import { PTCalculator } from "./pt";
+import { SECalculator } from "./se";
 import { SGCalculator } from "./sg";
 import { THCalculator } from "./th";
 import { TWCalculator } from "./tw";
@@ -41,20 +46,25 @@ export const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
   { code: CYCalculator.countryCode, calculator: CYCalculator },
   { code: CZCalculator.countryCode, calculator: CZCalculator },
   { code: DECalculator.countryCode, calculator: DECalculator },
+  { code: DKCalculator.countryCode, calculator: DKCalculator },
   { code: ESCalculator.countryCode, calculator: ESCalculator },
+  { code: FICalculator.countryCode, calculator: FICalculator },
   { code: GECalculator.countryCode, calculator: GECalculator },
   { code: GRCalculator.countryCode, calculator: GRCalculator },
   { code: HKCalculator.countryCode, calculator: HKCalculator },
   { code: HRCalculator.countryCode, calculator: HRCalculator },
   { code: IDCalculator.countryCode, calculator: IDCalculator },
   { code: INCalculator.countryCode, calculator: INCalculator },
+  { code: ISCalculator.countryCode, calculator: ISCalculator },
   { code: JPCalculator.countryCode, calculator: JPCalculator },
   { code: KRCalculator.countryCode, calculator: KRCalculator },
   { code: MTCalculator.countryCode, calculator: MTCalculator },
   { code: MYCalculator.countryCode, calculator: MYCalculator },
   { code: NLCalculator.countryCode, calculator: NLCalculator },
+  { code: NOCalculator.countryCode, calculator: NOCalculator },
   { code: PHCalculator.countryCode, calculator: PHCalculator },
   { code: PTCalculator.countryCode, calculator: PTCalculator },
+  { code: SECalculator.countryCode, calculator: SECalculator },
   { code: SGCalculator.countryCode, calculator: SGCalculator },
   { code: THCalculator.countryCode, calculator: THCalculator },
   { code: TWCalculator.countryCode, calculator: TWCalculator },

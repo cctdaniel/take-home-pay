@@ -91,6 +91,7 @@ export function calculateVN(inputs: VNCalculatorInputs): CalculationResult {
   const taxResult = calculateVNProgressiveTax(taxableIncome);
 
   const taxes: VNTaxBreakdown = {
+    type: "VN",
     totalIncomeTax: taxResult.totalTax + totalSocialInsurance,
     incomeTax: taxResult.totalTax,
     socialInsurance: socialInsurance.socialInsurance.employee,

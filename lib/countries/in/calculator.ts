@@ -90,6 +90,7 @@ export function calculateIN(inputs: INCalculatorInputs): CalculationResult {
   const totalIncomeTax = taxAfterRebate + surcharge + cess;
 
   const taxes: INTaxBreakdown = {
+    type: "IN",
     totalIncomeTax,
     incomeTax: taxAfterRebate,
     surcharge,

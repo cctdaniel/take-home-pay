@@ -103,6 +103,7 @@ export function calculateJP(inputs: JPCalculatorInputs): CalculationResult {
   );
 
   const taxes: JPTaxBreakdown = {
+    type: "JP",
     totalIncomeTax:
       taxResult.totalTax + reconstructionSurtax + residentTax,
     incomeTax: taxResult.totalTax,

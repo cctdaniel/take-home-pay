@@ -146,12 +146,16 @@ export function calculateCN(inputs: CNCalculatorInputs): CalculationResult {
   const specialDeductions = calculateCNSpecialDeductions(inputs);
 
   const totalDeductions =
-    CN_STANDARD_DEDUCTION + specialDeductions.total + socialInsurance.total;
+    CN_STANDARD_DEDUCTION +
+    specialDeductions.total +
+    socialInsurance.total +
+    housingFund.employee;
 
   const taxableIncome = Math.max(0, grossSalary - totalDeductions);
   const taxResult = calculateCNProgressiveTax(taxableIncome);
 
   const taxes: CNTaxBreakdown = {
+    type: "CN",
     totalIncomeTax: taxResult.totalTax,
     incomeTax: taxResult.totalTax,
     pensionInsurance: socialInsurance.pension.employee,
