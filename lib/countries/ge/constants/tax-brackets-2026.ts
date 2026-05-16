@@ -11,8 +11,9 @@
 //   pension contributions made for an employee are excluded from gross income.
 //   Same source URL as above.
 // - Pension Agency financial statements, Note 3(a)(ii): 2% employee, 2%
-//   employer, and state contributions at 2% up to GEL 24,000, 1% from GEL
-//   24,000 to GEL 60,000, and 0% above GEL 60,000.
+//   employer, and one state contribution rate determined by annual salary:
+//   2% up to GEL 24,000, 1% from GEL 24,000 to GEL 60,000, and 0% above GEL
+//   60,000.
 //   https://site-api.pensions.ge/uploads/docs/reports/financial-statements/2019-IFRS.pdf
 // - Law of Georgia on Funded Pension, Article 3: mandatory employee
 //   participation rules and contribution rates.
@@ -46,28 +47,21 @@ function roundCurrency(value: number): number {
 export function calculateGeorgiaStatePensionContribution(
   annualTaxableSalary: number,
 ): {
-  firstBandContribution: number;
-  secondBandContribution: number;
+  contributionSalary: number;
+  rate: number;
   total: number;
 } {
   const salary = Math.max(0, annualTaxableSalary);
-  const firstBandSalary = Math.min(salary, GE_PENSION_2026.stateFirstBandLimit);
-  const secondBandSalary = Math.min(
-    Math.max(0, salary - GE_PENSION_2026.stateFirstBandLimit),
-    GE_PENSION_2026.stateSecondBandLimit -
-      GE_PENSION_2026.stateFirstBandLimit,
-  );
-
-  const firstBandContribution = roundCurrency(
-    firstBandSalary * GE_PENSION_2026.stateFirstBandRate,
-  );
-  const secondBandContribution = roundCurrency(
-    secondBandSalary * GE_PENSION_2026.stateSecondBandRate,
-  );
+  const rate =
+    salary <= GE_PENSION_2026.stateFirstBandLimit
+      ? GE_PENSION_2026.stateFirstBandRate
+      : salary <= GE_PENSION_2026.stateSecondBandLimit
+        ? GE_PENSION_2026.stateSecondBandRate
+        : GE_PENSION_2026.stateAboveSecondBandRate;
 
   return {
-    firstBandContribution,
-    secondBandContribution,
-    total: roundCurrency(firstBandContribution + secondBandContribution),
+    contributionSalary: salary,
+    rate,
+    total: roundCurrency(salary * rate),
   };
 }

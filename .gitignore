@@ -40,12 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# generated country registries
-/lib/countries/registry.generated.ts
-/hooks/country-comparison-adapters.generated.ts
-/components/calculator/results/country-result-breakdowns.generated.tsx
-/components/calculator/country-extensions.generated.tsx
-
 # claude
 .claude
 

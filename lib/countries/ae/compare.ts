@@ -9,13 +9,10 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
   rate,
   grossLocal,
   payFrequency,
-  inputs,
   isMaxRetirement,
 }) => {
   const defaultInputs = getDefaultInputs(country) as AECalculatorInputs;
-  const employeeCategory = inputs.assumptions.isResident
-    ? "uae_national_new_private"
-    : "foreign_expat";
+  const employeeCategory = "foreign_expat";
   const aeInputs: AECalculatorInputs = {
     ...defaultInputs,
     grossSalary: grossLocal,
@@ -25,9 +22,7 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
   };
   const result = calculateNetSalary(aeInputs);
   const assumptions = [
-    employeeCategory === "foreign_expat"
-      ? "Foreign / expat employee"
-      : "UAE national, private sector Law 57/2023",
+    "Foreign / expat employee; UAE nationality pension is not assumed",
     "No personal income tax on wages",
   ];
 

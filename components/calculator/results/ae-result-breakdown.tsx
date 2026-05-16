@@ -78,14 +78,21 @@ export function AEResultBreakdown({
             </div>
           )}
           {breakdown.pension.governmentSupport > 0 && (
-            <div className="flex items-center justify-between py-1 opacity-60">
-              <span className="text-sm text-zinc-400">
-                Government support ({formatPercentage(breakdown.pension.governmentSupportRate)})
-              </span>
-              <span className="text-sm tabular-nums text-zinc-500">
-                +{formatCurrency(breakdown.pension.governmentSupport, currency)}
-              </span>
-            </div>
+            <>
+              <div className="flex items-center justify-between py-1 opacity-60">
+                <span className="text-sm text-zinc-400">
+                  Government support ({formatPercentage(breakdown.pension.governmentSupportRate)})
+                </span>
+                <span className="text-sm tabular-nums text-zinc-500">
+                  +{formatCurrency(breakdown.pension.governmentSupport, currency)}
+                </span>
+              </div>
+              <p className="text-xs italic text-zinc-500">
+                Government support offsets the employer share; employer cash
+                plus support equals{" "}
+                {formatPercentage(breakdown.pension.statutoryEmployerRate)}.
+              </p>
+            </>
           )}
           <p className="text-xs italic text-zinc-500">
             Employer and government amounts are informational and are not

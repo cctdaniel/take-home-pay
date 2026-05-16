@@ -219,8 +219,10 @@ function getApplicableBand(
   income: number,
   schedule: MaltaTaxSchedule,
 ): MaltaTaxScheduleBand {
+  const chargeableIncome = Math.max(0, income);
+
   return (
-    schedule.bands.find((band) => income >= band.min && income <= band.max) ??
+    schedule.bands.find((band) => chargeableIncome <= band.max) ??
     schedule.bands[schedule.bands.length - 1]
   );
 }
