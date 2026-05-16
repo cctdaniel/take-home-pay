@@ -1,6 +1,7 @@
 "use client";
 
 import { DECalculator } from "@/lib/countries/de";
+import type { ESCalculatorInputs } from "@/lib/countries/es/types";
 import { HK_DEDUCTIONS_2026 } from "@/lib/countries/hk/constants/tax-brackets-2026";
 import { GREECE_OCCUPATIONAL_PENSION_CONTRIBUTION_LIMIT_RATE } from "@/lib/countries/gr/constants/tax-brackets-2026";
 import {
@@ -179,6 +180,12 @@ function buildAssumptionsSummary(
         } (no childless surcharge)`
       );
     }
+  }
+
+  if (country === "ES") {
+    summary.push(assumptions.isResident ? "Resident" : "Non-resident");
+    summary.push("General autonomous scale");
+    summary.push(`Age ${assumptions.age}`);
   }
 
   if (
@@ -744,6 +751,47 @@ export function useCountryComparison(
               inputs,
               retirementApplied
             ),
+            calculation: result,
+          });
+          return acc;
+        }
+
+        if (country === "ES") {
+          const defaultInputs = getDefaultInputs(country) as ESCalculatorInputs;
+          const esInputs: ESCalculatorInputs = {
+            ...defaultInputs,
+            grossSalary: grossLocal,
+            payFrequency,
+            residencyType: inputs.assumptions.isResident
+              ? "resident"
+              : "non_resident_other",
+            region: "general",
+            filingStatus:
+              inputs.maritalStatus === "married"
+                ? "married_jointly"
+                : inputs.numberOfChildren > 0
+                  ? "single_parent"
+                  : "individual",
+            age: inputs.assumptions.age,
+            numberOfChildren: inputs.numberOfChildren,
+            numberOfChildrenUnderThree: 0,
+            employmentContractType: "permanent",
+            contributions: {},
+          };
+          const result = calculateNetSalary(esInputs);
+          acc.push({
+            country,
+            name: config.name,
+            currency,
+            rate,
+            grossLocal,
+            netLocal: result.netSalary,
+            netBase: result.netSalary / rate,
+            takeHomeRate: grossLocal > 0 ? result.netSalary / grossLocal : 0,
+            effectiveTaxRate: result.effectiveTaxRate,
+            deltaBase: 0,
+            deltaPercent: 0,
+            assumptions: buildAssumptionsSummary(country, inputs, false),
             calculation: result,
           });
           return acc;

@@ -15,6 +15,7 @@ import type { CountryCode } from "@/lib/countries/types";
 import { AUTaxOptions } from "./au-tax-options";
 import { DEContributionOptions } from "./de-contribution-options";
 import { DETaxOptions } from "./de-tax-options";
+import { ESTaxOptions } from "./es-tax-options";
 import { HKAdditionalReliefs } from "./hk-additional-reliefs";
 import { HKTaxOptions } from "./hk-tax-options";
 import { GRTaxOptions } from "./gr-tax-options";
@@ -199,6 +200,22 @@ export function MultiCountryCalculator({
     deRuerupContribution,
     setDeRuerupContribution,
     deLimits,
+
+    // ES-specific
+    esResidencyType,
+    setEsResidencyType,
+    esRegion,
+    setEsRegion,
+    esFilingStatus,
+    setEsFilingStatus,
+    esAge,
+    setEsAge,
+    esNumberOfChildren,
+    setEsNumberOfChildren,
+    esNumberOfChildrenUnderThree,
+    setEsNumberOfChildrenUnderThree,
+    esEmploymentContractType,
+    setEsEmploymentContractType,
 
     // UK-specific
     ukResidencyType,
@@ -431,6 +448,26 @@ export function MultiCountryCalculator({
                 onChurchMemberChange={setDeIsChurchMember}
                 isChildless={deIsChildless}
                 onChildlessChange={setDeIsChildless}
+              />
+            )}
+            {country === "ES" && (
+              <ESTaxOptions
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+                residencyType={esResidencyType}
+                onResidencyTypeChange={setEsResidencyType}
+                region={esRegion}
+                onRegionChange={setEsRegion}
+                filingStatus={esFilingStatus}
+                onFilingStatusChange={setEsFilingStatus}
+                age={esAge}
+                onAgeChange={setEsAge}
+                numberOfChildren={esNumberOfChildren}
+                onNumberOfChildrenChange={setEsNumberOfChildren}
+                numberOfChildrenUnderThree={esNumberOfChildrenUnderThree}
+                onNumberOfChildrenUnderThreeChange={setEsNumberOfChildrenUnderThree}
+                employmentContractType={esEmploymentContractType}
+                onEmploymentContractTypeChange={setEsEmploymentContractType}
               />
             )}
             {country === "UK" && (
@@ -983,6 +1020,36 @@ export function MultiCountryCalculator({
                   Note: This models ordinary salaried employment. Special EFKA
                   categories, heavy/unhealthy work, and other income categories
                   are not included.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* ES Tax & Contributions Info Card */}
+        {country === "ES" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Tax &amp; Contributions</CardTitle>
+              <CardDescription>
+                IRPF income tax and employee Social Security
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  What&apos;s Included
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-1">
+                  <li>IRPF state scale plus selected autonomous community scale</li>
+                  <li>Personal and family minimums for age and descendants</li>
+                  <li>Employee Social Security: common contingencies, unemployment, training, and MEI</li>
+                  <li>General EUR 2,000 employment expense deduction for residents</li>
+                  <li>Joint-return reductions for married and single-parent family units</li>
+                  <li>IRNR flat rates for non-residents (19% EU/EEA, 24% other)</li>
+                </ul>
+                <p className="text-xs text-zinc-500 mt-3">
+                  Note: Regional deductions, Basque/Navarre foral regimes, and itemized deductions are not modeled. IRPF uses the latest AEAT Renta 2025 tables currently published; payroll contributions use 2026 rates.
                 </p>
               </div>
             </CardContent>

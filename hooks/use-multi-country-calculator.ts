@@ -6,6 +6,12 @@ import {
   getDefaultInputs,
 } from "@/lib/countries/registry";
 import { DECalculator } from "@/lib/countries/de/calculator";
+import type {
+  ESCalculatorInputs,
+  ESEmploymentContractType,
+  ESFilingStatus,
+  ESResidencyType,
+} from "@/lib/countries/es/types";
 import { GRCalculator } from "@/lib/countries/gr/calculator";
 import type {
   GRCalculatorInputs,
@@ -339,6 +345,22 @@ export interface UseMultiCountryCalculatorReturn {
     ruerup: number;
   };
 
+  // ES-specific
+  esResidencyType: ESResidencyType;
+  setEsResidencyType: (value: ESResidencyType) => void;
+  esRegion: string;
+  setEsRegion: (value: string) => void;
+  esFilingStatus: ESFilingStatus;
+  setEsFilingStatus: (value: ESFilingStatus) => void;
+  esAge: number;
+  setEsAge: (value: number) => void;
+  esNumberOfChildren: number;
+  setEsNumberOfChildren: (value: number) => void;
+  esNumberOfChildrenUnderThree: number;
+  setEsNumberOfChildrenUnderThree: (value: number) => void;
+  esEmploymentContractType: ESEmploymentContractType;
+  setEsEmploymentContractType: (value: ESEmploymentContractType) => void;
+
   // Limits
   usLimits: {
     traditional401k: number;
@@ -483,6 +505,19 @@ export function useMultiCountryCalculator(
   const [deRiesterContribution, setDeRiesterContributionState] = useState(0);
   const [deRuerupContribution, setDeRuerupContributionState] = useState(0);
 
+  // ES-specific state
+  const [esResidencyType, setEsResidencyType] =
+    useState<ESResidencyType>("resident");
+  const [esRegion, setEsRegion] = useState("general");
+  const [esFilingStatus, setEsFilingStatus] =
+    useState<ESFilingStatus>("individual");
+  const [esAge, setEsAge] = useState(30);
+  const [esNumberOfChildren, setEsNumberOfChildren] = useState(0);
+  const [esNumberOfChildrenUnderThree, setEsNumberOfChildrenUnderThree] =
+    useState(0);
+  const [esEmploymentContractType, setEsEmploymentContractType] =
+    useState<ESEmploymentContractType>("permanent");
+
   // Track previous country using state (React docs pattern for adjusting state when props change)
   const [prevCountry, setPrevCountry] = useState(country);
 
@@ -563,6 +598,14 @@ export function useMultiCountryCalculator(
       setDeBavContributionState(0);
       setDeRiesterContributionState(0);
       setDeRuerupContributionState(0);
+    } else if (country === "ES") {
+      setEsResidencyType("resident");
+      setEsRegion("general");
+      setEsFilingStatus("individual");
+      setEsAge(30);
+      setEsNumberOfChildren(0);
+      setEsNumberOfChildrenUnderThree(0);
+      setEsEmploymentContractType("permanent");
     }
   }
 
@@ -919,6 +962,24 @@ export function useMultiCountryCalculator(
         },
       };
       return grInputs;
+    } else if (country === "ES") {
+      const esInputs: ESCalculatorInputs = {
+        country: "ES",
+        grossSalary,
+        payFrequency,
+        residencyType: esResidencyType,
+        region: esRegion,
+        filingStatus: esFilingStatus,
+        age: esAge,
+        numberOfChildren: esNumberOfChildren,
+        numberOfChildrenUnderThree: Math.min(
+          esNumberOfChildrenUnderThree,
+          esNumberOfChildren,
+        ),
+        employmentContractType: esEmploymentContractType,
+        contributions: {},
+      };
+      return esInputs;
     } else if (country === "ID") {
       const idInputs: IDCalculatorInputs = {
         country: "ID",
@@ -1062,6 +1123,13 @@ export function useMultiCountryCalculator(
     grNumberOfDependents,
     grOccupationalPensionContribution,
     grLimits,
+    esResidencyType,
+    esRegion,
+    esFilingStatus,
+    esAge,
+    esNumberOfChildren,
+    esNumberOfChildrenUnderThree,
+    esEmploymentContractType,
     thResidencyType,
     thTaxReliefs,
     thProvidentFund,
@@ -1261,6 +1329,22 @@ export function useMultiCountryCalculator(
     deRuerupContribution: deRuerupContributionClamped,
     setDeRuerupContribution,
     deLimits,
+
+    // ES-specific
+    esResidencyType,
+    setEsResidencyType,
+    esRegion,
+    setEsRegion,
+    esFilingStatus,
+    setEsFilingStatus,
+    esAge,
+    setEsAge,
+    esNumberOfChildren,
+    setEsNumberOfChildren,
+    esNumberOfChildrenUnderThree,
+    setEsNumberOfChildrenUnderThree,
+    esEmploymentContractType,
+    setEsEmploymentContractType,
 
     // Limits
     usLimits,
