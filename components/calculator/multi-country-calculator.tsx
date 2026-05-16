@@ -596,10 +596,10 @@ export function MultiCountryCalculator({
                   Automatically deducted from your salary:
                 </p>
                 <ul className="text-xs text-zinc-500 space-y-1">
-                  <li>National Pension: 4.5% (capped at ₩5.9M/month)</li>
-                  <li>Health Insurance: 3.545%</li>
-                  <li>Long-term Care: 12.95% of health insurance</li>
-                  <li>Employment Insurance: 0.8%</li>
+                  <li>National Pension: 4.75% (capped at ₩6.37M/month)</li>
+                  <li>Health Insurance: 3.595%</li>
+                  <li>Long-term Care: 13.14% of health insurance</li>
+                  <li>Employment Insurance: 0.9%</li>
                 </ul>
               </div>
             </CardContent>
@@ -876,8 +876,8 @@ export function MultiCountryCalculator({
                 <ul className="text-xs text-zinc-400 space-y-1">
                   <li>Personal Allowance: Up to £12,570 — 0%</li>
                   <li>Starter Rate: £12,571 to £16,537 — 19%</li>
-                  <li>Basic Rate: £16,538 to £28,527 — 20%</li>
-                  <li>Intermediate Rate: £28,528 to £43,662 — 21%</li>
+                  <li>Basic Rate: £16,538 to £29,526 — 20%</li>
+                  <li>Intermediate Rate: £29,527 to £43,662 — 21%</li>
                   <li>Higher Rate: £43,663 to £75,000 — 42%</li>
                   <li>Advanced Rate: £75,001 to £125,140 — 45%</li>
                   <li>Top Rate: Over £125,140 — 48%</li>

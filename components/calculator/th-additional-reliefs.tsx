@@ -2,9 +2,8 @@
 
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
 import { NumberStepper } from "@/components/ui/number-stepper";
-import { formatCurrency } from "@/lib/format";
 import type { THTaxReliefInputs } from "@/lib/countries/types";
 
 interface THAdditionalReliefsProps {
@@ -163,64 +162,38 @@ export function THAdditionalReliefs({ reliefs, onChange }: THAdditionalReliefsPr
       <div className="space-y-3">
         <h4 className="text-xs font-medium text-zinc-500">Insurance Premiums</h4>
         
-        {/* Life Insurance */}
         <div className="space-y-2 pl-4 border-l-2 border-zinc-700">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm">Life Insurance (Self)</Label>
-            <span className="text-sm font-medium text-zinc-300 tabular-nums">
-              {formatCurrency(reliefs.lifeInsurancePremium, "THB")}
-            </span>
-          </div>
-          <Slider
+          <ContributionSlider
+            label="Life Insurance (Self)"
+            description="10+ year policy"
             value={reliefs.lifeInsurancePremium}
             onChange={(value) => updateRelief("lifeInsurancePremium", value)}
             max={100000}
             step={1000}
+            currency="THB"
           />
-          <div className="flex justify-between text-xs text-zinc-500">
-            <span>฿0</span>
-            <span>Max ฿100,000 (10+ year policy)</span>
-          </div>
         </div>
 
-        {/* Health Insurance */}
         <div className="space-y-2 pl-4 border-l-2 border-zinc-700">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm">Health Insurance (Self)</Label>
-            <span className="text-sm font-medium text-zinc-300 tabular-nums">
-              {formatCurrency(reliefs.healthInsurancePremium, "THB")}
-            </span>
-          </div>
-          <Slider
+          <ContributionSlider
+            label="Health Insurance (Self)"
             value={reliefs.healthInsurancePremium}
             onChange={(value) => updateRelief("healthInsurancePremium", value)}
             max={25000}
             step={1000}
+            currency="THB"
           />
-          <div className="flex justify-between text-xs text-zinc-500">
-            <span>฿0</span>
-            <span>Max ฿25,000</span>
-          </div>
         </div>
 
-        {/* Health Insurance for Parents */}
         <div className="space-y-2 pl-4 border-l-2 border-zinc-700">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm">Health Insurance (Parents)</Label>
-            <span className="text-sm font-medium text-zinc-300 tabular-nums">
-              {formatCurrency(reliefs.healthInsuranceParentsPremium, "THB")}
-            </span>
-          </div>
-          <Slider
+          <ContributionSlider
+            label="Health Insurance (Parents)"
             value={reliefs.healthInsuranceParentsPremium}
             onChange={(value) => updateRelief("healthInsuranceParentsPremium", value)}
             max={15000}
             step={1000}
+            currency="THB"
           />
-          <div className="flex justify-between text-xs text-zinc-500">
-            <span>฿0</span>
-            <span>Max ฿15,000</span>
-          </div>
         </div>
         
         <p className="text-xs text-zinc-500 pl-4">
@@ -232,64 +205,38 @@ export function THAdditionalReliefs({ reliefs, onChange }: THAdditionalReliefsPr
       <div className="space-y-3">
         <h4 className="text-xs font-medium text-zinc-500">Other Deductions</h4>
         
-        {/* Mortgage Interest */}
         <div className="space-y-2 pl-4 border-l-2 border-zinc-700">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm">Home Mortgage Interest</Label>
-            <span className="text-sm font-medium text-zinc-300 tabular-nums">
-              {formatCurrency(reliefs.mortgageInterest, "THB")}
-            </span>
-          </div>
-          <Slider
+          <ContributionSlider
+            label="Home Mortgage Interest"
             value={reliefs.mortgageInterest}
             onChange={(value) => updateRelief("mortgageInterest", value)}
             max={100000}
             step={1000}
+            currency="THB"
           />
-          <div className="flex justify-between text-xs text-zinc-500">
-            <span>฿0</span>
-            <span>Max ฿100,000</span>
-          </div>
         </div>
 
-        {/* Donations */}
         <div className="space-y-2 pl-4 border-l-2 border-zinc-700">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm">Charitable Donations</Label>
-            <span className="text-sm font-medium text-zinc-300 tabular-nums">
-              {formatCurrency(reliefs.donations, "THB")}
-            </span>
-          </div>
-          <Slider
+          <ContributionSlider
+            label="Charitable Donations"
+            description="Up to 10% of net income"
             value={reliefs.donations}
             onChange={(value) => updateRelief("donations", value)}
             max={100000}
             step={1000}
+            currency="THB"
           />
-          <div className="flex justify-between text-xs text-zinc-500">
-            <span>฿0</span>
-            <span>Up to 10% of net income</span>
-          </div>
         </div>
 
-        {/* Political Donation */}
         <div className="space-y-2 pl-4 border-l-2 border-zinc-700">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm">Political Party Donation</Label>
-            <span className="text-sm font-medium text-zinc-300 tabular-nums">
-              {formatCurrency(reliefs.politicalDonation, "THB")}
-            </span>
-          </div>
-          <Slider
+          <ContributionSlider
+            label="Political Party Donation"
             value={reliefs.politicalDonation}
             onChange={(value) => updateRelief("politicalDonation", value)}
             max={10000}
             step={1000}
+            currency="THB"
           />
-          <div className="flex justify-between text-xs text-zinc-500">
-            <span>฿0</span>
-            <span>Max ฿10,000</span>
-          </div>
         </div>
       </div>
 

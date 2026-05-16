@@ -2,10 +2,10 @@
 // TAIWAN TAX CONSTANTS (2026 TAX YEAR)
 // ============================================================================
 // Sources:
-// - National Taxation Bureau of Taipei (Progressive Tax Rates 2026):
-//   https://www.ntbt.gov.tw/English/multiplehtml/3f18d2625aea4187b0d90e9b929afe4c
-// - Ministry of Finance Tax Brackets and Deductions 2026:
-//   https://www.ramco.com/payce/payroll-compliance-taiwan
+// - eTax Portal, Ministry of Finance (Progressive Tax Rates 2026):
+//   https://www.etax.nat.gov.tw/etwmain/en/announcement/alien-individual-income-tax/progressive-tax-rate
+// - eTax Portal, Ministry of Finance (Exemption and Deduction Table 2026):
+//   https://www.etax.nat.gov.tw/etwmain/en/announcement/alien-individual-income-tax/exemption-deduction-table
 // - Bureau of Labor Insurance (Labor Insurance Grade Tables 2026):
 //   https://www.bli.gov.tw/EN/0016423.html
 // - National Health Insurance (Premium Calculation 2026):
@@ -24,10 +24,10 @@ import type { TaxBracket } from "../../types";
 // ============================================================================
 export const TW_TAX_BRACKETS_2026: TaxBracket[] = [
   { min: 0, max: 610_000, rate: 0.05 },          // 5% on 0 - 610,000
-  { min: 610_001, max: 1_380_000, rate: 0.12 },  // 12% on 610,001 - 1,380,000
-  { min: 1_380_001, max: 2_770_000, rate: 0.20 }, // 20% on 1,380,001 - 2,770,000
-  { min: 2_770_001, max: 5_190_000, rate: 0.30 }, // 30% on 2,770,001 - 5,190,000
-  { min: 5_190_001, max: Infinity, rate: 0.40 },  // 40% on 5,190,001+
+  { min: 610_000, max: 1_380_000, rate: 0.12 },  // 12% above 610,000
+  { min: 1_380_000, max: 2_770_000, rate: 0.20 }, // 20% above 1,380,000
+  { min: 2_770_000, max: 5_190_000, rate: 0.30 }, // 30% above 2,770,000
+  { min: 5_190_000, max: Infinity, rate: 0.40 },  // 40% above 5,190,000
 ];
 
 // Progressive differences for tax calculation (alternative formula)

@@ -2,9 +2,8 @@
 
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
 import { NumberStepper } from "@/components/ui/number-stepper";
-import { formatCurrency } from "@/lib/format";
 import type { SGTaxReliefInputs, SGParentReliefType } from "@/lib/countries/types";
 
 interface SGAdditionalReliefsProps {
@@ -120,27 +119,15 @@ export function SGAdditionalReliefs({ reliefs, onChange }: SGAdditionalReliefsPr
       </div>
 
       {/* Course Fees */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <Label className="text-sm">Course Fees Relief</Label>
-            <p className="text-xs text-zinc-500 mt-0.5">Up to S$5,500 for approved courses</p>
-          </div>
-          <span className="text-sm font-medium text-zinc-300 tabular-nums">
-            {formatCurrency(reliefs.courseFees, "SGD")}
-          </span>
-        </div>
-        <Slider
-          value={reliefs.courseFees}
-          onChange={(value) => updateRelief("courseFees", value)}
-          max={5500}
-          step={100}
-        />
-        <div className="flex justify-between text-xs text-zinc-500">
-          <span>S$0</span>
-          <span>S$5,500 limit</span>
-        </div>
-      </div>
+      <ContributionSlider
+        label="Course Fees Relief"
+        description="Up to S$5,500 for approved courses"
+        value={reliefs.courseFees}
+        onChange={(value) => updateRelief("courseFees", value)}
+        max={5500}
+        step={100}
+        currency="SGD"
+      />
     </div>
   );
 }

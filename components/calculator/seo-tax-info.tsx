@@ -53,7 +53,7 @@ function USTaxInfo() {
         </li>
         <li>
           <strong className="text-zinc-300">Social Security</strong> – 6.2% up
-          to ${new Intl.NumberFormat().format(181200)} wage base
+          to ${new Intl.NumberFormat().format(184500)} wage base
         </li>
         <li>
           <strong className="text-zinc-300">Medicare</strong> – 1.45% (plus 0.9%
@@ -130,19 +130,19 @@ function KRTaxInfo() {
           national income tax
         </li>
         <li>
-          <strong className="text-zinc-300">National Pension</strong> – 4.5%
-          employee share (capped at ₩5.9M monthly income)
+          <strong className="text-zinc-300">National Pension</strong> – 4.75%
+          employee share (capped at ₩6.37M monthly income)
         </li>
         <li>
-          <strong className="text-zinc-300">Health Insurance</strong> – 3.545%
+          <strong className="text-zinc-300">Health Insurance</strong> – 3.595%
           of income
         </li>
         <li>
-          <strong className="text-zinc-300">Long-term Care</strong> – 12.95% of
+          <strong className="text-zinc-300">Long-term Care</strong> – 13.14% of
           health insurance premium
         </li>
         <li>
-          <strong className="text-zinc-300">Employment Insurance</strong> – 0.8%
+          <strong className="text-zinc-300">Employment Insurance</strong> – 0.9%
           of income
         </li>
       </ul>
@@ -280,7 +280,7 @@ function DETaxInfo() {
             Social Security (Employee Share)
           </strong>{" "}
           – Pension 9.3%, unemployment 1.3%, health 7.3% + ~1.45% additional,
-          long-term care 1.7% (2.5% if childless 23+)
+          long-term care 1.8% (2.4% if childless 23+)
         </li>
       </ul>
 
@@ -403,7 +403,7 @@ function PTTaxInfo() {
       <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
         <li>
           <strong className="text-zinc-300">IRS (Income Tax)</strong> –
-          Progressive rates from 13% to 48% (9 brackets for residents)
+          Progressive rates from 12.5% to 48% (9 brackets for residents)
         </li>
         <li>
           <strong className="text-zinc-300">Social Security</strong> – 11%
@@ -1001,8 +1001,8 @@ function UKTaxInfo() {
       <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
         <li>Personal Allowance: Up to £12,570 — 0%</li>
         <li>Starter Rate: £12,571 to £16,537 — 19%</li>
-        <li>Basic Rate: £16,538 to £28,527 — 20%</li>
-        <li>Intermediate Rate: £28,528 to £43,662 — 21%</li>
+        <li>Basic Rate: £16,538 to £29,526 — 20%</li>
+        <li>Intermediate Rate: £29,527 to £43,662 — 21%</li>
         <li>Higher Rate: £43,663 to £75,000 — 42%</li>
         <li>Advanced Rate: £75,001 to £125,140 — 45%</li>
         <li>Top Rate: Over £125,140 — 48%</li>

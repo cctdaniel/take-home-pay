@@ -1,6 +1,10 @@
 "use client";
 
-import { calculateNetSalary, getCountryConfig } from "@/lib/countries/registry";
+import {
+  calculateNetSalary,
+  getCountryConfig,
+  getDefaultInputs,
+} from "@/lib/countries/registry";
 import { DECalculator } from "@/lib/countries/de/calculator";
 import { HKCalculator } from "@/lib/countries/hk/calculator";
 import { PTCalculator } from "@/lib/countries/pt/calculator";
@@ -128,21 +132,9 @@ const DEFAULT_TW_TAX_RELIEFS: TWTaxReliefInputs = {
   isGoldCardHolder: false,
 };
 
-// Default gross salaries per country
-const DEFAULT_GROSS_SALARY: Record<CountryCode, number> = {
-  US: 100000,
-  SG: 60000,
-  KR: 50000000, // ₩50M typical salary
-  NL: 55000,
-  AU: 100000, // A$100k typical Australian salary
-  PT: 35000, // €35k typical Portuguese salary
-  TH: 600000, // ฿600k typical Thai middle income
-  HK: 420000, // HK$35k monthly
-  ID: 120000000, // Rp120M typical salary
-  TW: 720000, // NT$60k monthly typical salary
-  UK: 35000, // £35,000 typical UK salary
-  DE: 55000, // €55k typical German salary
-};
+function getDefaultGrossSalary(country: CountryCode): number {
+  return getDefaultInputs(country).grossSalary;
+}
 
 // ============================================================================
 // RETURN TYPE
@@ -323,7 +315,9 @@ export function useMultiCountryCalculator(
   country: CountryCode,
 ): UseMultiCountryCalculatorReturn {
   // Common inputs - initialize with country-specific defaults
-  const [grossSalary, setGrossSalary] = useState(DEFAULT_GROSS_SALARY[country]);
+  const [grossSalary, setGrossSalary] = useState(() =>
+    getDefaultGrossSalary(country),
+  );
   const [payFrequency, setPayFrequency] = useState<PayFrequency>("monthly");
 
   // US-specific state
@@ -422,7 +416,7 @@ export function useMultiCountryCalculator(
   // Reset defaults when country changes (during render, not in effect)
   if (prevCountry !== country) {
     setPrevCountry(country);
-    setGrossSalary(DEFAULT_GROSS_SALARY[country]);
+    setGrossSalary(getDefaultGrossSalary(country));
     setPayFrequency("monthly");
 
     // Reset country-specific fields

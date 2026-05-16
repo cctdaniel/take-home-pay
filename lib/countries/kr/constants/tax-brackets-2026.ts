@@ -29,35 +29,35 @@ export const KR_LOCAL_TAX_RATE = 0.10;
 // ============================================================================
 export const KR_SOCIAL_INSURANCE = {
   // National Pension (국민연금)
-  // Total 9%, split 4.5% employee + 4.5% employer
+  // Total 9.5%, split 4.75% employee + 4.75% employer
   nationalPension: {
-    employeeRate: 0.045, // 4.5%
-    employerRate: 0.045, // 4.5%
+    employeeRate: 0.0475, // 4.75%
+    employerRate: 0.0475, // 4.75%
     // Monthly standard income ceiling (updated annually)
-    monthlyCeiling: 5900000, // ₩5.9M/month (₩70.8M annually)
+    monthlyCeiling: 6370000, // ₩6.37M/month (July 2025 - June 2026)
     // Monthly standard income floor
-    monthlyFloor: 370000, // ₩370K/month
+    monthlyFloor: 400000, // ₩400K/month
   },
 
   // National Health Insurance (국민건강보험)
-  // Total ~7.09%, split roughly equally
+  // Total 7.19%, split equally
   healthInsurance: {
-    employeeRate: 0.03545, // 3.545%
-    employerRate: 0.03545, // 3.545%
+    employeeRate: 0.03595, // 3.595%
+    employerRate: 0.03595, // 3.595%
     // No ceiling - calculated on total income
   },
 
   // Long-term Care Insurance (장기요양보험)
   // Calculated as percentage of health insurance premium
   longTermCare: {
-    rate: 0.1295, // 12.95% of health insurance premium
+    rate: 0.1314, // 13.14% of health insurance premium (0.9448% / 7.19%)
   },
 
   // Employment Insurance (고용보험)
   // Employee rate is fixed, employer rate varies by company size
   employmentInsurance: {
-    employeeRate: 0.008, // 0.8% for standard employees
-    employerRate: 0.008, // 0.8% (minimum, can be higher)
+    employeeRate: 0.009, // 0.9% for unemployment benefits
+    employerRate: 0.009, // 0.9% minimum; employer pays extra by company size
   },
 } as const;
 

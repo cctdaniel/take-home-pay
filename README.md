@@ -33,7 +33,7 @@ FX rates are fetched from Exchangerate-API and cached on the server for performa
 
 - **All 50 States + DC** — Accurate state tax calculations including progressive, flat, and no-income-tax states
 - **Federal Taxes** — 2026 tax brackets (10% to 37%)
-- **FICA Taxes** — Social Security (6.2% up to $181,200) and Medicare (1.45% + 0.9% above $200k)
+- **FICA Taxes** — Social Security (6.2% up to $184,500) and Medicare (1.45% + 0.9% above $200k)
 - **State Disability Insurance** — Automatically calculated for CA, HI, NJ, NY, and RI
 - **Retirement Contributions** — 401(k), Roth IRA, and HSA with 2026 contribution limits
 - **Filing Status** — Single, Married Filing Jointly, Married Filing Separately, Head of Household
@@ -75,7 +75,7 @@ FX rates are fetched from Exchangerate-API and cached on the server for performa
 
 ### Portugal
 
-- **IRS (Income Tax)** — 2026 progressive brackets (13% to 48%, 9 brackets for residents)
+- **IRS (Income Tax)** — 2026 progressive brackets (12.5% to 48%, 9 brackets for residents)
 - **Social Security** — 11% employee contribution (Segurança Social)
 - **Specific Deduction** — Minimum €4,104 or actual SS contributions (whichever is higher)
 - **Solidarity Surcharge** — Additional 2.5% (€80k-€250k) and 5% (above €250k)

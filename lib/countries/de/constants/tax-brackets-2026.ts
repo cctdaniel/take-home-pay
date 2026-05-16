@@ -149,11 +149,11 @@ export const DE_SOCIAL_SECURITY_RATES_2026 = {
   // Long-term Care Insurance (Pflegeversicherung)
   longTermCare: {
     totalRate: 0.036, // 3.6% standard
-    employeeRate: 0.017, // 1.7%
-    employerRate: 0.017, // 1.7%
+    employeeRate: 0.018, // 1.8%
+    employerRate: 0.018, // 1.8%
     // Childless surcharge (Zuschlag für Kinderlose)
     childlessSurcharge: 0.006, // +0.6% for members over 23 without children
-    childlessEmployeeRate: 0.025, // 1.7% + 0.8% (employer pays 0.6% extra)
+    childlessEmployeeRate: 0.024, // 1.8% + 0.6% employee-only surcharge
   },
 };
 
@@ -344,7 +344,7 @@ export function calculateSocialSecurity(
   let careEmployee: number;
   let careEmployer: number;
   if (isChildless) {
-    // Childless surcharge: employee pays 2.5%, employer pays 1.1% (total 3.6% + 0.6% = 4.2%)
+    // Childless surcharge: employee pays 2.4%, employer pays 1.8% (total 4.2%).
     careEmployee = careBase * rates.longTermCare.childlessEmployeeRate;
     careEmployer = careBase * (rates.longTermCare.totalRate + rates.longTermCare.childlessSurcharge - rates.longTermCare.childlessEmployeeRate);
   } else {

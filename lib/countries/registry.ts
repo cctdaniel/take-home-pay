@@ -28,7 +28,6 @@ interface CountryRegistryEntry {
   calculator: CountryCalculator;
 }
 
-// ============================================================================
 // COUNTRY CALCULATORS REGISTRY
 // ============================================================================
 const COUNTRY_REGISTRY: CountryRegistryEntry[] = [

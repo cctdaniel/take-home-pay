@@ -1,8 +1,11 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
+import {
+  CalculatorFieldGrid,
+  NumberField,
+  PayFrequencyField,
+  SelectField,
+} from "@/components/calculator/calculator-fields";
 import type { PayFrequency, PTResidencyType } from "@/lib/countries/types";
 
 interface PTTaxOptionsProps {
@@ -31,92 +34,68 @@ export function PTTaxOptions({
   onAgeChange,
 }: PTTaxOptionsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <div className="space-y-2">
-        <Label htmlFor="residency-type">Residency Status</Label>
-        <Select
-          id="residency-type"
-          value={residencyType}
-          onChange={(e) =>
-            onResidencyTypeChange(e.target.value as PTResidencyType)
-          }
-        >
-          <option value="resident">Portuguese Resident</option>
-          <option value="nhr_2">NHR 2.0 (20% flat rate)</option>
-          <option value="non_resident">Non-Resident (25% flat)</option>
-        </Select>
-        {residencyType === "nhr_2" && (
-          <p className="text-xs text-zinc-500">
-            NHR 2.0: 20% flat tax rate for new residents (10-year regime)
-          </p>
-        )}
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="pt-age">Age</Label>
-        <Input
-          id="pt-age"
-          type="number"
-          min={18}
-          max={100}
-          value={age}
-          onChange={(e) => onAgeChange(parseInt(e.target.value) || 30)}
-          className="bg-zinc-800 border-zinc-700"
-        />
-        <p className="text-xs text-zinc-500">PPR limits vary by age</p>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="pay-frequency">Pay Frequency</Label>
-        <Select
-          id="pay-frequency"
-          value={payFrequency}
-          onChange={(e) => onPayFrequencyChange(e.target.value as PayFrequency)}
-        >
-          <option value="annual">Annual</option>
-          <option value="monthly">Monthly</option>
-          <option value="biweekly">Bi-weekly</option>
-          <option value="weekly">Weekly</option>
-        </Select>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="filing-status">Filing Status</Label>
-        <Select
-          id="filing-status"
-          value={filingStatus}
-          onChange={(e) =>
-            onFilingStatusChange(e.target.value as "single" | "married_jointly" | "married_separately")
-          }
-        >
-          <option value="single">Single</option>
-          <option value="married_jointly">Married Filing Jointly (Aggregado)</option>
-          <option value="married_separately">Married Filing Separately (Separado)</option>
-        </Select>
-        {filingStatus === "married_jointly" && (
-          <p className="text-xs text-zinc-500">Joint filing divides income by 2 for tax calculation</p>
-        )}
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="dependents">Number of Dependents</Label>
-        <Select
-          id="dependents"
-          value={numberOfDependents.toString()}
-          onChange={(e) =>
-            onNumberOfDependentsChange(parseInt(e.target.value, 10))
-          }
-        >
-          <option value="0">None</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-          <option value="8">8+</option>
-        </Select>
-        <p className="text-xs text-zinc-500">
-          €600 deduction per dependent (from tax assessed)
-        </p>
-      </div>
-    </div>
+    <CalculatorFieldGrid columns={3}>
+      <SelectField
+        id="residency-type"
+        label="Residency Status"
+        value={residencyType}
+        onChange={onResidencyTypeChange}
+        options={[
+          { value: "resident", label: "Portuguese Resident" },
+          { value: "nhr_2", label: "NHR 2.0 (20% flat rate)" },
+          { value: "non_resident", label: "Non-Resident (25% flat)" },
+        ]}
+        description={
+          residencyType === "nhr_2"
+            ? "NHR 2.0: 20% flat tax rate for new residents (10-year regime)"
+            : undefined
+        }
+      />
+      <NumberField
+        id="pt-age"
+        label="Age"
+        value={age}
+        onChange={onAgeChange}
+        min={18}
+        max={100}
+        fallbackValue={30}
+        description="PPR limits vary by age"
+      />
+      <PayFrequencyField value={payFrequency} onChange={onPayFrequencyChange} />
+      <SelectField
+        id="filing-status"
+        label="Filing Status"
+        value={filingStatus}
+        onChange={onFilingStatusChange}
+        options={[
+          { value: "single", label: "Single" },
+          { value: "married_jointly", label: "Married Filing Jointly (Aggregado)" },
+          { value: "married_separately", label: "Married Filing Separately (Separado)" },
+        ]}
+        description={
+          filingStatus === "married_jointly"
+            ? "Joint filing divides income by 2 for tax calculation"
+            : undefined
+        }
+      />
+      <SelectField
+        id="dependents"
+        label="Number of Dependents"
+        value={Math.min(numberOfDependents, 8).toString() as `${number}`}
+        onChange={(nextValue) => onNumberOfDependentsChange(parseInt(nextValue, 10))}
+        options={[
+          { value: "0", label: "None" },
+          { value: "1", label: "1" },
+          { value: "2", label: "2" },
+          { value: "3", label: "3" },
+          { value: "4", label: "4" },
+          { value: "5", label: "5" },
+          { value: "6", label: "6" },
+          { value: "7", label: "7" },
+          { value: "8", label: "8+" },
+        ]}
+        description="EUR 600 deduction per dependent (from tax assessed)"
+      />
+    </CalculatorFieldGrid>
   );
 }

@@ -9,7 +9,7 @@ import type { USFilingStatus } from "../types";
 // CONSTANTS
 // ============================================================================
 const SOCIAL_SECURITY_RATE = 0.062;
-const SOCIAL_SECURITY_WAGE_BASE = 181200; // Up from $176,100 in 2025
+const SOCIAL_SECURITY_WAGE_BASE = 184500; // 2026 OASDI taxable maximum
 
 const MEDICARE_RATE = 0.0145;
 const ADDITIONAL_MEDICARE_RATE = 0.009;
