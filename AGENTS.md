@@ -180,6 +180,21 @@ Each country calculator handles country-specific combinations of:
 
 **Note:** Any time you add a new country, also update `/compare` assumptions and documentation to keep the experience consistent.
 
+### Voluntary Contribution Checklist
+
+Before deciding a country has no optional tax-saving inputs, explicitly check for resident tax-reducing contributions and reliefs, including:
+
+- Pension, retirement, provident, occupational pension, and social welfare schemes
+- Voluntary top-ups to mandatory retirement or savings systems
+- Life/medical insurance premiums when they are user-controlled and tax-relevant
+- Charitable/religious payments, education, lifestyle, or qualifying expense reliefs that are common enough to model
+
+If a user-entered amount has an official or modeled cap, use `ContributionSlider`, expose the cap from `getContributionLimits()`, clamp the hook setter, and clamp again in the calculator. Mandatory payroll/social-insurance contributions should remain automatic calculator logic, not voluntary UI controls.
+
+When a scheme has multiple caps, keep them separate in constants and UI copy. Use the legal contribution/payment cap as the slider max, then apply any lower tax-relief cap in the calculator and breakdown. If a complex employer-plan or plan-specific extra limit is intentionally excluded, state that exclusion near the constants and in visible assumptions copy.
+
+For `/compare`, the "max retirement" assumption must include each modeled tax-reducing retirement contribution where the user's assumptions make them eligible. If no voluntary contribution is modeled, leave a short source-backed comment or visible assumption explaining why.
+
 ### Updating Tax Data
 
 - Use official government sources whenever possible and verify that the tax year/assessment year matches the calculator constants.
