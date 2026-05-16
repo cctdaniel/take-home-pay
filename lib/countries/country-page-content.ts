@@ -17,6 +17,7 @@ const COUNTRY_DESCRIPTIONS: Partial<Record<CountryCode, string>> = {
   TW: `Free ${TAX_YEAR} take home pay calculator for Taiwan. Calculate your salary after taxes including comprehensive income tax (progressive rates 5% to 40%), Labor Insurance, Employment Insurance, National Health Insurance, and voluntary labor pension contributions.`,
   UK: `Free ${TAX_YEAR} take home pay calculator for the United Kingdom. Calculate your salary after taxes including Income Tax (with Personal Allowance taper), Class 1 National Insurance (employee), and Scottish Income Tax rates if applicable.`,
   DE: `Free ${TAX_YEAR} take home pay calculator for Germany. Calculate your salary after taxes including income tax (Einkommensteuer) per §32a EStG, Solidarity Surcharge (Solidaritätszuschlag), and social security contributions (pension, health, unemployment, and long-term care insurance).`,
+  AE: `Free 2026 take home pay calculator for the United Arab Emirates. Calculate UAE salary after 0% personal income tax and modeled GPSSA or GCC insurance extension employee pension contributions.`,
 };
 
 // Country-specific keywords for SEO
@@ -172,6 +173,17 @@ const COUNTRY_KEYWORDS: Partial<Record<CountryCode, string[]>> = {
     "krankenversicherung rechner",
     "rentenversicherung beitrag",
   ],
+  AE: [
+    "uae take home pay calculator",
+    "dubai salary after tax",
+    "abu dhabi salary calculator",
+    "2026 uae salary calculator",
+    "uae personal income tax",
+    "gpssa contribution calculator",
+    "emirati pension contribution",
+    "gcc pension uae",
+    "uae expat salary calculator",
+  ],
 };
 
 
@@ -243,6 +255,11 @@ const COUNTRY_HEADER_INFO: Partial<Record<
     tagline: "Calculate your actual salary after taxes in Germany.",
     details:
       "Income tax (Einkommensteuer §32a EStG, progressive 0-45%), Solidarity Surcharge (Solidaritätszuschlag 5.5%), Pension Insurance (9.3%), Health Insurance (7.3% + Zusatzbeitrag), Unemployment Insurance (1.3%), Long-term Care Insurance (1.8-2.4%)",
+  },
+  AE: {
+    tagline: "Calculate your actual salary after deductions in the United Arab Emirates.",
+    details:
+      "0% personal income tax, GPSSA pension for UAE nationals, and GCC insurance extension contributions",
   },
 };
 
