@@ -4,7 +4,7 @@ This file provides guidance for AI coding agents working with this codebase.
 
 ## Project Overview
 
-**Take Home Pay Calculator** — A Next.js web application for calculating take-home salary after taxes and deductions. Supports multiple countries (US, Australia, Hong Kong, Indonesia, Netherlands, Portugal, Singapore, South Korea, and Thailand) with 2026 tax data.
+**Take Home Pay Calculator** — A Next.js web application for calculating take-home salary after taxes and deductions. Supported countries are defined by the single registry in `lib/countries/registry.ts`; do not duplicate the current country list in this file.
 
 ## Tech Stack
 
@@ -28,6 +28,8 @@ This file provides guidance for AI coding agents working with this codebase.
     page.tsx              # Dynamic country page with generateStaticParams
 /components/
   /calculator/            # Domain-specific calculator components
+    calculator-fields.tsx # Shared calculator form controls (selects, numbers, pay frequency, currency amounts)
+    info-panel.tsx        # Shared informational callout panel
   /compare/               # Compare flow UI components
   /ui/                    # Reusable UI primitives (card, input, select, etc.)
 /hooks/                   # React custom hooks for state management
@@ -35,16 +37,9 @@ This file provides guidance for AI coding agents working with this codebase.
   use-fx-rates.ts          # FX rate fetching hook
 /lib/
   /countries/             # Country-specific calculator implementations
-    /us/                  # US tax calculator (federal, state, FICA)
-    /au/                  # Australia tax calculator (income tax, Medicare levy, super)
-    /sg/                  # Singapore tax calculator (income tax, CPF)
-    /kr/                  # South Korea tax calculator (income tax, social insurance)
-    /nl/                  # Netherlands tax calculator (income tax, national insurance)
-    /hk/                  # Hong Kong tax calculator (salaries tax, MPF)
-    /pt/                  # Portugal tax calculator (IRS, Social Security)
-    /th/                  # Thailand tax calculator (PIT, SSF, Provident Fund)
-    /id/                  # Indonesia tax calculator (PPh 21, BPJS)
-    registry.ts           # Country calculator registry (factory pattern)
+    /{country-code}/      # Country calculators, config, and tax constants
+    country-page-content.ts # Country-specific SEO/header copy
+    registry.ts           # Single source registry for supported calculators/configs
     types.ts              # Shared TypeScript interfaces
   /constants/             # Tax brackets, contribution limits, tax year
   /tax-calculations/      # Legacy calculation utilities (backwards compat)
@@ -54,24 +49,14 @@ This file provides guidance for AI coding agents working with this codebase.
 
 ## URL Structure
 
-Each country has its own route for better SEO:
+Each supported country has its own route for SEO:
 
-| Country       | URL        | Generated at build |
-| ------------- | ---------- | ------------------ |
-| United States | `/us`      | Yes (static)       |
-| Australia     | `/au`      | Yes (static)       |
-| Singapore     | `/sg`      | Yes (static)       |
-| South Korea   | `/kr`      | Yes (static)       |
-| Netherlands   | `/nl`      | Yes (static)       |
-| Hong Kong     | `/hk`      | Yes (static)       |
-| Portugal      | `/pt`      | Yes (static)       |
-| Thailand      | `/th`      | Yes (static)       |
-| Indonesia     | `/id`      | Yes (static)       |
-| Compare All   | `/compare` | Yes (static)       |
-
+- `/{country-code-lowercase}` is generated from `SUPPORTED_COUNTRIES` in `lib/countries/registry.ts`
+- `app/[country]/page.tsx` uses `generateStaticParams()` to statically generate all registry countries
+- `/compare` is the static compare flow
 - Root `/` redirects to `/us` (default country)
 - Country selector navigates to the selected country's route
-- Each page has country-specific metadata (title, description, keywords)
+- Each page has country-specific metadata (title, description, keywords) sourced from `lib/countries/country-page-content.ts`
 
 ## Commands
 
@@ -96,14 +81,32 @@ The app uses Next.js dynamic routes with static generation:
 
 The codebase uses a registry pattern for country support:
 
-1. **Registry** (`lib/countries/registry.ts`) — Factory that returns the appropriate calculator
+1. **Registry** (`lib/countries/registry.ts`) — Single ordered `COUNTRY_REGISTRY` list. `SUPPORTED_COUNTRIES`, calculator lookup, and `COUNTRY_CONFIGS` are derived from it.
 2. **Country Calculator Interface** (`lib/countries/types.ts`) — Each country implements `CountryCalculator`
-3. **Country Implementations** — `/lib/countries/us/`, `/lib/countries/au/`, `/lib/countries/sg/`, `/lib/countries/kr/`, `/lib/countries/nl/`, `/lib/countries/pt/`, `/lib/countries/id/`
+3. **Country Page Content** (`lib/countries/country-page-content.ts`) — Country SEO descriptions, keywords, and header copy
+4. **Country Implementations** — `/lib/countries/{country-code}/`
+
+### Reusable Calculator UI Pattern
+
+Country option UIs should compose shared controls instead of duplicating labels, grids, parsing, and select markup:
+
+- Use `CalculatorFieldGrid` for option layouts.
+- Use `PayFrequencyField` for pay frequency.
+- Use `SelectField` for string enums such as residency, filing status, state/region, and regimes.
+- Use `BooleanSelectField` for yes/no choices.
+- Use `NumberField` for bounded numeric inputs such as age. It keeps an editable string draft, allows temporarily empty values, and clamps min/max on blur.
+- Use `CurrencyAmountField` for free-form annual currency amounts.
+- Use `ContributionSlider` from `components/ui/contribution-slider.tsx` for bounded contribution/deduction amounts with max toggles.
+- Use `InfoPanel` for repeated note/tip callouts.
+
+Do not introduce a country-specific version of these controls unless the shared primitive cannot model the interaction. If a new country needs the same concept (for example health insurance, pension, CPF-style savings, or retirement contributions), use the same shared control type and visual language as existing countries.
+
+Mobile note: `Input` and `Select` intentionally render at 16px on mobile (`text-base sm:text-sm`) to avoid iOS Safari focus zoom. Do not override calculator inputs below 16px on mobile.
 
 ### Tax Calculation Flow
 
 ```
-URL (/us, /sg, etc.) → Country Page → MultiCountryCalculator → Country Calculator → Tax Breakdown → Results Display
+URL (/{country-code}) → Country Page → MultiCountryCalculator → Country Calculator → Tax Breakdown → Results Display
 ```
 
 Compare flow:
@@ -112,12 +115,12 @@ Compare flow:
 /compare → Questionnaire → FX conversion → Country Calculator → Ranked Results + Snapshot
 ```
 
-Each country calculator handles:
+Each country calculator handles country-specific combinations of:
 
-- Income tax (federal/national)
-- Payroll taxes (FICA for US, CPF for Singapore, 4 Major Insurance for Korea, SSF for Thailand)
+- Income tax
+- Statutory payroll, pension, social insurance, or savings contributions
 - Deductions and contributions
-- Tax reliefs (country-specific)
+- Tax reliefs
 
 ### State Management
 
@@ -125,6 +128,7 @@ Each country calculator handles:
 - `use-multi-country-calculator.ts` accepts country as parameter (from URL)
 - Country changes trigger navigation, not state updates
 - Uses `useMemo` for memoized calculations
+- Default gross salary should come from each calculator's `getDefaultInputs()`, not a separate per-country map in the hook
 
 ## Key Files
 
@@ -135,18 +139,15 @@ Each country calculator handles:
 | `app/layout.tsx`                             | Root layout with fonts                 |
 | `hooks/use-multi-country-calculator.ts`      | Calculator state management            |
 | `lib/countries/registry.ts`                  | Country calculator factory             |
+| `lib/countries/country-page-content.ts`      | Country SEO/header content             |
 | `lib/countries/types.ts`                     | TypeScript interfaces                  |
-| `lib/countries/us/calculator.ts`             | US tax calculation logic               |
-| `lib/countries/au/calculator.ts`             | Australia tax calculation logic        |
-| `lib/countries/sg/calculator.ts`             | Singapore tax calculation logic        |
-| `lib/countries/kr/calculator.ts`             | South Korea tax calculation logic      |
-| `lib/countries/nl/calculator.ts`             | Netherlands tax calculation logic      |
-| `lib/countries/pt/calculator.ts`             | Portugal tax calculation logic         |
-| `lib/countries/th/calculator.ts`             | Thailand tax calculation logic         |
-| `lib/countries/hk/calculator.ts`             | Hong Kong tax calculation logic        |
-| `lib/countries/id/calculator.ts`             | Indonesia tax calculation logic        |
+| `lib/countries/{code}/calculator.ts`         | Country tax calculation logic          |
+| `lib/countries/{code}/config.ts`             | Country display/config metadata        |
+| `lib/countries/{code}/constants/`            | Country tax/contribution constants     |
 | `lib/constants/tax-year.ts`                  | Current tax year and build metadata    |
 | `components/calculator/country-selector.tsx` | Country dropdown (navigates on change) |
+| `components/calculator/calculator-fields.tsx` | Shared calculator field primitives    |
+| `components/ui/contribution-slider.tsx`      | Shared contribution slider             |
 
 ## Adding a New Country
 
@@ -154,34 +155,41 @@ Each country calculator handles:
 2. Implement `CountryCalculator` interface in `calculator.ts`
 3. Define tax brackets in `constants/`
 4. Export via `config.ts` and `index.ts`
-5. Register in `lib/countries/registry.ts` (add to `SUPPORTED_COUNTRIES` array)
-6. Add UI components in `components/calculator/`
-7. Update `use-multi-country-calculator.ts` hook with country-specific state
-8. Add country metadata in `app/[country]/page.tsx`:
+5. Add the country code and currency to `lib/countries/types.ts` if they are new
+6. Register in `lib/countries/registry.ts` by importing the calculator and adding one `COUNTRY_REGISTRY` entry. Do not manually edit derived `SUPPORTED_COUNTRIES` or `COUNTRY_CONFIGS`.
+7. Add UI components in `components/calculator/`, composing shared fields from `calculator-fields.tsx`
+8. Update `use-multi-country-calculator.ts` only for truly country-specific state, input assembly, and setters. Use `getDefaultInputs()` for default gross salary.
+9. Add country metadata in `lib/countries/country-page-content.ts`:
    - Add to `COUNTRY_DESCRIPTIONS`
    - Add to `COUNTRY_KEYWORDS`
    - Add to `COUNTRY_HEADER_INFO`
-9. Add country section to `components/calculator/seo-tax-info.tsx`
-10. Update compare flow:
-    - Add to `SUPPORTED_COUNTRIES` and any compare selectors
-    - Extend `hooks/use-country-comparison.ts` for country-specific assumptions and retirement max rules
+10. Add country section to `components/calculator/seo-tax-info.tsx`
+11. Update compare flow:
+    - Extend `hooks/use-country-comparison.ts` for country-specific assumptions, input mapping, and retirement max rules
     - Add simple breakdown mapping in `components/compare/compare-breakdown.tsx` if needed
-11. **Update documentation:** Update this file (AGENTS.md) and README.md to include the new country and `/compare`
+12. **Update documentation:** Update README/user-facing docs when country support changes. Do not update AGENTS.md for a normal new country unless the architecture or workflow changes.
 
 **Note:** Any time you add a new country, also update `/compare` assumptions and documentation to keep the experience consistent.
 
-### Indonesia Notes
+### Updating Tax Data
 
-- **Tax System:** PPh 21 (Article 21 Income Tax) with progressive rates 5% to 35%
-- **Key Components:**
-  - PTKP (Non-Taxable Income): Rp54M individual + Rp4.5M married + Rp4.5M per dependent (max 3)
-  - Job Expense Deduction: 5% of gross income, capped at Rp6M/year
-  - BPJS Kesehatan (Health): 1% employee (capped at Rp12M monthly wage base)
-  - BPJS JHT (Old Age): 2% employee (no cap)
-  - BPJS JP (Pension): 1% employee (capped at Rp10,547,400 monthly wage base)
-- **Sources:**
-  - Tax brackets: UU No. 7/2021 (HPP Law)
-  - BPJS rates: BPJS Ketenagakerjaan and BPJS Kesehan regulations 2026
+- Use official government sources whenever possible and verify that the tax year/assessment year matches the calculator constants.
+- Preserve source URLs in constants comments when useful.
+- Update visible explanatory copy when rates change:
+  - `components/calculator/seo-tax-info.tsx`
+  - `components/calculator/multi-country-calculator.tsx`
+  - `components/calculator/multi-country-results.tsx`
+  - `lib/countries/country-page-content.ts`
+  - `README.md` for user-facing country support changes
+- Update this file only when the architecture or agent workflow changes, not for routine country additions.
+- Run `npm run lint` and `npm run build` after calculation or shared UI changes.
+
+### Parallel Agent Guidance
+
+- Treat `lib/countries/registry.ts`, `lib/countries/types.ts`, `hooks/use-multi-country-calculator.ts`, and `hooks/use-country-comparison.ts` as shared integration points. Coordinate edits to these files when multiple agents are adding countries in parallel.
+- Country implementation directories (`lib/countries/{code}/`) are good parallel work units when each agent owns a different country.
+- UI work should reuse shared field primitives first; if a new primitive is needed, add it generically and migrate obvious duplicate call sites.
+- Keep country-specific legal/tax notes near the relevant constants or calculator implementation instead of adding country-specific sections to this file.
 
 ## Code Style
 
