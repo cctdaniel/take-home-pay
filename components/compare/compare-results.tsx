@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { formatCurrency, formatPercentage } from "@/lib/format";
+import { formatCurrencyWithCode, formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { CountryCode, CurrencyCode } from "@/lib/countries/types";
 import type { ComparisonOutput } from "@/hooks/use-country-comparison";
@@ -107,7 +107,7 @@ export function CompareResults({
             <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-4">
               <div className="flex items-center justify-between text-xs text-zinc-400">
                 <span>
-                  Base salary: {formatCurrency(baseSalary, baseCurrency)}
+                  Base salary: {formatCurrencyWithCode(baseSalary, baseCurrency)}
                 </span>
                 {updatedAt ? <span>Rates as of {updatedAt}</span> : null}
               </div>
@@ -133,7 +133,7 @@ export function CompareResults({
                       ? "-"
                       : ""
                 }${formatPercentage(Math.abs(result.deltaPercent))}`;
-                const deltaValueLabel = `${deltaPrefix}${formatCurrency(
+                const deltaValueLabel = `${deltaPrefix}${formatCurrencyWithCode(
                   Math.abs(result.deltaBase),
                   baseCurrency,
                 )}`;
@@ -171,8 +171,8 @@ export function CompareResults({
                           )}
                         </div>
                         <p className="text-xs text-zinc-400 mt-1">
-                          {formatCurrency(result.netLocal, result.currency)} net
-                          ({formatCurrency(result.netBase, baseCurrency)} base)
+                          {formatCurrencyWithCode(result.netLocal, result.currency)} net
+                          ({formatCurrencyWithCode(result.netBase, baseCurrency)} base)
                         </p>
                       </div>
                       <div className="text-right">

@@ -114,6 +114,20 @@ export function formatCurrencyWithCents(amount: number, currencyCode: CurrencyCo
   }).format(amount);
 }
 
+export function formatCurrencyWithCode(amount: number, currencyCode: CurrencyCode = "USD"): string {
+  return `${currencyCode} ${formatNumber(amount, currencyCode)}`;
+}
+
+export function formatCurrencyWithCodeAndCents(amount: number, currencyCode: CurrencyCode = "USD"): string {
+  const config = CURRENCIES[currencyCode];
+  const formattedAmount = new Intl.NumberFormat(config.locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+
+  return `${currencyCode} ${formattedAmount}`;
+}
+
 export function formatNumber(value: number, currencyCode: CurrencyCode = "USD"): string {
   const config = CURRENCIES[currencyCode];
   return new Intl.NumberFormat(config.locale).format(value);

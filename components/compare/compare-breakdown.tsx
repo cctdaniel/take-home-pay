@@ -1,10 +1,14 @@
 "use client";
 
-import { DeductionRow } from "@/components/calculator/deduction-row";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { formatCurrency, formatCurrencyWithCents, formatPercentage } from "@/lib/format";
+import {
+  formatCurrencyWithCode,
+  formatCurrencyWithCodeAndCents,
+  formatPercentage,
+} from "@/lib/format";
 import type { CurrencyCode } from "@/lib/countries/types";
+import { cn } from "@/lib/utils";
 import type { CountryComparison, MaritalStatus } from "@/hooks/use-country-comparison";
 import Link from "next/link";
 
@@ -34,7 +38,65 @@ function BreakdownRow({
           {formatPercentage(percentage)}
         </span>
         <span className="tabular-nums text-zinc-400 min-w-[80px] text-right">
-          -{formatCurrency(amount, currency)}
+          -{formatCurrencyWithCode(amount, currency)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function CompareDeductionRow({
+  label,
+  amount,
+  grossSalary,
+  variant = "default",
+  showPercentage = true,
+  currency,
+}: {
+  label: string;
+  amount: number;
+  grossSalary: number;
+  variant?: "default" | "total" | "net";
+  showPercentage?: boolean;
+  currency: CurrencyCode;
+}) {
+  const percentage = grossSalary > 0 ? amount / grossSalary : 0;
+
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-between py-2",
+        variant === "total" && "border-t border-zinc-700 pt-3 mt-1",
+        variant === "net" && "border-t border-zinc-700 pt-3 mt-1",
+      )}
+    >
+      <span
+        className={cn(
+          "text-sm",
+          variant === "default" && "text-zinc-400",
+          variant === "total" && "text-zinc-300 font-medium",
+          variant === "net" && "text-emerald-400 font-semibold",
+        )}
+      >
+        {label}
+      </span>
+      <div className="flex items-center gap-4">
+        {showPercentage && (
+          <span className="text-xs text-zinc-500 tabular-nums w-14 text-right">
+            {formatPercentage(percentage)}
+          </span>
+        )}
+        <span
+          className={cn(
+            "tabular-nums text-right min-w-[90px]",
+            variant === "default" && "text-sm text-zinc-300",
+            variant === "total" && "text-sm font-medium text-zinc-200",
+            variant === "net" && "text-base font-semibold text-emerald-400",
+          )}
+        >
+          {variant === "net"
+            ? formatCurrencyWithCode(amount, currency)
+            : `-${formatCurrencyWithCode(amount, currency)}`}
         </span>
       </div>
     </div>
@@ -179,7 +241,7 @@ export function CompareBreakdown({
           <div className="flex items-center justify-between">
             <span>Base salary</span>
             <span className="font-medium">
-              {formatCurrency(baseSalary, baseCurrency)}
+              {formatCurrencyWithCode(baseSalary, baseCurrency)}
             </span>
           </div>
           <div className="flex items-center justify-between">
@@ -199,10 +261,10 @@ export function CompareBreakdown({
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
           <div className="text-center py-2">
             <div className="text-4xl font-bold text-emerald-400 tracking-tight">
-              {formatCurrency(calculation.netSalary, currency)}
+              {formatCurrencyWithCode(calculation.netSalary, currency)}
             </div>
             <div className="text-zinc-500 text-sm mt-1">
-              {formatCurrencyWithCents(calculation.perPeriod.net, currency)} per
+              {formatCurrencyWithCodeAndCents(calculation.perPeriod.net, currency)} per
               month
             </div>
           </div>
@@ -228,11 +290,11 @@ export function CompareBreakdown({
                 Gross Salary
               </span>
               <span className="text-sm font-medium text-zinc-200 tabular-nums">
-                {formatCurrency(grossSalary, currency)}
+                {formatCurrencyWithCode(grossSalary, currency)}
               </span>
             </div>
             <Separator className="my-2" />
-            <DeductionRow
+            <CompareDeductionRow
               label={usesTotalTaxLabel ? "Total tax" : "Income tax"}
               amount={incomeTax}
               grossSalary={grossSalary}
@@ -253,7 +315,7 @@ export function CompareBreakdown({
             )}
             {mandatoryContributions > 0 && (
               <>
-                <DeductionRow
+                <CompareDeductionRow
                   label="Mandatory contributions"
                   amount={mandatoryContributions}
                   grossSalary={grossSalary}
@@ -275,21 +337,21 @@ export function CompareBreakdown({
               </>
             )}
             {voluntaryContributions > 0 && (
-              <DeductionRow
+              <CompareDeductionRow
                 label="Voluntary contributions"
                 amount={voluntaryContributions}
                 grossSalary={grossSalary}
                 currency={currency}
               />
             )}
-            <DeductionRow
+            <CompareDeductionRow
               label="Total deductions"
               amount={calculation.totalDeductions}
               grossSalary={grossSalary}
               currency={currency}
               variant="total"
             />
-            <DeductionRow
+            <CompareDeductionRow
               label="Net salary"
               amount={calculation.netSalary}
               grossSalary={grossSalary}

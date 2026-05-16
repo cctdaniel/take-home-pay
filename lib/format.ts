@@ -7,6 +7,8 @@
 import {
   formatCurrency as formatCurrencyBase,
   formatCurrencyWithCents as formatCurrencyWithCentsBase,
+  formatCurrencyWithCode as formatCurrencyWithCodeBase,
+  formatCurrencyWithCodeAndCents as formatCurrencyWithCodeAndCentsBase,
   formatNumber as formatNumberBase,
   type CurrencyCode,
 } from "./countries/currency";
@@ -37,6 +39,26 @@ export function formatCurrency(amount: number, currencyCode: CurrencyCode = DEFA
  */
 export function formatCurrencyWithCents(amount: number, currencyCode: CurrencyCode = DEFAULT_CURRENCY): string {
   return formatCurrencyWithCentsBase(amount, currencyCode);
+}
+
+/**
+ * Format a number as currency with the ISO currency code as a prefix.
+ * Useful in mixed-currency contexts where symbols like $ are ambiguous.
+ * @param amount - The amount to format
+ * @param currencyCode - Optional currency code (defaults to USD)
+ */
+export function formatCurrencyWithCode(amount: number, currencyCode: CurrencyCode = DEFAULT_CURRENCY): string {
+  return formatCurrencyWithCodeBase(amount, currencyCode);
+}
+
+/**
+ * Format a number as currency with cents and the ISO currency code as a prefix.
+ * Useful in mixed-currency contexts where symbols like $ are ambiguous.
+ * @param amount - The amount to format
+ * @param currencyCode - Optional currency code (defaults to USD)
+ */
+export function formatCurrencyWithCodeAndCents(amount: number, currencyCode: CurrencyCode = DEFAULT_CURRENCY): string {
+  return formatCurrencyWithCodeAndCentsBase(amount, currencyCode);
 }
 
 /**
