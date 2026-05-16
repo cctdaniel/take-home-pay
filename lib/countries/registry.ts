@@ -1,22 +1,9 @@
 // ============================================================================
 // COUNTRY REGISTRY
-// Central registry for all country calculators
+// Generated from country directories to avoid shared-file merge conflicts.
 // ============================================================================
 
-import { AUCalculator } from "./au";
-import { DECalculator } from "./de";
-import { ESCalculator } from "./es";
-import { GRCalculator } from "./gr";
-import { HKCalculator } from "./hk";
-import { IDCalculator } from "./id";
-import { KRCalculator } from "./kr";
-import { MYCalculator } from "./my";
-import { NLCalculator } from "./nl";
-import { PTCalculator } from "./pt";
-import { SGCalculator } from "./sg";
-import { THCalculator } from "./th";
-import { TWCalculator } from "./tw";
-import { UKCalculator } from "./uk";
+import { COUNTRY_REGISTRY } from "./registry.generated";
 import type {
   CalculationResult,
   CalculatorInputs,
@@ -24,32 +11,6 @@ import type {
   CountryCode,
   CountryConfig,
 } from "./types";
-import { USCalculator } from "./us";
-
-interface CountryRegistryEntry {
-  code: CountryCode;
-  calculator: CountryCalculator;
-}
-
-// COUNTRY CALCULATORS REGISTRY
-// ============================================================================
-const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
-  { code: "US", calculator: USCalculator },
-  { code: "AU", calculator: AUCalculator },
-  { code: "DE", calculator: DECalculator },
-  { code: "ES", calculator: ESCalculator },
-  { code: "GR", calculator: GRCalculator },
-  { code: "HK", calculator: HKCalculator },
-  { code: "ID", calculator: IDCalculator },
-  { code: "MY", calculator: MYCalculator },
-  { code: "NL", calculator: NLCalculator },
-  { code: "PT", calculator: PTCalculator },
-  { code: "SG", calculator: SGCalculator },
-  { code: "KR", calculator: KRCalculator },
-  { code: "TW", calculator: TWCalculator },
-  { code: "TH", calculator: THCalculator },
-  { code: "UK", calculator: UKCalculator },
-];
 
 const countryCalculators: Record<CountryCode, CountryCalculator> =
   Object.fromEntries(

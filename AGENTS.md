@@ -4,7 +4,7 @@ This file provides guidance for AI coding agents working with this codebase.
 
 ## Project Overview
 
-**Take Home Pay Calculator** — A Next.js web application for calculating take-home salary after taxes and deductions. Supported countries are defined by the single registry in `lib/countries/registry.ts`; do not duplicate the current country list in this file.
+**Take Home Pay Calculator** — A Next.js web application for calculating take-home salary after taxes and deductions. Supported countries are generated from country module directories; do not duplicate the current country list in this file.
 
 ## Tech Stack
 
@@ -39,11 +39,11 @@ This file provides guidance for AI coding agents working with this codebase.
   /countries/             # Country-specific calculator implementations
     /{country-code}/      # Country calculators, config, and tax constants
     country-page-content.ts # Country-specific SEO/header copy
-    registry.ts           # Single source registry for supported calculators/configs
+    registry.ts           # Reads generated calculator registry
     types.ts              # Shared TypeScript interfaces
   /constants/             # Tax brackets, contribution limits, tax year
   /tax-calculations/      # Legacy calculation utilities (backwards compat)
-/scripts/                 # Build scripts (last-updated injection)
+/scripts/                 # Build scripts and generated registry scripts
 /public/                  # Static assets
 ```
 
@@ -51,7 +51,7 @@ This file provides guidance for AI coding agents working with this codebase.
 
 Each supported country has its own route for SEO:
 
-- `/{country-code-lowercase}` is generated from `SUPPORTED_COUNTRIES` in `lib/countries/registry.ts`
+- `/{country-code-lowercase}` is generated from `SUPPORTED_COUNTRIES` in `lib/countries/registry.ts`, backed by generated country registration
 - `app/[country]/page.tsx` uses `generateStaticParams()` to statically generate all registry countries
 - `/compare` is the static compare flow
 - Root `/` redirects to `/us` (default country)
@@ -61,6 +61,7 @@ Each supported country has its own route for SEO:
 ## Commands
 
 ```bash
+npm run generate:countries # Generate country registries from convention-based files
 npm run dev      # Start development server (localhost:3000)
 npm run build    # Production build
 npm run start    # Start production server
@@ -79,12 +80,13 @@ The app uses Next.js dynamic routes with static generation:
 
 ### Multi-Country Calculator Pattern
 
-The codebase uses a registry pattern for country support:
+The codebase uses a generated registry pattern for country support:
 
-1. **Registry** (`lib/countries/registry.ts`) — Single ordered `COUNTRY_REGISTRY` list. `SUPPORTED_COUNTRIES`, calculator lookup, and `COUNTRY_CONFIGS` are derived from it.
+1. **Generated Registry** (`lib/countries/registry.generated.ts`) — Built by `scripts/generate-country-registries.mjs` from `lib/countries/{country-code}/` directories. `lib/countries/registry.ts` derives `SUPPORTED_COUNTRIES`, calculator lookup, and `COUNTRY_CONFIGS` from it.
 2. **Country Calculator Interface** (`lib/countries/types.ts`) — Each country implements `CountryCalculator`
 3. **Country Page Content** (`lib/countries/country-page-content.ts`) — Country SEO descriptions, keywords, and header copy
 4. **Country Implementations** — `/lib/countries/{country-code}/`
+5. **Generated UI Extension Points** — The generator also discovers optional country result breakdowns, full calculator extensions, and compare adapters.
 
 ### Reusable Calculator UI Pattern
 
@@ -145,7 +147,8 @@ Each country calculator handles country-specific combinations of:
 | `app/page.tsx`                               | Redirect to /us                        |
 | `app/layout.tsx`                             | Root layout with fonts                 |
 | `hooks/use-multi-country-calculator.ts`      | Calculator state management            |
-| `lib/countries/registry.ts`                  | Country calculator factory             |
+| `lib/countries/registry.ts`                  | Country calculator factory using generated registry |
+| `scripts/generate-country-registries.mjs`    | Generates country registration files   |
 | `lib/countries/country-page-content.ts`      | Country SEO/header content             |
 | `lib/countries/types.ts`                     | Shared interfaces and extensible type maps |
 | `lib/countries/{code}/calculator.ts`         | Country tax calculation logic          |
@@ -154,7 +157,8 @@ Each country calculator handles country-specific combinations of:
 | `lib/constants/tax-year.ts`                  | Current tax year and build metadata    |
 | `components/calculator/country-selector.tsx` | Country dropdown (navigates on change) |
 | `components/calculator/calculator-fields.tsx` | Shared calculator field primitives    |
-| `components/calculator/results/`             | Country-specific result breakdown renderers |
+| `components/calculator/results/`             | Country-specific result breakdown renderers, auto-registered by filename |
+| `components/calculator/country-extensions/`  | Optional full country calculator extensions, auto-registered by filename |
 | `components/ui/contribution-slider.tsx`      | Shared contribution slider             |
 
 ## Adding a New Country
@@ -164,18 +168,18 @@ Each country calculator handles country-specific combinations of:
 3. Define tax brackets in `constants/`
 4. Export via `config.ts` and `index.ts`
 5. Add country-specific input, contribution, tax, and breakdown types near the country implementation. Prefer `lib/countries/{country-code}/types.ts` with TypeScript module augmentation for `CountryCodeMap`, `CurrencyCodeMap`, `ContributionInputMap`, `CalculatorInputMap`, `TaxBreakdownMap`, and `CountrySpecificBreakdownMap`. Edit `lib/countries/types.ts` only for genuinely shared primitives.
-6. Register in `lib/countries/registry.ts` by importing the calculator and adding one `COUNTRY_REGISTRY` entry. Do not manually edit derived `SUPPORTED_COUNTRIES` or `COUNTRY_CONFIGS`.
-7. Add UI components in `components/calculator/`, composing shared fields from `calculator-fields.tsx`
-8. Update `use-multi-country-calculator.ts` only for truly country-specific state, input assembly, and setters. Use `getDefaultInputs()` for default gross salary.
+6. Do not edit `lib/countries/registry.ts`. The registry is generated from country directories by `npm run generate:countries`.
+7. For new country UI, prefer adding `components/calculator/country-extensions/{country-code}.tsx` as a default export. This extension owns the country-specific form state and should use `useCountryCalculatorExtension` and `CountryCalculatorExtensionShell` from `components/calculator/country-extension.tsx`. Compose shared fields from `calculator-fields.tsx`. Do not add new country branches to `components/calculator/multi-country-calculator.tsx` or `hooks/use-multi-country-calculator.ts`.
+8. Add country-specific result display in `components/calculator/results/{country-code}-result-breakdown.tsx`. The result breakdown registry is generated from this filename; do not edit `components/calculator/results/country-result-breakdown.tsx`.
 9. Add country metadata overrides in `lib/countries/country-page-content.ts` only when the generic metadata from country config is not good enough:
    - `COUNTRY_DESCRIPTIONS`
    - `COUNTRY_KEYWORDS`
    - `COUNTRY_HEADER_INFO`
-10. Add country section to `components/calculator/seo-tax-info.tsx`
+10. Add SEO/tax explanatory copy inside the country extension or a country-local component. Do not add new country branches to `components/calculator/seo-tax-info.tsx`.
 11. Update compare flow:
-    - Extend `hooks/use-country-comparison.ts` for country-specific assumptions, input mapping, and retirement max rules
+    - Add `lib/countries/{country-code}/compare.ts` exporting `buildCountryComparison` for country-specific assumptions, input mapping, and retirement max rules. The compare adapter registry is generated from this file; do not edit `hooks/use-country-comparison.ts` for routine country additions.
     - Add simple breakdown mapping in `components/compare/compare-breakdown.tsx` if needed
-12. Add country-specific result display in `components/calculator/results/{country-code}-result-breakdown.tsx` and register it in `components/calculator/results/country-result-breakdown.tsx`. Do not add new country result blocks directly to `components/calculator/multi-country-results.tsx`.
+12. Run `npm run generate:countries`, `npm run lint`, and `npm run build`.
 13. **Update documentation:** Do not add country lists or country-specific sections to README. Keep country source URLs and notes near the country constants/calculator, and update AGENTS.md only when the architecture or workflow changes.
 
 **Note:** Any time you add a new country, also update `/compare` assumptions and documentation to keep the experience consistent.
@@ -209,9 +213,10 @@ For `/compare`, the "max retirement" assumption must include each modeled tax-re
 
 ### Parallel Agent Guidance
 
-- Treat `lib/countries/registry.ts`, `hooks/use-multi-country-calculator.ts`, `hooks/use-country-comparison.ts`, `components/calculator/results/country-result-breakdown.tsx`, and compare breakdown mapping as shared integration points. Coordinate edits to these files when multiple agents are adding countries in parallel.
-- Avoid editing README, `components/calculator/multi-country-results.tsx`, `lib/countries/currency.ts`, or shared aliases/maps in `lib/countries/types.ts` for routine country additions. Put new country type extensions in `lib/countries/{country-code}/types.ts` instead. Avoid `lib/countries/country-page-content.ts` unless a country needs custom SEO/header copy beyond the generic config-based fallback. These files are structured to derive from the registry or delegate to per-country modules.
+- Routine country PRs must not edit generated integration consumers: `lib/countries/registry.ts`, `hooks/use-multi-country-calculator.ts`, `hooks/use-country-comparison.ts`, `components/calculator/multi-country-calculator.tsx`, `components/calculator/results/country-result-breakdown.tsx`, or `components/calculator/seo-tax-info.tsx`. Use generated registries, country extensions, result breakdown files, and compare adapters instead.
+- Avoid editing README, `components/calculator/multi-country-results.tsx`, `lib/countries/currency.ts`, or shared aliases/maps in `lib/countries/types.ts` for routine country additions. Put new country type extensions in `lib/countries/{country-code}/types.ts` instead. Avoid `lib/countries/country-page-content.ts` unless a country needs custom SEO/header copy beyond the generic config-based fallback. These files are structured to derive from generated registries or delegate to per-country modules.
 - Country implementation directories (`lib/countries/{code}/`) are good parallel work units when each agent owns a different country.
+- Country UI extension files (`components/calculator/country-extensions/{code}.tsx`), compare adapters (`lib/countries/{code}/compare.ts`), and result breakdown files (`components/calculator/results/{code}-result-breakdown.tsx`) are also safe parallel work units because the generator discovers them by filename.
 - UI work should reuse shared field primitives first; if a new primitive is needed, add it generically and migrate obvious duplicate call sites.
 - Keep country-specific legal/tax notes near the relevant constants or calculator implementation instead of adding country-specific sections to this file.
 
