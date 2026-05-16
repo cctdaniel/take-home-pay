@@ -9,7 +9,11 @@ export interface NordicTaxConfig {
   standardDeduction: number;
   employeeSocialRate: number;
   employeeSocialCap?: number;
+  employeeSocialContributionCap?: number;
   employeeSocialName: string;
+  deductEmployeeSocialBeforeIncomeTax?: boolean;
+  bracketTaxBase?: "taxableIncome" | "grossIncome";
+  creditEmployeeSocialContribution?: boolean;
   flatTaxRate?: number;
   flatTaxBaseDeduction?: number;
   taxCredit?: number;
@@ -19,9 +23,11 @@ export interface NordicTaxConfig {
 
 export interface NordicTaxComputation {
   taxableIncome: number;
+  bracketTaxableIncome: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
   incomeTax: number;
   employeeSocialContribution: number;
+  employeeSocialTaxCredit: number;
   totalTax: number;
 }
 
@@ -62,22 +68,44 @@ export function calculateNordicTax(grossSalary: number, config: NordicTaxConfig)
   const socialBase = config.employeeSocialCap === undefined
     ? grossSalary
     : Math.min(grossSalary, config.employeeSocialCap);
-  const employeeSocialContribution = roundCurrency(socialBase * config.employeeSocialRate);
+  const uncappedEmployeeSocialContribution = roundCurrency(socialBase * config.employeeSocialRate);
+  const employeeSocialContribution = roundCurrency(
+    config.employeeSocialContributionCap === undefined
+      ? uncappedEmployeeSocialContribution
+      : Math.min(uncappedEmployeeSocialContribution, config.employeeSocialContributionCap),
+  );
+  const incomeTaxBase = config.deductEmployeeSocialBeforeIncomeTax
+    ? grossSalary - employeeSocialContribution
+    : grossSalary;
   const taxableIncome = Math.max(
     0,
-    grossSalary - config.standardDeduction - (config.flatTaxBaseDeduction ?? 0),
+    incomeTaxBase - config.standardDeduction - (config.flatTaxBaseDeduction ?? 0),
   );
-  const progressive = calculateProgressiveTax(taxableIncome, config.brackets);
+  const bracketTaxableIncome = config.bracketTaxBase === "grossIncome"
+    ? Math.max(0, grossSalary)
+    : taxableIncome;
+  const progressive = calculateProgressiveTax(bracketTaxableIncome, config.brackets);
   const flatTax = config.flatTaxRate ? roundCurrency(taxableIncome * config.flatTaxRate) : 0;
   const incomeTaxBeforeCredits = progressive.tax + flatTax;
-  const incomeTax = roundCurrency(Math.max(0, incomeTaxBeforeCredits - (config.taxCredit ?? 0)));
+  const incomeTaxAfterStandardCredits = Math.max(
+    0,
+    incomeTaxBeforeCredits - (config.taxCredit ?? 0),
+  );
+  const employeeSocialTaxCredit = config.creditEmployeeSocialContribution
+    ? Math.min(employeeSocialContribution, incomeTaxAfterStandardCredits)
+    : 0;
+  const incomeTax = roundCurrency(
+    Math.max(0, incomeTaxAfterStandardCredits - employeeSocialTaxCredit),
+  );
   const totalTax = roundCurrency(incomeTax + employeeSocialContribution);
 
   return {
     taxableIncome,
+    bracketTaxableIncome,
     bracketTaxes: progressive.details,
     incomeTax,
     employeeSocialContribution,
+    employeeSocialTaxCredit: roundCurrency(employeeSocialTaxCredit),
     totalTax,
   };
 }

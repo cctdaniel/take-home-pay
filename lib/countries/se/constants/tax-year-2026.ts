@@ -7,6 +7,8 @@ export const SE_SOURCE_URLS = {
   oecdSweden: "https://www.oecd.org/en/publications/taxing-wages-2026_3a5169ef-en/full-report/sweden_858c2098.html",
 } as const;
 
+export const SE_GENERAL_PENSION_CONTRIBUTION_MAX = 47_100;
+
 export const SE_TAX_CONFIG: NordicTaxConfig = {
   code: "SE",
   currency: "SEK",
@@ -14,14 +16,16 @@ export const SE_TAX_CONFIG: NordicTaxConfig = {
   defaultSalary: 600_000,
   standardDeduction: 17_400,
   employeeSocialRate: 0.07,
+  employeeSocialContributionCap: SE_GENERAL_PENSION_CONTRIBUTION_MAX,
   employeeSocialName: "General pension contribution",
+  creditEmployeeSocialContribution: true,
   flatTaxRate: 0.3241,
   brackets: [
     { min: 0, max: 643_000, rate: 0 },
     { min: 643_000, max: Infinity, rate: 0.20 },
   ],
   assumptions: [
-    "Models Swedish employment income using average municipal tax, the 2026 state income tax threshold, and the general pension contribution.",
+    "Models Swedish employment income using average municipal tax, the 2026 state income tax threshold, and the general pension contribution capped at SEK 47,100 with a matching tax reduction.",
     "Uses the under-66 breakpoint difference as a simplified basic allowance proxy; actual Swedish basic allowance and job tax credit vary by income and age.",
     "Municipality/region-specific tax, church/burial fees, exact grundavdrag/job tax credit formulas, and expert tax relief are outside scope.",
   ],

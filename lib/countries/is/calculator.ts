@@ -40,10 +40,7 @@ export function calculateIS(inputs: ISCalculatorInputs): CalculationResult {
 
   return {
     country: "IS",
-  const taxableIncome = Math.max(
-    0,
-    grossSalary - employeeSocialContribution - standardDeduction,
-  );
+    currency: "ISK",
     grossSalary: inputs.grossSalary,
     taxableIncome: computation.taxableIncome,
     taxes,

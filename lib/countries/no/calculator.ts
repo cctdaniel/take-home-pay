@@ -41,10 +41,10 @@ export function calculateNO(inputs: NOCalculatorInputs): CalculationResult {
       name: NO_TAX_CONFIG.employeeSocialName,
       amount: computation.employeeSocialContribution,
       rate: NO_TAX_CONFIG.employeeSocialRate,
-  const bracketTax = calculateProgressiveTax(grossSalary, NO_TAX_CONFIG.brackets);
-  const ordinaryIncomeTax = NO_TAX_CONFIG.flatTaxRate
-  const incomeTaxBeforeCredits = ordinaryIncomeTax + bracketTax.tax;
-    bracketTaxes: bracketTax.details,
+      cap: NO_TAX_CONFIG.employeeSocialCap,
+    },
+    standardDeduction: NO_TAX_CONFIG.standardDeduction,
+    assumptions: NO_TAX_CONFIG.assumptions,
     sourceUrls: NO_TAX_CONFIG.sourceUrls,
     voluntaryContributions: {
       ipsContribution,

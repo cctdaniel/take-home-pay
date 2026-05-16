@@ -20,6 +20,7 @@ export function calculateSE(inputs: SECalculatorInputs): CalculationResult {
     totalIncomeTax: computation.incomeTax,
     incomeTax: computation.incomeTax,
     employeeSocialContribution: computation.employeeSocialContribution,
+    employeeSocialTaxCredit: computation.employeeSocialTaxCredit,
   };
 
   const breakdown: SEBreakdown = {
@@ -31,8 +32,9 @@ export function calculateSE(inputs: SECalculatorInputs): CalculationResult {
       name: SE_TAX_CONFIG.employeeSocialName,
       amount: computation.employeeSocialContribution,
       rate: SE_TAX_CONFIG.employeeSocialRate,
-      cap: SE_TAX_CONFIG.employeeSocialCap,
+      cap: SE_TAX_CONFIG.employeeSocialContributionCap,
     },
+    employeeSocialTaxCredit: computation.employeeSocialTaxCredit,
     standardDeduction: SE_TAX_CONFIG.standardDeduction,
     assumptions: SE_TAX_CONFIG.assumptions,
     sourceUrls: SE_TAX_CONFIG.sourceUrls,

@@ -15,6 +15,7 @@ export const IS_TAX_CONFIG: NordicTaxConfig = {
   standardDeduction: 0,
   employeeSocialRate: 0.04,
   employeeSocialName: "Mandatory employee pension contribution",
+  deductEmployeeSocialBeforeIncomeTax: true,
   taxCredit: 72_492 * 12,
   brackets: [
     { min: 0, max: 498_122 * 12, rate: 0.3149 },

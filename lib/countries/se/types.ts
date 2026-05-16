@@ -17,6 +17,7 @@ export interface SETaxBreakdown extends BaseTaxBreakdown {
   type: "SE";
   incomeTax: number;
   employeeSocialContribution: number;
+  employeeSocialTaxCredit: number;
 }
 
 export interface SEBreakdown {
@@ -30,6 +31,7 @@ export interface SEBreakdown {
     rate: number;
     cap?: number;
   };
+  employeeSocialTaxCredit: number;
   standardDeduction: number;
   assumptions: string[];
   sourceUrls: string[];

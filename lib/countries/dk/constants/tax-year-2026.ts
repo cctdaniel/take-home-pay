@@ -4,6 +4,7 @@ export const DK_TAX_YEAR = 2026;
 export const DK_SOURCE_URLS = {
   pwcDevelopments: "https://taxsummaries.pwc.com/denmark/individual/significant-developments",
   pwcCredits: "https://taxsummaries.pwc.com/denmark/individual/other-tax-credits-and-incentives",
+  skmTaxCalculationRules: "https://skm.dk/media/Skatteministeriet/Dokumenter/PDF%27er/skatteberegningsreglerne_2.pdf",
   skatEmploymentDeduction: "https://skat.dk/borger/fradrag/arbejdsrelaterede-fradrag/beskaeftigelses-og-jobfradrag",
 } as const;
 
@@ -16,6 +17,7 @@ export const DK_TAX_CONFIG: NordicTaxConfig = {
   standardDeduction: 54_100,
   employeeSocialRate: 0.08,
   employeeSocialName: "Labour market contribution (AM-bidrag)",
+  deductEmployeeSocialBeforeIncomeTax: true,
   // Approximate combined ordinary wage rates using average municipal tax (25.068%) plus 2026 state layers.
   brackets: [
     { min: 0, max: 696_956 * 0.92 - 54_100, rate: 0.25068 + 0.1201 },
@@ -28,5 +30,10 @@ export const DK_TAX_CONFIG: NordicTaxConfig = {
     "Applies the 2026 DKK 54,100 personal allowance and the 8% labour market contribution before state/municipal income tax in the calculator.",
     "ATP, holiday-pay timing, researcher taxation, deductions for interest/travel/union dues, and municipality-specific rates are outside this simplified model.",
   ],
-  sourceUrls: [DK_SOURCE_URLS.pwcDevelopments, DK_SOURCE_URLS.pwcCredits, DK_SOURCE_URLS.skatEmploymentDeduction],
+  sourceUrls: [
+    DK_SOURCE_URLS.pwcDevelopments,
+    DK_SOURCE_URLS.pwcCredits,
+    DK_SOURCE_URLS.skmTaxCalculationRules,
+    DK_SOURCE_URLS.skatEmploymentDeduction,
+  ],
 };
