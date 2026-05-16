@@ -10,6 +10,7 @@ export const NO_CURRENCY: CurrencyConfig = {
 export const NO_CONFIG: CountryConfig = {
   code: "NO",
   name: "Norway",
+  region: "Europe",
   currency: NO_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-16",

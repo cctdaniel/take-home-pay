@@ -14,6 +14,7 @@ export const GE_CURRENCY: CurrencyConfig = {
 export const GE_CONFIG: CountryConfig = {
   code: "GE",
   name: "Georgia",
+  region: "Europe",
   currency: GE_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-16",

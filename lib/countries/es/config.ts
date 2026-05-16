@@ -14,6 +14,7 @@ export const ES_CURRENCY: CurrencyConfig = {
 export const ES_CONFIG: CountryConfig = {
   code: "ES",
   name: "Spain",
+  region: "Europe",
   currency: ES_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-15",

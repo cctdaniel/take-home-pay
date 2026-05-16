@@ -14,6 +14,7 @@ export const HR_CURRENCY: CurrencyConfig = {
 export const HR_CONFIG: CountryConfig = {
   code: "HR",
   name: "Croatia",
+  region: "Europe",
   currency: HR_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-16",

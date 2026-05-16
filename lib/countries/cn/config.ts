@@ -10,6 +10,7 @@ export const CN_CURRENCY: CurrencyConfig = {
 export const CN_CONFIG: CountryConfig = {
   code: "CN",
   name: "China",
+  region: "Asia-Pacific",
   currency: CN_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-16",

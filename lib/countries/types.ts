@@ -65,9 +65,16 @@ export interface CountryCodeMap {
 
 export type CountryCode = Extract<keyof CountryCodeMap, string>;
 
+export type CountryRegion =
+  | "North America"
+  | "Europe"
+  | "Asia-Pacific"
+  | "Middle East";
+
 export interface CountryConfig {
   code: CountryCode;
   name: string;
+  region: CountryRegion;
   currency: CurrencyConfig;
   taxYear: number;
   lastUpdated: string;

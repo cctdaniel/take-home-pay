@@ -22,6 +22,7 @@ export const DE_CURRENCY: CurrencyConfig = {
 export const DE_CONFIG: CountryConfig = {
   code: "DE",
   name: "Germany",
+  region: "Europe",
   currency: DE_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-02-02",

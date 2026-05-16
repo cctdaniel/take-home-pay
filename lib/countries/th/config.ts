@@ -14,6 +14,7 @@ export const TH_CURRENCY: CurrencyConfig = {
 export const TH_CONFIG: CountryConfig = {
   code: "TH",
   name: "Thailand",
+  region: "Asia-Pacific",
   currency: TH_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-01-30",

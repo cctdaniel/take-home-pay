@@ -14,6 +14,7 @@ export const CY_CURRENCY: CurrencyConfig = {
 export const CY_CONFIG: CountryConfig = {
   code: "CY",
   name: "Cyprus",
+  region: "Europe",
   currency: CY_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-16",

@@ -14,6 +14,7 @@ export const TW_CURRENCY: CurrencyConfig = {
 export const TW_CONFIG: CountryConfig = {
   code: "TW",
   name: "Taiwan",
+  region: "Asia-Pacific",
   currency: TW_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-01-15",

@@ -21,6 +21,7 @@ export const UK_CURRENCY: CurrencyConfig = {
 export const UK_CONFIG: CountryConfig = {
   code: "UK",
   name: "United Kingdom",
+  region: "Europe",
   currency: UK_CURRENCY,
   taxYear: 2027, // Tax year 2026/27 (6 Apr 2026 - 5 Apr 2027)
   lastUpdated: "2026-02-02",

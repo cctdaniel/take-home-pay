@@ -83,9 +83,14 @@ export function isCountrySupported(
 /**
  * Get list of all supported countries with their names
  */
-export function getSupportedCountries(): { code: CountryCode; name: string }[] {
+export function getSupportedCountries(): {
+  code: CountryCode;
+  name: string;
+  region: CountryConfig["region"];
+}[] {
   return COUNTRY_REGISTRY.map(({ code, calculator }) => ({
     code,
     name: calculator.config.name,
+    region: calculator.config.region,
   }));
 }

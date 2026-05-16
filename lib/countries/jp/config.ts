@@ -10,6 +10,7 @@ export const JP_CURRENCY: CurrencyConfig = {
 export const JP_CONFIG: CountryConfig = {
   code: "JP",
   name: "Japan",
+  region: "Asia-Pacific",
   currency: JP_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-16",

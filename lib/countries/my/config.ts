@@ -10,6 +10,7 @@ export const MY_CURRENCY: CurrencyConfig = {
 export const MY_CONFIG: CountryConfig = {
   code: "MY",
   name: "Malaysia",
+  region: "Asia-Pacific",
   currency: MY_CURRENCY,
   taxYear: 2025,
   lastUpdated: "2026-05-16",

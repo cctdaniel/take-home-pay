@@ -14,6 +14,7 @@ export const PT_CURRENCY: CurrencyConfig = {
 export const PT_CONFIG: CountryConfig = {
   code: "PT",
   name: "Portugal",
+  region: "Europe",
   currency: PT_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-01-30",

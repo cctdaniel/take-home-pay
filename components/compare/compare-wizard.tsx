@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { useCountryComparison, type ComparisonAssumptions, type MaritalStatus } from "@/hooks/use-country-comparison";
 import { useFxRates } from "@/hooks/use-fx-rates";
 import { CURRENCIES } from "@/lib/countries/currency";
+import { groupCountriesByRegion } from "@/lib/countries/country-groups";
 import { getSupportedCountries } from "@/lib/countries/registry";
 import type { CountryCode, CurrencyCode } from "@/lib/countries/types";
 import { getSupportedStates } from "@/lib/countries/us/state-tax";
@@ -21,6 +22,7 @@ import { useMemo, useState } from "react";
 const BASE_CURRENCIES = Object.keys(CURRENCIES).sort() as CurrencyCode[];
 
 const COUNTRIES = getSupportedCountries();
+const COUNTRY_GROUPS = groupCountriesByRegion(COUNTRIES);
 const US_STATES = getSupportedStates();
 
 const STEPS = [
@@ -318,10 +320,14 @@ export function CompareWizard() {
                       handleBaselineChange(event.target.value as CountryCode)
                     }
                   >
-                    {COUNTRIES.map((country) => (
-                      <option key={country.code} value={country.code}>
-                        {country.name}
-                      </option>
+                    {COUNTRY_GROUPS.map((group) => (
+                      <optgroup key={group.region} label={group.region}>
+                        {group.countries.map((country) => (
+                          <option key={country.code} value={country.code}>
+                            {country.name}
+                          </option>
+                        ))}
+                      </optgroup>
                     ))}
                   </Select>
                   <p className="text-xs text-zinc-500">
