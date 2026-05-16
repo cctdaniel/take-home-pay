@@ -4,9 +4,14 @@
 import type { CountryCode } from "@/lib/countries/types";
 import AECountryExtension from "./country-extensions/ae";
 import CYCountryExtension from "./country-extensions/cy";
+import DKCountryExtension from "./country-extensions/dk";
+import FICountryExtension from "./country-extensions/fi";
 import GECountryExtension from "./country-extensions/ge";
 import HRCountryExtension from "./country-extensions/hr";
+import ISCountryExtension from "./country-extensions/is";
 import MTCountryExtension from "./country-extensions/mt";
+import NOCountryExtension from "./country-extensions/no";
+import SECountryExtension from "./country-extensions/se";
 import type { CountryCalculatorExtensionComponent } from "./country-extension";
 
 export const COUNTRY_CALCULATOR_EXTENSIONS: Partial<
@@ -14,7 +19,12 @@ export const COUNTRY_CALCULATOR_EXTENSIONS: Partial<
 > = {
   AE: AECountryExtension,
   CY: CYCountryExtension,
+  DK: DKCountryExtension,
+  FI: FICountryExtension,
   GE: GECountryExtension,
   HR: HRCountryExtension,
+  IS: ISCountryExtension,
   MT: MTCountryExtension,
+  NO: NOCountryExtension,
+  SE: SECountryExtension,
 };
