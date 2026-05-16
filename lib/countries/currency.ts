@@ -2,6 +2,10 @@
 // CURRENCY UTILITIES FOR MULTI-COUNTRY SUPPORT
 // ============================================================================
 
+import {
+  COUNTRY_CONFIGS,
+  getCountryConfig,
+} from "./registry";
 import type { CurrencyCode, CurrencyConfig, CountryCode } from "./types";
 
 // Re-export types for convenience
@@ -10,7 +14,7 @@ export type { CurrencyCode, CurrencyConfig };
 // ============================================================================
 // CURRENCY CONFIGURATIONS
 // ============================================================================
-export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
+const BASE_CURRENCIES: Record<string, CurrencyConfig> = {
   USD: {
     code: "USD",
     symbol: "$",
@@ -79,30 +83,32 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
   },
 };
 
-// ============================================================================
-// COUNTRY TO CURRENCY MAPPING
-// ============================================================================
-export const COUNTRY_CURRENCY: Record<CountryCode, CurrencyCode> = {
-  US: "USD",
-  SG: "SGD",
-  KR: "KRW",
-  NL: "EUR",
-  AU: "AUD",
-  PT: "EUR",
-  TH: "THB",
-  HK: "HKD",
-  ID: "IDR",
-  TW: "TWD",
-  UK: "GBP",
-  DE: "EUR",
-  MY: "MYR",
+export const CURRENCIES: Record<string, CurrencyConfig> = {
+  ...BASE_CURRENCIES,
+  ...Object.fromEntries(
+    Object.values(COUNTRY_CONFIGS).map(({ currency }) => [
+      currency.code,
+      currency,
+    ]),
+  ),
 };
+
+function getCurrencyConfig(currencyCode: CurrencyCode): CurrencyConfig {
+  return (
+    CURRENCIES[currencyCode] ?? {
+      code: currencyCode,
+      symbol: currencyCode,
+      name: currencyCode,
+      locale: "en-US",
+    }
+  );
+}
 
 // ============================================================================
 // CURRENCY FORMATTING FUNCTIONS
 // ============================================================================
 export function formatCurrency(amount: number, currencyCode: CurrencyCode = "USD"): string {
-  const config = CURRENCIES[currencyCode];
+  const config = getCurrencyConfig(currencyCode);
   return new Intl.NumberFormat(config.locale, {
     style: "currency",
     currency: config.code,
@@ -112,7 +118,7 @@ export function formatCurrency(amount: number, currencyCode: CurrencyCode = "USD
 }
 
 export function formatCurrencyWithCents(amount: number, currencyCode: CurrencyCode = "USD"): string {
-  const config = CURRENCIES[currencyCode];
+  const config = getCurrencyConfig(currencyCode);
   return new Intl.NumberFormat(config.locale, {
     style: "currency",
     currency: config.code,
@@ -126,7 +132,7 @@ export function formatCurrencyWithCode(amount: number, currencyCode: CurrencyCod
 }
 
 export function formatCurrencyWithCodeAndCents(amount: number, currencyCode: CurrencyCode = "USD"): string {
-  const config = CURRENCIES[currencyCode];
+  const config = getCurrencyConfig(currencyCode);
   const formattedAmount = new Intl.NumberFormat(config.locale, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -136,47 +142,16 @@ export function formatCurrencyWithCodeAndCents(amount: number, currencyCode: Cur
 }
 
 export function formatNumber(value: number, currencyCode: CurrencyCode = "USD"): string {
-  const config = CURRENCIES[currencyCode];
+  const config = getCurrencyConfig(currencyCode);
   return new Intl.NumberFormat(config.locale).format(value);
 }
 
 export function getCurrencySymbol(currencyCode: CurrencyCode): string {
-  return CURRENCIES[currencyCode].symbol;
+  return getCurrencyConfig(currencyCode).symbol;
 }
 
 export function getCurrencyForCountry(countryCode: CountryCode): CurrencyConfig {
-  const baseConfig = CURRENCIES[COUNTRY_CURRENCY[countryCode]];
-  
-  // Return country-specific locale for shared currencies
-  if (countryCode === "PT") {
-    return { ...baseConfig, locale: "pt-PT" };
-  }
-  if (countryCode === "NL") {
-    return { ...baseConfig, locale: "nl-NL" };
-  }
-  if (countryCode === "TH") {
-    return { ...baseConfig, locale: "th-TH" };
-  }
-  if (countryCode === "HK") {
-    return { ...baseConfig, locale: "en-HK" };
-  }
-  if (countryCode === "ID") {
-    return { ...baseConfig, locale: "id-ID" };
-  }
-  if (countryCode === "TW") {
-    return { ...baseConfig, locale: "zh-TW" };
-  }
-  if (countryCode === "UK") {
-    return { ...baseConfig, locale: "en-GB" };
-  }
-  if (countryCode === "DE") {
-    return { ...baseConfig, locale: "de-DE" };
-  }
-  if (countryCode === "MY") {
-    return { ...baseConfig, locale: "ms-MY" };
-  }
-  
-  return baseConfig;
+  return getCountryConfig(countryCode).currency;
 }
 
 // ============================================================================
@@ -191,7 +166,7 @@ function escapeRegExp(value: string): string {
 }
 
 export function parseFormattedNumber(value: string, currencyCode: CurrencyCode = "USD"): number {
-  const config = CURRENCIES[currencyCode];
+  const config = getCurrencyConfig(currencyCode);
   const parts = new Intl.NumberFormat(config.locale).formatToParts(12345.6);
   const group = parts.find((part) => part.type === "group")?.value ?? ",";
   const decimal = parts.find((part) => part.type === "decimal")?.value ?? ".";

@@ -147,13 +147,14 @@ Each country calculator handles country-specific combinations of:
 | `hooks/use-multi-country-calculator.ts`      | Calculator state management            |
 | `lib/countries/registry.ts`                  | Country calculator factory             |
 | `lib/countries/country-page-content.ts`      | Country SEO/header content             |
-| `lib/countries/types.ts`                     | TypeScript interfaces                  |
+| `lib/countries/types.ts`                     | Shared interfaces and extensible type maps |
 | `lib/countries/{code}/calculator.ts`         | Country tax calculation logic          |
 | `lib/countries/{code}/config.ts`             | Country display/config metadata        |
 | `lib/countries/{code}/constants/`            | Country tax/contribution constants     |
 | `lib/constants/tax-year.ts`                  | Current tax year and build metadata    |
 | `components/calculator/country-selector.tsx` | Country dropdown (navigates on change) |
 | `components/calculator/calculator-fields.tsx` | Shared calculator field primitives    |
+| `components/calculator/results/`             | Country-specific result breakdown renderers |
 | `components/ui/contribution-slider.tsx`      | Shared contribution slider             |
 
 ## Adding a New Country
@@ -162,19 +163,20 @@ Each country calculator handles country-specific combinations of:
 2. Implement `CountryCalculator` interface in `calculator.ts`
 3. Define tax brackets in `constants/`
 4. Export via `config.ts` and `index.ts`
-5. Add the country code and currency to `lib/countries/types.ts` if they are new
+5. Add country-specific input, contribution, tax, and breakdown types near the country implementation. Prefer `lib/countries/{country-code}/types.ts` with TypeScript module augmentation for `CountryCodeMap`, `CurrencyCodeMap`, `ContributionInputMap`, `CalculatorInputMap`, `TaxBreakdownMap`, and `CountrySpecificBreakdownMap`. Edit `lib/countries/types.ts` only for genuinely shared primitives.
 6. Register in `lib/countries/registry.ts` by importing the calculator and adding one `COUNTRY_REGISTRY` entry. Do not manually edit derived `SUPPORTED_COUNTRIES` or `COUNTRY_CONFIGS`.
 7. Add UI components in `components/calculator/`, composing shared fields from `calculator-fields.tsx`
 8. Update `use-multi-country-calculator.ts` only for truly country-specific state, input assembly, and setters. Use `getDefaultInputs()` for default gross salary.
-9. Add country metadata in `lib/countries/country-page-content.ts`:
-   - Add to `COUNTRY_DESCRIPTIONS`
-   - Add to `COUNTRY_KEYWORDS`
-   - Add to `COUNTRY_HEADER_INFO`
+9. Add country metadata overrides in `lib/countries/country-page-content.ts` only when the generic metadata from country config is not good enough:
+   - `COUNTRY_DESCRIPTIONS`
+   - `COUNTRY_KEYWORDS`
+   - `COUNTRY_HEADER_INFO`
 10. Add country section to `components/calculator/seo-tax-info.tsx`
 11. Update compare flow:
     - Extend `hooks/use-country-comparison.ts` for country-specific assumptions, input mapping, and retirement max rules
     - Add simple breakdown mapping in `components/compare/compare-breakdown.tsx` if needed
-12. **Update documentation:** Update README/user-facing docs when country support changes. Do not update AGENTS.md for a normal new country unless the architecture or workflow changes.
+12. Add country-specific result display in `components/calculator/results/{country-code}-result-breakdown.tsx` and register it in `components/calculator/results/country-result-breakdown.tsx`. Do not add new country result blocks directly to `components/calculator/multi-country-results.tsx`.
+13. **Update documentation:** Do not add country lists or country-specific sections to README. Keep country source URLs and notes near the country constants/calculator, and update AGENTS.md only when the architecture or workflow changes.
 
 **Note:** Any time you add a new country, also update `/compare` assumptions and documentation to keep the experience consistent.
 
@@ -185,15 +187,15 @@ Each country calculator handles country-specific combinations of:
 - Update visible explanatory copy when rates change:
   - `components/calculator/seo-tax-info.tsx`
   - `components/calculator/multi-country-calculator.tsx`
-  - `components/calculator/multi-country-results.tsx`
+  - `components/calculator/results/{country-code}-result-breakdown.tsx`
   - `lib/countries/country-page-content.ts`
-  - `README.md` for user-facing country support changes
 - Update this file only when the architecture or agent workflow changes, not for routine country additions.
 - Run `npm run lint` and `npm run build` after calculation or shared UI changes.
 
 ### Parallel Agent Guidance
 
-- Treat `lib/countries/registry.ts`, `lib/countries/types.ts`, `hooks/use-multi-country-calculator.ts`, and `hooks/use-country-comparison.ts` as shared integration points. Coordinate edits to these files when multiple agents are adding countries in parallel.
+- Treat `lib/countries/registry.ts`, `hooks/use-multi-country-calculator.ts`, `hooks/use-country-comparison.ts`, `components/calculator/results/country-result-breakdown.tsx`, and compare breakdown mapping as shared integration points. Coordinate edits to these files when multiple agents are adding countries in parallel.
+- Avoid editing README, `components/calculator/multi-country-results.tsx`, `lib/countries/currency.ts`, or shared aliases/maps in `lib/countries/types.ts` for routine country additions. Put new country type extensions in `lib/countries/{country-code}/types.ts` instead. Avoid `lib/countries/country-page-content.ts` unless a country needs custom SEO/header copy beyond the generic config-based fallback. These files are structured to derive from the registry or delegate to per-country modules.
 - Country implementation directories (`lib/countries/{code}/`) are good parallel work units when each agent owns a different country.
 - UI work should reuse shared field primitives first; if a new primitive is needed, add it generically and migrate obvious duplicate call sites.
 - Keep country-specific legal/tax notes near the relevant constants or calculator implementation instead of adding country-specific sections to this file.

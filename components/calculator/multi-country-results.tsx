@@ -16,6 +16,7 @@ import {
 import { toPng } from "html-to-image";
 import { useRef, useState } from "react";
 import { DeductionRow } from "./deduction-row";
+import { CountryResultBreakdown } from "./results/country-result-breakdown";
 
 interface MultiCountryResultsProps {
   result: CalculationResult;
@@ -60,7 +61,6 @@ export function MultiCountryResults({
   const isTH = country === "TH";
   const isHK = country === "HK";
   const isID = country === "ID";
-  const isMY = country === "MY";
   const isTW = country === "TW";
   const isDE = country === "DE";
   const isUK = country === "UK";
@@ -2281,151 +2281,11 @@ export function MultiCountryResults({
               </>
             )}
 
-          {/* MY Tax Breakdown */}
-          {isMY &&
-            "epfEmployee" in taxes &&
-            result.breakdown.type === "MY" && (
-              <>
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-sm text-zinc-400">Tax Residency</span>
-                  <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
-                    {result.breakdown.isResident
-                      ? "Malaysian Resident"
-                      : "Non-Resident (30% flat)"}
-                  </span>
-                </div>
-
-                <Separator className="my-2" />
-
-                {result.breakdown.taxReliefs.total > 0 && (
-                  <>
-                    <p className="text-xs text-zinc-500 pt-2 pb-1">
-                      Resident Reliefs Applied
-                    </p>
-                    {Object.entries({
-                      "Individual relief": result.breakdown.taxReliefs.individual,
-                      "Spouse relief": result.breakdown.taxReliefs.spouse,
-                      "Child under 18": result.breakdown.taxReliefs.childUnder18,
-                      "Tertiary child": result.breakdown.taxReliefs.childTertiary,
-                      "Disabled individual":
-                        result.breakdown.taxReliefs.disabledIndividual,
-                      "EPF relief": result.breakdown.taxReliefs.epf,
-                      "PRS relief": result.breakdown.taxReliefs.prs,
-                      "SOCSO relief": result.breakdown.taxReliefs.socso,
-                      "Lifestyle relief": result.breakdown.taxReliefs.lifestyle,
-                      "Medical relief": result.breakdown.taxReliefs.medical,
-                    }).map(([label, amount]) =>
-                      amount > 0 ? (
-                        <div key={label} className="flex items-center justify-between py-1">
-                          <span className="text-sm text-zinc-400">{label}</span>
-                          <span className="text-sm text-emerald-400 tabular-nums">
-                            -{formatCurrency(amount, currency)}
-                          </span>
-                        </div>
-                      ) : null,
-                    )}
-                    <div className="flex items-center justify-between py-1 border-t border-zinc-700 mt-1">
-                      <span className="text-sm text-zinc-300">
-                        Chargeable Income
-                      </span>
-                      <span className="text-sm text-zinc-200 tabular-nums">
-                        {formatCurrency(result.breakdown.chargeableIncome, currency)}
-                      </span>
-                    </div>
-                    <Separator className="my-2" />
-                  </>
-                )}
-
-                <p className="text-xs text-zinc-500 pt-2 pb-1">
-                  Income Tax
-                </p>
-                {result.breakdown.bracketTaxes.map((bracket, index) => (
-                  <div key={index} className="flex items-center justify-between py-1">
-                    <span className="text-sm text-zinc-400">
-                      {(bracket.rate * 100).toFixed(1).replace(".0", "")}% on {formatCurrency(bracket.min, currency)}
-                      {bracket.max === Infinity ? "+" : ` - ${formatCurrency(bracket.max, currency)}`}
-                    </span>
-                    <span className="text-sm text-zinc-200 tabular-nums">
-                      {formatCurrency(bracket.tax, currency)}
-                    </span>
-                  </div>
-                ))}
-                <DeductionRow
-                  label="Malaysia Income Tax"
-                  amount={taxes.incomeTax}
-                  grossSalary={grossSalary}
-                  currency={currency}
-                />
-
-                <Separator className="my-2" />
-                <p className="text-xs text-zinc-500 pt-2 pb-1">
-                  Statutory Contributions
-                </p>
-                <DeductionRow
-                  label={`EPF Employee (${(result.breakdown.statutoryContributions.epfEmployeeRate * 100).toFixed(1).replace(".0", "")}%)`}
-                  amount={taxes.epfEmployee}
-                  grossSalary={grossSalary}
-                  currency={currency}
-                />
-                <DeductionRow
-                  label="SOCSO Employee"
-                  amount={taxes.socsoEmployee}
-                  grossSalary={grossSalary}
-                  currency={currency}
-                />
-                <DeductionRow
-                  label="EIS Employee"
-                  amount={taxes.eisEmployee}
-                  grossSalary={grossSalary}
-                  currency={currency}
-                />
-                {grossSalary / 12 >
-                  result.breakdown.statutoryContributions.perkesoMonthlyWageCeiling && (
-                  <p className="text-xs text-zinc-500 italic mt-1">
-                    SOCSO/EIS wage base capped at RM
-                    {result.breakdown.statutoryContributions.perkesoMonthlyWageCeiling.toLocaleString()}
-                    /month.
-                  </p>
-                )}
-
-                <div className="flex items-center justify-between py-2 opacity-60">
-                  <span className="text-sm text-zinc-400">
-                    EPF Employer ({(result.breakdown.statutoryContributions.epfEmployerRate * 100).toFixed(1).replace(".0", "")}%)
-                  </span>
-                  <span className="text-sm text-zinc-500 tabular-nums">
-                    +{formatCurrency(result.breakdown.statutoryContributions.epfEmployer, currency)}
-                  </span>
-                </div>
-                <p className="text-xs text-zinc-500 italic">
-                  Employer EPF is paid on top of salary and is not deducted from take-home pay.
-                </p>
-
-                {result.breakdown.voluntaryContributions.total > 0 && (
-                  <>
-                    <Separator className="my-2" />
-                    <p className="text-xs text-zinc-500 pt-2 pb-1">
-                      Voluntary Contributions
-                    </p>
-                    {result.breakdown.voluntaryContributions.voluntaryEpf > 0 && (
-                      <DeductionRow
-                        label="Voluntary EPF"
-                        amount={result.breakdown.voluntaryContributions.voluntaryEpf}
-                        grossSalary={grossSalary}
-                        currency={currency}
-                      />
-                    )}
-                    {result.breakdown.voluntaryContributions.prs > 0 && (
-                      <DeductionRow
-                        label="Private Retirement Scheme"
-                        amount={result.breakdown.voluntaryContributions.prs}
-                        grossSalary={grossSalary}
-                        currency={currency}
-                      />
-                    )}
-                  </>
-                )}
-              </>
-            )}
+          <CountryResultBreakdown
+            result={result}
+            grossSalary={grossSalary}
+            currency={currency}
+          />
           
           {/* DE Tax Breakdown */}
           {isDE &&
