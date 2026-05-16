@@ -1,21 +1,5 @@
-import type { CountryCode } from "@/lib/countries/types";
-import type { ReactNode } from "react";
-import { ESResultBreakdown } from "./es-result-breakdown";
-import { GRResultBreakdown } from "./gr-result-breakdown";
-import { MYResultBreakdown } from "./my-result-breakdown";
+import { COUNTRY_RESULT_BREAKDOWNS } from "./country-result-breakdowns.generated";
 import type { CountryResultBreakdownProps } from "./types";
-
-type CountryResultBreakdownComponent = (
-  props: CountryResultBreakdownProps,
-) => ReactNode;
-
-const COUNTRY_RESULT_BREAKDOWNS: Partial<
-  Record<CountryCode, CountryResultBreakdownComponent>
-> = {
-  ES: ESResultBreakdown,
-  GR: GRResultBreakdown,
-  MY: MYResultBreakdown,
-};
 
 export function CountryResultBreakdown(props: CountryResultBreakdownProps) {
   const Component = COUNTRY_RESULT_BREAKDOWNS[props.result.country];

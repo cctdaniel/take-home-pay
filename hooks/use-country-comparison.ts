@@ -1,5 +1,6 @@
 "use client";
 
+import { COUNTRY_COMPARISON_ADAPTERS } from "./country-comparison-adapters.generated";
 import { DECalculator } from "@/lib/countries/de";
 import { ESCalculator } from "@/lib/countries/es";
 import type { ESCalculatorInputs } from "@/lib/countries/es/types";
@@ -18,6 +19,7 @@ import type {
   AUCalculatorInputs,
   CalculationResult,
   CountryCode,
+  CountryConfig,
   CurrencyCode,
   DECalculatorInputs,
   HKCalculatorInputs,
@@ -89,6 +91,26 @@ export interface ComparisonOutput {
   baseline?: CountryComparison;
   fxUpdatedAt?: string;
 }
+
+export interface CountryComparisonAdapterContext {
+  country: CountryCode;
+  config: CountryConfig;
+  currency: CurrencyCode;
+  rate: number;
+  grossLocal: number;
+  payFrequency: PayFrequency;
+  inputs: ComparisonInputs;
+  isMaxRetirement: boolean;
+  buildAssumptionsSummary: (
+    country: CountryCode,
+    inputs: ComparisonInputs,
+    retirementApplied: boolean
+  ) => string[];
+}
+
+export type CountryComparisonAdapter = (
+  context: CountryComparisonAdapterContext,
+) => CountryComparison | null;
 
 function getUSFilingStatus(
   maritalStatus: MaritalStatus,
@@ -904,6 +926,31 @@ export function useCountryComparison(
             ),
             calculation: result,
           });
+          return acc;
+        }
+
+        const adapter = COUNTRY_COMPARISON_ADAPTERS[country];
+        if (adapter) {
+          const adaptedResult = adapter({
+            country,
+            config,
+            currency,
+            rate,
+            grossLocal,
+            payFrequency,
+            inputs,
+            isMaxRetirement,
+            buildAssumptionsSummary,
+          });
+
+          if (adaptedResult) {
+            acc.push(adaptedResult);
+          }
+
+          return acc;
+        }
+
+        if (country !== "HK") {
           return acc;
         }
 

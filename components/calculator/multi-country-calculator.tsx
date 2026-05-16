@@ -41,12 +41,25 @@ import { THContributionOptions } from "./th-contribution-options";
 import { THTaxOptions } from "./th-tax-options";
 import { UKTaxOptions } from "./uk-tax-options";
 import { USTaxOptions } from "./us-tax-options";
+import { COUNTRY_CALCULATOR_EXTENSIONS } from "./country-extensions.generated";
 
 interface MultiCountryCalculatorProps {
   country: CountryCode;
 }
 
 export function MultiCountryCalculator({
+  country,
+}: MultiCountryCalculatorProps) {
+  const Extension = COUNTRY_CALCULATOR_EXTENSIONS[country];
+
+  if (Extension) {
+    return <Extension country={country} />;
+  }
+
+  return <LegacyMultiCountryCalculator country={country} />;
+}
+
+function LegacyMultiCountryCalculator({
   country,
 }: MultiCountryCalculatorProps) {
   const {
