@@ -5,14 +5,15 @@ export const UAE_TAX_YEAR = 2026;
 export const UAE_PERSONAL_INCOME_TAX_RATE = 0;
 
 export const UAE_SOURCE_URLS = {
-  // Ministry of Finance: UAE does not impose personal income tax.
-  personalIncomeTax: "https://mof.gov.ae/en/retail-sukuk/",
+  // The Official Platform of the UAE Government: UAE does not levy income tax on individuals.
+  personalIncomeTax:
+    "https://u.ae/en/information-and-services/finance-and-investment/taxation",
   // Federal Tax Authority: wages are outside natural-person business activity for UAE Corporate Tax.
   naturalPersonWages:
     "https://tax.gov.ae/en/taxes/corporate.tax/corporate.tax.topics/basis.of.taxation.natural.person.aspx",
   // GPSSA: Emirati contribution rates and UAE national contribution salary caps.
   emiratePensionRates:
-    "https://www.gpssa.gov.ae/pages/en/media-center/news/gpssa-insureds-contribution-payment-may-be-extended-15th-day-each-month",
+    "https://www.gpssa.gov.ae/pages/en/media-center/news/gpssa-insureds-contribution-payment-may-be-extended-15th-day-each.month",
   // GPSSA: GPSSA registration and contributions are mandatory for Emiratis.
   emirateRegistration:
     "https://www.gpssa.gov.ae/pages/en/help/faq/registration-gpssa-mandatory",
