@@ -13,7 +13,7 @@ export const UAE_SOURCE_URLS = {
     "https://tax.gov.ae/en/taxes/corporate.tax/corporate.tax.topics/basis.of.taxation.natural.person.aspx",
   // GPSSA: Emirati contribution rates and UAE national contribution salary caps.
   emiratePensionRates:
-    "https://www.gpssa.gov.ae/pages/en/media-center/news/gpssa-insureds-contribution-payment-may-be-extended-15th-day-each.month",
+    "https://www.gpssa.gov.ae/pages/en/media-center/news/gpssa-insureds-contribution-payment-may-be-extended-15th-day-each-month",
   // GPSSA: GPSSA registration and contributions are mandatory for Emiratis.
   emirateRegistration:
     "https://www.gpssa.gov.ae/pages/en/help/faq/registration-gpssa-mandatory",
