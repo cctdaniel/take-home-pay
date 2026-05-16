@@ -17,6 +17,7 @@ import { DEContributionOptions } from "./de-contribution-options";
 import { DETaxOptions } from "./de-tax-options";
 import { HKAdditionalReliefs } from "./hk-additional-reliefs";
 import { HKTaxOptions } from "./hk-tax-options";
+import { GRTaxOptions } from "./gr-tax-options";
 import { IDContributionOptions } from "./id-contribution-options";
 import { IDTaxOptions } from "./id-tax-options";
 import { MYContributionOptions } from "./my-contribution-options";
@@ -115,6 +116,14 @@ export function MultiCountryCalculator({
     ptPprContribution,
     setPtPprContribution,
     ptLimits,
+
+    // GR-specific
+    grResidencyType,
+    setGrResidencyType,
+    grAge,
+    setGrAge,
+    grNumberOfDependents,
+    setGrNumberOfDependents,
 
     // TH-specific
     thResidencyType,
@@ -290,6 +299,19 @@ export function MultiCountryCalculator({
                 onNumberOfDependentsChange={setPtNumberOfDependents}
                 age={ptAge}
                 onAgeChange={setPtAge}
+              />
+            )}
+
+            {country === "GR" && (
+              <GRTaxOptions
+                payFrequency={payFrequency}
+                onPayFrequencyChange={setPayFrequency}
+                residencyType={grResidencyType}
+                onResidencyTypeChange={setGrResidencyType}
+                age={grAge}
+                onAgeChange={setGrAge}
+                numberOfDependents={grNumberOfDependents}
+                onNumberOfDependentsChange={setGrNumberOfDependents}
               />
             )}
 
@@ -899,6 +921,37 @@ export function MultiCountryCalculator({
                 </ul>
                 <p className="text-xs text-zinc-500 mt-3">
                   Note: Non-residents pay a flat 25% rate. NHR 2.0 offers 20% flat rate for eligible new residents. Marital status and dependents affect deductions.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* GR Tax & Contributions Info Card */}
+        {country === "GR" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Tax &amp; Social Insurance</CardTitle>
+              <CardDescription>
+                Employment income tax and employee e-EFKA contributions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-zinc-800/50 rounded-lg p-4">
+                <p className="text-sm font-medium text-zinc-300 mb-2">
+                  What&apos;s Included
+                </p>
+                <ul className="text-xs text-zinc-400 space-y-1">
+                  <li>Employment income tax — 2026 progressive rates 0% to 44%</li>
+                  <li>Child-adjusted tax rates for dependent children</li>
+                  <li>Youth rates for employees up to age 30</li>
+                  <li>Employment tax reduction with income taper above EUR 12,000</li>
+                  <li>Employee e-EFKA social insurance — 13.37% up to the monthly ceiling</li>
+                </ul>
+                <p className="text-xs text-zinc-500 mt-3">
+                  Note: This models ordinary salaried employment. Special EFKA
+                  categories, heavy/unhealthy work, and other income categories
+                  are not included.
                 </p>
               </div>
             </CardContent>

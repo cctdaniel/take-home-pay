@@ -21,6 +21,7 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "KR" && <KRTaxInfo />}
         {country === "NL" && <NLTaxInfo />}
         {country === "DE" && <DETaxInfo />}
+        {country === "GR" && <GRTaxInfo />}
         {country === "AU" && <AUTaxInfo />}
         {country === "PT" && <PTTaxInfo />}
         {country === "TH" && <THTaxInfo />}
@@ -327,6 +328,66 @@ function DETaxInfo() {
         Income tax is calculated per Section 32a formula, then solidarity surcharge
         and optional church tax are added. Social security is deducted
         separately.
+      </p>
+    </div>
+  );
+}
+
+// ============================================================================
+// GREECE TAX INFO
+// ============================================================================
+function GRTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Greece</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li>
+          <strong className="text-zinc-300">Employment Income Tax</strong> –
+          Progressive 2026 rates from 0% to 44%, with child and youth adjustments
+        </li>
+        <li>
+          <strong className="text-zinc-300">Dependent Children</strong> –
+          Lower rates apply in selected brackets, with four or more children
+          reaching 0% on income up to EUR 20,000
+        </li>
+        <li>
+          <strong className="text-zinc-300">Youth Rates</strong> – Taxpayers up
+          to age 25 pay 0% on the first EUR 20,000; ages 26-30 receive a 9%
+          second bracket
+        </li>
+        <li>
+          <strong className="text-zinc-300">Employment Tax Reduction</strong> –
+          EUR 777 base reduction with no children, higher with children, tapered
+          above EUR 12,000 of taxable employment income
+        </li>
+        <li>
+          <strong className="text-zinc-300">e-EFKA Social Insurance</strong> –
+          13.37% employee contribution for ordinary salaried employees, capped
+          at EUR 7,761.94 per month of insurable earnings
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Tax Brackets 2026 (No Dependent Children)
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>EUR 0 – EUR 10,000: 9%</li>
+        <li>EUR 10,001 – EUR 20,000: 20%</li>
+        <li>EUR 20,001 – EUR 30,000: 26%</li>
+        <li>EUR 30,001 – EUR 40,000: 34%</li>
+        <li>EUR 40,000.01 – EUR 60,000: 39%</li>
+        <li>Above EUR 60,000: 44%</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Social Insurance Assumptions
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Employee e-EFKA contributions are deducted from gross employment income
+        before income tax. Employer contributions are shown for reference only
+        and are not deducted from take-home pay. This calculator uses the
+        ordinary salaried employee package; heavy work, occupational-risk,
+        lawyer/engineer, doctor, and working-pensioner categories can differ.
       </p>
     </div>
   );

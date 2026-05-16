@@ -6,6 +6,10 @@ import {
   getDefaultInputs,
 } from "@/lib/countries/registry";
 import { DECalculator } from "@/lib/countries/de/calculator";
+import type {
+  GRCalculatorInputs,
+  GRResidencyType,
+} from "@/lib/countries/gr/types";
 import { HKCalculator } from "@/lib/countries/hk/calculator";
 import { MYCalculator } from "@/lib/countries/my/calculator";
 import { PTCalculator } from "@/lib/countries/pt/calculator";
@@ -223,6 +227,14 @@ export interface UseMultiCountryCalculatorReturn {
     pprMaxTaxCredit: number;
   };
 
+  // GR-specific
+  grResidencyType: GRResidencyType;
+  setGrResidencyType: (value: GRResidencyType) => void;
+  grAge: number;
+  setGrAge: (value: number) => void;
+  grNumberOfDependents: number;
+  setGrNumberOfDependents: (value: number) => void;
+
   // TH-specific
   thResidencyType: THResidencyType;
   setThResidencyType: (value: THResidencyType) => void;
@@ -397,6 +409,12 @@ export function useMultiCountryCalculator(
   const [ptAge, setPtAge] = useState(30);
   const [ptPprContribution, setPtPprContributionState] = useState(0);
 
+  // GR-specific state
+  const [grResidencyType, setGrResidencyType] =
+    useState<GRResidencyType>("resident");
+  const [grAge, setGrAge] = useState(31);
+  const [grNumberOfDependents, setGrNumberOfDependents] = useState(0);
+
   // TH-specific state
   const [thResidencyType, setThResidencyType] = useState<THResidencyType>("resident");
   const [thTaxReliefs, setThTaxReliefs] = useState<THTaxReliefInputs>(DEFAULT_TH_TAX_RELIEFS);
@@ -492,6 +510,10 @@ export function useMultiCountryCalculator(
       setPtNumberOfDependents(0);
       setPtAge(30);
       setPtPprContributionState(0);
+    } else if (country === "GR") {
+      setGrResidencyType("resident");
+      setGrAge(31);
+      setGrNumberOfDependents(0);
     } else if (country === "TH") {
       setThResidencyType("resident");
       setThTaxReliefs(DEFAULT_TH_TAX_RELIEFS);
@@ -848,6 +870,17 @@ export function useMultiCountryCalculator(
         },
       };
       return ptInputs;
+    } else if (country === "GR") {
+      const grInputs: GRCalculatorInputs = {
+        country: "GR",
+        grossSalary,
+        payFrequency,
+        residencyType: grResidencyType,
+        age: grAge,
+        numberOfDependents: grNumberOfDependents,
+        contributions: {},
+      };
+      return grInputs;
     } else if (country === "ID") {
       const idInputs: IDCalculatorInputs = {
         country: "ID",
@@ -986,6 +1019,9 @@ export function useMultiCountryCalculator(
     ptNumberOfDependents,
     ptAge,
     ptPprContribution,
+    grResidencyType,
+    grAge,
+    grNumberOfDependents,
     thResidencyType,
     thTaxReliefs,
     thProvidentFund,
@@ -1096,6 +1132,14 @@ export function useMultiCountryCalculator(
     setPtAge,
     ptPprContribution,
     setPtPprContribution,
+
+    // GR-specific
+    grResidencyType,
+    setGrResidencyType,
+    grAge,
+    setGrAge,
+    grNumberOfDependents,
+    setGrNumberOfDependents,
 
     // TH-specific
     thResidencyType,

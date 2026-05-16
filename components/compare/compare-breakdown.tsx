@@ -196,6 +196,9 @@ export function CompareBreakdown({
     pushLine(incomeTaxBreakdown, "IRS income tax", taxes.incomeTax);
     pushLine(incomeTaxBreakdown, "Solidarity surcharge", taxes.solidaritySurcharge);
     pushLine(mandatoryBreakdown, "Social security", taxes.socialSecurity);
+  } else if ("type" in taxes && taxes.type === "GR") {
+    pushLine(incomeTaxBreakdown, "Income tax", taxes.incomeTax);
+    pushLine(mandatoryBreakdown, "e-EFKA social insurance", taxes.socialInsurance);
   } else if ("solidaritySurcharge" in taxes && "type" in taxes && taxes.type === "DE") {
     pushLine(incomeTaxBreakdown, "Income tax", taxes.incomeTax);
     pushLine(incomeTaxBreakdown, "Solidarity surcharge", taxes.solidaritySurcharge);
