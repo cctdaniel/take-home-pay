@@ -99,6 +99,13 @@ Country option UIs should compose shared controls instead of duplicating labels,
 - Use `ContributionSlider` from `components/ui/contribution-slider.tsx` for bounded contribution/deduction amounts with max toggles.
 - Use `InfoPanel` for repeated note/tip callouts.
 
+For annual currency inputs, decide the control from the modeled legal or calculator limit:
+
+- If an official or modeled maximum exists for a user-entered contribution, deduction, relief, credit, or qualifying expense, use `ContributionSlider` and clamp the hook setter and calculator logic to the same maximum.
+- If a contribution has a contribution/payment cap and a separate tax-relief cap, use the contribution/payment cap as the slider max and explain the lower relief cap in the description or results copy. Do not use the relief cap as the slider max unless the contribution itself is legally capped there.
+- If several inputs share a combined cap, keep each input as a `ContributionSlider`, show the remaining/shared cap or an over-cap warning, and cap the deductible amount in the calculator.
+- Use `CurrencyAmountField` only when the amount is genuinely free-form or no credible cap is modeled. If an official cap is discovered, add it to country constants and switch the UI to `ContributionSlider`.
+
 Do not introduce a country-specific version of these controls unless the shared primitive cannot model the interaction. If a new country needs the same concept (for example health insurance, pension, CPF-style savings, or retirement contributions), use the same shared control type and visual language as existing countries.
 
 Mobile note: `Input` and `Select` intentionally render at 16px on mobile (`text-base sm:text-sm`) to avoid iOS Safari focus zoom. Do not override calculator inputs below 16px on mobile.
@@ -227,8 +234,9 @@ These are displayed in the UI footer.
 
 1. Update types in `lib/countries/types.ts`
 2. Add calculation logic in country calculator
-3. Add UI controls in relevant component
-4. Update hook state management
+3. Add constants for contribution/payment caps and tax-relief caps, keeping separate caps separate in naming and calculation.
+4. Add UI controls in relevant component. Use `ContributionSlider` for capped annual currency amounts and `CurrencyAmountField` only for genuinely uncapped/free-form amounts.
+5. Update hook state management, clamping setters to the same max used by the UI.
 
 ### Fix Tax Calculation Bug
 
