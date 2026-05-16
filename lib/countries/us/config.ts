@@ -14,6 +14,7 @@ export const US_CURRENCY: CurrencyConfig = {
 export const US_CONFIG: CountryConfig = {
   code: "US",
   name: "United States",
+  region: "North America",
   currency: US_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-01-27",

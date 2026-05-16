@@ -14,6 +14,7 @@ export const KR_CURRENCY: CurrencyConfig = {
 export const KR_CONFIG: CountryConfig = {
   code: "KR",
   name: "South Korea",
+  region: "Asia-Pacific",
   currency: KR_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-01-28",

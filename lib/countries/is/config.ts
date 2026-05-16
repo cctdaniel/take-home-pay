@@ -10,6 +10,7 @@ export const IS_CURRENCY: CurrencyConfig = {
 export const IS_CONFIG: CountryConfig = {
   code: "IS",
   name: "Iceland",
+  region: "Europe",
   currency: IS_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-16",

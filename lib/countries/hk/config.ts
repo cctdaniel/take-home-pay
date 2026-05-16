@@ -14,6 +14,7 @@ export const HK_CURRENCY: CurrencyConfig = {
 export const HK_CONFIG: CountryConfig = {
   code: "HK",
   name: "Hong Kong",
+  region: "Asia-Pacific",
   currency: HK_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-01-30",

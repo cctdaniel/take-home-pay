@@ -14,6 +14,7 @@ export const SG_CURRENCY: CurrencyConfig = {
 export const SG_CONFIG: CountryConfig = {
   code: "SG",
   name: "Singapore",
+  region: "Asia-Pacific",
   currency: SG_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-01-28",

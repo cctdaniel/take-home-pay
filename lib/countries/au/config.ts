@@ -14,6 +14,7 @@ export const AU_CURRENCY: CurrencyConfig = {
 export const AU_CONFIG: CountryConfig = {
   code: "AU",
   name: "Australia",
+  region: "Asia-Pacific",
   currency: AU_CURRENCY,
   taxYear: 2026, // FY 2025-26 (July 2025 - June 2026)
   lastUpdated: "2026-01-29",

@@ -10,6 +10,7 @@ export const DK_CURRENCY: CurrencyConfig = {
 export const DK_CONFIG: CountryConfig = {
   code: "DK",
   name: "Denmark",
+  region: "Europe",
   currency: DK_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-16",

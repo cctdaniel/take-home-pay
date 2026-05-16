@@ -10,6 +10,7 @@ export const VN_CURRENCY: CurrencyConfig = {
 export const VN_CONFIG: CountryConfig = {
   code: "VN",
   name: "Vietnam",
+  region: "Asia-Pacific",
   currency: VN_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-16",

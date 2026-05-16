@@ -14,6 +14,7 @@ export const NL_CURRENCY: CurrencyConfig = {
 export const NL_CONFIG: CountryConfig = {
   code: "NL",
   name: "Netherlands",
+  region: "Europe",
   currency: NL_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-01-28",

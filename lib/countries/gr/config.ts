@@ -14,6 +14,7 @@ export const GR_CURRENCY: CurrencyConfig = {
 export const GR_CONFIG: CountryConfig = {
   code: "GR",
   name: "Greece",
+  region: "Europe",
   currency: GR_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-16",

@@ -10,6 +10,7 @@ export const CZ_CURRENCY: CurrencyConfig = {
 export const CZ_CONFIG: CountryConfig = {
   code: "CZ",
   name: "Czechia",
+  region: "Europe",
   currency: CZ_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-16",

@@ -10,6 +10,7 @@ export const IN_CURRENCY: CurrencyConfig = {
 export const IN_CONFIG: CountryConfig = {
   code: "IN",
   name: "India",
+  region: "Asia-Pacific",
   currency: IN_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-16",

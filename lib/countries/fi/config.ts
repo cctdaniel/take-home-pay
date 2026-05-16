@@ -10,6 +10,7 @@ export const FI_CURRENCY: CurrencyConfig = {
 export const FI_CONFIG: CountryConfig = {
   code: "FI",
   name: "Finland",
+  region: "Europe",
   currency: FI_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-16",

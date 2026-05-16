@@ -10,6 +10,7 @@ export const SE_CURRENCY: CurrencyConfig = {
 export const SE_CONFIG: CountryConfig = {
   code: "SE",
   name: "Sweden",
+  region: "Europe",
   currency: SE_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-16",

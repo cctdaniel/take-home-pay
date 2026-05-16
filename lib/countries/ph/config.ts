@@ -10,6 +10,7 @@ export const PH_CURRENCY: CurrencyConfig = {
 export const PH_CONFIG: CountryConfig = {
   code: "PH",
   name: "Philippines",
+  region: "Asia-Pacific",
   currency: PH_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-16",

@@ -10,6 +10,7 @@ export const AE_CURRENCY: CurrencyConfig = {
 export const AE_CONFIG: CountryConfig = {
   code: "AE",
   name: "United Arab Emirates",
+  region: "Middle East",
   currency: AE_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-16",

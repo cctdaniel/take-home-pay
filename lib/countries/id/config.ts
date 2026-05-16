@@ -10,6 +10,7 @@ export const ID_CURRENCY: CurrencyConfig = {
 export const ID_CONFIG: CountryConfig = {
   code: "ID",
   name: "Indonesia",
+  region: "Asia-Pacific",
   currency: ID_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-02-02",
