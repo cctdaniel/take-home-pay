@@ -27,7 +27,7 @@ export const NO_TAX_CONFIG: NordicTaxConfig = {
     { min: 1_467_200, max: Infinity, rate: 0.177 },
   ],
   assumptions: [
-    "Models resident Norwegian salary with ordinary income tax, bracket tax, personal deduction, minimum deduction, and employee National Insurance.",
+    "Models resident Norwegian salary with ordinary income tax after deductions, bracket tax on gross personal income, personal deduction, minimum deduction, and employee National Insurance.",
     "Uses the 2026 PwC sample calculation thresholds for bracket tax, personal deduction, minimum deduction, and 7.6% National Insurance.",
     "PAYE for temporary non-residents, wealth tax, regional employer contribution, travel/interest deductions, holiday-pay timing, and employer pension are outside this salary UI.",
   ],

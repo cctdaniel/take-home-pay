@@ -40,7 +40,8 @@ export function calculateDK(inputs: DKCalculatorInputs): CalculationResult {
 
   return {
     country: "DK",
-    currency: "DKK",
+  const employeeSocialBase = grossSalary - employeeSocialContribution;
+  const taxableIncome = Math.max(0, employeeSocialBase - standardDeduction);
     grossSalary: inputs.grossSalary,
     taxableIncome: computation.taxableIncome,
     taxes,

@@ -25,7 +25,7 @@ export const DK_TAX_CONFIG: NordicTaxConfig = {
   ],
   assumptions: [
     "Models ordinary Danish employment salary for an adult resident, no church tax, average municipal rate, and no private pension or commuting deductions.",
-    "Applies the 2026 DKK 54,100 personal allowance and the 8% labour market contribution before state/municipal income tax.",
+    "Applies the 2026 DKK 54,100 personal allowance and the 8% labour market contribution before state/municipal income tax in the calculator.",
     "ATP, holiday-pay timing, researcher taxation, deductions for interest/travel/union dues, and municipality-specific rates are outside this simplified model.",
   ],
   sourceUrls: [DK_SOURCE_URLS.pwcDevelopments, DK_SOURCE_URLS.pwcCredits, DK_SOURCE_URLS.skatEmploymentDeduction],
