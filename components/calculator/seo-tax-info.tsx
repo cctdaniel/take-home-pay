@@ -1,5 +1,4 @@
 import type { CountryCode } from "@/lib/countries/types";
-import { getCountryConfig } from "@/lib/countries/registry";
 
 interface SEOTaxInfoProps {
   country: CountryCode;
@@ -11,26 +10,6 @@ interface SEOTaxInfoProps {
  * Each country page renders only its relevant content for better SEO.
  */
 export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
-  const hasCountrySpecificTaxInfo = [
-    "US",
-    "SG",
-    "KR",
-    "NL",
-    "DE",
-    "ES",
-    "GR",
-    "AU",
-    "PT",
-    "TH",
-    "HK",
-    "ID",
-    "MY",
-    "TW",
-    "UK",
-    "CA",
-    "MX",
-  ].includes(country);
-
   return (
     <section className="mt-16 max-w-3xl">
       <h2 className="text-xl font-semibold text-zinc-200 mb-4">
@@ -54,58 +33,321 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "UK" && <UKTaxInfo />}
         {country === "CA" && <CATaxInfo />}
         {country === "MX" && <MXTaxInfo />}
-        {!hasCountrySpecificTaxInfo && <GenericCountryTaxInfo country={country} />}
+        {country === "AE" && <AETaxInfo />}
+        {country === "CN" && <CNTaxInfo />}
+        {country === "CY" && <CYTaxInfo />}
+        {country === "CZ" && <CZTaxInfo />}
+        {country === "DK" && <DKTaxInfo />}
+        {country === "FI" && <FITaxInfo />}
+        {country === "GE" && <GETaxInfo />}
+        {country === "HR" && <HRTaxInfo />}
+        {country === "IN" && <INTaxInfo />}
+        {country === "IS" && <ISTaxInfo />}
+        {country === "JP" && <JPTaxInfo />}
+        {country === "MT" && <MTTaxInfo />}
+        {country === "NO" && <NOTaxInfo />}
+        {country === "PH" && <PHTaxInfo />}
+        {country === "SE" && <SETaxInfo />}
+        {country === "VN" && <VNTaxInfo />}
       </div>
     </section>
   );
 }
 
-function GenericCountryTaxInfo({ country }: SEOTaxInfoProps) {
-  const config = getCountryConfig(country);
 
+// ============================================================================
+// UNITED ARAB EMIRATES TAX INFO
+// ============================================================================
+function AETaxInfo() {
   return (
     <div>
-      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">
-        {config.name}
-      </h3>
-      <p className="text-zinc-400 text-sm mb-3">
-        This calculator estimates {config.name} take-home pay by converting the
-        entered salary to an annual amount, applying the country&apos;s modeled
-        income tax, mandatory payroll or social insurance deductions, and any
-        supported local salary deductions, then converting the result back to the
-        selected pay frequency.
-      </p>
-
-      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
-        Calculation Formula
-      </h4>
-      <p className="text-zinc-400 text-sm">
-        Gross Salary − Modeled Taxable Deductions = Taxable Income
-        <br />
-        Taxable Income × Country Tax Rules = Income Tax
-        <br />
-        Income Tax + Mandatory Payroll / Social Insurance = Total Deductions
-        <br />
-        Gross Salary − Total Deductions − Voluntary Contributions = Net Salary
-      </p>
-
-      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
-        What&apos;s Included
-      </h4>
-      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
-        <li>Country-specific salary tax rules from the active calculator module.</li>
-        <li>Mandatory employee-side payroll or social insurance deductions where modeled.</li>
-        <li>Supported regional, residency, contribution, and deduction inputs shown on this page.</li>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">United Arab Emirates</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Personal Income Tax</strong> – UAE employment salary is modeled at 0% personal income tax.</li>
+        <li><strong className="text-zinc-300">Employee Category</strong> – foreign/expat employees default to no UAE pension deduction; UAE and selected GCC nationals use modeled statutory pension rates.</li>
+        <li><strong className="text-zinc-300">UAE National Pension</strong> – new private-sector GPSSA model uses an 11% employee rate on contribution salary with AED 3,000 monthly floor and AED 70,000 monthly cap.</li>
+        <li><strong className="text-zinc-300">Legacy / GCC Pension</strong> – legacy UAE private-sector and GCC extension categories use the employee rates and caps exposed by the calculator.</li>
+        <li><strong className="text-zinc-300">Take-home Formula</strong> – gross salary minus employee pension contributions equals estimated net salary because salary income tax is modeled as zero.</li>
       </ul>
+      <p className="text-zinc-400 text-sm mt-3">Employer pension and government support amounts are shown for context where modeled, but only employee pension reduces take-home pay. The model excludes end-of-service gratuity, unemployment insurance, private medical insurance, and visa or free-zone costs.</p>
+    </div>
+  );
+}
 
-      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
-        Limitations
-      </h4>
-      <p className="text-zinc-400 text-sm">
-        This is an estimate for employment salary. Actual payroll withholding can
-        vary based on employer setup, local registrations, tax credits, family
-        circumstances, non-salary income, and year-end adjustments.
-      </p>
+// ============================================================================
+// CHINA TAX INFO
+// ============================================================================
+function CNTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">China</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Individual Income Tax</strong> – annual employment income is taxed with the progressive wage bands from 3% to 45%.</li>
+        <li><strong className="text-zinc-300">Standard Deduction</strong> – CNY 60,000 per year is deducted before calculating taxable income.</li>
+        <li><strong className="text-zinc-300">Social Insurance</strong> – pension, medical, and unemployment insurance are calculated from the entered monthly social insurance base, capped by the model.</li>
+        <li><strong className="text-zinc-300">Housing Fund</strong> – the selected housing fund rate is applied to the same capped monthly base and reduces taxable income and take-home pay.</li>
+        <li><strong className="text-zinc-300">Special Additional Deductions</strong> – child education, children under 3, elderly care, housing rent or first-home loan interest, and continuing education are included when entered.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">Taxable income is gross salary minus the standard deduction, special deductions, social insurance, and housing fund. City-specific bases, local housing fund caps, annual bonus treatment, and foreigner treaty rules are not modeled.</p>
+    </div>
+  );
+}
+
+// ============================================================================
+// CYPRUS TAX INFO
+// ============================================================================
+function CYTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Cyprus</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Income Tax</strong> – chargeable income is taxed with Cyprus progressive bands from 0% to 35%.</li>
+        <li><strong className="text-zinc-300">Social Insurance</strong> – employee Social Insurance is modeled at 8.8% up to the annual insurable earnings ceiling.</li>
+        <li><strong className="text-zinc-300">GeSY / GHS</strong> – employee healthcare contribution is modeled at 2.65% up to the annual GHS income ceiling.</li>
+        <li><strong className="text-zinc-300">Approved Funds</strong> – approved pension or provident fund contributions are modeled and limited by the aggregate contribution deduction cap.</li>
+        <li><strong className="text-zinc-300">Resident Reliefs</strong> – home insurance, dependent child, primary residence, and green-transition deductions apply where the resident/family-income rules in the calculator allow them.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">Net salary subtracts income tax, Social Insurance, GeSY, and cash pension/provident contributions. The model excludes first-employment exemptions, Special Defence Contribution, capital income, and detailed plan-specific insurance tests.</p>
+    </div>
+  );
+}
+
+// ============================================================================
+// CZECHIA TAX INFO
+// ============================================================================
+function CZTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Czechia</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Income Tax</strong> – employment income is taxed at 15% up to the annual higher-rate threshold and 23% above it.</li>
+        <li><strong className="text-zinc-300">Social Security</strong> – employee social security includes pension and sickness insurance and is capped at the annual social security assessment ceiling.</li>
+        <li><strong className="text-zinc-300">Health Insurance</strong> – employee health insurance is modeled at 4.5% of the assessment base.</li>
+        <li><strong className="text-zinc-300">Tax Credits</strong> – the basic taxpayer credit is applied; resident inputs can add spouse credit and child tax credits/bonus.</li>
+        <li><strong className="text-zinc-300">Deductions</strong> – resident retirement/long-term product contributions and qualifying charitable donations reduce the tax base within modeled limits.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">Tax base is gross income less modeled deductions, rounded as implemented by the calculator, then reduced by credits. The model excludes flat-tax, self-employed rules, EU/EEA non-resident tests, and detailed month-by-month credit conditions.</p>
+    </div>
+  );
+}
+
+// ============================================================================
+// DENMARK TAX INFO
+// ============================================================================
+function DKTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Denmark</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">AM-bidrag</strong> – the 8% labour market contribution is deducted first from gross salary.</li>
+        <li><strong className="text-zinc-300">Personal Allowance</strong> – the modeled personal allowance reduces taxable income before income tax.</li>
+        <li><strong className="text-zinc-300">Income Tax</strong> – the calculator applies simplified national and average municipal tax layers to income after AM-bidrag and allowance.</li>
+        <li><strong className="text-zinc-300">No Filing Status Input</strong> – the model assumes an ordinary adult resident employee without spouse transfer, church tax, or municipality selection.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">Estimated net pay is gross salary minus AM-bidrag and income tax. ATP, pension deductions, commuting, union dues, interest deductions, exact tax-card logic, church tax, and municipality-specific rates are outside this simplified model.</p>
+    </div>
+  );
+}
+
+// ============================================================================
+// FINLAND TAX INFO
+// ============================================================================
+function FITaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Finland</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Income Tax</strong> – taxable income is calculated after the modeled standard deduction and taxed through progressive central-government-style brackets plus the calculator&apos;s flat local/social tax proxy.</li>
+        <li><strong className="text-zinc-300">Tax Credit</strong> – the annual tax credit in the calculator reduces computed income tax.</li>
+        <li><strong className="text-zinc-300">Employee Contributions</strong> – employee pension, unemployment, and daily allowance contributions are modeled as a combined employee social contribution.</li>
+        <li><strong className="text-zinc-300">Assumption</strong> – the page assumes a resident employee and does not expose municipality, church tax, age, or family inputs.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">Net salary subtracts income tax and modeled employee social contributions from gross salary. Exact Finnish tax-card withholding, municipality rates, church tax, YLE tax, age-specific pension rates, travel deductions, and household credits are not modeled.</p>
+    </div>
+  );
+}
+
+// ============================================================================
+// GEORGIA TAX INFO
+// ============================================================================
+function GETaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Georgia</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Income Tax</strong> – ordinary employment salary is modeled with Georgia&apos;s flat 20% personal income tax.</li>
+        <li><strong className="text-zinc-300">Funded Pension</strong> – resident employees enrolled or subject to the funded pension scheme have a 2% employee pension deduction.</li>
+        <li><strong className="text-zinc-300">Employer and State Pension</strong> – employer and state funded-pension amounts are shown in the breakdown but do not reduce employee take-home pay.</li>
+        <li><strong className="text-zinc-300">Residency</strong> – residency affects pension participation in the calculator; the income tax rate remains flat in the modeled salary view.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">Net salary is gross salary minus 20% income tax and any employee funded-pension deduction. The model excludes self-employed regimes, small-business status, special exemptions, and voluntary pension cases outside the exposed input.</p>
+    </div>
+  );
+}
+
+// ============================================================================
+// CROATIA TAX INFO
+// ============================================================================
+function HRTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Croatia</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Local Income Tax</strong> – the calculator uses the selected locality&apos;s two-band annual income tax rates with a higher-rate threshold.</li>
+        <li><strong className="text-zinc-300">Pension Contributions</strong> – employee pension is deducted before tax, either 15% first pillar plus 5% second pillar or 20% first pillar only, subject to the annual pension base ceiling.</li>
+        <li><strong className="text-zinc-300">Personal Allowance</strong> – the annual basic allowance is applied, with resident-only spouse and child allowance factors where entered.</li>
+        <li><strong className="text-zinc-300">Employer Health</strong> – employer health insurance is displayed for context but does not reduce take-home pay.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">Taxable income is gross salary minus employee pension and personal allowance. The model excludes digital-nomad foreign-employer treatment, employer-paid voluntary pension benefits, in-kind benefits, and special contribution exemptions.</p>
+    </div>
+  );
+}
+
+// ============================================================================
+// INDIA TAX INFO
+// ============================================================================
+function INTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">India</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Tax Regime</strong> – choose new or old regime; each uses its own slab rates and standard deduction.</li>
+        <li><strong className="text-zinc-300">Standard Deduction</strong> – the calculator applies the modeled salaried standard deduction before tax.</li>
+        <li><strong className="text-zinc-300">Rebate, Surcharge, and Cess</strong> – Section 87A rebate, income-based surcharge, and 4% health and education cess are included by the calculator.</li>
+        <li><strong className="text-zinc-300">EPF</strong> – optional employee EPF is modeled at 12% on the capped monthly wage base and reduces take-home pay.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">Taxable income is gross salary minus the regime standard deduction. The model does not include HRA, itemized old-regime deductions, NPS, professional tax, senior-citizen slabs, marginal relief, or detailed basic-salary EPF configuration.</p>
+    </div>
+  );
+}
+
+// ============================================================================
+// ICELAND TAX INFO
+// ============================================================================
+function ISTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Iceland</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Income Tax</strong> – annual salary is taxed using annualized monthly withholding brackets that combine national and municipal tax.</li>
+        <li><strong className="text-zinc-300">Personal Tax Credit</strong> – the annualized personal tax credit reduces calculated income tax.</li>
+        <li><strong className="text-zinc-300">Mandatory Pension</strong> – employee pension is modeled at 4% and reduces both take-home pay and taxable income in the calculation.</li>
+        <li><strong className="text-zinc-300">Assumption</strong> – the calculator assumes a full-year resident salary employee.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">Net pay is gross salary minus mandatory pension and income tax after credit. Optional private pension savings, union dues, spouse transfers, child benefits, foreign expert relief, and detailed municipal variations are not modeled.</p>
+    </div>
+  );
+}
+
+// ============================================================================
+// JAPAN TAX INFO
+// ============================================================================
+function JPTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Japan</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">National Income Tax</strong> – employment income is taxed with progressive national brackets from 5% to 45%.</li>
+        <li><strong className="text-zinc-300">Reconstruction Surtax</strong> – the 2.1% surtax is applied to national income tax.</li>
+        <li><strong className="text-zinc-300">Resident Tax</strong> – local inhabitant tax is approximated using a 10% income-based component plus a per-capita amount.</li>
+        <li><strong className="text-zinc-300">Social Insurance</strong> – employee pension, health insurance, and employment insurance are calculated from monthly salary with the modeled caps.</li>
+        <li><strong className="text-zinc-300">Deductions</strong> – employment income deduction, social insurance deduction, and basic deduction are included before national tax.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">The model assumes resident employment income. It excludes prefecture/insurer-specific health rates, age-specific care insurance, spouse/dependent deductions, bonus insurance caps, and exact prior-year resident tax timing.</p>
+    </div>
+  );
+}
+
+// ============================================================================
+// MALTA TAX INFO
+// ============================================================================
+function MTTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Malta</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Tax Status</strong> – resident schedules vary by selected status, including single, married, parent, and children variants; non-residents use the non-resident schedule.</li>
+        <li><strong className="text-zinc-300">Class 1 SSC</strong> – employee social security is modeled by age/cohort and weekly wage category, with employer SSC and maternity fund shown separately.</li>
+        <li><strong className="text-zinc-300">Retirement Credits</strong> – personal retirement scheme and voluntary occupational pension contributions can generate resident-only tax credits within modeled caps.</li>
+        <li><strong className="text-zinc-300">Fee Deductions</strong> – qualifying school, childcare, sports, and cultural fees are modeled for eligible resident cases.</li>
+        <li><strong className="text-zinc-300">Employment Deduction</strong> – the modeled employment income deduction applies where the calculator&apos;s income/status conditions are met.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">Net salary subtracts final income tax, employee SSC, and eligible cash retirement contributions. Special tax statuses, under-18/apprentice SSC, part-time rules, pension exemptions, and nomad/returned-migrant regimes are not included.</p>
+    </div>
+  );
+}
+
+// ============================================================================
+// NORWAY TAX INFO
+// ============================================================================
+function NOTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Norway</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Ordinary Income Tax</strong> – ordinary income is taxed at 22% after modeled standard deductions and IPS deduction.</li>
+        <li><strong className="text-zinc-300">Bracket Tax</strong> – trinnskatt is applied progressively to gross personal income using the modeled 2026 thresholds.</li>
+        <li><strong className="text-zinc-300">National Insurance</strong> – employee National Insurance contribution is modeled at 7.6% of gross salary.</li>
+        <li><strong className="text-zinc-300">IPS</strong> – individual pension savings are deductible up to the modeled IPS limit and also reduce take-home pay as a voluntary contribution.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">The calculator assumes resident salary income. It excludes PAYE for temporary workers, wealth tax, travel and interest deductions, holiday-pay timing, employer pension, and individual deduction details beyond the simplified standard deduction and IPS.</p>
+    </div>
+  );
+}
+
+// ============================================================================
+// PHILIPPINES TAX INFO
+// ============================================================================
+function PHTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Philippines</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Compensation Income Tax</strong> – annual taxable compensation is taxed with the post-TRAIN progressive bands from 0% to 35%.</li>
+        <li><strong className="text-zinc-300">SSS</strong> – employee SSS is calculated from the modeled monthly salary credit floor and ceiling.</li>
+        <li><strong className="text-zinc-300">PhilHealth</strong> – employee PhilHealth is modeled as the employee share of the premium on the capped monthly base.</li>
+        <li><strong className="text-zinc-300">Pag-IBIG</strong> – employee Pag-IBIG is modeled at the employee rate up to the calculator&apos;s monthly fund salary cap.</li>
+        <li><strong className="text-zinc-300">Taxable Income</strong> – mandatory employee SSS, PhilHealth, and Pag-IBIG reduce taxable income before income tax.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">The model assumes ordinary employee compensation. It excludes 13th-month exclusions, de minimis benefits, overtime/night differential treatment, substituted filing, non-resident rules, voluntary MP2/SSS, and self-employed income.</p>
+    </div>
+  );
+}
+
+// ============================================================================
+// SWEDEN TAX INFO
+// ============================================================================
+function SETaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Sweden</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Municipal / Regional Tax</strong> – the calculator uses a flat average local tax rate proxy on taxable income.</li>
+        <li><strong className="text-zinc-300">State Income Tax</strong> – 20% state tax applies above the modeled annual taxable-income threshold.</li>
+        <li><strong className="text-zinc-300">General Pension Contribution</strong> – employee pension contribution is modeled at 7% up to the annual cap.</li>
+        <li><strong className="text-zinc-300">Pension Tax Credit</strong> – the calculator applies a matching tax reduction for the general pension contribution.</li>
+        <li><strong className="text-zinc-300">Standard Deduction</strong> – a simplified basic allowance is deducted before calculating income tax.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">The model assumes a simplified Swedish employee case. It does not include municipality-specific rates, church or burial fees, exact grundavdrag/job tax credit curves, age-specific rules, expert tax relief, employer social contributions, or individual deductions.</p>
+    </div>
+  );
+}
+
+// ============================================================================
+// VIETNAM TAX INFO
+// ============================================================================
+function VNTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Vietnam</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Resident PIT</strong> – taxable employment income is taxed with resident progressive PIT bands from 5% to 35%.</li>
+        <li><strong className="text-zinc-300">Employee Insurance</strong> – social insurance, health insurance, and unemployment insurance are deducted using the modeled rates and salary caps.</li>
+        <li><strong className="text-zinc-300">Personal Deduction</strong> – the monthly personal deduction is annualized and subtracted before tax.</li>
+        <li><strong className="text-zinc-300">Dependent Deduction</strong> – each entered dependent adds the modeled annual dependent deduction.</li>
+        <li><strong className="text-zinc-300">Taxable Income</strong> – gross salary minus employee insurance, personal deduction, and dependent deductions equals taxable income.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">The calculator models resident salary income and uses the implementation&apos;s Region I cap for unemployment insurance. It excludes non-resident flat PIT, expatriate insurance nuances, taxable allowances, housing benefits, bonuses, severance, and dependent registration timing.</p>
     </div>
   );
 }
