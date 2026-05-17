@@ -31,6 +31,8 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "MY" && <MYTaxInfo />}
         {country === "TW" && <TWTaxInfo />}
         {country === "UK" && <UKTaxInfo />}
+        {country === "CA" && <CATaxInfo />}
+        {country === "MX" && <MXTaxInfo />}
       </div>
     </section>
   );
@@ -1285,3 +1287,155 @@ function UKTaxInfo() {
     </div>
   );
 }
+
+// ============================================================================
+// CANADA TAX INFO
+// ============================================================================
+function CATaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Canada</h3>
+      <p className="text-zinc-400 text-sm mb-3">
+        Canadian take-home pay is calculated by starting with annual gross salary,
+        subtracting modeled pre-tax deductions, applying federal and provincial or
+        territorial income tax brackets, then subtracting employee payroll
+        contributions such as CPP/CPP2 or Quebec QPP/QPP2, EI, and Quebec QPIP.
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Taxes and Payroll Contributions Included
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>
+          <strong className="text-zinc-300">Federal Income Tax</strong> –
+          progressive 2026 federal tax brackets applied to taxable income
+        </li>
+        <li>
+          <strong className="text-zinc-300">Provincial / Territorial Tax</strong> –
+          selected province or territory brackets for AB, BC, MB, NB, NL, NS, NT,
+          NU, ON, PE, QC, SK, and YT
+        </li>
+        <li>
+          <strong className="text-zinc-300">CPP and CPP2</strong> – Canada Pension
+          Plan employee contributions outside Quebec, including the second
+          additional CPP contribution tier
+        </li>
+        <li>
+          <strong className="text-zinc-300">QPP, QPP2, and QPIP</strong> – Quebec
+          Pension Plan, second additional QPP, and Quebec parental insurance for
+          Quebec employees
+        </li>
+        <li>
+          <strong className="text-zinc-300">Employment Insurance</strong> – EI
+          premiums with the regular employee rate outside Quebec and the reduced
+          Quebec employee EI rate in Quebec
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Retirement, Benefits, and Deductions
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>RRSP contributions reduce modeled taxable income up to the annual limit.</li>
+        <li>FHSA contributions are modeled as tax-deductible contributions.</li>
+        <li>Registered pension / RPP employee contributions are modeled pre-tax.</li>
+        <li>Union or professional dues are modeled as taxable-income deductions.</li>
+        <li>Childcare expenses are modeled as eligible deductions for payroll planning.</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Filing Status Note
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Canada does not use US-style married filing jointly or married filing
+        separately tax brackets. Spouses and common-law partners generally file
+        individual returns, with spouse, dependent, and benefit effects handled
+        through credits and benefit programs rather than separate married brackets.
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Calculation Formula
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Gross Salary − RRSP/FHSA/RPP/Dues/Childcare Deductions = Taxable Income
+        <br />
+        Federal Tax + Provincial/Territorial Tax = Income Tax
+        <br />
+        Income Tax + CPP/CPP2 or QPP/QPP2 + EI + QPIP = Total Statutory Deductions
+        <br />
+        Gross Salary − Statutory Deductions − Voluntary Deductions = Net Salary
+      </p>
+    </div>
+  );
+}
+
+// ============================================================================
+// MEXICO TAX INFO
+// ============================================================================
+function MXTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Mexico</h3>
+      <p className="text-zinc-400 text-sm mb-3">
+        Mexico take-home pay is calculated by annualizing salary, subtracting
+        modeled personal deductions, applying the 2026 annual ISR tariff, and then
+        subtracting employee-side IMSS social security contributions.
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Taxes and Payroll Contributions Included
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>
+          <strong className="text-zinc-300">ISR Income Tax</strong> – Mexican
+          federal income tax calculated from the annual progressive tariff using
+          fixed fees and marginal rates
+        </li>
+        <li>
+          <strong className="text-zinc-300">Employee IMSS</strong> – employee-side
+          social security branches modeled from gross pay as the SBC proxy, capped
+          at 25 times UMA
+        </li>
+        <li>
+          <strong className="text-zinc-300">State Context</strong> – all 32 states
+          are available. State payroll tax/ISN is generally employer-side and
+          does not reduce modeled employee take-home pay
+        </li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Retirement, Benefits, and Personal Deductions
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>AFORE / voluntary retirement savings are modeled as personal deductions.</li>
+        <li>Medical and dental expenses are modeled within the personal deduction cap.</li>
+        <li>Funeral expenses are modeled within the personal deduction cap.</li>
+        <li>Mortgage interest is modeled as a deductible personal expense.</li>
+        <li>Education expenses are modeled using the calculator&apos;s education cap.</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Current Exclusions
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        The Mexico calculator does not yet model employment subsidy, exempt income,
+        aguinaldo tax treatment, INFONAVIT loan repayments, employer-only IMSS
+        costs, or employer-side state payroll taxes.
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Calculation Formula
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Gross Salary − Retirement/Medical/Funeral/Mortgage/Education Deductions = Taxable Income
+        <br />
+        ISR Fixed Fee + Marginal ISR = Income Tax
+        <br />
+        Income Tax + Employee IMSS = Total Statutory Deductions
+        <br />
+        Gross Salary − Statutory Deductions − Personal Deductions = Net Salary
+      </p>
+    </div>
+  );
+}
+
