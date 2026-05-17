@@ -1083,8 +1083,7 @@ export function useMultiCountryCalculator(
         },
       };
       return deInputs;
-    } else {
-      // TH or HK
+    } else if (country === "TH" || country === "HK") {
       if (country === "HK") {
         const hkInputs: HKCalculatorInputs = {
           country: "HK",
@@ -1126,6 +1125,12 @@ export function useMultiCountryCalculator(
       };
       return thInputs;
     }
+
+    return {
+      ...getDefaultInputs(country),
+      grossSalary,
+      payFrequency,
+    } as CalculatorInputs;
   }, [
     country,
     grossSalary,

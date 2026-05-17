@@ -5,6 +5,8 @@ import type { CountryCode } from "@/lib/countries/types";
 // Country-specific descriptions for SEO
 const COUNTRY_DESCRIPTIONS: Partial<Record<CountryCode, string>> = {
   US: `Free ${TAX_YEAR} take home pay calculator for all 50 US states + DC. Calculate your salary after taxes including federal, state, Social Security, Medicare, 401(k), HSA, and IRA deductions.`,
+  CA: `Free 2026 take home pay calculator for Canada. Calculate your salary after federal and provincial or territorial income tax, CPP/CPP2 or Quebec QPP/QPP2, EI, QPIP where applicable, and modeled RRSP deductions.`,
+  MX: `Free 2026 take home pay calculator for Mexico. Calculate your salary after ISR income tax, employee IMSS contributions, and modeled voluntary retirement savings.`,
   SG: `Free ${TAX_YEAR} take home pay calculator for Singapore. Calculate your salary after taxes including income tax, CPF contributions based on age and residency, and SRS deductions.`,
   KR: `Free ${TAX_YEAR} take home pay calculator for South Korea. Calculate your salary after taxes including income tax, local tax, national pension, health insurance, and employment insurance.`,
   NL: `Free ${TAX_YEAR} take home pay calculator for the Netherlands. Calculate your salary after taxes including income tax, national insurance, and the 30% ruling for expats.`,
@@ -37,6 +39,26 @@ const COUNTRY_KEYWORDS: Partial<Record<CountryCode, string[]>> = {
     "california paycheck calculator",
     "new york salary calculator",
     "texas take home pay",
+  ],
+  CA: [
+    "canada take home pay calculator",
+    "canada salary after tax",
+    "2026 canada tax calculator",
+    "canadian payroll calculator",
+    "ontario salary after tax",
+    "cpp ei calculator",
+    "rrsp tax deduction calculator",
+    "canada paycheck calculator",
+  ],
+  MX: [
+    "mexico take home pay calculator",
+    "mexico salary after tax",
+    "2026 mexico tax calculator",
+    "mexico isr calculator",
+    "mexican payroll calculator",
+    "salario neto mexico",
+    "calculadora isr mexico",
+    "aportaciones voluntarias retiro mexico",
   ],
   AU: [
     "australia take home pay calculator",
@@ -263,6 +285,15 @@ const COUNTRY_HEADER_INFO: Partial<Record<
       "Calculate your actual salary after taxes for all 50 US states + D.C.",
     details:
       "Federal & state taxes, Social Security, Medicare, 401(k), HSA, IRA",
+  },
+  CA: {
+    tagline: "Calculate your actual salary after taxes in Canada.",
+    details:
+      "Federal and provincial or territorial income tax, CPP/CPP2 or Quebec QPP/QPP2, EI, QPIP where applicable, and RRSP deductions",
+  },
+  MX: {
+    tagline: "Calculate your actual salary after taxes in Mexico.",
+    details: "ISR income tax, employee IMSS contributions, state context, and voluntary retirement savings",
   },
   AU: {
     tagline: "Calculate your actual salary after taxes in Australia.",

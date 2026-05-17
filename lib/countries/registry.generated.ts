@@ -3,6 +3,7 @@
 
 import { AECalculator } from "./ae";
 import { AUCalculator } from "./au";
+import { CACalculator } from "./ca";
 import { CNCalculator } from "./cn";
 import { CYCalculator } from "./cy";
 import { CZCalculator } from "./cz";
@@ -20,6 +21,7 @@ import { ISCalculator } from "./is";
 import { JPCalculator } from "./jp";
 import { KRCalculator } from "./kr";
 import { MTCalculator } from "./mt";
+import { MXCalculator } from "./mx";
 import { MYCalculator } from "./my";
 import { NLCalculator } from "./nl";
 import { NOCalculator } from "./no";
@@ -42,6 +44,7 @@ export interface CountryRegistryEntry {
 export const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
   { code: AECalculator.countryCode, calculator: AECalculator },
   { code: AUCalculator.countryCode, calculator: AUCalculator },
+  { code: CACalculator.countryCode, calculator: CACalculator },
   { code: CNCalculator.countryCode, calculator: CNCalculator },
   { code: CYCalculator.countryCode, calculator: CYCalculator },
   { code: CZCalculator.countryCode, calculator: CZCalculator },
@@ -59,6 +62,7 @@ export const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
   { code: JPCalculator.countryCode, calculator: JPCalculator },
   { code: KRCalculator.countryCode, calculator: KRCalculator },
   { code: MTCalculator.countryCode, calculator: MTCalculator },
+  { code: MXCalculator.countryCode, calculator: MXCalculator },
   { code: MYCalculator.countryCode, calculator: MYCalculator },
   { code: NLCalculator.countryCode, calculator: NLCalculator },
   { code: NOCalculator.countryCode, calculator: NOCalculator },

@@ -25,6 +25,7 @@ import { useCallback, useMemo, useState } from "react";
 import { CountrySelector } from "./country-selector";
 import { MultiCountryResults } from "./multi-country-results";
 import { SalaryInput } from "./salary-input";
+import { SEOTaxInfo } from "./seo-tax-info";
 
 export interface CountryCalculatorExtensionProps {
   country: CountryCode;
@@ -164,6 +165,8 @@ export function CountryCalculatorExtensionShell({
       </div>
 
       {seoInfo}
+
+      <SEOTaxInfo country={country} />
     </>
   );
 }
