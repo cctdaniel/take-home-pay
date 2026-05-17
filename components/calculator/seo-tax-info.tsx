@@ -33,6 +33,7 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "UK" && <UKTaxInfo />}
         {country === "CA" && <CATaxInfo />}
         {country === "MX" && <MXTaxInfo />}
+        {country === "NZ" && <NZTaxInfo />}
         {country === "AE" && <AETaxInfo />}
         {country === "CN" && <CNTaxInfo />}
         {country === "CY" && <CYTaxInfo />}
@@ -51,6 +52,33 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "VN" && <VNTaxInfo />}
       </div>
     </section>
+  );
+}
+
+// ============================================================================
+// NEW ZEALAND TAX INFO
+// ============================================================================
+function NZTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">
+        New Zealand
+      </h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">PAYE Income Tax</strong> – salary is taxed with New Zealand&apos;s progressive individual income tax bands.</li>
+        <li><strong className="text-zinc-300">ACC Earners Levy</strong> – the employee earners levy is added up to the annual liable earnings cap.</li>
+        <li><strong className="text-zinc-300">Student Loan</strong> – when selected, repayment is modeled at 12% of income above the annual repayment threshold.</li>
+        <li><strong className="text-zinc-300">KiwiSaver</strong> – employee KiwiSaver deductions reduce take-home pay but do not reduce taxable income; employer KiwiSaver is shown for context before ESCT.</li>
+        <li><strong className="text-zinc-300">Tax Credits</strong> – the Independent Earner Tax Credit and payroll-giving donation credits reduce income tax where the calculator inputs make them applicable.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">
+        Estimated net salary is gross salary minus income tax after modeled
+        credits, ACC earners levy, student loan repayments, KiwiSaver employee
+        deductions, and payroll-giving donations. The model excludes Working for
+        Families, benefits, paid parental leave, secondary tax codes, tailored
+        tax codes, ESCT calculations, and non-salary income.
+      </p>
+    </div>
   );
 }
 
@@ -1752,4 +1780,3 @@ function MXTaxInfo() {
     </div>
   );
 }
-

@@ -24,7 +24,7 @@ import type { ContributionLimits, PayFrequency } from "@/lib/countries/types";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 
 const RESIDENCY_OPTIONS: SelectOption<NZResidencyType>[] = [
-  { value: "tax_resident", label: "New Zealand Tax Resident" },
+  { value: "tax_resident", label: "NZ Tax Resident" },
   { value: "non_resident", label: "Non-Resident" },
 ];
 
@@ -82,7 +82,7 @@ function NZTaxOptions({
   const isTaxResident = inputs.residencyType === "tax_resident";
 
   return (
-    <CalculatorFieldGrid columns={4}>
+    <CalculatorFieldGrid columns={2}>
       <SelectField
         id="nz-residency-type"
         label="Tax Residency"
