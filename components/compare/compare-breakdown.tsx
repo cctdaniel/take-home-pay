@@ -192,6 +192,9 @@ export function CompareBreakdown({
       taxes.medicareLevySurcharge,
     );
     pushLine(incomeTaxBreakdown, "Division 293 tax", taxes.division293Tax);
+  } else if ("type" in taxes && taxes.type === "NZ") {
+    pushLine(mandatoryBreakdown, "ACC earners levy", taxes.accEarnersLevy);
+    pushLine(mandatoryBreakdown, "Student loan", taxes.studentLoanRepayment);
   } else if ("solidaritySurcharge" in taxes && "type" in taxes && taxes.type === "PT") {
     pushLine(incomeTaxBreakdown, "IRS income tax", taxes.incomeTax);
     pushLine(incomeTaxBreakdown, "Solidarity surcharge", taxes.solidaritySurcharge);

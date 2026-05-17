@@ -17,6 +17,7 @@ import JPCountryExtension from "./country-extensions/jp";
 import MTCountryExtension from "./country-extensions/mt";
 import MXCountryExtension from "./country-extensions/mx";
 import NOCountryExtension from "./country-extensions/no";
+import NZCountryExtension from "./country-extensions/nz";
 import PHCountryExtension from "./country-extensions/ph";
 import SECountryExtension from "./country-extensions/se";
 import VNCountryExtension from "./country-extensions/vn";
@@ -40,6 +41,7 @@ export const COUNTRY_CALCULATOR_EXTENSIONS: Partial<
   MT: MTCountryExtension,
   MX: MXCountryExtension,
   NO: NOCountryExtension,
+  NZ: NZCountryExtension,
   PH: PHCountryExtension,
   SE: SECountryExtension,
   VN: VNCountryExtension,

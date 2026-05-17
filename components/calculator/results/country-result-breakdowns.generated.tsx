@@ -15,6 +15,7 @@ import { INResultBreakdown } from "./in-result-breakdown";
 import { JPResultBreakdown } from "./jp-result-breakdown";
 import { MTResultBreakdown } from "./mt-result-breakdown";
 import { MYResultBreakdown } from "./my-result-breakdown";
+import { NZResultBreakdown } from "./nz-result-breakdown";
 import { PHResultBreakdown } from "./ph-result-breakdown";
 import { VNResultBreakdown } from "./vn-result-breakdown";
 import type { CountryResultBreakdownProps } from "./types";
@@ -38,6 +39,7 @@ export const COUNTRY_RESULT_BREAKDOWNS: Partial<
   JP: JPResultBreakdown,
   MT: MTResultBreakdown,
   MY: MYResultBreakdown,
+  NZ: NZResultBreakdown,
   PH: PHResultBreakdown,
   VN: VNResultBreakdown,
 };

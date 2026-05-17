@@ -25,6 +25,7 @@ import { MXCalculator } from "./mx";
 import { MYCalculator } from "./my";
 import { NLCalculator } from "./nl";
 import { NOCalculator } from "./no";
+import { NZCalculator } from "./nz";
 import { PHCalculator } from "./ph";
 import { PTCalculator } from "./pt";
 import { SECalculator } from "./se";
@@ -66,6 +67,7 @@ export const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
   { code: MYCalculator.countryCode, calculator: MYCalculator },
   { code: NLCalculator.countryCode, calculator: NLCalculator },
   { code: NOCalculator.countryCode, calculator: NOCalculator },
+  { code: NZCalculator.countryCode, calculator: NZCalculator },
   { code: PHCalculator.countryCode, calculator: PHCalculator },
   { code: PTCalculator.countryCode, calculator: PTCalculator },
   { code: SECalculator.countryCode, calculator: SECalculator },
