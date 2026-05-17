@@ -7,7 +7,9 @@ import type {
 } from "../types";
 import type { MexicoIsrBracket } from "./constants/tax-year-2026";
 
-export type MXContributionInputs = Record<never, never>;
+export interface MXContributionInputs {
+  voluntaryRetirementContribution: number;
+}
 
 export interface MXCalculatorInputs extends BaseCalculatorInputs {
   country: "MX";
@@ -28,6 +30,11 @@ export interface MXBreakdown {
   fixedFee: number;
   marginalTax: number;
   socialSecurityRate: number;
+  voluntaryContributions: {
+    voluntaryRetirementContribution: number;
+    voluntaryRetirementContributionLimit: number;
+    total: number;
+  };
   assumptions: string[];
   sourceUrls: string[];
 }

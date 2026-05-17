@@ -12,6 +12,7 @@ import {
   CANADA_CPP_2026,
   CANADA_EI_2026,
   CANADA_FEDERAL_TAX_BRACKETS_2026,
+  CANADA_RRSP_2026,
   CANADA_SOURCE_URLS,
   ONTARIO_TAX_BRACKETS_2026,
 } from "./constants/tax-year-2026";
@@ -43,7 +44,15 @@ function calculateProgressiveTax(income: number, brackets: TaxBracket[]) {
 
 export function calculateCA(inputs: CACalculatorInputs): CalculationResult {
   const grossSalary = Math.max(0, inputs.grossSalary);
-  const taxableIncome = grossSalary;
+  const rrspContributionLimit = Math.min(
+    grossSalary * CANADA_RRSP_2026.contributionRateLimit,
+    CANADA_RRSP_2026.annualDollarLimit,
+  );
+  const rrspContribution = Math.min(
+    Math.max(0, inputs.contributions?.rrspContribution ?? 0),
+    rrspContributionLimit,
+  );
+  const taxableIncome = Math.max(0, grossSalary - rrspContribution);
   const federal = calculateProgressiveTax(taxableIncome, CANADA_FEDERAL_TAX_BRACKETS_2026);
   const provincial = calculateProgressiveTax(taxableIncome, ONTARIO_TAX_BRACKETS_2026);
 
@@ -80,7 +89,8 @@ export function calculateCA(inputs: CACalculatorInputs): CalculationResult {
     ei,
   };
   const totalTax = taxes.totalIncomeTax + cpp + cpp2 + ei;
-  const totalDeductions = totalTax;
+  const voluntaryContributions = rrspContribution;
+  const totalDeductions = totalTax + voluntaryContributions;
   const netSalary = grossSalary - totalDeductions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
@@ -107,10 +117,16 @@ export function calculateCA(inputs: CACalculatorInputs): CalculationResult {
       employeeRate: CANADA_EI_2026.employeeRate,
       maximumEmployeePremium: CANADA_EI_2026.maximumEmployeePremium,
     },
+    voluntaryContributions: {
+      rrspContribution,
+      rrspContributionLimit,
+      total: voluntaryContributions,
+    },
     assumptions: [
       "Uses 2026 federal and Ontario provincial tax brackets.",
       "Models base CPP, second additional CPP, and federal EI employee contributions; Quebec-specific QPP/QPIP is not included.",
-      "Does not yet model non-refundable tax credits, surtaxes, provincial health premiums, or deductions beyond statutory payroll contributions.",
+      "Models RRSP contributions as taxable-income deductions; unused room and employer pension adjustments are not modeled.",
+      "Does not yet model non-refundable tax credits, surtaxes, provincial health premiums, or deductions beyond statutory payroll contributions and RRSP.",
     ],
     sourceUrls: CANADA_SOURCE_URLS,
   };
@@ -159,7 +175,9 @@ export const CACalculator: CountryCalculator = {
       grossSalary: 90_000,
       payFrequency: "monthly",
       province: "ON",
-      contributions: {},
+      contributions: {
+        rrspContribution: 0,
+      },
     };
   },
 };

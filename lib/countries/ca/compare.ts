@@ -1,5 +1,6 @@
 import { calculateNetSalary, getDefaultInputs } from "@/lib/countries/registry";
 import type { CountryComparisonAdapter } from "@/hooks/use-country-comparison";
+import { CANADA_RRSP_2026 } from "./constants/tax-year-2026";
 import type { CACalculatorInputs } from "./types";
 
 export const buildCountryComparison: CountryComparisonAdapter = ({
@@ -12,12 +13,20 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
   isMaxRetirement,
 }) => {
   const defaultInputs = getDefaultInputs(country) as CACalculatorInputs;
+  const rrspContribution = isMaxRetirement
+    ? Math.min(
+        grossLocal * CANADA_RRSP_2026.contributionRateLimit,
+        CANADA_RRSP_2026.annualDollarLimit,
+      )
+    : 0;
   const caInputs: CACalculatorInputs = {
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
     province: "ON",
-    contributions: {},
+    contributions: {
+      rrspContribution,
+    },
   };
   const result = calculateNetSalary(caInputs);
   const assumptions = [
@@ -25,8 +34,8 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     "Federal + Ontario brackets, CPP, CPP2, and EI modeled",
   ];
 
-  if (isMaxRetirement) {
-    assumptions.push("No voluntary retirement tax relief modeled for Canada compare");
+  if (rrspContribution > 0) {
+    assumptions.push("RRSP contribution set to modeled max");
   }
 
   return {

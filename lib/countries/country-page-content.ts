@@ -5,8 +5,8 @@ import type { CountryCode } from "@/lib/countries/types";
 // Country-specific descriptions for SEO
 const COUNTRY_DESCRIPTIONS: Partial<Record<CountryCode, string>> = {
   US: `Free ${TAX_YEAR} take home pay calculator for all 50 US states + DC. Calculate your salary after taxes including federal, state, Social Security, Medicare, 401(k), HSA, and IRA deductions.`,
-  CA: `Free 2026 take home pay calculator for Canada. Calculate your salary after federal and Ontario income tax, CPP contributions, and EI premiums.`,
-  MX: `Free 2026 take home pay calculator for Mexico. Calculate your salary after ISR income tax and estimated employee social security deductions.`,
+  CA: `Free 2026 take home pay calculator for Canada. Calculate your salary after federal and Ontario income tax, CPP/CPP2 contributions, EI premiums, and modeled RRSP deductions.`,
+  MX: `Free 2026 take home pay calculator for Mexico. Calculate your salary after ISR income tax, estimated employee social security deductions, and modeled voluntary retirement savings.`,
   SG: `Free ${TAX_YEAR} take home pay calculator for Singapore. Calculate your salary after taxes including income tax, CPF contributions based on age and residency, and SRS deductions.`,
   KR: `Free ${TAX_YEAR} take home pay calculator for South Korea. Calculate your salary after taxes including income tax, local tax, national pension, health insurance, and employment insurance.`,
   NL: `Free ${TAX_YEAR} take home pay calculator for the Netherlands. Calculate your salary after taxes including income tax, national insurance, and the 30% ruling for expats.`,
@@ -47,6 +47,7 @@ const COUNTRY_KEYWORDS: Partial<Record<CountryCode, string[]>> = {
     "canadian payroll calculator",
     "ontario salary after tax",
     "cpp ei calculator",
+    "rrsp tax deduction calculator",
     "canada paycheck calculator",
   ],
   MX: [
@@ -57,6 +58,7 @@ const COUNTRY_KEYWORDS: Partial<Record<CountryCode, string[]>> = {
     "mexican payroll calculator",
     "salario neto mexico",
     "calculadora isr mexico",
+    "aportaciones voluntarias retiro mexico",
   ],
   AU: [
     "australia take home pay calculator",
@@ -287,11 +289,11 @@ const COUNTRY_HEADER_INFO: Partial<Record<
   CA: {
     tagline: "Calculate your actual salary after taxes in Canada.",
     details:
-      "Federal and Ontario income tax, CPP contributions, and EI premiums",
+      "Federal and Ontario income tax, CPP/CPP2 contributions, EI premiums, and RRSP deductions",
   },
   MX: {
     tagline: "Calculate your actual salary after taxes in Mexico.",
-    details: "ISR income tax and estimated employee social security deductions",
+    details: "ISR income tax, estimated employee social security deductions, and voluntary retirement savings",
   },
   AU: {
     tagline: "Calculate your actual salary after taxes in Australia.",

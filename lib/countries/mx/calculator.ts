@@ -12,6 +12,7 @@ import {
   MEXICO_IMSS_EMPLOYEE_RATE_NOTE,
   MEXICO_ISR_BRACKETS_2026,
   MEXICO_SOURCE_URLS,
+  MEXICO_VOLUNTARY_RETIREMENT_2026,
 } from "./constants/tax-year-2026";
 import type { MXBreakdown, MXCalculatorInputs, MXTaxBreakdown } from "./types";
 
@@ -30,7 +31,15 @@ function roundCurrency(value: number): number {
 
 export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
   const grossSalary = Math.max(0, inputs.grossSalary);
-  const taxableIncome = grossSalary;
+  const voluntaryRetirementContributionLimit = Math.min(
+    grossSalary * MEXICO_VOLUNTARY_RETIREMENT_2026.deductionRateLimit,
+    MEXICO_VOLUNTARY_RETIREMENT_2026.modeledAnnualCap,
+  );
+  const voluntaryRetirementContribution = Math.min(
+    Math.max(0, inputs.contributions?.voluntaryRetirementContribution ?? 0),
+    voluntaryRetirementContributionLimit,
+  );
+  const taxableIncome = Math.max(0, grossSalary - voluntaryRetirementContribution);
   const bracket =
     MEXICO_ISR_BRACKETS_2026.find(
       (candidate) => taxableIncome > candidate.min && taxableIncome <= candidate.max,
@@ -46,7 +55,8 @@ export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
     socialSecurity,
   };
   const totalTax = incomeTax + socialSecurity;
-  const totalDeductions = totalTax;
+  const voluntaryContributions = voluntaryRetirementContribution;
+  const totalDeductions = totalTax + voluntaryContributions;
   const netSalary = grossSalary - totalDeductions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
@@ -59,10 +69,16 @@ export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
     fixedFee: bracket.fixedFee,
     marginalTax,
     socialSecurityRate: MEXICO_IMSS_EMPLOYEE_RATE_ESTIMATE,
+    voluntaryContributions: {
+      voluntaryRetirementContribution,
+      voluntaryRetirementContributionLimit,
+      total: voluntaryContributions,
+    },
     assumptions: [
       "Uses the 2026 annual ISR tariff for resident salary income.",
       MEXICO_IMSS_EMPLOYEE_RATE_NOTE,
-      "Does not yet model subsidies, exemptions, deductions, aguinaldo treatment, state payroll taxes, or detailed IMSS caps by salary base.",
+      "Models voluntary retirement savings as a personal deduction capped at 10% of income and a modeled annual cap; plan-specific rules are not modeled.",
+      "Does not yet model subsidies, exemptions, deductions beyond voluntary retirement, aguinaldo treatment, state payroll taxes, or detailed IMSS caps by salary base.",
     ],
     sourceUrls: MEXICO_SOURCE_URLS,
   };
@@ -110,7 +126,9 @@ export const MXCalculator: CountryCalculator = {
       country: "MX",
       grossSalary: 600_000,
       payFrequency: "monthly",
-      contributions: {},
+      contributions: {
+        voluntaryRetirementContribution: 0,
+      },
     };
   },
 };

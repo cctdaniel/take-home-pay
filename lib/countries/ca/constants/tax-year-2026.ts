@@ -35,6 +35,11 @@ export const CANADA_EI_2026 = {
   maximumEmployeePremium: 1_123.07,
 };
 
+export const CANADA_RRSP_2026 = {
+  contributionRateLimit: 0.18,
+  annualDollarLimit: 33_810,
+};
+
 export const CANADA_SOURCE_URLS = [
   "https://www.canada.ca/en/revenue-agency/services/tax/individuals/frequently-asked-questions-individuals/canadian-income-tax-rates-individuals-current-previous-years.html",
   "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/payroll/payroll-deductions-contributions/canada-pension-plan-cpp/cpp-contribution-rates-maximums-exemptions.html",

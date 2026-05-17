@@ -21,6 +21,11 @@ export const MEXICO_ISR_BRACKETS_2026: MexicoIsrBracket[] = [
   { min: 4_717_314.24, max: Infinity, fixedFee: 1_479_422.98, rate: 0.35 },
 ];
 
+export const MEXICO_VOLUNTARY_RETIREMENT_2026 = {
+  deductionRateLimit: 0.10,
+  modeledAnnualCap: 206_367,
+};
+
 export const MEXICO_IMSS_EMPLOYEE_RATE_ESTIMATE = 0.024;
 export const MEXICO_IMSS_EMPLOYEE_RATE_NOTE =
   "Estimated employee IMSS withholding placeholder; detailed SBC, UMA, and branch-specific caps are not yet modeled.";

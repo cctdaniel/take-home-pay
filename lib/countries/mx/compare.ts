@@ -1,5 +1,6 @@
 import { calculateNetSalary, getDefaultInputs } from "@/lib/countries/registry";
 import type { CountryComparisonAdapter } from "@/hooks/use-country-comparison";
+import { MEXICO_VOLUNTARY_RETIREMENT_2026 } from "./constants/tax-year-2026";
 import type { MXCalculatorInputs } from "./types";
 
 export const buildCountryComparison: CountryComparisonAdapter = ({
@@ -12,11 +13,19 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
   isMaxRetirement,
 }) => {
   const defaultInputs = getDefaultInputs(country) as MXCalculatorInputs;
+  const voluntaryRetirementContribution = isMaxRetirement
+    ? Math.min(
+        grossLocal * MEXICO_VOLUNTARY_RETIREMENT_2026.deductionRateLimit,
+        MEXICO_VOLUNTARY_RETIREMENT_2026.modeledAnnualCap,
+      )
+    : 0;
   const mxInputs: MXCalculatorInputs = {
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
-    contributions: {},
+    contributions: {
+      voluntaryRetirementContribution,
+    },
   };
   const result = calculateNetSalary(mxInputs);
   const assumptions = [
@@ -24,8 +33,8 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     "Annual ISR tariff plus estimated employee IMSS placeholder modeled",
   ];
 
-  if (isMaxRetirement) {
-    assumptions.push("No voluntary retirement tax relief modeled for Mexico compare");
+  if (voluntaryRetirementContribution > 0) {
+    assumptions.push("Voluntary retirement contribution set to modeled max");
   }
 
   return {

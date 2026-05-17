@@ -7,7 +7,9 @@ import type {
   TaxBracket,
 } from "../types";
 
-export type CAContributionInputs = Record<never, never>;
+export interface CAContributionInputs {
+  rrspContribution: number;
+}
 
 export interface CACalculatorInputs extends BaseCalculatorInputs {
   country: "CA";
@@ -44,6 +46,11 @@ export interface CABreakdown {
     insurableEarnings: number;
     employeeRate: number;
     maximumEmployeePremium: number;
+  };
+  voluntaryContributions: {
+    rrspContribution: number;
+    rrspContributionLimit: number;
+    total: number;
   };
   assumptions: string[];
   sourceUrls: string[];
