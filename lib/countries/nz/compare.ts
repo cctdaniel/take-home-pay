@@ -27,20 +27,14 @@ export function buildCountryComparison({
     residencyType: isTaxResident ? "tax_resident" : "non_resident",
     claimsIndependentEarnerTaxCredit,
     contributions: {
-      kiwiSaverRate: isMaxRetirement ? "rate_10" : "none",
+      // KiwiSaver is modeled as a post-tax payroll deduction, so it stays out
+      // of the compare flow's tax-advantaged max retirement toggle.
+      kiwiSaverRate: "none",
       payrollGivingDonations: 0,
     },
   };
   const result = calculateNetSalary(nzInputs);
-  const retirementApplied =
-    nzInputs.contributions.kiwiSaverRate !== "none" &&
-    result.breakdown.type === "NZ" &&
-    result.breakdown.kiwiSaver.employeeContribution > 0;
-  const assumptions = buildAssumptionsSummary(
-    country,
-    inputs,
-    retirementApplied,
-  );
+  const assumptions = buildAssumptionsSummary(country, inputs, false);
 
   assumptions.push(isTaxResident ? "NZ tax resident" : "Non-resident");
   assumptions.push("No student loan");
@@ -50,7 +44,7 @@ export function buildCountryComparison({
   }
 
   if (isMaxRetirement) {
-    assumptions.push("KiwiSaver 10% (not pre-tax)");
+    assumptions.push("KiwiSaver excluded from max retirement");
   }
 
   return {
