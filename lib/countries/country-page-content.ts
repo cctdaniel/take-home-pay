@@ -26,6 +26,11 @@ const COUNTRY_DESCRIPTIONS: Partial<Record<CountryCode, string>> = {
   IN: `Free 2026 take home pay calculator for India. Calculate your salary after taxes including income tax under new regime FY 2025-26 (progressive 0-30%), surcharge, health & education cess (4%), EPF contributions (12%), and Section 87A rebate.`,
   PH: `Free 2026 take home pay calculator for the Philippines. Calculate your salary after taxes including income tax (progressive 0-35% under TRAIN law), SSS contributions (5%), PhilHealth (2.5%), and Pag-IBIG Fund (2%).`,
   VN: `Free 2026 take home pay calculator for Vietnam. Calculate your salary after taxes including personal income tax (progressive 5-35%), social insurance (8%), health insurance (1.5%), unemployment insurance (1%), and personal/dependent deductions.`,
+  FR: `Free 2026 take home pay calculator for France. Calculate your salary after French income tax, modeled employee social contributions, and the standard 10% employment expense deduction.`,
+  IT: `Free 2026 take home pay calculator for Italy. Calculate your salary after IRPEF, employee INPS social security, employment tax credits, and modeled regional and municipal add-ons.`,
+  IE: `Free 2026 take home pay calculator for Ireland. Calculate your salary after PAYE income tax, PRSI, Universal Social Charge, and standard single PAYE credits.`,
+  AT: `Free 2026 take home pay calculator for Austria. Calculate your salary after progressive wage tax and employee social insurance contributions.`,
+  BE: `Free 2026 take home pay calculator for Belgium. Calculate your salary after federal personal income tax, employee social security, professional-expense deduction, and municipal surcharge proxy.`,
 };
 
 // Country-specific keywords for SEO
@@ -285,6 +290,41 @@ const COUNTRY_KEYWORDS: Partial<Record<CountryCode, string[]>> = {
     "bảo hiểm xã hội calculator",
     "tính lương sau thuế",
   ],
+  FR: [
+    "france take home pay calculator",
+    "france salary after tax",
+    "2026 france tax calculator",
+    "french payroll calculator",
+    "salaire net france",
+  ],
+  IT: [
+    "italy take home pay calculator",
+    "italy salary after tax",
+    "2026 italy tax calculator",
+    "italian payroll calculator",
+    "stipendio netto italia",
+  ],
+  IE: [
+    "ireland take home pay calculator",
+    "ireland salary after tax",
+    "2026 ireland tax calculator",
+    "irish PAYE calculator",
+    "USC PRSI calculator",
+  ],
+  AT: [
+    "austria take home pay calculator",
+    "austria salary after tax",
+    "2026 austria tax calculator",
+    "austrian payroll calculator",
+    "lohnsteuer austria calculator",
+  ],
+  BE: [
+    "belgium take home pay calculator",
+    "belgium salary after tax",
+    "2026 belgium tax calculator",
+    "belgian payroll calculator",
+    "ONSS RSZ calculator",
+  ],
 };
 
 
@@ -400,6 +440,30 @@ const COUNTRY_HEADER_INFO: Partial<Record<
     tagline: "Calculate your actual salary after taxes in Vietnam.",
     details:
       "Personal income tax (5-35%), social insurance (8%), health insurance (1.5%), unemployment insurance (1%), personal deduction (11M VND/month), dependent deduction (4.4M/month/person)",
+  },
+  FR: {
+    tagline: "Calculate your actual salary after taxes in France.",
+    details:
+      "French income tax, modeled employee social contributions, and standard employment expense deduction",
+  },
+  IT: {
+    tagline: "Calculate your actual salary after taxes in Italy.",
+    details:
+      "IRPEF, employee INPS social security, employment tax credit, and modeled local add-ons",
+  },
+  IE: {
+    tagline: "Calculate your actual salary after taxes in Ireland.",
+    details:
+      "PAYE income tax, PRSI, Universal Social Charge, and standard PAYE credits",
+  },
+  AT: {
+    tagline: "Calculate your actual salary after taxes in Austria.",
+    details: "Progressive wage tax and capped employee social insurance contributions",
+  },
+  BE: {
+    tagline: "Calculate your actual salary after taxes in Belgium.",
+    details:
+      "Federal personal income tax, employee social security, professional expenses, and municipal surcharge proxy",
   },
 };
 

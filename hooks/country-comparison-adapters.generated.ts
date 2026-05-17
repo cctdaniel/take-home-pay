@@ -3,16 +3,21 @@
 
 import type { CountryCode } from "@/lib/countries/types";
 import { buildCountryComparison as AECountryComparisonAdapter } from "@/lib/countries/ae/compare";
+import { buildCountryComparison as ATCountryComparisonAdapter } from "@/lib/countries/at/compare";
+import { buildCountryComparison as BECountryComparisonAdapter } from "@/lib/countries/be/compare";
 import { buildCountryComparison as CACountryComparisonAdapter } from "@/lib/countries/ca/compare";
 import { buildCountryComparison as CNCountryComparisonAdapter } from "@/lib/countries/cn/compare";
 import { buildCountryComparison as CYCountryComparisonAdapter } from "@/lib/countries/cy/compare";
 import { buildCountryComparison as CZCountryComparisonAdapter } from "@/lib/countries/cz/compare";
 import { buildCountryComparison as DKCountryComparisonAdapter } from "@/lib/countries/dk/compare";
 import { buildCountryComparison as FICountryComparisonAdapter } from "@/lib/countries/fi/compare";
+import { buildCountryComparison as FRCountryComparisonAdapter } from "@/lib/countries/fr/compare";
 import { buildCountryComparison as GECountryComparisonAdapter } from "@/lib/countries/ge/compare";
 import { buildCountryComparison as HRCountryComparisonAdapter } from "@/lib/countries/hr/compare";
+import { buildCountryComparison as IECountryComparisonAdapter } from "@/lib/countries/ie/compare";
 import { buildCountryComparison as INCountryComparisonAdapter } from "@/lib/countries/in/compare";
 import { buildCountryComparison as ISCountryComparisonAdapter } from "@/lib/countries/is/compare";
+import { buildCountryComparison as ITCountryComparisonAdapter } from "@/lib/countries/it/compare";
 import { buildCountryComparison as JPCountryComparisonAdapter } from "@/lib/countries/jp/compare";
 import { buildCountryComparison as MTCountryComparisonAdapter } from "@/lib/countries/mt/compare";
 import { buildCountryComparison as MXCountryComparisonAdapter } from "@/lib/countries/mx/compare";
@@ -27,16 +32,21 @@ export const COUNTRY_COMPARISON_ADAPTERS: Partial<
   Record<CountryCode, CountryComparisonAdapter>
 > = {
   AE: AECountryComparisonAdapter,
+  AT: ATCountryComparisonAdapter,
+  BE: BECountryComparisonAdapter,
   CA: CACountryComparisonAdapter,
   CN: CNCountryComparisonAdapter,
   CY: CYCountryComparisonAdapter,
   CZ: CZCountryComparisonAdapter,
   DK: DKCountryComparisonAdapter,
   FI: FICountryComparisonAdapter,
+  FR: FRCountryComparisonAdapter,
   GE: GECountryComparisonAdapter,
   HR: HRCountryComparisonAdapter,
+  IE: IECountryComparisonAdapter,
   IN: INCountryComparisonAdapter,
   IS: ISCountryComparisonAdapter,
+  IT: ITCountryComparisonAdapter,
   JP: JPCountryComparisonAdapter,
   MT: MTCountryComparisonAdapter,
   MX: MXCountryComparisonAdapter,

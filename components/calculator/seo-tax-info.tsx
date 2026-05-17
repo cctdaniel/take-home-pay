@@ -49,11 +49,94 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "PH" && <PHTaxInfo />}
         {country === "SE" && <SETaxInfo />}
         {country === "VN" && <VNTaxInfo />}
+        {country === "FR" && <FRTaxInfo />}
+        {country === "IT" && <ITTaxInfo />}
+        {country === "IE" && <IETaxInfo />}
+        {country === "AT" && <ATTaxInfo />}
+        {country === "BE" && <BETaxInfo />}
       </div>
     </section>
   );
 }
 
+
+// ============================================================================
+// NEW EUROPE TAX INFO
+// ============================================================================
+function FRTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">France</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Income Tax</strong> – taxable salary is calculated after the modeled 10% employment expense deduction and taxed with France&apos;s progressive bands from 0% to 45%.</li>
+        <li><strong className="text-zinc-300">Employee Contributions</strong> – mandatory employee social contributions are modeled as a combined payroll deduction because exact rates vary by tranche, scheme, and employment status.</li>
+        <li><strong className="text-zinc-300">Filing Status</strong> – the calculator assumes one ordinary resident employee and does not expose family quotient parts or spouse/dependent inputs.</li>
+        <li><strong className="text-zinc-300">Formula</strong> – net salary equals gross salary minus modeled employee social contributions and progressive income tax after the expense deduction.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">The model excludes personalized withholding rates, detailed pension tranche rates, family quotient effects, social surcharge detail, benefits in kind, and employer-only charges.</p>
+    </div>
+  );
+}
+
+function ITTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Italy</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">IRPEF</strong> – employment income after modeled employee INPS contributions is taxed through Italy&apos;s 23%, 35%, and 43% national bands.</li>
+        <li><strong className="text-zinc-300">Employment Credit</strong> – a simplified employee tax credit is applied and tapered by gross salary.</li>
+        <li><strong className="text-zinc-300">Local Add-ons</strong> – regional and municipal addizionale are represented with an average proxy so the page remains usable without region selection.</li>
+        <li><strong className="text-zinc-300">Formula</strong> – net salary equals gross salary minus INPS, national IRPEF after credit, and modeled local add-ons.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">The model excludes exact regional and commune rates, spouse/dependent deductions, bonus and exoneration programs, severance pay, fringe benefits, and employer-only costs.</p>
+    </div>
+  );
+}
+
+function IETaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Ireland</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">PAYE Income Tax</strong> – the single employee standard-rate band is taxed at 20% and income above the band at 40%.</li>
+        <li><strong className="text-zinc-300">Tax Credits</strong> – the standard personal and employee PAYE credits are applied against income tax.</li>
+        <li><strong className="text-zinc-300">PRSI and USC</strong> – employee PRSI and Universal Social Charge are added as payroll deductions separate from PAYE income tax.</li>
+        <li><strong className="text-zinc-300">Formula</strong> – net salary equals gross salary minus PAYE after credits, PRSI, and USC.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">The model excludes married/civil-partner bands, age or medical-card USC rules, pension relief, benefit-in-kind detail, and week-one payroll timing.</p>
+    </div>
+  );
+}
+
+function ATTaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Austria</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Wage Tax</strong> – annual salary after modeled employee social insurance is taxed with Austria&apos;s progressive wage tax bands from 0% to 55%.</li>
+        <li><strong className="text-zinc-300">Social Insurance</strong> – employee social insurance is modeled at a general employee rate and capped at the annualized contribution-base ceiling.</li>
+        <li><strong className="text-zinc-300">No Regional Income Tax</strong> – Austria does not use US-style state income tax for salary employees in this model.</li>
+        <li><strong className="text-zinc-300">Formula</strong> – net salary equals gross salary minus capped employee social insurance and wage tax on the remaining taxable base.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">The model excludes 13th/14th salary preferential taxation, commuter and family credits, church contributions, in-kind benefits, and detailed monthly payroll cap timing.</p>
+    </div>
+  );
+}
+
+function BETaxInfo() {
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Belgium</h3>
+      <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+        <li><strong className="text-zinc-300">Federal Tax</strong> – Belgian taxable income is taxed with progressive federal bands from 25% to 50% after modeled employee social security and professional expenses.</li>
+        <li><strong className="text-zinc-300">ONSS / RSZ</strong> – employee social security is deducted from gross salary and from the income-tax base.</li>
+        <li><strong className="text-zinc-300">Municipal Surcharge</strong> – the calculator includes a representative municipal surcharge proxy instead of requiring a commune selector.</li>
+        <li><strong className="text-zinc-300">Formula</strong> – net salary equals gross salary minus employee social security, federal tax, and the modeled municipal surcharge.</li>
+      </ul>
+      <p className="text-zinc-400 text-sm mt-3">The model excludes exact commune rates, personal allowance refinements, marital quotient, dependent children, work bonus reductions, regional reductions, benefits in kind, and the special expatriate regime.</p>
+    </div>
+  );
+}
 
 // ============================================================================
 // UNITED ARAB EMIRATES TAX INFO
