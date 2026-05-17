@@ -6,6 +6,7 @@ import type {
   TaxBreakdown,
   TaxBracket,
 } from "../types";
+import type { CanadaProvinceCode } from "./constants/tax-year-2026";
 
 export interface CAContributionInputs {
   rrspContribution: number;
@@ -13,7 +14,7 @@ export interface CAContributionInputs {
 
 export interface CACalculatorInputs extends BaseCalculatorInputs {
   country: "CA";
-  province: "ON";
+  province: CanadaProvinceCode;
   contributions: CAContributionInputs;
 }
 
@@ -23,6 +24,9 @@ export interface CATaxBreakdown extends BaseTaxBreakdown {
   provincialIncomeTax: number;
   cpp: number;
   cpp2: number;
+  qpp: number;
+  qpp2: number;
+  qpip: number;
   ei: number;
 }
 
@@ -30,11 +34,12 @@ export interface CABreakdown {
   type: "CA";
   grossIncome: number;
   taxableIncome: number;
-  province: "ON";
+  province: CanadaProvinceCode;
   provinceName: string;
   federalBracketTaxes: Array<TaxBracket & { tax: number }>;
   provincialBracketTaxes: Array<TaxBracket & { tax: number }>;
-  cpp: {
+  pension: {
+    plan: "CPP" | "QPP";
     pensionableEarnings: number;
     employeeRate: number;
     maximumEmployeeContribution: number;
@@ -43,6 +48,11 @@ export interface CABreakdown {
     maximumSecondAdditionalEmployeeContribution: number;
   };
   ei: {
+    insurableEarnings: number;
+    employeeRate: number;
+    maximumEmployeePremium: number;
+  };
+  qpip?: {
     insurableEarnings: number;
     employeeRate: number;
     maximumEmployeePremium: number;

@@ -12,11 +12,20 @@ import {
   CANADA_CPP_2026,
   CANADA_EI_2026,
   CANADA_FEDERAL_TAX_BRACKETS_2026,
+  CANADA_PROVINCES,
+  CANADA_PROVINCIAL_TAX_BRACKETS_2026,
+  CANADA_QPP_2026,
   CANADA_RRSP_2026,
   CANADA_SOURCE_URLS,
-  ONTARIO_TAX_BRACKETS_2026,
+  QUEBEC_EI_2026,
+  QUEBEC_QPIP_2026,
 } from "./constants/tax-year-2026";
-import type { CABreakdown, CACalculatorInputs, CATaxBreakdown } from "./types";
+import type {
+  CABreakdown,
+  CACalculatorInputs,
+  CATaxBreakdown,
+} from "./types";
+import type { CanadaProvinceCode } from "./constants/tax-year-2026";
 
 function getPeriodsPerYear(frequency: PayFrequency): number {
   switch (frequency) {
@@ -42,8 +51,47 @@ function calculateProgressiveTax(income: number, brackets: TaxBracket[]) {
   return { totalTax: roundCurrency(totalTax), bracketTaxes };
 }
 
+function getProvince(province: CanadaProvinceCode) {
+  return CANADA_PROVINCES.find((candidate) => candidate.code === province) ?? CANADA_PROVINCES[8];
+}
+
+function calculatePension(grossSalary: number, province: CanadaProvinceCode) {
+  const isQuebec = province === "QC";
+  const plan = isQuebec ? CANADA_QPP_2026 : CANADA_CPP_2026;
+  const pensionableEarnings = Math.max(
+    0,
+    Math.min(grossSalary, plan.maximumPensionableEarnings) - plan.basicExemption,
+  );
+  const base = Math.min(
+    plan.maximumEmployeeContribution,
+    roundCurrency(pensionableEarnings * plan.employeeRate),
+  );
+  const additionalPensionableEarnings = Math.max(
+    0,
+    Math.min(grossSalary, plan.maximumAdditionalPensionableEarnings) -
+      plan.maximumPensionableEarnings,
+  );
+  const secondAdditional = Math.min(
+    plan.maximumSecondAdditionalEmployeeContribution,
+    roundCurrency(additionalPensionableEarnings * plan.secondAdditionalEmployeeRate),
+  );
+
+  return {
+    planName: isQuebec ? "QPP" as const : "CPP" as const,
+    base,
+    secondAdditional,
+    pensionableEarnings,
+    additionalPensionableEarnings,
+    employeeRate: plan.employeeRate,
+    maximumEmployeeContribution: plan.maximumEmployeeContribution,
+    secondAdditionalEmployeeRate: plan.secondAdditionalEmployeeRate,
+    maximumSecondAdditionalEmployeeContribution: plan.maximumSecondAdditionalEmployeeContribution,
+  };
+}
+
 export function calculateCA(inputs: CACalculatorInputs): CalculationResult {
   const grossSalary = Math.max(0, inputs.grossSalary);
+  const province = getProvince(inputs.province ?? "ON");
   const rrspContributionLimit = Math.min(
     grossSalary * CANADA_RRSP_2026.contributionRateLimit,
     CANADA_RRSP_2026.annualDollarLimit,
@@ -54,41 +102,40 @@ export function calculateCA(inputs: CACalculatorInputs): CalculationResult {
   );
   const taxableIncome = Math.max(0, grossSalary - rrspContribution);
   const federal = calculateProgressiveTax(taxableIncome, CANADA_FEDERAL_TAX_BRACKETS_2026);
-  const provincial = calculateProgressiveTax(taxableIncome, ONTARIO_TAX_BRACKETS_2026);
+  const provincial = calculateProgressiveTax(
+    taxableIncome,
+    CANADA_PROVINCIAL_TAX_BRACKETS_2026[province.code],
+  );
 
-  const pensionableEarnings = Math.max(
-    0,
-    Math.min(grossSalary, CANADA_CPP_2026.maximumPensionableEarnings) - CANADA_CPP_2026.basicExemption,
-  );
-  const cpp = Math.min(
-    CANADA_CPP_2026.maximumEmployeeContribution,
-    roundCurrency(pensionableEarnings * CANADA_CPP_2026.employeeRate),
-  );
-  const additionalPensionableEarnings = Math.max(
-    0,
-    Math.min(grossSalary, CANADA_CPP_2026.maximumAdditionalPensionableEarnings) -
-      CANADA_CPP_2026.maximumPensionableEarnings,
-  );
-  const cpp2 = Math.min(
-    CANADA_CPP_2026.maximumSecondAdditionalEmployeeContribution,
-    roundCurrency(additionalPensionableEarnings * CANADA_CPP_2026.secondAdditionalEmployeeRate),
-  );
-  const insurableEarnings = Math.min(grossSalary, CANADA_EI_2026.maximumInsurableEarnings);
+  const pension = calculatePension(grossSalary, province.code);
+  const eiConfig = province.code === "QC" ? QUEBEC_EI_2026 : CANADA_EI_2026;
+  const insurableEarnings = Math.min(grossSalary, eiConfig.maximumInsurableEarnings);
   const ei = Math.min(
-    CANADA_EI_2026.maximumEmployeePremium,
-    roundCurrency(insurableEarnings * CANADA_EI_2026.employeeRate),
+    eiConfig.maximumEmployeePremium,
+    roundCurrency(insurableEarnings * eiConfig.employeeRate),
   );
+  const qpipInsurableEarnings = Math.min(grossSalary, QUEBEC_QPIP_2026.maximumInsurableEarnings);
+  const qpip = province.code === "QC"
+    ? Math.min(
+        QUEBEC_QPIP_2026.maximumEmployeePremium,
+        roundCurrency(qpipInsurableEarnings * QUEBEC_QPIP_2026.employeeRate),
+      )
+    : 0;
 
   const taxes: CATaxBreakdown = {
     type: "CA",
     totalIncomeTax: federal.totalTax + provincial.totalTax,
     incomeTax: federal.totalTax,
     provincialIncomeTax: provincial.totalTax,
-    cpp,
-    cpp2,
+    cpp: province.code === "QC" ? 0 : pension.base,
+    cpp2: province.code === "QC" ? 0 : pension.secondAdditional,
+    qpp: province.code === "QC" ? pension.base : 0,
+    qpp2: province.code === "QC" ? pension.secondAdditional : 0,
+    qpip,
     ei,
   };
-  const totalTax = taxes.totalIncomeTax + cpp + cpp2 + ei;
+  const statutoryPayroll = pension.base + pension.secondAdditional + ei + qpip;
+  const totalTax = taxes.totalIncomeTax + statutoryPayroll;
   const voluntaryContributions = rrspContribution;
   const totalDeductions = totalTax + voluntaryContributions;
   const netSalary = grossSalary - totalDeductions;
@@ -99,34 +146,42 @@ export function calculateCA(inputs: CACalculatorInputs): CalculationResult {
     type: "CA",
     grossIncome: grossSalary,
     taxableIncome,
-    province: "ON",
-    provinceName: "Ontario",
+    province: province.code,
+    provinceName: province.name,
     federalBracketTaxes: federal.bracketTaxes,
     provincialBracketTaxes: provincial.bracketTaxes,
-    cpp: {
-      pensionableEarnings,
-      employeeRate: CANADA_CPP_2026.employeeRate,
-      maximumEmployeeContribution: CANADA_CPP_2026.maximumEmployeeContribution,
-      additionalPensionableEarnings,
-      secondAdditionalEmployeeRate: CANADA_CPP_2026.secondAdditionalEmployeeRate,
+    pension: {
+      plan: pension.planName,
+      pensionableEarnings: pension.pensionableEarnings,
+      employeeRate: pension.employeeRate,
+      maximumEmployeeContribution: pension.maximumEmployeeContribution,
+      additionalPensionableEarnings: pension.additionalPensionableEarnings,
+      secondAdditionalEmployeeRate: pension.secondAdditionalEmployeeRate,
       maximumSecondAdditionalEmployeeContribution:
-        CANADA_CPP_2026.maximumSecondAdditionalEmployeeContribution,
+        pension.maximumSecondAdditionalEmployeeContribution,
     },
     ei: {
       insurableEarnings,
-      employeeRate: CANADA_EI_2026.employeeRate,
-      maximumEmployeePremium: CANADA_EI_2026.maximumEmployeePremium,
+      employeeRate: eiConfig.employeeRate,
+      maximumEmployeePremium: eiConfig.maximumEmployeePremium,
     },
+    qpip: province.code === "QC" ? {
+      insurableEarnings: qpipInsurableEarnings,
+      employeeRate: QUEBEC_QPIP_2026.employeeRate,
+      maximumEmployeePremium: QUEBEC_QPIP_2026.maximumEmployeePremium,
+    } : undefined,
     voluntaryContributions: {
       rrspContribution,
       rrspContributionLimit,
       total: voluntaryContributions,
     },
     assumptions: [
-      "Uses 2026 federal and Ontario provincial tax brackets.",
-      "Models base CPP, second additional CPP, and federal EI employee contributions; Quebec-specific QPP/QPIP is not included.",
+      `Uses 2026 federal and ${province.name} provincial/territorial tax brackets.`,
+      province.code === "QC"
+        ? "Quebec uses QPP/QPP2, QPIP, and the reduced Quebec EI employee rate."
+        : "Models base CPP, second additional CPP, and federal EI employee contributions.",
       "Models RRSP contributions as taxable-income deductions; unused room and employer pension adjustments are not modeled.",
-      "Does not yet model non-refundable tax credits, surtaxes, provincial health premiums, or deductions beyond statutory payroll contributions and RRSP.",
+      "Province-specific credits, surtaxes, health premiums, and detailed payroll formulas are not yet modeled beyond listed brackets and statutory payroll contributions.",
     ],
     sourceUrls: CANADA_SOURCE_URLS,
   };
@@ -162,11 +217,25 @@ export const CACalculator: CountryCalculator = {
   },
 
   getRegions(): RegionInfo[] {
-    return [{ code: "ON", name: "Ontario" }];
+    return CANADA_PROVINCES.map((province) => ({
+      code: province.code,
+      name: province.name,
+      taxType: "progressive",
+      notes: province.code === "QC"
+        ? "Uses Quebec provincial brackets with QPP/QPP2, QPIP, and reduced EI."
+        : "Uses provincial/territorial brackets with CPP/CPP2 and EI.",
+    }));
   },
 
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      rrspContribution: {
+        limit: CANADA_RRSP_2026.annualDollarLimit,
+        name: "RRSP contribution",
+        description: "Modeled RRSP taxable-income deduction",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): CACalculatorInputs {

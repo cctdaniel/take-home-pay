@@ -21,16 +21,61 @@ export const MEXICO_ISR_BRACKETS_2026: MexicoIsrBracket[] = [
   { min: 4_717_314.24, max: Infinity, fixedFee: 1_479_422.98, rate: 0.35 },
 ];
 
+export const MEXICO_STATES = [
+  { code: "AGU", name: "Aguascalientes" },
+  { code: "BCN", name: "Baja California" },
+  { code: "BCS", name: "Baja California Sur" },
+  { code: "CAM", name: "Campeche" },
+  { code: "CHP", name: "Chiapas" },
+  { code: "CHH", name: "Chihuahua" },
+  { code: "CMX", name: "Ciudad de México" },
+  { code: "COA", name: "Coahuila" },
+  { code: "COL", name: "Colima" },
+  { code: "DUR", name: "Durango" },
+  { code: "GUA", name: "Guanajuato" },
+  { code: "GRO", name: "Guerrero" },
+  { code: "HID", name: "Hidalgo" },
+  { code: "JAL", name: "Jalisco" },
+  { code: "MEX", name: "Estado de México" },
+  { code: "MIC", name: "Michoacán" },
+  { code: "MOR", name: "Morelos" },
+  { code: "NAY", name: "Nayarit" },
+  { code: "NLE", name: "Nuevo León" },
+  { code: "OAX", name: "Oaxaca" },
+  { code: "PUE", name: "Puebla" },
+  { code: "QUE", name: "Querétaro" },
+  { code: "ROO", name: "Quintana Roo" },
+  { code: "SLP", name: "San Luis Potosí" },
+  { code: "SIN", name: "Sinaloa" },
+  { code: "SON", name: "Sonora" },
+  { code: "TAB", name: "Tabasco" },
+  { code: "TAM", name: "Tamaulipas" },
+  { code: "TLA", name: "Tlaxcala" },
+  { code: "VER", name: "Veracruz" },
+  { code: "YUC", name: "Yucatán" },
+  { code: "ZAC", name: "Zacatecas" },
+] as const;
+
+export type MexicoStateCode = (typeof MEXICO_STATES)[number]["code"];
+
 export const MEXICO_VOLUNTARY_RETIREMENT_2026 = {
   deductionRateLimit: 0.10,
   modeledAnnualCap: 206_367,
 };
 
-export const MEXICO_IMSS_EMPLOYEE_RATE_ESTIMATE = 0.024;
-export const MEXICO_IMSS_EMPLOYEE_RATE_NOTE =
-  "Estimated employee IMSS withholding placeholder; detailed SBC, UMA, and branch-specific caps are not yet modeled.";
+export const MEXICO_IMSS_2026 = {
+  dailyUma: 113.14,
+  capDailySbcMultiplierOfUma: 25,
+  excessOverThreeUmaRate: 0.004,
+  pensionerMedicalRate: 0.00375,
+  sicknessMaternityCashRate: 0.0025,
+  disabilityLifeRate: 0.00625,
+  oldAgeRetirementRate: 0.01125,
+};
 
 export const MEXICO_SOURCE_URLS = [
   "https://portalsat.com.mx/tablas-isr-2026/",
   "https://idconline.mx/fiscal-contable/2025/12/30/tablas-y-tarifas-isr-2026-nueva-actualizacion",
+  "https://www.diputados.gob.mx/LeyesBiblio/pdf/LSS.pdf",
+  "https://idconline.mx/seguridad-social/2025/01/13/factores-para-cuotas-y-aportaciones-2025",
 ];

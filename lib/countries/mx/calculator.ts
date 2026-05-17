@@ -8,13 +8,14 @@ import type {
 } from "../types";
 import { MX_CONFIG } from "./config";
 import {
-  MEXICO_IMSS_EMPLOYEE_RATE_ESTIMATE,
-  MEXICO_IMSS_EMPLOYEE_RATE_NOTE,
+  MEXICO_IMSS_2026,
   MEXICO_ISR_BRACKETS_2026,
   MEXICO_SOURCE_URLS,
+  MEXICO_STATES,
   MEXICO_VOLUNTARY_RETIREMENT_2026,
 } from "./constants/tax-year-2026";
 import type { MXBreakdown, MXCalculatorInputs, MXTaxBreakdown } from "./types";
+import type { MexicoStateCode } from "./constants/tax-year-2026";
 
 function getPeriodsPerYear(frequency: PayFrequency): number {
   switch (frequency) {
@@ -29,8 +30,48 @@ function roundCurrency(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
+function getState(state: MexicoStateCode) {
+  return MEXICO_STATES.find((candidate) => candidate.code === state) ?? MEXICO_STATES[6];
+}
+
+function calculateImss(grossSalary: number) {
+  const annualContributionDays = 365;
+  const dailySbc = grossSalary / annualContributionDays;
+  const cappedDailySbc = Math.min(
+    dailySbc,
+    MEXICO_IMSS_2026.dailyUma * MEXICO_IMSS_2026.capDailySbcMultiplierOfUma,
+  );
+  const base = cappedDailySbc * annualContributionDays;
+  const excessBase = Math.max(0, cappedDailySbc - 3 * MEXICO_IMSS_2026.dailyUma) * annualContributionDays;
+  const excessOverThreeUma = roundCurrency(excessBase * MEXICO_IMSS_2026.excessOverThreeUmaRate);
+  const pensionerMedical = roundCurrency(base * MEXICO_IMSS_2026.pensionerMedicalRate);
+  const sicknessMaternityCash = roundCurrency(base * MEXICO_IMSS_2026.sicknessMaternityCashRate);
+  const disabilityLife = roundCurrency(base * MEXICO_IMSS_2026.disabilityLifeRate);
+  const oldAgeRetirement = roundCurrency(base * MEXICO_IMSS_2026.oldAgeRetirementRate);
+  const total = roundCurrency(
+    excessOverThreeUma +
+      pensionerMedical +
+      sicknessMaternityCash +
+      disabilityLife +
+      oldAgeRetirement,
+  );
+
+  return {
+    dailySbc: roundCurrency(dailySbc),
+    cappedDailySbc: roundCurrency(cappedDailySbc),
+    annualContributionDays,
+    excessOverThreeUma,
+    pensionerMedical,
+    sicknessMaternityCash,
+    disabilityLife,
+    oldAgeRetirement,
+    total,
+  };
+}
+
 export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
   const grossSalary = Math.max(0, inputs.grossSalary);
+  const state = getState(inputs.state ?? "CMX");
   const voluntaryRetirementContributionLimit = Math.min(
     grossSalary * MEXICO_VOLUNTARY_RETIREMENT_2026.deductionRateLimit,
     MEXICO_VOLUNTARY_RETIREMENT_2026.modeledAnnualCap,
@@ -46,7 +87,8 @@ export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
     ) ?? MEXICO_ISR_BRACKETS_2026[0];
   const marginalTax = roundCurrency((taxableIncome - bracket.min) * bracket.rate);
   const incomeTax = roundCurrency(bracket.fixedFee + marginalTax);
-  const socialSecurity = roundCurrency(grossSalary * MEXICO_IMSS_EMPLOYEE_RATE_ESTIMATE);
+  const imss = calculateImss(grossSalary);
+  const socialSecurity = imss.total;
 
   const taxes: MXTaxBreakdown = {
     type: "MX",
@@ -65,10 +107,12 @@ export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
     type: "MX",
     grossIncome: grossSalary,
     taxableIncome,
+    state: state.code,
+    stateName: state.name,
     isrBracket: bracket,
     fixedFee: bracket.fixedFee,
     marginalTax,
-    socialSecurityRate: MEXICO_IMSS_EMPLOYEE_RATE_ESTIMATE,
+    imss,
     voluntaryContributions: {
       voluntaryRetirementContribution,
       voluntaryRetirementContributionLimit,
@@ -76,9 +120,10 @@ export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
     },
     assumptions: [
       "Uses the 2026 annual ISR tariff for resident salary income.",
-      MEXICO_IMSS_EMPLOYEE_RATE_NOTE,
+      "Employee IMSS is modeled with national employee-side branches and a daily SBC capped at 25x UMA; gross pay is used as the SBC proxy.",
+      "Mexican state payroll taxes (ISN) are generally employer-side taxes, so state selection is informational and does not reduce employee take-home pay.",
       "Models voluntary retirement savings as a personal deduction capped at 10% of income and a modeled annual cap; plan-specific rules are not modeled.",
-      "Does not yet model subsidies, exemptions, deductions beyond voluntary retirement, aguinaldo treatment, state payroll taxes, or detailed IMSS caps by salary base.",
+      "Does not yet model employment subsidy, exempt income, aguinaldo treatment, INFONAVIT loan repayments, or employer-only payroll costs.",
     ],
     sourceUrls: MEXICO_SOURCE_URLS,
   };
@@ -114,11 +159,23 @@ export const MXCalculator: CountryCalculator = {
   },
 
   getRegions(): RegionInfo[] {
-    return [];
+    return MEXICO_STATES.map((state) => ({
+      code: state.code,
+      name: state.name,
+      taxType: "none",
+      notes: "State payroll taxes are employer-side; modeled employee take-home uses federal ISR and national IMSS.",
+    }));
   },
 
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      voluntaryRetirementContribution: {
+        limit: MEXICO_VOLUNTARY_RETIREMENT_2026.modeledAnnualCap,
+        name: "Voluntary retirement savings",
+        description: "Modeled Mexico personal retirement deduction",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): MXCalculatorInputs {
@@ -126,6 +183,7 @@ export const MXCalculator: CountryCalculator = {
       country: "MX",
       grossSalary: 600_000,
       payFrequency: "monthly",
+      state: "CMX",
       contributions: {
         voluntaryRetirementContribution: 0,
       },

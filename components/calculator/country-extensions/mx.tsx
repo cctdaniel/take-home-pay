@@ -2,14 +2,22 @@
 
 import { ContributionSlider } from "@/components/ui/contribution-slider";
 import { InfoPanel } from "@/components/calculator/info-panel";
-import { PayFrequencyField } from "@/components/calculator/calculator-fields";
+import {
+  CalculatorFieldGrid,
+  PayFrequencyField,
+  SelectField,
+} from "@/components/calculator/calculator-fields";
 import {
   type CountryCalculatorExtensionProps,
   CountryCalculatorExtensionShell,
   useCountryCalculatorExtension,
 } from "@/components/calculator/country-extension";
-import { MEXICO_VOLUNTARY_RETIREMENT_2026 } from "@/lib/countries/mx/constants/tax-year-2026";
+import {
+  MEXICO_STATES,
+  MEXICO_VOLUNTARY_RETIREMENT_2026,
+} from "@/lib/countries/mx/constants/tax-year-2026";
 import type { MXCalculatorInputs } from "@/lib/countries/mx/types";
+import type { MexicoStateCode } from "@/lib/countries/mx/constants/tax-year-2026";
 import { formatCurrency } from "@/lib/format";
 
 function getRetirementLimit(grossSalary: number): number {
@@ -50,13 +58,28 @@ export default function MXCountryExtension({ country }: CountryCalculatorExtensi
       }
       result={result}
       taxOptions={
-        <PayFrequencyField
-          id="mx-pay-frequency"
-          value={inputs.payFrequency}
-          onChange={(payFrequency) =>
-            updateInputs((current) => ({ ...current, payFrequency }))
-          }
-        />
+        <CalculatorFieldGrid columns={2}>
+          <SelectField<MexicoStateCode>
+            id="mx-state"
+            label="State"
+            value={inputs.state}
+            onChange={(state) =>
+              updateInputs((current) => ({ ...current, state }))
+            }
+            options={MEXICO_STATES.map((state) => ({
+              value: state.code,
+              label: state.name,
+            }))}
+            description="State payroll taxes are employer-side, so this is informational for employee take-home."
+          />
+          <PayFrequencyField
+            id="mx-pay-frequency"
+            value={inputs.payFrequency}
+            onChange={(payFrequency) =>
+              updateInputs((current) => ({ ...current, payFrequency }))
+            }
+          />
+        </CalculatorFieldGrid>
       }
       contributions={
         <ContributionSlider
@@ -78,21 +101,21 @@ export default function MXCountryExtension({ country }: CountryCalculatorExtensi
       contributionsDescription="Modeled Mexico voluntary retirement deduction"
       infoCard={
         <InfoPanel title="Modeled Scope">
-          Uses the 2026 annual ISR tariff, estimated employee IMSS withholding, and
-          voluntary retirement savings capped at {formatCurrency(
+          Uses the 2026 annual ISR tariff, employee IMSS branches with SBC capped
+          at 25x UMA, and voluntary retirement savings capped at {formatCurrency(
             MEXICO_VOLUNTARY_RETIREMENT_2026.modeledAnnualCap,
             currency,
-          )} or 10% of gross income. Subsidies, exemptions, aguinaldo treatment,
-          state payroll taxes, and detailed IMSS caps are not modeled.
+          )} or 10% of gross income. State ISN payroll taxes are employer-side and
+          do not reduce modeled employee take-home pay.
         </InfoPanel>
       }
       seoInfo={
         <section className="mt-12 rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 text-sm text-zinc-400">
           <h2 className="text-xl font-semibold text-zinc-100 mb-3">Mexico salary after tax calculator</h2>
           <p>
-            Estimate Mexico take-home pay using the annual ISR tariff, estimated
-            employee IMSS withholding, and optional voluntary retirement savings.
-            This is a first-pass payroll model and does not replace payroll or tax advice.
+            Estimate Mexico take-home pay using the annual ISR tariff, employee-side
+            IMSS contributions, optional voluntary retirement savings, and state context
+            for employer-side payroll tax notes.
           </p>
         </section>
       }

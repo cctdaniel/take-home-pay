@@ -23,14 +23,17 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
+    state: defaultInputs.state,
     contributions: {
       voluntaryRetirementContribution,
     },
   };
   const result = calculateNetSalary(mxInputs);
+  const stateName = result.breakdown.type === "MX" ? result.breakdown.stateName : "selected state";
   const assumptions = [
-    "Resident salary employee for Mexico compare",
-    "Annual ISR tariff plus estimated employee IMSS placeholder modeled",
+    `${stateName} resident salary employee for Mexico compare`,
+    "Federal ISR plus national employee IMSS modeled",
+    "State payroll taxes are employer-side and do not reduce modeled employee take-home pay",
   ];
 
   if (voluntaryRetirementContribution > 0) {

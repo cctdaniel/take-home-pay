@@ -5,7 +5,7 @@ import type {
   CountrySpecificBreakdown,
   TaxBreakdown,
 } from "../types";
-import type { MexicoIsrBracket } from "./constants/tax-year-2026";
+import type { MexicoIsrBracket, MexicoStateCode } from "./constants/tax-year-2026";
 
 export interface MXContributionInputs {
   voluntaryRetirementContribution: number;
@@ -13,6 +13,7 @@ export interface MXContributionInputs {
 
 export interface MXCalculatorInputs extends BaseCalculatorInputs {
   country: "MX";
+  state: MexicoStateCode;
   contributions: MXContributionInputs;
 }
 
@@ -26,10 +27,22 @@ export interface MXBreakdown {
   type: "MX";
   grossIncome: number;
   taxableIncome: number;
+  state: MexicoStateCode;
+  stateName: string;
   isrBracket: MexicoIsrBracket;
   fixedFee: number;
   marginalTax: number;
-  socialSecurityRate: number;
+  imss: {
+    dailySbc: number;
+    cappedDailySbc: number;
+    annualContributionDays: number;
+    excessOverThreeUma: number;
+    pensionerMedical: number;
+    sicknessMaternityCash: number;
+    disabilityLife: number;
+    oldAgeRetirement: number;
+    total: number;
+  };
   voluntaryContributions: {
     voluntaryRetirementContribution: number;
     voluntaryRetirementContributionLimit: number;

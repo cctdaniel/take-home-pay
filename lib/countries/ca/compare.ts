@@ -23,15 +23,16 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
-    province: "ON",
+    province: defaultInputs.province,
     contributions: {
       rrspContribution,
     },
   };
   const result = calculateNetSalary(caInputs);
+  const provinceName = result.breakdown.type === "CA" ? result.breakdown.provinceName : "selected province";
   const assumptions = [
-    "Ontario resident employee for first Canada rollout",
-    "Federal + Ontario brackets, CPP, CPP2, and EI modeled",
+    `${provinceName} resident employee for Canada compare`,
+    "Federal + selected provincial/territorial brackets and statutory payroll contributions modeled",
   ];
 
   if (rrspContribution > 0) {
