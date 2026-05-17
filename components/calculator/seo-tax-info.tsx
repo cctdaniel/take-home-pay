@@ -1,4 +1,5 @@
 import type { CountryCode } from "@/lib/countries/types";
+import { getCountryConfig } from "@/lib/countries/registry";
 
 interface SEOTaxInfoProps {
   country: CountryCode;
@@ -10,6 +11,26 @@ interface SEOTaxInfoProps {
  * Each country page renders only its relevant content for better SEO.
  */
 export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
+  const hasCountrySpecificTaxInfo = [
+    "US",
+    "SG",
+    "KR",
+    "NL",
+    "DE",
+    "ES",
+    "GR",
+    "AU",
+    "PT",
+    "TH",
+    "HK",
+    "ID",
+    "MY",
+    "TW",
+    "UK",
+    "CA",
+    "MX",
+  ].includes(country);
+
   return (
     <section className="mt-16 max-w-3xl">
       <h2 className="text-xl font-semibold text-zinc-200 mb-4">
@@ -33,8 +54,59 @@ export function SEOTaxInfo({ country }: SEOTaxInfoProps) {
         {country === "UK" && <UKTaxInfo />}
         {country === "CA" && <CATaxInfo />}
         {country === "MX" && <MXTaxInfo />}
+        {!hasCountrySpecificTaxInfo && <GenericCountryTaxInfo country={country} />}
       </div>
     </section>
+  );
+}
+
+function GenericCountryTaxInfo({ country }: SEOTaxInfoProps) {
+  const config = getCountryConfig(country);
+
+  return (
+    <div>
+      <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">
+        {config.name}
+      </h3>
+      <p className="text-zinc-400 text-sm mb-3">
+        This calculator estimates {config.name} take-home pay by converting the
+        entered salary to an annual amount, applying the country&apos;s modeled
+        income tax, mandatory payroll or social insurance deductions, and any
+        supported local salary deductions, then converting the result back to the
+        selected pay frequency.
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Calculation Formula
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        Gross Salary − Modeled Taxable Deductions = Taxable Income
+        <br />
+        Taxable Income × Country Tax Rules = Income Tax
+        <br />
+        Income Tax + Mandatory Payroll / Social Insurance = Total Deductions
+        <br />
+        Gross Salary − Total Deductions − Voluntary Contributions = Net Salary
+      </p>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        What&apos;s Included
+      </h4>
+      <ul className="text-zinc-400 space-y-1 mt-2 list-disc list-inside text-sm">
+        <li>Country-specific salary tax rules from the active calculator module.</li>
+        <li>Mandatory employee-side payroll or social insurance deductions where modeled.</li>
+        <li>Supported regional, residency, contribution, and deduction inputs shown on this page.</li>
+      </ul>
+
+      <h4 className="text-md font-medium text-zinc-300 mt-4 mb-2">
+        Limitations
+      </h4>
+      <p className="text-zinc-400 text-sm">
+        This is an estimate for employment salary. Actual payroll withholding can
+        vary based on employer setup, local registrations, tax credits, family
+        circumstances, non-salary income, and year-end adjustments.
+      </p>
+    </div>
   );
 }
 
