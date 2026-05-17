@@ -251,7 +251,7 @@ export function calculateNZ(inputs: NZCalculatorInputs): CalculationResult {
     ],
     sourceUrls: [
       "https://www.ird.govt.nz/en/income-tax/income-tax-for-individuals/tax-codes-and-tax-rates-for-individuals/tax-rates-for-individuals",
-      "https://www.ird.govt.nz/%20income-tax/%20income-tax-for-individuals/acc-clients-and-carers/acc-earners-levy-rates",
+      "https://www.ird.govt.nz/acclevy",
       "https://www.ird.govt.nz/kiwisaver/kiwisaver-individuals/employee-contributions",
       "https://www.ird.govt.nz/kiwisaver/kiwisaver-for-employers/contributions-and-deductions/employer-contributions-to-kiwisaver-and-complying-funds",
       "https://www.ird.govt.nz/ietc",

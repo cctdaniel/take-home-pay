@@ -5,7 +5,7 @@ import type { TaxBracket } from "../../types";
 // - IRD individual rates from 1 April 2025:
 //   https://www.ird.govt.nz/en/income-tax/income-tax-for-individuals/tax-codes-and-tax-rates-for-individuals/tax-rates-for-individuals
 // - IRD ACC earners' levy rates, including GST:
-//   https://www.ird.govt.nz/%20income-tax/%20income-tax-for-individuals/acc-clients-and-carers/acc-earners-levy-rates
+//   https://www.ird.govt.nz/acclevy
 // - IRD KiwiSaver employee and employer contribution pages:
 //   https://www.ird.govt.nz/kiwisaver/kiwisaver-individuals/employee-contributions
 //   https://www.ird.govt.nz/kiwisaver/kiwisaver-for-employers/contributions-and-deductions/employer-contributions-to-kiwisaver-and-complying-funds
