@@ -101,6 +101,7 @@ interface CountryCalculatorExtensionShellProps {
   contributionsDescription?: string;
   infoCard?: ReactNode;
   seoInfo?: ReactNode;
+  hideDefaultSeoTaxInfo?: boolean;
 }
 
 export function CountryCalculatorExtensionShell({
@@ -115,6 +116,7 @@ export function CountryCalculatorExtensionShell({
   contributionsDescription = "Optional tax-saving contributions",
   infoCard,
   seoInfo,
+  hideDefaultSeoTaxInfo = false,
 }: CountryCalculatorExtensionShellProps) {
   return (
     <>
@@ -166,7 +168,7 @@ export function CountryCalculatorExtensionShell({
 
       {seoInfo}
 
-      <SEOTaxInfo country={country} />
+      {!hideDefaultSeoTaxInfo && <SEOTaxInfo country={country} />}
     </>
   );
 }

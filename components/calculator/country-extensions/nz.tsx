@@ -159,6 +159,54 @@ function NZContributionOptions({
   );
 }
 
+function NZTaxInfo() {
+  return (
+    <section className="mt-16 max-w-3xl">
+      <h2 className="text-xl font-semibold text-zinc-200 mb-4">
+        How Your Take Home Pay Is Calculated
+      </h2>
+      <div className="prose prose-invert prose-zinc prose-sm">
+        <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">
+          New Zealand
+        </h3>
+        <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+          <li>
+            <strong className="text-zinc-300">PAYE Income Tax</strong> –
+            salary is taxed with New Zealand&apos;s progressive individual
+            income tax bands.
+          </li>
+          <li>
+            <strong className="text-zinc-300">ACC Earners Levy</strong> – the
+            employee earners levy is added up to the annual liable earnings cap.
+          </li>
+          <li>
+            <strong className="text-zinc-300">Student Loan</strong> – when
+            selected, repayment is modeled at 12% of income above the annual
+            repayment threshold.
+          </li>
+          <li>
+            <strong className="text-zinc-300">KiwiSaver</strong> – employee
+            KiwiSaver deductions reduce take-home pay but do not reduce taxable
+            income; employer KiwiSaver is shown for context before ESCT.
+          </li>
+          <li>
+            <strong className="text-zinc-300">Tax Credits</strong> – the
+            Independent Earner Tax Credit and payroll-giving donation credits
+            reduce income tax where the calculator inputs make them applicable.
+          </li>
+        </ul>
+        <p className="text-zinc-400 text-sm mt-3">
+          Estimated net salary is gross salary minus income tax after modeled
+          credits, ACC earners levy, student loan repayments, KiwiSaver employee
+          deductions, and payroll-giving donations. The model excludes Working
+          for Families, benefits, paid parental leave, secondary tax codes,
+          tailored tax codes, ESCT calculations, and non-salary income.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 export default function NZCountryExtension({
   country,
 }: CountryCalculatorExtensionProps) {
@@ -246,6 +294,8 @@ export default function NZCountryExtension({
           salary.
         </InfoPanel>
       }
+      seoInfo={<NZTaxInfo />}
+      hideDefaultSeoTaxInfo
     />
   );
 }
