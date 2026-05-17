@@ -20,6 +20,7 @@ export interface CATaxBreakdown extends BaseTaxBreakdown {
   incomeTax: number;
   provincialIncomeTax: number;
   cpp: number;
+  cpp2: number;
   ei: number;
 }
 
@@ -35,6 +36,9 @@ export interface CABreakdown {
     pensionableEarnings: number;
     employeeRate: number;
     maximumEmployeeContribution: number;
+    additionalPensionableEarnings: number;
+    secondAdditionalEmployeeRate: number;
+    maximumSecondAdditionalEmployeeContribution: number;
   };
   ei: {
     insurableEarnings: number;

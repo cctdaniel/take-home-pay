@@ -21,9 +21,12 @@ export const ONTARIO_TAX_BRACKETS_2026: TaxBracket[] = [
 
 export const CANADA_CPP_2026 = {
   maximumPensionableEarnings: 74_600,
+  maximumAdditionalPensionableEarnings: 85_000,
   basicExemption: 3_500,
   employeeRate: 0.0595,
+  secondAdditionalEmployeeRate: 0.04,
   maximumEmployeeContribution: 4_230.45,
+  maximumSecondAdditionalEmployeeContribution: 416,
 };
 
 export const CANADA_EI_2026 = {

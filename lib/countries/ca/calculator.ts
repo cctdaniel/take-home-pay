@@ -55,6 +55,15 @@ export function calculateCA(inputs: CACalculatorInputs): CalculationResult {
     CANADA_CPP_2026.maximumEmployeeContribution,
     roundCurrency(pensionableEarnings * CANADA_CPP_2026.employeeRate),
   );
+  const additionalPensionableEarnings = Math.max(
+    0,
+    Math.min(grossSalary, CANADA_CPP_2026.maximumAdditionalPensionableEarnings) -
+      CANADA_CPP_2026.maximumPensionableEarnings,
+  );
+  const cpp2 = Math.min(
+    CANADA_CPP_2026.maximumSecondAdditionalEmployeeContribution,
+    roundCurrency(additionalPensionableEarnings * CANADA_CPP_2026.secondAdditionalEmployeeRate),
+  );
   const insurableEarnings = Math.min(grossSalary, CANADA_EI_2026.maximumInsurableEarnings);
   const ei = Math.min(
     CANADA_EI_2026.maximumEmployeePremium,
@@ -67,9 +76,10 @@ export function calculateCA(inputs: CACalculatorInputs): CalculationResult {
     incomeTax: federal.totalTax,
     provincialIncomeTax: provincial.totalTax,
     cpp,
+    cpp2,
     ei,
   };
-  const totalTax = taxes.totalIncomeTax + cpp + ei;
+  const totalTax = taxes.totalIncomeTax + cpp + cpp2 + ei;
   const totalDeductions = totalTax;
   const netSalary = grossSalary - totalDeductions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
@@ -87,6 +97,10 @@ export function calculateCA(inputs: CACalculatorInputs): CalculationResult {
       pensionableEarnings,
       employeeRate: CANADA_CPP_2026.employeeRate,
       maximumEmployeeContribution: CANADA_CPP_2026.maximumEmployeeContribution,
+      additionalPensionableEarnings,
+      secondAdditionalEmployeeRate: CANADA_CPP_2026.secondAdditionalEmployeeRate,
+      maximumSecondAdditionalEmployeeContribution:
+        CANADA_CPP_2026.maximumSecondAdditionalEmployeeContribution,
     },
     ei: {
       insurableEarnings,
@@ -95,7 +109,7 @@ export function calculateCA(inputs: CACalculatorInputs): CalculationResult {
     },
     assumptions: [
       "Uses 2026 federal and Ontario provincial tax brackets.",
-      "Models CPP and federal EI employee contributions; Quebec-specific QPP/QPIP is not included.",
+      "Models base CPP, second additional CPP, and federal EI employee contributions; Quebec-specific QPP/QPIP is not included.",
       "Does not yet model non-refundable tax credits, surtaxes, provincial health premiums, or deductions beyond statutory payroll contributions.",
     ],
     sourceUrls: CANADA_SOURCE_URLS,
