@@ -11,6 +11,7 @@ const COUNTRY_DESCRIPTIONS: Partial<Record<CountryCode, string>> = {
   KR: `Free ${TAX_YEAR} take home pay calculator for South Korea. Calculate your salary after taxes including income tax, local tax, national pension, health insurance, and employment insurance.`,
   NL: `Free ${TAX_YEAR} take home pay calculator for the Netherlands. Calculate your salary after taxes including income tax, national insurance, and the 30% ruling for expats.`,
   AU: `Free ${TAX_YEAR} take home pay calculator for Australia. Calculate your salary after taxes including income tax (Stage 3 cuts), Medicare levy, Medicare levy surcharge, Division 293 tax (high income earners), LITO, and superannuation.`,
+  NZ: `Free 2026/27 take home pay calculator for New Zealand. Calculate your salary after PAYE income tax, ACC earners levy, student loan repayments, KiwiSaver deductions, Independent Earner Tax Credit, and payroll giving donation credits.`,
   PT: `Free ${TAX_YEAR} take home pay calculator for Portugal. Calculate your salary after taxes including IRS income tax, Social Security contributions (Segurança Social), and solidarity surcharge for high incomes.`,
   TH: `Free ${TAX_YEAR} take home pay calculator for Thailand. Calculate your salary after taxes including personal income tax (progressive rates 0-35%), Social Security Fund contributions, and tax-saving options like Provident Fund, RMF, SSF, and ESG funds.`,
   HK: `Free ${TAX_YEAR} take home pay calculator for Hong Kong. Calculate your salary after salaries tax, MPF contributions, and key allowances and deductions.`,
@@ -71,6 +72,18 @@ const COUNTRY_KEYWORDS: Partial<Record<CountryCode, string[]>> = {
     "lito calculator",
     "division 293 tax calculator",
     "high income super tax",
+  ],
+  NZ: [
+    "new zealand take home pay calculator",
+    "new zealand salary after tax",
+    "nz paye calculator",
+    "nz salary calculator",
+    "2026 nz tax calculator",
+    "new zealand paycheck calculator",
+    "acc earners levy calculator",
+    "kiwisaver deduction calculator",
+    "student loan repayment nz",
+    "independent earner tax credit calculator",
   ],
   NL: [
     "netherlands take home pay calculator",
@@ -299,6 +312,11 @@ const COUNTRY_HEADER_INFO: Partial<Record<
     tagline: "Calculate your actual salary after taxes in Australia.",
     details:
       "Income tax (Stage 3 cuts), LITO, Medicare levy, Medicare levy surcharge, Division 293 tax, superannuation",
+  },
+  NZ: {
+    tagline: "Calculate your actual salary after taxes in New Zealand.",
+    details:
+      "PAYE income tax, ACC earners levy, student loans, KiwiSaver, IETC, and payroll giving donation credits",
   },
   NL: {
     tagline: "Calculate your actual salary after taxes in the Netherlands.",

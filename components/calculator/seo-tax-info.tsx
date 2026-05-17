@@ -1752,4 +1752,3 @@ function MXTaxInfo() {
     </div>
   );
 }
-

@@ -17,6 +17,7 @@ import { buildCountryComparison as JPCountryComparisonAdapter } from "@/lib/coun
 import { buildCountryComparison as MTCountryComparisonAdapter } from "@/lib/countries/mt/compare";
 import { buildCountryComparison as MXCountryComparisonAdapter } from "@/lib/countries/mx/compare";
 import { buildCountryComparison as NOCountryComparisonAdapter } from "@/lib/countries/no/compare";
+import { buildCountryComparison as NZCountryComparisonAdapter } from "@/lib/countries/nz/compare";
 import { buildCountryComparison as PHCountryComparisonAdapter } from "@/lib/countries/ph/compare";
 import { buildCountryComparison as SECountryComparisonAdapter } from "@/lib/countries/se/compare";
 import { buildCountryComparison as VNCountryComparisonAdapter } from "@/lib/countries/vn/compare";
@@ -40,6 +41,7 @@ export const COUNTRY_COMPARISON_ADAPTERS: Partial<
   MT: MTCountryComparisonAdapter,
   MX: MXCountryComparisonAdapter,
   NO: NOCountryComparisonAdapter,
+  NZ: NZCountryComparisonAdapter,
   PH: PHCountryComparisonAdapter,
   SE: SECountryComparisonAdapter,
   VN: VNCountryComparisonAdapter,
