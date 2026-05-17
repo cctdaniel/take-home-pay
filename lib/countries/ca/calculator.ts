@@ -12,9 +12,11 @@ import {
   CANADA_CPP_2026,
   CANADA_EI_2026,
   CANADA_FEDERAL_TAX_BRACKETS_2026,
+  CANADA_FHSA_2026,
   CANADA_PROVINCES,
   CANADA_PROVINCIAL_TAX_BRACKETS_2026,
   CANADA_QPP_2026,
+  CANADA_RPP_2026,
   CANADA_RRSP_2026,
   CANADA_SOURCE_URLS,
   QUEBEC_EI_2026,
@@ -38,6 +40,10 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
 
 function roundCurrency(value: number): number {
   return Math.round(value * 100) / 100;
+}
+
+function clampContribution(value: number | undefined, limit: number): number {
+  return Math.min(Math.max(0, value ?? 0), Math.max(0, limit));
 }
 
 function calculateProgressiveTax(income: number, brackets: TaxBracket[]) {
@@ -96,11 +102,31 @@ export function calculateCA(inputs: CACalculatorInputs): CalculationResult {
     grossSalary * CANADA_RRSP_2026.contributionRateLimit,
     CANADA_RRSP_2026.annualDollarLimit,
   );
-  const rrspContribution = Math.min(
-    Math.max(0, inputs.contributions?.rrspContribution ?? 0),
+  const registeredPensionContributionLimit = Math.min(
+    grossSalary * CANADA_RPP_2026.modeledContributionRateLimit,
+    CANADA_RPP_2026.moneyPurchaseDollarLimit,
+  );
+  const rrspContribution = clampContribution(
+    inputs.contributions?.rrspContribution,
     rrspContributionLimit,
   );
-  const taxableIncome = Math.max(0, grossSalary - rrspContribution);
+  const fhsaContribution = clampContribution(
+    inputs.contributions?.fhsaContribution,
+    CANADA_FHSA_2026.annualDollarLimit,
+  );
+  const registeredPensionContribution = clampContribution(
+    inputs.contributions?.registeredPensionContribution,
+    registeredPensionContributionLimit,
+  );
+  const unionDues = Math.max(0, inputs.contributions?.unionDues ?? 0);
+  const childcareExpenses = Math.max(0, inputs.contributions?.childcareExpenses ?? 0);
+  const preTaxDeductions =
+    rrspContribution +
+    fhsaContribution +
+    registeredPensionContribution +
+    unionDues +
+    childcareExpenses;
+  const taxableIncome = Math.max(0, grossSalary - preTaxDeductions);
   const federal = calculateProgressiveTax(taxableIncome, CANADA_FEDERAL_TAX_BRACKETS_2026);
   const provincial = calculateProgressiveTax(
     taxableIncome,
@@ -136,7 +162,7 @@ export function calculateCA(inputs: CACalculatorInputs): CalculationResult {
   };
   const statutoryPayroll = pension.base + pension.secondAdditional + ei + qpip;
   const totalTax = taxes.totalIncomeTax + statutoryPayroll;
-  const voluntaryContributions = rrspContribution;
+  const voluntaryContributions = preTaxDeductions;
   const totalDeductions = totalTax + voluntaryContributions;
   const netSalary = grossSalary - totalDeductions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
@@ -173,6 +199,12 @@ export function calculateCA(inputs: CACalculatorInputs): CalculationResult {
     voluntaryContributions: {
       rrspContribution,
       rrspContributionLimit,
+      fhsaContribution,
+      fhsaContributionLimit: CANADA_FHSA_2026.annualDollarLimit,
+      registeredPensionContribution,
+      registeredPensionContributionLimit,
+      unionDues,
+      childcareExpenses,
       total: voluntaryContributions,
     },
     assumptions: [
@@ -180,8 +212,8 @@ export function calculateCA(inputs: CACalculatorInputs): CalculationResult {
       province.code === "QC"
         ? "Quebec uses QPP/QPP2, QPIP, and the reduced Quebec EI employee rate."
         : "Models base CPP, second additional CPP, and federal EI employee contributions.",
-      "Models RRSP contributions as taxable-income deductions; unused room and employer pension adjustments are not modeled.",
-      "Province-specific credits, surtaxes, health premiums, and detailed payroll formulas are not yet modeled beyond listed brackets and statutory payroll contributions.",
+      "Models RRSP, FHSA, registered pension plan contributions, union dues, and childcare expenses as taxable-income deductions.",
+      "Canada does not have US-style married filing brackets; spouse/dependent credits and detailed benefit programs are not modeled in this payroll view.",
     ],
     sourceUrls: CANADA_SOURCE_URLS,
   };
@@ -235,6 +267,30 @@ export const CACalculator: CountryCalculator = {
         description: "Modeled RRSP taxable-income deduction",
         preTax: true,
       },
+      fhsaContribution: {
+        limit: CANADA_FHSA_2026.annualDollarLimit,
+        name: "FHSA contribution",
+        description: "Modeled FHSA taxable-income deduction",
+        preTax: true,
+      },
+      registeredPensionContribution: {
+        limit: CANADA_RPP_2026.moneyPurchaseDollarLimit,
+        name: "Registered pension contribution",
+        description: "Modeled registered pension/RPP taxable-income deduction",
+        preTax: true,
+      },
+      unionDues: {
+        limit: Number.POSITIVE_INFINITY,
+        name: "Union/professional dues",
+        description: "Modeled taxable-income deduction",
+        preTax: true,
+      },
+      childcareExpenses: {
+        limit: Number.POSITIVE_INFINITY,
+        name: "Childcare expenses",
+        description: "Modeled taxable-income deduction",
+        preTax: true,
+      },
     };
   },
 
@@ -246,6 +302,10 @@ export const CACalculator: CountryCalculator = {
       province: "ON",
       contributions: {
         rrspContribution: 0,
+        fhsaContribution: 0,
+        registeredPensionContribution: 0,
+        unionDues: 0,
+        childcareExpenses: 0,
       },
     };
   },

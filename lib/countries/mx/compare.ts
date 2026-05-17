@@ -25,6 +25,7 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     payFrequency,
     state: defaultInputs.state,
     contributions: {
+      ...defaultInputs.contributions,
       voluntaryRetirementContribution,
     },
   };

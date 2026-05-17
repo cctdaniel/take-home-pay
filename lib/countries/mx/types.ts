@@ -9,6 +9,10 @@ import type { MexicoIsrBracket, MexicoStateCode } from "./constants/tax-year-202
 
 export interface MXContributionInputs {
   voluntaryRetirementContribution: number;
+  medicalDentalExpenses: number;
+  funeralExpenses: number;
+  mortgageInterest: number;
+  educationExpenses: number;
 }
 
 export interface MXCalculatorInputs extends BaseCalculatorInputs {
@@ -46,6 +50,12 @@ export interface MXBreakdown {
   voluntaryContributions: {
     voluntaryRetirementContribution: number;
     voluntaryRetirementContributionLimit: number;
+    medicalDentalExpenses: number;
+    funeralExpenses: number;
+    mortgageInterest: number;
+    educationExpenses: number;
+    generalPersonalDeductionLimit: number;
+    educationDeductionLimit: number;
     total: number;
   };
   assumptions: string[];

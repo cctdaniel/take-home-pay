@@ -25,6 +25,7 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     payFrequency,
     province: defaultInputs.province,
     contributions: {
+      ...defaultInputs.contributions,
       rrspContribution,
     },
   };

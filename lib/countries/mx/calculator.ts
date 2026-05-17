@@ -10,6 +10,7 @@ import { MX_CONFIG } from "./config";
 import {
   MEXICO_IMSS_2026,
   MEXICO_ISR_BRACKETS_2026,
+  MEXICO_PERSONAL_DEDUCTIONS_2026,
   MEXICO_SOURCE_URLS,
   MEXICO_STATES,
   MEXICO_VOLUNTARY_RETIREMENT_2026,
@@ -28,6 +29,10 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
 
 function roundCurrency(value: number): number {
   return Math.round(value * 100) / 100;
+}
+
+function clampContribution(value: number | undefined, limit: number): number {
+  return Math.min(Math.max(0, value ?? 0), Math.max(0, limit));
 }
 
 function getState(state: MexicoStateCode) {
@@ -76,11 +81,28 @@ export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
     grossSalary * MEXICO_VOLUNTARY_RETIREMENT_2026.deductionRateLimit,
     MEXICO_VOLUNTARY_RETIREMENT_2026.modeledAnnualCap,
   );
-  const voluntaryRetirementContribution = Math.min(
-    Math.max(0, inputs.contributions?.voluntaryRetirementContribution ?? 0),
+  const voluntaryRetirementContribution = clampContribution(
+    inputs.contributions?.voluntaryRetirementContribution,
     voluntaryRetirementContributionLimit,
   );
-  const taxableIncome = Math.max(0, grossSalary - voluntaryRetirementContribution);
+  const generalPersonalDeductionLimit = Math.min(
+    grossSalary * MEXICO_PERSONAL_DEDUCTIONS_2026.generalDeductionRateLimit,
+    MEXICO_PERSONAL_DEDUCTIONS_2026.modeledGeneralDeductionCap,
+  );
+  const medicalDentalExpenses = Math.max(0, inputs.contributions?.medicalDentalExpenses ?? 0);
+  const funeralExpenses = Math.max(0, inputs.contributions?.funeralExpenses ?? 0);
+  const mortgageInterest = Math.max(0, inputs.contributions?.mortgageInterest ?? 0);
+  const generalPersonalDeductions = Math.min(
+    medicalDentalExpenses + funeralExpenses + mortgageInterest,
+    generalPersonalDeductionLimit,
+  );
+  const educationExpenses = clampContribution(
+    inputs.contributions?.educationExpenses,
+    MEXICO_PERSONAL_DEDUCTIONS_2026.educationDeductionCap,
+  );
+  const totalPersonalDeductions =
+    voluntaryRetirementContribution + generalPersonalDeductions + educationExpenses;
+  const taxableIncome = Math.max(0, grossSalary - totalPersonalDeductions);
   const bracket =
     MEXICO_ISR_BRACKETS_2026.find(
       (candidate) => taxableIncome > candidate.min && taxableIncome <= candidate.max,
@@ -97,7 +119,7 @@ export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
     socialSecurity,
   };
   const totalTax = incomeTax + socialSecurity;
-  const voluntaryContributions = voluntaryRetirementContribution;
+  const voluntaryContributions = totalPersonalDeductions;
   const totalDeductions = totalTax + voluntaryContributions;
   const netSalary = grossSalary - totalDeductions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
@@ -116,13 +138,19 @@ export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
     voluntaryContributions: {
       voluntaryRetirementContribution,
       voluntaryRetirementContributionLimit,
+      medicalDentalExpenses,
+      funeralExpenses,
+      mortgageInterest,
+      educationExpenses,
+      generalPersonalDeductionLimit,
+      educationDeductionLimit: MEXICO_PERSONAL_DEDUCTIONS_2026.educationDeductionCap,
       total: voluntaryContributions,
     },
     assumptions: [
       "Uses the 2026 annual ISR tariff for resident salary income.",
       "Employee IMSS is modeled with national employee-side branches and a daily SBC capped at 25x UMA; gross pay is used as the SBC proxy.",
+      "Models AFORE/voluntary retirement, medical/dental, funeral, mortgage-interest, and education deductions within simplified annual caps.",
       "Mexican state payroll taxes (ISN) are generally employer-side taxes, so state selection is informational and does not reduce employee take-home pay.",
-      "Models voluntary retirement savings as a personal deduction capped at 10% of income and a modeled annual cap; plan-specific rules are not modeled.",
       "Does not yet model employment subsidy, exempt income, aguinaldo treatment, INFONAVIT loan repayments, or employer-only payroll costs.",
     ],
     sourceUrls: MEXICO_SOURCE_URLS,
@@ -171,8 +199,32 @@ export const MXCalculator: CountryCalculator = {
     return {
       voluntaryRetirementContribution: {
         limit: MEXICO_VOLUNTARY_RETIREMENT_2026.modeledAnnualCap,
-        name: "Voluntary retirement savings",
+        name: "AFORE / voluntary retirement savings",
         description: "Modeled Mexico personal retirement deduction",
+        preTax: true,
+      },
+      medicalDentalExpenses: {
+        limit: MEXICO_PERSONAL_DEDUCTIONS_2026.modeledGeneralDeductionCap,
+        name: "Medical and dental expenses",
+        description: "Modeled personal deduction subject to annual cap",
+        preTax: true,
+      },
+      funeralExpenses: {
+        limit: MEXICO_PERSONAL_DEDUCTIONS_2026.modeledGeneralDeductionCap,
+        name: "Funeral expenses",
+        description: "Modeled personal deduction subject to annual cap",
+        preTax: true,
+      },
+      mortgageInterest: {
+        limit: MEXICO_PERSONAL_DEDUCTIONS_2026.modeledGeneralDeductionCap,
+        name: "Mortgage interest",
+        description: "Modeled personal deduction subject to annual cap",
+        preTax: true,
+      },
+      educationExpenses: {
+        limit: MEXICO_PERSONAL_DEDUCTIONS_2026.educationDeductionCap,
+        name: "Education expenses",
+        description: "Modeled education deduction cap",
         preTax: true,
       },
     };
@@ -186,6 +238,10 @@ export const MXCalculator: CountryCalculator = {
       state: "CMX",
       contributions: {
         voluntaryRetirementContribution: 0,
+        medicalDentalExpenses: 0,
+        funeralExpenses: 0,
+        mortgageInterest: 0,
+        educationExpenses: 0,
       },
     };
   },

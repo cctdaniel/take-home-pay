@@ -10,6 +10,10 @@ import type { CanadaProvinceCode } from "./constants/tax-year-2026";
 
 export interface CAContributionInputs {
   rrspContribution: number;
+  fhsaContribution: number;
+  registeredPensionContribution: number;
+  unionDues: number;
+  childcareExpenses: number;
 }
 
 export interface CACalculatorInputs extends BaseCalculatorInputs {
@@ -60,6 +64,12 @@ export interface CABreakdown {
   voluntaryContributions: {
     rrspContribution: number;
     rrspContributionLimit: number;
+    fhsaContribution: number;
+    fhsaContributionLimit: number;
+    registeredPensionContribution: number;
+    registeredPensionContributionLimit: number;
+    unionDues: number;
+    childcareExpenses: number;
     total: number;
   };
   assumptions: string[];

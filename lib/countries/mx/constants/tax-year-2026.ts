@@ -63,6 +63,12 @@ export const MEXICO_VOLUNTARY_RETIREMENT_2026 = {
   modeledAnnualCap: 206_367,
 };
 
+export const MEXICO_PERSONAL_DEDUCTIONS_2026 = {
+  generalDeductionRateLimit: 0.15,
+  modeledGeneralDeductionCap: 206_367,
+  educationDeductionCap: 24_500,
+};
+
 export const MEXICO_IMSS_2026 = {
   dailyUma: 113.14,
   capDailySbcMultiplierOfUma: 25,

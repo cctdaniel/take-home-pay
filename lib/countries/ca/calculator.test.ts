@@ -9,7 +9,13 @@ function createInputs(overrides: Partial<CACalculatorInputs> = {}): CACalculator
     grossSalary: 90_000,
     payFrequency: "annual",
     province: "ON",
-    contributions: { rrspContribution: 0 },
+    contributions: {
+      rrspContribution: 0,
+      fhsaContribution: 0,
+      registeredPensionContribution: 0,
+      unionDues: 0,
+      childcareExpenses: 0,
+    },
     ...overrides,
   };
 }

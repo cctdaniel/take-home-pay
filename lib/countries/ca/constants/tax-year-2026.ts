@@ -165,6 +165,15 @@ export const CANADA_RRSP_2026 = {
   annualDollarLimit: 33_810,
 };
 
+export const CANADA_FHSA_2026 = {
+  annualDollarLimit: 8_000,
+};
+
+export const CANADA_RPP_2026 = {
+  modeledContributionRateLimit: 0.18,
+  moneyPurchaseDollarLimit: 33_810,
+};
+
 export const CANADA_SOURCE_URLS = [
   "https://www.canada.ca/en/revenue-agency/services/forms-publications/payroll/t4127-payroll-deductions-formulas/t4127-jan.html",
   "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/payroll/payroll-deductions-contributions/canada-pension-plan-cpp/cpp-contribution-rates-maximums-exemptions.html",

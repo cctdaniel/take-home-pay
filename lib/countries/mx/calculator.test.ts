@@ -9,7 +9,13 @@ function createInputs(overrides: Partial<MXCalculatorInputs> = {}): MXCalculator
     grossSalary: 600_000,
     payFrequency: "annual",
     state: "CMX",
-    contributions: { voluntaryRetirementContribution: 0 },
+    contributions: {
+      voluntaryRetirementContribution: 0,
+      medicalDentalExpenses: 0,
+      funeralExpenses: 0,
+      mortgageInterest: 0,
+      educationExpenses: 0,
+    },
     ...overrides,
   };
 }
