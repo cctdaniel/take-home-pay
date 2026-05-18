@@ -6,10 +6,15 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type ATContributionInputs = Record<never, never>;
+export type ATFamilyBonusChildren = 0 | 1 | 2 | 3 | 4;
+
+export interface ATContributionInputs {
+  commuterAllowance: number;
+}
 
 export interface ATCalculatorInputs extends BaseCalculatorInputs {
   country: "AT";
+  familyBonusChildren: ATFamilyBonusChildren;
   contributions: ATContributionInputs;
 }
 
@@ -27,6 +32,9 @@ export interface ATBreakdown {
   standardDeduction: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
   taxCredit: number;
+  commuterAllowance: number;
+  familyBonusChildren: ATFamilyBonusChildren;
+  familyBonusPlusCredit: number;
   employeeSocialContribution: {
     name: string;
     amount: number;
@@ -64,7 +72,9 @@ declare module "../types" {
   }
 }
 
-export function isATInputs(inputs: CalculatorInputs): inputs is ATCalculatorInputs {
+export function isATInputs(
+  inputs: CalculatorInputs,
+): inputs is ATCalculatorInputs {
   return inputs.country === "AT";
 }
 
@@ -72,6 +82,8 @@ export function isATTaxBreakdown(taxes: TaxBreakdown): taxes is ATTaxBreakdown {
   return "type" in taxes && taxes.type === "AT";
 }
 
-export function isATBreakdown(breakdown: CountrySpecificBreakdown): breakdown is ATBreakdown {
+export function isATBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is ATBreakdown {
   return breakdown.type === "AT";
 }

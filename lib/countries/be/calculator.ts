@@ -20,6 +20,8 @@ interface LocalSalaryTaxConfig {
   deductEmployeeSocialBeforeIncomeTax: boolean;
   additionalFlatIncomeTaxName?: string;
   additionalFlatIncomeTaxRate?: number;
+  pensionSavingsLimit: number;
+  pensionSavingsTaxCreditRate: number;
   taxCredit?: number | ((grossSalary: number, taxableIncome: number) => number);
   brackets: TaxBracket[];
   assumptions: string[];
@@ -29,7 +31,6 @@ interface LocalSalaryTaxConfig {
 function roundCurrency(value: number): number {
   return Math.round(value * 100) / 100;
 }
-
 function getPeriodsPerYear(frequency: PayFrequency): number {
   switch (frequency) {
     case "annual":
@@ -42,30 +43,28 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
       return 52;
   }
 }
-
 function clampAmount(value: number, min = 0, max = Infinity): number {
   return Math.min(Math.max(value, min), max);
 }
-
 function calculateBracketTax(
   taxableIncome: number,
   brackets: TaxBracket[],
-): { total: number; bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }> } {
+): {
+  total: number;
+  bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
+} {
   let total = 0;
-  const bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }> = [];
-
+  const bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }> = [];
   for (const bracket of brackets) {
-    if (taxableIncome <= bracket.min) {
-      continue;
-    }
-
+    if (taxableIncome <= bracket.min) continue;
     const upper = Number.isFinite(bracket.max) ? bracket.max : taxableIncome;
     const amountInBracket = Math.min(taxableIncome, upper) - bracket.min;
-
-    if (amountInBracket <= 0) {
-      continue;
-    }
-
+    if (amountInBracket <= 0) continue;
     const tax = roundCurrency(amountInBracket * bracket.rate);
     total += tax;
     bracketTaxes.push({
@@ -75,13 +74,19 @@ function calculateBracketTax(
       tax,
     });
   }
-
   return { total: roundCurrency(total), bracketTaxes };
 }
 
 const taxConfig = BE_TAX_CONFIG as LocalSalaryTaxConfig;
 
 export function calculateBE(inputs: BECalculatorInputs): CalculationResult {
+  const pensionSavingsContribution = roundCurrency(
+    clampAmount(
+      inputs.contributions.pensionSavings,
+      0,
+      taxConfig.pensionSavingsLimit,
+    ),
+  );
   const employeeSocialBase = Math.min(
     inputs.grossSalary,
     taxConfig.employeeSocialCap ?? inputs.grossSalary,
@@ -108,7 +113,7 @@ export function calculateBE(inputs: BECalculatorInputs): CalculationResult {
     taxableIncome,
     taxConfig.brackets,
   );
-  const taxCredit = roundCurrency(
+  const baseTaxCredit = roundCurrency(
     clampAmount(
       typeof taxConfig.taxCredit === "function"
         ? taxConfig.taxCredit(inputs.grossSalary, taxableIncome)
@@ -117,17 +122,26 @@ export function calculateBE(inputs: BECalculatorInputs): CalculationResult {
       incomeTaxBeforeCredits,
     ),
   );
+  const pensionSavingsTaxCredit = roundCurrency(
+    clampAmount(
+      pensionSavingsContribution * taxConfig.pensionSavingsTaxCreditRate,
+      0,
+      incomeTaxBeforeCredits - baseTaxCredit,
+    ),
+  );
+  const taxCredit = roundCurrency(baseTaxCredit + pensionSavingsTaxCredit);
   const incomeTax = roundCurrency(incomeTaxBeforeCredits - taxCredit);
   const additionalIncomeTax = roundCurrency(
     incomeTax * (taxConfig.additionalFlatIncomeTaxRate ?? 0),
   );
-
   const totalTax = roundCurrency(
-    incomeTax + additionalIncomeTax + employeeSocialContribution,
+    incomeTax +
+      additionalIncomeTax +
+      employeeSocialContribution +
+      pensionSavingsContribution,
   );
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
   const netSalary = roundCurrency(inputs.grossSalary - totalTax);
-
   const taxes: BETaxBreakdown = {
     type: "BE",
     totalIncomeTax: roundCurrency(incomeTax + additionalIncomeTax),
@@ -135,7 +149,6 @@ export function calculateBE(inputs: BECalculatorInputs): CalculationResult {
     employeeSocialContribution,
     additionalIncomeTax,
   };
-
   const breakdown: BEBreakdown = {
     type: "BE",
     grossIncome: inputs.grossSalary,
@@ -143,6 +156,8 @@ export function calculateBE(inputs: BECalculatorInputs): CalculationResult {
     standardDeduction,
     bracketTaxes,
     taxCredit,
+    pensionSavingsContribution,
+    pensionSavingsTaxCredit,
     employeeSocialContribution: {
       name: taxConfig.employeeSocialName,
       amount: employeeSocialContribution,
@@ -157,7 +172,6 @@ export function calculateBE(inputs: BECalculatorInputs): CalculationResult {
     assumptions: taxConfig.assumptions,
     sourceUrls: taxConfig.sourceUrls,
   };
-
   return {
     country: "BE",
     currency: "EUR",
@@ -167,7 +181,8 @@ export function calculateBE(inputs: BECalculatorInputs): CalculationResult {
     totalTax,
     totalDeductions: totalTax,
     netSalary,
-    effectiveTaxRate: inputs.grossSalary > 0 ? totalTax / inputs.grossSalary : 0,
+    effectiveTaxRate:
+      inputs.grossSalary > 0 ? totalTax / inputs.grossSalary : 0,
     perPeriod: {
       gross: inputs.grossSalary / periodsPerYear,
       net: netSalary / periodsPerYear,
@@ -180,29 +195,31 @@ export function calculateBE(inputs: BECalculatorInputs): CalculationResult {
 export const BECalculator: CountryCalculator = {
   countryCode: "BE",
   config: BE_CONFIG,
-
   calculate(inputs: CalculatorInputs): CalculationResult {
-    if (inputs.country !== "BE") {
+    if (inputs.country !== "BE")
       throw new Error("BECalculator can only calculate BE inputs");
-    }
-
     return calculateBE(inputs as BECalculatorInputs);
   },
-
   getRegions(): RegionInfo[] {
     return [];
   },
-
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      pensionSavings: {
+        limit: taxConfig.pensionSavingsLimit,
+        name: "Pension savings",
+        description:
+          "Optional Belgian pension savings tax-reduction contribution",
+        preTax: false,
+      },
+    };
   },
-
   getDefaultInputs(): BECalculatorInputs {
     return {
       country: "BE",
       grossSalary: taxConfig.defaultSalary,
       payFrequency: "monthly",
-      contributions: {},
+      contributions: { pensionSavings: 0 },
     };
   },
 };

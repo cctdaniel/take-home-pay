@@ -20,16 +20,15 @@ interface LocalSalaryTaxConfig {
   deductEmployeeSocialBeforeIncomeTax: boolean;
   additionalFlatIncomeTaxName?: string;
   additionalFlatIncomeTaxRate?: number;
+  pensionDeductionLimit: number;
   taxCredit?: number | ((grossSalary: number, taxableIncome: number) => number);
   brackets: TaxBracket[];
   assumptions: string[];
   sourceUrls: string[];
 }
-
 function roundCurrency(value: number): number {
   return Math.round(value * 100) / 100;
 }
-
 function getPeriodsPerYear(frequency: PayFrequency): number {
   switch (frequency) {
     case "annual":
@@ -42,30 +41,28 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
       return 52;
   }
 }
-
 function clampAmount(value: number, min = 0, max = Infinity): number {
   return Math.min(Math.max(value, min), max);
 }
-
 function calculateBracketTax(
   taxableIncome: number,
   brackets: TaxBracket[],
-): { total: number; bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }> } {
+): {
+  total: number;
+  bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
+} {
   let total = 0;
-  const bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }> = [];
-
+  const bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }> = [];
   for (const bracket of brackets) {
-    if (taxableIncome <= bracket.min) {
-      continue;
-    }
-
+    if (taxableIncome <= bracket.min) continue;
     const upper = Number.isFinite(bracket.max) ? bracket.max : taxableIncome;
     const amountInBracket = Math.min(taxableIncome, upper) - bracket.min;
-
-    if (amountInBracket <= 0) {
-      continue;
-    }
-
+    if (amountInBracket <= 0) continue;
     const tax = roundCurrency(amountInBracket * bracket.rate);
     total += tax;
     bracketTaxes.push({
@@ -75,13 +72,18 @@ function calculateBracketTax(
       tax,
     });
   }
-
   return { total: roundCurrency(total), bracketTaxes };
 }
-
 const taxConfig = IT_TAX_CONFIG as LocalSalaryTaxConfig;
-
 export function calculateIT(inputs: ITCalculatorInputs): CalculationResult {
+  const pensionContribution = roundCurrency(
+    clampAmount(
+      inputs.contributions.pensionContribution,
+      0,
+      taxConfig.pensionDeductionLimit,
+    ),
+  );
+  const pensionDeduction = pensionContribution;
   const employeeSocialBase = Math.min(
     inputs.grossSalary,
     taxConfig.employeeSocialCap ?? inputs.grossSalary,
@@ -99,6 +101,7 @@ export function calculateIT(inputs: ITCalculatorInputs): CalculationResult {
       0,
       inputs.grossSalary -
         standardDeduction -
+        pensionDeduction -
         (taxConfig.deductEmployeeSocialBeforeIncomeTax
           ? employeeSocialContribution
           : 0),
@@ -121,13 +124,14 @@ export function calculateIT(inputs: ITCalculatorInputs): CalculationResult {
   const additionalIncomeTax = roundCurrency(
     taxableIncome * (taxConfig.additionalFlatIncomeTaxRate ?? 0),
   );
-
   const totalTax = roundCurrency(
-    incomeTax + additionalIncomeTax + employeeSocialContribution,
+    incomeTax +
+      additionalIncomeTax +
+      employeeSocialContribution +
+      pensionContribution,
   );
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
   const netSalary = roundCurrency(inputs.grossSalary - totalTax);
-
   const taxes: ITTaxBreakdown = {
     type: "IT",
     totalIncomeTax: roundCurrency(incomeTax + additionalIncomeTax),
@@ -135,7 +139,6 @@ export function calculateIT(inputs: ITCalculatorInputs): CalculationResult {
     employeeSocialContribution,
     additionalIncomeTax,
   };
-
   const breakdown: ITBreakdown = {
     type: "IT",
     grossIncome: inputs.grossSalary,
@@ -143,6 +146,9 @@ export function calculateIT(inputs: ITCalculatorInputs): CalculationResult {
     standardDeduction,
     bracketTaxes,
     taxCredit,
+    pensionContribution,
+    pensionDeduction,
+    disallowedPensionContribution: 0,
     employeeSocialContribution: {
       name: taxConfig.employeeSocialName,
       amount: employeeSocialContribution,
@@ -157,7 +163,6 @@ export function calculateIT(inputs: ITCalculatorInputs): CalculationResult {
     assumptions: taxConfig.assumptions,
     sourceUrls: taxConfig.sourceUrls,
   };
-
   return {
     country: "IT",
     currency: "EUR",
@@ -167,7 +172,8 @@ export function calculateIT(inputs: ITCalculatorInputs): CalculationResult {
     totalTax,
     totalDeductions: totalTax,
     netSalary,
-    effectiveTaxRate: inputs.grossSalary > 0 ? totalTax / inputs.grossSalary : 0,
+    effectiveTaxRate:
+      inputs.grossSalary > 0 ? totalTax / inputs.grossSalary : 0,
     perPeriod: {
       gross: inputs.grossSalary / periodsPerYear,
       net: netSalary / periodsPerYear,
@@ -176,33 +182,34 @@ export function calculateIT(inputs: ITCalculatorInputs): CalculationResult {
     breakdown,
   };
 }
-
 export const ITCalculator: CountryCalculator = {
   countryCode: "IT",
   config: IT_CONFIG,
-
   calculate(inputs: CalculatorInputs): CalculationResult {
-    if (inputs.country !== "IT") {
+    if (inputs.country !== "IT")
       throw new Error("ITCalculator can only calculate IT inputs");
-    }
-
     return calculateIT(inputs as ITCalculatorInputs);
   },
-
   getRegions(): RegionInfo[] {
     return [];
   },
-
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      pensionContribution: {
+        limit: taxConfig.pensionDeductionLimit,
+        name: "Supplementary pension",
+        description:
+          "Optional supplementary pension contribution deductible up to the modeled annual limit",
+        preTax: true,
+      },
+    };
   },
-
   getDefaultInputs(): ITCalculatorInputs {
     return {
       country: "IT",
       grossSalary: taxConfig.defaultSalary,
       payFrequency: "monthly",
-      contributions: {},
+      contributions: { pensionContribution: 0 },
     };
   },
 };

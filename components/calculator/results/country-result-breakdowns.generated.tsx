@@ -4,6 +4,8 @@
 import type { CountryCode } from "@/lib/countries/types";
 import type { ReactNode } from "react";
 import { AEResultBreakdown } from "./ae-result-breakdown";
+import { ATResultBreakdown } from "./at-result-breakdown";
+import { BEResultBreakdown } from "./be-result-breakdown";
 import { CNResultBreakdown } from "./cn-result-breakdown";
 import { CYResultBreakdown } from "./cy-result-breakdown";
 import { CZResultBreakdown } from "./cz-result-breakdown";
@@ -12,7 +14,9 @@ import { FRResultBreakdown } from "./fr-result-breakdown";
 import { GEResultBreakdown } from "./ge-result-breakdown";
 import { GRResultBreakdown } from "./gr-result-breakdown";
 import { HRResultBreakdown } from "./hr-result-breakdown";
+import { IEResultBreakdown } from "./ie-result-breakdown";
 import { INResultBreakdown } from "./in-result-breakdown";
+import { ITResultBreakdown } from "./it-result-breakdown";
 import { JPResultBreakdown } from "./jp-result-breakdown";
 import { MTResultBreakdown } from "./mt-result-breakdown";
 import { MYResultBreakdown } from "./my-result-breakdown";
@@ -29,6 +33,8 @@ export const COUNTRY_RESULT_BREAKDOWNS: Partial<
   Record<CountryCode, CountryResultBreakdownComponent>
 > = {
   AE: AEResultBreakdown,
+  AT: ATResultBreakdown,
+  BE: BEResultBreakdown,
   CN: CNResultBreakdown,
   CY: CYResultBreakdown,
   CZ: CZResultBreakdown,
@@ -37,7 +43,9 @@ export const COUNTRY_RESULT_BREAKDOWNS: Partial<
   GE: GEResultBreakdown,
   GR: GRResultBreakdown,
   HR: HRResultBreakdown,
+  IE: IEResultBreakdown,
   IN: INResultBreakdown,
+  IT: ITResultBreakdown,
   JP: JPResultBreakdown,
   MT: MTResultBreakdown,
   MY: MYResultBreakdown,

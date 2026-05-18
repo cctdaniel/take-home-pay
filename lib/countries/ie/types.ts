@@ -6,10 +6,18 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type IEContributionInputs = Record<never, never>;
+export type IETaxStatus =
+  | "single"
+  | "married_one_income"
+  | "married_two_incomes";
+
+export interface IEContributionInputs {
+  pensionContribution: number;
+}
 
 export interface IECalculatorInputs extends BaseCalculatorInputs {
   country: "IE";
+  taxStatus: IETaxStatus;
   contributions: IEContributionInputs;
 }
 
@@ -27,6 +35,10 @@ export interface IEBreakdown {
   standardDeduction: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
   taxCredit: number;
+  taxStatus: IETaxStatus;
+  pensionContribution: number;
+  pensionDeduction: number;
+  disallowedPensionContribution: number;
   employeeSocialContribution: {
     name: string;
     amount: number;
@@ -64,7 +76,9 @@ declare module "../types" {
   }
 }
 
-export function isIEInputs(inputs: CalculatorInputs): inputs is IECalculatorInputs {
+export function isIEInputs(
+  inputs: CalculatorInputs,
+): inputs is IECalculatorInputs {
   return inputs.country === "IE";
 }
 
@@ -72,6 +86,8 @@ export function isIETaxBreakdown(taxes: TaxBreakdown): taxes is IETaxBreakdown {
   return "type" in taxes && taxes.type === "IE";
 }
 
-export function isIEBreakdown(breakdown: CountrySpecificBreakdown): breakdown is IEBreakdown {
+export function isIEBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is IEBreakdown {
   return breakdown.type === "IE";
 }

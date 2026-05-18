@@ -1,4 +1,8 @@
-import { calculateNetSalary, getDefaultInputs } from "@/lib/countries/registry";
+import {
+  calculateNetSalary,
+  getCountryCalculator,
+  getDefaultInputs,
+} from "@/lib/countries/registry";
 import type { CountryComparisonAdapter } from "@/hooks/use-country-comparison";
 import type { BECalculatorInputs } from "./types";
 
@@ -18,8 +22,15 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     grossSalary: grossLocal,
     payFrequency,
   };
+  const pensionLimit =
+    getCountryCalculator(country).getContributionLimits(calculatorInputs)
+      .pensionSavings.limit;
+  const retirementApplied =
+    inputs.assumptions.retirementContributions === "max";
+  calculatorInputs.contributions = {
+    pensionSavings: retirementApplied ? pensionLimit : 0,
+  };
   const result = calculateNetSalary(calculatorInputs);
-
   return {
     country,
     name: config.name,
@@ -33,9 +44,11 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     deltaBase: 0,
     deltaPercent: 0,
     assumptions: [
-      ...buildAssumptionsSummary(country, inputs, false),
+      ...buildAssumptionsSummary(country, inputs, retirementApplied),
       "Ordinary resident employee model for Belgium",
-      "No modeled voluntary retirement contribution in compare",
+      retirementApplied
+        ? "Max modeled Belgian pension savings"
+        : "No modeled pension savings contribution",
     ],
     calculation: result,
   };

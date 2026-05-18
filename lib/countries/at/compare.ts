@@ -1,6 +1,6 @@
 import { calculateNetSalary, getDefaultInputs } from "@/lib/countries/registry";
 import type { CountryComparisonAdapter } from "@/hooks/use-country-comparison";
-import type { ATCalculatorInputs } from "./types";
+import type { ATCalculatorInputs, ATFamilyBonusChildren } from "./types";
 
 export const buildCountryComparison: CountryComparisonAdapter = ({
   country,
@@ -17,9 +17,12 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
+    familyBonusChildren: Math.min(
+      inputs.numberOfChildren,
+      4,
+    ) as ATFamilyBonusChildren,
   };
   const result = calculateNetSalary(calculatorInputs);
-
   return {
     country,
     name: config.name,
@@ -35,7 +38,10 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     assumptions: [
       ...buildAssumptionsSummary(country, inputs, false),
       "Ordinary resident employee model for Austria",
-      "No modeled voluntary retirement contribution in compare",
+      inputs.numberOfChildren > 0
+        ? "Family Bonus Plus children mapped from compare profile"
+        : "No modeled Family Bonus Plus children",
+      "No modeled commuter allowance in compare",
     ],
     calculation: result,
   };

@@ -9,11 +9,18 @@ import type {
 } from "../types";
 import { AT_CONFIG } from "./config";
 import { AT_TAX_CONFIG } from "./constants/tax-year-2026";
-import type { ATBreakdown, ATCalculatorInputs, ATTaxBreakdown } from "./types";
+import type {
+  ATBreakdown,
+  ATCalculatorInputs,
+  ATFamilyBonusChildren,
+  ATTaxBreakdown,
+} from "./types";
 
 interface LocalSalaryTaxConfig {
   defaultSalary: number;
   standardDeduction: number | ((grossSalary: number) => number);
+  commuterAllowanceLimit: number;
+  familyBonusPlusPerChild: number;
   employeeSocialRate: number;
   employeeSocialCap?: number;
   employeeSocialName: string;
@@ -25,11 +32,9 @@ interface LocalSalaryTaxConfig {
   assumptions: string[];
   sourceUrls: string[];
 }
-
 function roundCurrency(value: number): number {
   return Math.round(value * 100) / 100;
 }
-
 function getPeriodsPerYear(frequency: PayFrequency): number {
   switch (frequency) {
     case "annual":
@@ -42,30 +47,28 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
       return 52;
   }
 }
-
 function clampAmount(value: number, min = 0, max = Infinity): number {
   return Math.min(Math.max(value, min), max);
 }
-
 function calculateBracketTax(
   taxableIncome: number,
   brackets: TaxBracket[],
-): { total: number; bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }> } {
+): {
+  total: number;
+  bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
+} {
   let total = 0;
-  const bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }> = [];
-
+  const bracketTaxes: Array<{
+    min: number;
+    max: number;
+    rate: number;
+    tax: number;
+  }> = [];
   for (const bracket of brackets) {
-    if (taxableIncome <= bracket.min) {
-      continue;
-    }
-
+    if (taxableIncome <= bracket.min) continue;
     const upper = Number.isFinite(bracket.max) ? bracket.max : taxableIncome;
     const amountInBracket = Math.min(taxableIncome, upper) - bracket.min;
-
-    if (amountInBracket <= 0) {
-      continue;
-    }
-
+    if (amountInBracket <= 0) continue;
     const tax = roundCurrency(amountInBracket * bracket.rate);
     total += tax;
     bracketTaxes.push({
@@ -75,13 +78,20 @@ function calculateBracketTax(
       tax,
     });
   }
-
   return { total: roundCurrency(total), bracketTaxes };
 }
-
 const taxConfig = AT_TAX_CONFIG as LocalSalaryTaxConfig;
-
 export function calculateAT(inputs: ATCalculatorInputs): CalculationResult {
+  const commuterAllowance = roundCurrency(
+    clampAmount(
+      inputs.contributions.commuterAllowance,
+      0,
+      taxConfig.commuterAllowanceLimit,
+    ),
+  );
+  const familyBonusChildren = Math.trunc(
+    clampAmount(inputs.familyBonusChildren, 0, 4),
+  ) as ATFamilyBonusChildren;
   const employeeSocialBase = Math.min(
     inputs.grossSalary,
     taxConfig.employeeSocialCap ?? inputs.grossSalary,
@@ -99,6 +109,7 @@ export function calculateAT(inputs: ATCalculatorInputs): CalculationResult {
       0,
       inputs.grossSalary -
         standardDeduction -
+        commuterAllowance -
         (taxConfig.deductEmployeeSocialBeforeIncomeTax
           ? employeeSocialContribution
           : 0),
@@ -108,7 +119,7 @@ export function calculateAT(inputs: ATCalculatorInputs): CalculationResult {
     taxableIncome,
     taxConfig.brackets,
   );
-  const taxCredit = roundCurrency(
+  const baseTaxCredit = roundCurrency(
     clampAmount(
       typeof taxConfig.taxCredit === "function"
         ? taxConfig.taxCredit(inputs.grossSalary, taxableIncome)
@@ -117,17 +128,23 @@ export function calculateAT(inputs: ATCalculatorInputs): CalculationResult {
       incomeTaxBeforeCredits,
     ),
   );
+  const familyBonusPlusCredit = roundCurrency(
+    clampAmount(
+      familyBonusChildren * taxConfig.familyBonusPlusPerChild,
+      0,
+      incomeTaxBeforeCredits - baseTaxCredit,
+    ),
+  );
+  const taxCredit = roundCurrency(baseTaxCredit + familyBonusPlusCredit);
   const incomeTax = roundCurrency(incomeTaxBeforeCredits - taxCredit);
   const additionalIncomeTax = roundCurrency(
     taxableIncome * (taxConfig.additionalFlatIncomeTaxRate ?? 0),
   );
-
   const totalTax = roundCurrency(
     incomeTax + additionalIncomeTax + employeeSocialContribution,
   );
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
   const netSalary = roundCurrency(inputs.grossSalary - totalTax);
-
   const taxes: ATTaxBreakdown = {
     type: "AT",
     totalIncomeTax: roundCurrency(incomeTax + additionalIncomeTax),
@@ -135,7 +152,6 @@ export function calculateAT(inputs: ATCalculatorInputs): CalculationResult {
     employeeSocialContribution,
     additionalIncomeTax,
   };
-
   const breakdown: ATBreakdown = {
     type: "AT",
     grossIncome: inputs.grossSalary,
@@ -143,6 +159,9 @@ export function calculateAT(inputs: ATCalculatorInputs): CalculationResult {
     standardDeduction,
     bracketTaxes,
     taxCredit,
+    commuterAllowance,
+    familyBonusChildren,
+    familyBonusPlusCredit,
     employeeSocialContribution: {
       name: taxConfig.employeeSocialName,
       amount: employeeSocialContribution,
@@ -157,7 +176,6 @@ export function calculateAT(inputs: ATCalculatorInputs): CalculationResult {
     assumptions: taxConfig.assumptions,
     sourceUrls: taxConfig.sourceUrls,
   };
-
   return {
     country: "AT",
     currency: "EUR",
@@ -167,7 +185,8 @@ export function calculateAT(inputs: ATCalculatorInputs): CalculationResult {
     totalTax,
     totalDeductions: totalTax,
     netSalary,
-    effectiveTaxRate: inputs.grossSalary > 0 ? totalTax / inputs.grossSalary : 0,
+    effectiveTaxRate:
+      inputs.grossSalary > 0 ? totalTax / inputs.grossSalary : 0,
     perPeriod: {
       gross: inputs.grossSalary / periodsPerYear,
       net: netSalary / periodsPerYear,
@@ -176,33 +195,34 @@ export function calculateAT(inputs: ATCalculatorInputs): CalculationResult {
     breakdown,
   };
 }
-
 export const ATCalculator: CountryCalculator = {
   countryCode: "AT",
   config: AT_CONFIG,
-
   calculate(inputs: CalculatorInputs): CalculationResult {
-    if (inputs.country !== "AT") {
+    if (inputs.country !== "AT")
       throw new Error("ATCalculator can only calculate AT inputs");
-    }
-
     return calculateAT(inputs as ATCalculatorInputs);
   },
-
   getRegions(): RegionInfo[] {
     return [];
   },
-
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      commuterAllowance: {
+        limit: taxConfig.commuterAllowanceLimit,
+        name: "Commuter allowance",
+        description: "Optional Austrian commuter allowance deduction proxy",
+        preTax: true,
+      },
+    };
   },
-
   getDefaultInputs(): ATCalculatorInputs {
     return {
       country: "AT",
       grossSalary: taxConfig.defaultSalary,
       payFrequency: "monthly",
-      contributions: {},
+      familyBonusChildren: 0,
+      contributions: { commuterAllowance: 0 },
     };
   },
 };

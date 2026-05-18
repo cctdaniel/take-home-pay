@@ -6,7 +6,9 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type BEContributionInputs = Record<never, never>;
+export interface BEContributionInputs {
+  pensionSavings: number;
+}
 
 export interface BECalculatorInputs extends BaseCalculatorInputs {
   country: "BE";
@@ -27,6 +29,8 @@ export interface BEBreakdown {
   standardDeduction: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
   taxCredit: number;
+  pensionSavingsContribution: number;
+  pensionSavingsTaxCredit: number;
   employeeSocialContribution: {
     name: string;
     amount: number;
@@ -64,7 +68,9 @@ declare module "../types" {
   }
 }
 
-export function isBEInputs(inputs: CalculatorInputs): inputs is BECalculatorInputs {
+export function isBEInputs(
+  inputs: CalculatorInputs,
+): inputs is BECalculatorInputs {
   return inputs.country === "BE";
 }
 
@@ -72,6 +78,8 @@ export function isBETaxBreakdown(taxes: TaxBreakdown): taxes is BETaxBreakdown {
   return "type" in taxes && taxes.type === "BE";
 }
 
-export function isBEBreakdown(breakdown: CountrySpecificBreakdown): breakdown is BEBreakdown {
+export function isBEBreakdown(
+  breakdown: CountrySpecificBreakdown,
+): breakdown is BEBreakdown {
   return breakdown.type === "BE";
 }
