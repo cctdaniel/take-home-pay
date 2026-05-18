@@ -26,6 +26,14 @@ describe("Ireland calculator", () => {
     expect(result.breakdown.sourceUrls.length).toBeGreaterThan(0);
   });
 
+
+  it("exempts income at or below the USC exemption limit", () => {
+    const result = calculateIE(inputs(13_000));
+
+    expect(result.taxes.additionalIncomeTax).toBe(0);
+    expect(result.breakdown.additionalIncomeTax?.amount).toBe(0);
+  });
+
   it("keeps zero income tax for zero salary", () => {
     const result = calculateIE(inputs(0));
 

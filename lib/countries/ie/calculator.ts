@@ -79,7 +79,13 @@ function calculateBracketTax(
   return { total: roundCurrency(total), bracketTaxes };
 }
 
+const USC_EXEMPTION_LIMIT = 13_000;
+
 function calculateUniversalSocialCharge(grossSalary: number): number {
+  if (grossSalary <= USC_EXEMPTION_LIMIT) {
+    return 0;
+  }
+
   return calculateBracketTax(grossSalary, [
     { min: 0, max: 12_012, rate: 0.005 },
     { min: 12_012, max: 27_382, rate: 0.02 },

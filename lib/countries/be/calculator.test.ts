@@ -26,6 +26,18 @@ describe("Belgium calculator", () => {
     expect(result.breakdown.sourceUrls.length).toBeGreaterThan(0);
   });
 
+
+  it("bases the municipal surcharge on federal income tax, not taxable income", () => {
+    const result = calculateBE(inputs(50_000));
+
+    expect(result.taxes.additionalIncomeTax).toBe(
+      Math.round(result.taxes.incomeTax * BE_TAX_CONFIG.additionalFlatIncomeTaxRate * 100) / 100,
+    );
+    expect(result.taxes.additionalIncomeTax).toBeLessThan(
+      result.taxableIncome * BE_TAX_CONFIG.additionalFlatIncomeTaxRate,
+    );
+  });
+
   it("keeps zero income tax for zero salary", () => {
     const result = calculateBE(inputs(0));
 

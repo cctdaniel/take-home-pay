@@ -20,7 +20,7 @@ export const IE_TAX_CONFIG = {
   assumptions: [
     "Models a single PAYE employee with the standard single rate band and the personal plus employee PAYE credits.",
     "Employee PRSI is modeled as a flat rate on gross salary and reduces take-home pay.",
-    "Universal Social Charge is modeled separately with progressive USC bands and added to total deductions.",
+    "Universal Social Charge is modeled separately with the annual exemption limit and progressive USC bands, then added to total deductions when applicable.",
     "Married/civil-partner bands, age exemptions, medical-card USC rates, pension relief, local property tax, benefit-in-kind detail, and week-one payroll timing are outside this salary model.",
   ],
   sourceUrls: Object.values(IE_SOURCE_URLS),

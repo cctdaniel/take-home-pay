@@ -119,7 +119,7 @@ export function calculateBE(inputs: BECalculatorInputs): CalculationResult {
   );
   const incomeTax = roundCurrency(incomeTaxBeforeCredits - taxCredit);
   const additionalIncomeTax = roundCurrency(
-    taxableIncome * (taxConfig.additionalFlatIncomeTaxRate ?? 0),
+    incomeTax * (taxConfig.additionalFlatIncomeTaxRate ?? 0),
   );
 
   const totalTax = roundCurrency(

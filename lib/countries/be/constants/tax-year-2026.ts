@@ -21,7 +21,7 @@ export const BE_TAX_CONFIG = {
   assumptions: [
     "Models an ordinary Belgian resident employee with federal progressive personal income tax and employee social security.",
     "A standard professional-expense deduction proxy is applied before tax, capped by the modeled annual maximum.",
-    "Municipal surcharge is modeled as a representative percentage of taxable income rather than an exact commune percentage.",
+    "Municipal surcharge is modeled as a representative percentage of federal personal income tax rather than an exact commune percentage.",
     "Personal tax-free allowance refinements, marital quotient, dependent children, work bonus reductions, regional tax reductions, benefits in kind, special expatriate regime, and exact municipal rates are outside this salary model.",
   ],
   sourceUrls: Object.values(BE_SOURCE_URLS),

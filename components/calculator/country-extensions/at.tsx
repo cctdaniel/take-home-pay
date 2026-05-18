@@ -39,6 +39,8 @@ export default function ATCountryExtension({
           />
         </CalculatorFieldGrid>
       }
+      seoInfo={<AustriaTaxInfo />}
+      hideDefaultSeoTaxInfo
       infoCard={
         <InfoPanel title="Modeled Scope">
           <p>
@@ -54,5 +56,25 @@ export default function ATCountryExtension({
         </InfoPanel>
       }
     />
+  );
+}
+
+function AustriaTaxInfo() {
+  return (
+    <section className="mt-16 max-w-3xl">
+      <h2 className="text-xl font-semibold text-zinc-200 mb-4">
+        How Your Take Home Pay Is Calculated
+      </h2>
+      <div className="prose prose-invert prose-zinc prose-sm">
+        <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Austria</h3>
+        <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
+          <li><strong className="text-zinc-300">Wage Tax</strong> – annual salary after modeled employee social insurance is taxed with Austria&apos;s progressive wage tax bands from 0% to 55%.</li>
+          <li><strong className="text-zinc-300">Social Insurance</strong> – employee social insurance is modeled at a general employee rate and capped at the annualized contribution-base ceiling.</li>
+          <li><strong className="text-zinc-300">No Regional Income Tax</strong> – Austria does not use US-style state income tax for salary employees in this model.</li>
+          <li><strong className="text-zinc-300">Formula</strong> – net salary equals gross salary minus capped employee social insurance and wage tax on the remaining taxable base.</li>
+        </ul>
+        <p className="text-zinc-400 text-sm mt-3">The model excludes 13th/14th salary preferential taxation, commuter and family credits, church contributions, in-kind benefits, and detailed monthly payroll cap timing.</p>
+      </div>
+    </section>
   );
 }
