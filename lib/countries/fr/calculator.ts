@@ -21,6 +21,7 @@ interface LocalSalaryTaxConfig {
   additionalFlatIncomeTaxName?: string;
   additionalFlatIncomeTaxRate?: number;
   taxCredit?: number | ((grossSalary: number, taxableIncome: number) => number);
+  retirementSavingsLimit: number;
   brackets: TaxBracket[];
   assumptions: string[];
   sourceUrls: string[];
@@ -81,6 +82,25 @@ function calculateBracketTax(
 
 const taxConfig = FR_TAX_CONFIG as LocalSalaryTaxConfig;
 
+function calculateIncomeTaxWithHouseholdParts(
+  taxableIncome: number,
+  householdParts: number,
+): { total: number; bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }> } {
+  const parts = clampAmount(householdParts, 1, 6);
+  const quotientIncome = taxableIncome / parts;
+  const quotientTax = calculateBracketTax(quotientIncome, taxConfig.brackets);
+
+  return {
+    total: roundCurrency(quotientTax.total * parts),
+    bracketTaxes: quotientTax.bracketTaxes.map((bracket) => ({
+      ...bracket,
+      min: roundCurrency(bracket.min * parts),
+      max: Number.isFinite(bracket.max) ? roundCurrency(bracket.max * parts) : bracket.max,
+      tax: roundCurrency(bracket.tax * parts),
+    })),
+  };
+}
+
 export function calculateFR(inputs: FRCalculatorInputs): CalculationResult {
   const employeeSocialBase = Math.min(
     inputs.grossSalary,
@@ -94,19 +114,28 @@ export function calculateFR(inputs: FRCalculatorInputs): CalculationResult {
       ? taxConfig.standardDeduction(inputs.grossSalary)
       : taxConfig.standardDeduction,
   );
+  const retirementSavingsContribution = roundCurrency(
+    clampAmount(inputs.contributions.retirementSavings ?? 0, 0, taxConfig.retirementSavingsLimit),
+  );
+  const retirementSavingsDeduction = retirementSavingsContribution;
+  const disallowedRetirementSavings = roundCurrency(
+    Math.max(0, (inputs.contributions.retirementSavings ?? 0) - retirementSavingsDeduction),
+  );
+  const taxHouseholdParts = clampAmount(inputs.taxHouseholdParts, 1, 6);
   const taxableIncome = roundCurrency(
     Math.max(
       0,
       inputs.grossSalary -
         standardDeduction -
+        retirementSavingsDeduction -
         (taxConfig.deductEmployeeSocialBeforeIncomeTax
           ? employeeSocialContribution
           : 0),
     ),
   );
-  const { total: incomeTaxBeforeCredits, bracketTaxes } = calculateBracketTax(
+  const { total: incomeTaxBeforeCredits, bracketTaxes } = calculateIncomeTaxWithHouseholdParts(
     taxableIncome,
-    taxConfig.brackets,
+    taxHouseholdParts,
   );
   const taxCredit = roundCurrency(
     clampAmount(
@@ -123,7 +152,7 @@ export function calculateFR(inputs: FRCalculatorInputs): CalculationResult {
   );
 
   const totalTax = roundCurrency(
-    incomeTax + additionalIncomeTax + employeeSocialContribution,
+    incomeTax + additionalIncomeTax + employeeSocialContribution + retirementSavingsContribution,
   );
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
   const netSalary = roundCurrency(inputs.grossSalary - totalTax);
@@ -141,6 +170,9 @@ export function calculateFR(inputs: FRCalculatorInputs): CalculationResult {
     grossIncome: inputs.grossSalary,
     taxableIncome,
     standardDeduction,
+    retirementSavingsDeduction,
+    disallowedRetirementSavings,
+    taxHouseholdParts,
     bracketTaxes,
     taxCredit,
     employeeSocialContribution: {
@@ -194,7 +226,14 @@ export const FRCalculator: CountryCalculator = {
   },
 
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      retirementSavings: {
+        limit: taxConfig.retirementSavingsLimit,
+        name: "PER retirement savings",
+        description: "Optional French PER-style retirement savings deductible from taxable income up to the modeled annual cap.",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): FRCalculatorInputs {
@@ -202,7 +241,10 @@ export const FRCalculator: CountryCalculator = {
       country: "FR",
       grossSalary: taxConfig.defaultSalary,
       payFrequency: "monthly",
-      contributions: {},
+      taxHouseholdParts: 1,
+      contributions: {
+        retirementSavings: 0,
+      },
     };
   },
 };

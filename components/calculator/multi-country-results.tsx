@@ -17,6 +17,7 @@ import { toPng } from "html-to-image";
 import { useRef, useState } from "react";
 import { DeductionRow } from "./deduction-row";
 import { CountryResultBreakdown } from "./results/country-result-breakdown";
+import { COUNTRY_RESULT_BREAKDOWNS } from "./results/country-result-breakdowns.generated";
 
 interface MultiCountryResultsProps {
   result: CalculationResult;
@@ -64,6 +65,21 @@ export function MultiCountryResults({
   const isTW = country === "TW";
   const isDE = country === "DE";
   const isUK = country === "UK";
+  const hasGeneratedResultBreakdown = Boolean(COUNTRY_RESULT_BREAKDOWNS[country]);
+  const hasPreTotalBreakdown =
+    hasGeneratedResultBreakdown ||
+    isUS ||
+    isSG ||
+    isKR ||
+    isNL ||
+    isAU ||
+    isPT ||
+    isTH ||
+    isHK ||
+    isID ||
+    isTW ||
+    isDE ||
+    isUK;
 
   // US-specific data
   let stateName = usState || "";
@@ -174,7 +190,7 @@ export function MultiCountryResults({
             </span>
           </div>
 
-          <Separator className="my-2" />
+          {hasPreTotalBreakdown && <Separator className="my-2" />}
 
           {/* US Tax Breakdown */}
           {isUS && "federalIncomeTax" in taxes && (

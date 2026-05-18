@@ -6,11 +6,14 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type FRContributionInputs = Record<never, never>;
+export interface FRContributionInputs {
+  retirementSavings: number;
+}
 
 export interface FRCalculatorInputs extends BaseCalculatorInputs {
   country: "FR";
   contributions: FRContributionInputs;
+  taxHouseholdParts: number;
 }
 
 export interface FRTaxBreakdown extends BaseTaxBreakdown {
@@ -25,6 +28,9 @@ export interface FRBreakdown {
   grossIncome: number;
   taxableIncome: number;
   standardDeduction: number;
+  retirementSavingsDeduction: number;
+  disallowedRetirementSavings: number;
+  taxHouseholdParts: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
   taxCredit: number;
   employeeSocialContribution: {

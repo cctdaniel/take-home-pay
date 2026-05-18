@@ -8,6 +8,7 @@ import { CNResultBreakdown } from "./cn-result-breakdown";
 import { CYResultBreakdown } from "./cy-result-breakdown";
 import { CZResultBreakdown } from "./cz-result-breakdown";
 import { ESResultBreakdown } from "./es-result-breakdown";
+import { FRResultBreakdown } from "./fr-result-breakdown";
 import { GEResultBreakdown } from "./ge-result-breakdown";
 import { GRResultBreakdown } from "./gr-result-breakdown";
 import { HRResultBreakdown } from "./hr-result-breakdown";
@@ -32,6 +33,7 @@ export const COUNTRY_RESULT_BREAKDOWNS: Partial<
   CY: CYResultBreakdown,
   CZ: CZResultBreakdown,
   ES: ESResultBreakdown,
+  FR: FRResultBreakdown,
   GE: GEResultBreakdown,
   GR: GRResultBreakdown,
   HR: HRResultBreakdown,
