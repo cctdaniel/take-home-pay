@@ -2,7 +2,9 @@
 // Do not edit by hand.
 
 import { AECalculator } from "./ae";
+import { ATCalculator } from "./at";
 import { AUCalculator } from "./au";
+import { BECalculator } from "./be";
 import { CACalculator } from "./ca";
 import { CNCalculator } from "./cn";
 import { CYCalculator } from "./cy";
@@ -11,13 +13,16 @@ import { DECalculator } from "./de";
 import { DKCalculator } from "./dk";
 import { ESCalculator } from "./es";
 import { FICalculator } from "./fi";
+import { FRCalculator } from "./fr";
 import { GECalculator } from "./ge";
 import { GRCalculator } from "./gr";
 import { HKCalculator } from "./hk";
 import { HRCalculator } from "./hr";
 import { IDCalculator } from "./id";
+import { IECalculator } from "./ie";
 import { INCalculator } from "./in";
 import { ISCalculator } from "./is";
+import { ITCalculator } from "./it";
 import { JPCalculator } from "./jp";
 import { KRCalculator } from "./kr";
 import { MTCalculator } from "./mt";
@@ -44,7 +49,9 @@ export interface CountryRegistryEntry {
 
 export const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
   { code: AECalculator.countryCode, calculator: AECalculator },
+  { code: ATCalculator.countryCode, calculator: ATCalculator },
   { code: AUCalculator.countryCode, calculator: AUCalculator },
+  { code: BECalculator.countryCode, calculator: BECalculator },
   { code: CACalculator.countryCode, calculator: CACalculator },
   { code: CNCalculator.countryCode, calculator: CNCalculator },
   { code: CYCalculator.countryCode, calculator: CYCalculator },
@@ -53,13 +60,16 @@ export const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
   { code: DKCalculator.countryCode, calculator: DKCalculator },
   { code: ESCalculator.countryCode, calculator: ESCalculator },
   { code: FICalculator.countryCode, calculator: FICalculator },
+  { code: FRCalculator.countryCode, calculator: FRCalculator },
   { code: GECalculator.countryCode, calculator: GECalculator },
   { code: GRCalculator.countryCode, calculator: GRCalculator },
   { code: HKCalculator.countryCode, calculator: HKCalculator },
   { code: HRCalculator.countryCode, calculator: HRCalculator },
   { code: IDCalculator.countryCode, calculator: IDCalculator },
+  { code: IECalculator.countryCode, calculator: IECalculator },
   { code: INCalculator.countryCode, calculator: INCalculator },
   { code: ISCalculator.countryCode, calculator: ISCalculator },
+  { code: ITCalculator.countryCode, calculator: ITCalculator },
   { code: JPCalculator.countryCode, calculator: JPCalculator },
   { code: KRCalculator.countryCode, calculator: KRCalculator },
   { code: MTCalculator.countryCode, calculator: MTCalculator },
