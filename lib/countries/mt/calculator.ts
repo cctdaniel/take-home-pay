@@ -18,6 +18,7 @@ import {
   getMaltaTaxSchedule,
 } from "./constants/tax-brackets-2026";
 import type { MTBreakdown, MTCalculatorInputs, MTTaxBreakdown } from "./types";
+import { clampAmount } from "@/lib/utils";
 
 function getPeriodsPerYear(frequency: PayFrequency): number {
   switch (frequency) {
@@ -30,14 +31,6 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
     case "weekly":
       return 52;
   }
-}
-
-function clamp(value: number, min: number, max: number): number {
-  if (!Number.isFinite(value)) {
-    return min;
-  }
-
-  return Math.min(max, Math.max(min, value));
 }
 
 export function calculateMT(inputs: MTCalculatorInputs): CalculationResult {
@@ -76,24 +69,24 @@ export function calculateMT(inputs: MTCalculatorInputs): CalculationResult {
     isResident,
   );
   const schoolFees = isResident
-    ? clamp(taxReliefs.schoolFees, 0, schoolFeeLimit)
+    ? clampAmount(taxReliefs.schoolFees, 0, schoolFeeLimit)
     : 0;
   const childcareFees = isResident
-    ? clamp(
+    ? clampAmount(
         taxReliefs.childcareFees,
         0,
         MALTA_QUALIFYING_FEE_DEDUCTIONS_2026.childcareFees,
       )
     : 0;
   const sportsFees = isResident
-    ? clamp(
+    ? clampAmount(
         taxReliefs.sportsFees,
         0,
         MALTA_QUALIFYING_FEE_DEDUCTIONS_2026.sportsFees,
       )
     : 0;
   const culturalFees = isResident
-    ? clamp(
+    ? clampAmount(
         taxReliefs.culturalFees,
         0,
         MALTA_QUALIFYING_FEE_DEDUCTIONS_2026.culturalFees,

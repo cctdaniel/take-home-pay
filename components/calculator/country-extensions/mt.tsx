@@ -27,6 +27,7 @@ import type {
   MTTaxReliefInputs,
   MTTaxStatus,
 } from "@/lib/countries/mt/types";
+import { clampAmount } from "@/lib/utils";
 import type { CountryCode } from "@/lib/countries/types";
 
 const RESIDENCY_OPTIONS: SelectOption<MTResidencyType>[] = [
@@ -73,10 +74,6 @@ const SCHOOL_LEVEL_OPTIONS: SelectOption<MTSchoolFeeLevel>[] = [
   { value: "secondary", label: "Secondary" },
 ];
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
-}
-
 export default function MTCountryExtension({ country }: { country: CountryCode }) {
   const {
     inputs,
@@ -98,7 +95,7 @@ export default function MTCountryExtension({ country }: { country: CountryCode }
       ...current,
       contributions: {
         ...current.contributions,
-        [key]: clamp(value, 0, max),
+        [key]: clampAmount(value, 0, max),
       },
     }));
   };
@@ -109,7 +106,7 @@ export default function MTCountryExtension({ country }: { country: CountryCode }
       ...current,
       taxReliefs: {
         ...current.taxReliefs,
-        [key]: clamp(value, 0, max),
+        [key]: clampAmount(value, 0, max),
       },
     }));
   };
@@ -125,7 +122,7 @@ export default function MTCountryExtension({ country }: { country: CountryCode }
       taxReliefs: {
         ...current.taxReliefs,
         schoolLevel,
-        schoolFees: clamp(current.taxReliefs.schoolFees, 0, nextLimit),
+        schoolFees: clampAmount(current.taxReliefs.schoolFees, 0, nextLimit),
       },
     }));
   };

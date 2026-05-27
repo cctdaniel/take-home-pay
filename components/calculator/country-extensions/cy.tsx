@@ -22,6 +22,7 @@ import type {
 } from "@/lib/countries/cy/types";
 import type { ContributionLimits, PayFrequency } from "@/lib/countries/types";
 import { formatCurrency } from "@/lib/format";
+import { clampAmount } from "@/lib/utils";
 
 const RESIDENCY_OPTIONS: Array<{ value: CYResidencyType; label: string }> = [
   { value: "resident", label: "Cyprus Resident" },
@@ -34,14 +35,6 @@ const FAMILY_STATUS_OPTIONS: Array<{ value: CYFamilyStatus; label: string }> = [
   { value: "single_parent", label: "Single Parent" },
 ];
 
-function clamp(value: number, min: number, max: number): number {
-  if (!Number.isFinite(value)) {
-    return min;
-  }
-
-  return Math.min(Math.max(value, min), max);
-}
-
 function getLimit(limits: ContributionLimits, key: string): number {
   return limits[key]?.limit ?? 0;
 }
@@ -52,22 +45,22 @@ function clampCyInputs(inputs: CYCalculatorInputs): CYCalculatorInputs {
   return {
     ...inputs,
     contributions: {
-      approvedPensionProvidentFund: clamp(
+      approvedPensionProvidentFund: clampAmount(
         inputs.contributions.approvedPensionProvidentFund,
         0,
         getLimit(limits, "approvedPensionProvidentFund"),
       ),
-      homeInsurancePremium: clamp(
+      homeInsurancePremium: clampAmount(
         inputs.contributions.homeInsurancePremium,
         0,
         getLimit(limits, "homeInsurancePremium"),
       ),
-      primaryResidenceDeduction: clamp(
+      primaryResidenceDeduction: clampAmount(
         inputs.contributions.primaryResidenceDeduction,
         0,
         getLimit(limits, "primaryResidenceDeduction"),
       ),
-      greenTransitionExpense: clamp(
+      greenTransitionExpense: clampAmount(
         inputs.contributions.greenTransitionExpense,
         0,
         getLimit(limits, "greenTransitionExpense"),

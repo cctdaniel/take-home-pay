@@ -20,6 +20,7 @@ import type {
   CZContributionInputs,
   CZResidencyType,
 } from "@/lib/countries/cz/types";
+import { clampAmount } from "@/lib/utils";
 
 const RESIDENCY_OPTIONS: Array<{
   value: CZResidencyType;
@@ -28,10 +29,6 @@ const RESIDENCY_OPTIONS: Array<{
   { value: "resident", label: "Czech tax resident" },
   { value: "non_resident", label: "Non-resident" },
 ];
-
-function clampAmount(value: number, max: number): number {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 export default function CZCountryExtension({
   country,

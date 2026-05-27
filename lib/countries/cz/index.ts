@@ -9,7 +9,6 @@ export {
   calculateCzechProgressiveIncomeTax,
   calculateCzechSocialSecurity,
   calculateCzechTaxableIncome,
-  clampCzechAmount,
 } from "./constants/tax-parameters-2026";
 export type {
   CZBreakdown,

@@ -40,6 +40,7 @@
 // ============================================================================
 
 import type { TaxBracket } from "../../types";
+import { clampAmount } from "@/lib/utils";
 
 export const CZECH_TAX_PARAMETERS_2026 = {
   averageWage: 48_967,
@@ -99,14 +100,6 @@ function roundTaxBase(value: number): number {
   return Math.floor(Math.max(0, value) / 100) * 100;
 }
 
-export function clampCzechAmount(value: number, limit: number): number {
-  if (!Number.isFinite(value)) {
-    return 0;
-  }
-
-  return Math.min(Math.max(0, value), Math.max(0, limit));
-}
-
 export function calculateCzechChildCredit(numberOfChildren: number): number {
   const children = Math.max(0, Math.floor(numberOfChildren));
   let credit = 0;
@@ -139,7 +132,7 @@ export function calculateCzechDeductibleCharitableDonations(
     return 0;
   }
 
-  return clampCzechAmount(
+  return clampAmount(
     donations,
     grossIncome *
       CZECH_TAX_PARAMETERS_2026.deductions.charitableDonationMaxRate,

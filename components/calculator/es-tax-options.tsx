@@ -14,6 +14,7 @@ import type {
   ESResidencyType,
 } from "@/lib/countries/es/types";
 import type { PayFrequency } from "@/lib/countries/types";
+import { clampCount } from "@/lib/utils";
 
 interface ESTaxOptionsProps {
   payFrequency: PayFrequency;
@@ -143,7 +144,7 @@ export function ESTaxOptions({
           value={numberOfChildrenUnderThree}
           onChange={(value) =>
             onNumberOfChildrenUnderThreeChange(
-              Math.min(Math.max(0, Math.floor(value)), numberOfChildren),
+              clampCount(value, numberOfChildren),
             )
           }
           min={0}

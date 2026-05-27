@@ -15,6 +15,7 @@ import {
   MEXICO_STATES,
   MEXICO_VOLUNTARY_RETIREMENT_2026,
 } from "./constants/tax-year-2026";
+import { clampAmount } from "@/lib/utils";
 import type { MXBreakdown, MXCalculatorInputs, MXTaxBreakdown } from "./types";
 import type { MexicoStateCode } from "./constants/tax-year-2026";
 
@@ -29,10 +30,6 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
 
 function roundCurrency(value: number): number {
   return Math.round(value * 100) / 100;
-}
-
-function clampContribution(value: number | undefined, limit: number): number {
-  return Math.min(Math.max(0, value ?? 0), Math.max(0, limit));
 }
 
 function getState(state: MexicoStateCode) {
@@ -81,7 +78,7 @@ export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
     grossSalary * MEXICO_VOLUNTARY_RETIREMENT_2026.deductionRateLimit,
     MEXICO_VOLUNTARY_RETIREMENT_2026.modeledAnnualCap,
   );
-  const voluntaryRetirementContribution = clampContribution(
+  const voluntaryRetirementContribution = clampAmount(
     inputs.contributions?.voluntaryRetirementContribution,
     voluntaryRetirementContributionLimit,
   );
@@ -96,7 +93,7 @@ export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
     medicalDentalExpenses + funeralExpenses + mortgageInterest,
     generalPersonalDeductionLimit,
   );
-  const educationExpenses = clampContribution(
+  const educationExpenses = clampAmount(
     inputs.contributions?.educationExpenses,
     MEXICO_PERSONAL_DEDUCTIONS_2026.educationDeductionCap,
   );

@@ -22,6 +22,7 @@ import type {
   NZKiwiSaverRate,
   NZTaxBreakdown,
 } from "./types";
+import { clampAmount } from "@/lib/utils";
 
 function getPeriodsPerYear(frequency: PayFrequency): number {
   switch (frequency) {
@@ -34,14 +35,6 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
     case "weekly":
       return 52;
   }
-}
-
-function clamp(value: number, min: number, max: number): number {
-  if (!Number.isFinite(value)) {
-    return min;
-  }
-
-  return Math.min(Math.max(value, min), max);
 }
 
 function roundCurrency(value: number): number {
@@ -84,7 +77,7 @@ function normalizeContributions(
 ): NZContributionInputs {
   return {
     kiwiSaverRate: inputs.contributions.kiwiSaverRate,
-    payrollGivingDonations: clamp(
+    payrollGivingDonations: clampAmount(
       inputs.contributions.payrollGivingDonations,
       0,
       Math.max(0, inputs.grossSalary),
@@ -93,10 +86,7 @@ function normalizeContributions(
 }
 
 function calculateAccEarnersLevy(grossSalary: number) {
-  const liableEarnings = Math.min(
-    Math.max(0, grossSalary),
-    NZ_ACC_EARNERS_LEVY_2026.maximumEarnings,
-  );
+  const liableEarnings = clampAmount(grossSalary, NZ_ACC_EARNERS_LEVY_2026.maximumEarnings);
   const earnersLevy = roundCurrency(
     liableEarnings * NZ_ACC_EARNERS_LEVY_2026.rate,
   );
