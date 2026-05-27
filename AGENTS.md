@@ -110,6 +110,27 @@ For annual currency inputs, decide the control from the modeled legal or calcula
 
 Do not introduce a country-specific version of these controls unless the shared primitive cannot model the interaction. If a new country needs the same concept (for example health insurance, pension, CPF-style savings, or retirement contributions), use the same shared control type and visual language as existing countries.
 
+### Shared Utilities
+
+`lib/utils.ts` provides `clampAmount` and `clampCount` as shared helper functions. Do not inline duplicate `clampAmount`/`clampCount` definitions in individual country extension, tax-option, or additional-reliefs files — import them from `@/lib/utils` instead.
+
+```typescript
+import { clampAmount, clampCount } from "@/lib/utils";
+
+// Two-argument form: clamp to [0, max]
+clampAmount(value, max);
+
+// Three-argument form: clamp to [min, max]
+clampAmount(value, min, max);
+
+// Integer count clamped to [0, max]
+clampCount(value, max);
+```
+
+Both functions accept `undefined` values (treated as 0), so callers can safely pass optional inputs without null-coalescing.
+
+For `NumberStepperField` onChange handlers, pass the value directly — the component already enforces `min`/`max` and handles integer stepping. Do not wrap with `Math.max(0, Math.floor(value))`.
+
 Mobile note: `Input` and `Select` intentionally render at 16px on mobile (`text-base sm:text-sm`) to avoid iOS Safari focus zoom. Do not override calculator inputs below 16px on mobile.
 
 ### Tax Calculation Flow
