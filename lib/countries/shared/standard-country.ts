@@ -530,7 +530,11 @@ export function calculateStandardCountry<TCode extends CountryCode>(
       const taxBenefit =
         rule.taxTreatment === "credit"
           ? roundCurrency(
-              clampAmount(amount * (rule.creditRate ?? 0), 0, rule.creditCap),
+              clampAmount(
+                amount * (rule.creditRate ?? 0),
+                0,
+                rule.creditCap ?? Infinity,
+              ),
             )
           : 0;
 
