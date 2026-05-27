@@ -36,6 +36,8 @@ export const CH_SOCIAL_SECURITY_2026 = {
 export const CH_TOTAL_EMPLOYEE_SOCIAL_RATE =
   CH_SOCIAL_SECURITY_2026.ahvIvEoRate + CH_SOCIAL_SECURITY_2026.alvRate;
 
+export const CH_PILLAR_3A_MAX_2026 = 7_258;
+
 export function calculateCHFederalTax(taxableIncome: number) {
   const income = Math.max(0, taxableIncome);
   for (let i = CH_FEDERAL_TAX_2026.brackets.length - 1; i >= 0; i--) {

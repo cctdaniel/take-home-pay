@@ -17,6 +17,7 @@ export interface PLBreakdown {
   grossIncome: number;
   taxableIncome: number;
   taxFreeAmount: number;
+  taxReducingAmount: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
   incomeTax: number;
   socialSecurity: {

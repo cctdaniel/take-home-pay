@@ -40,10 +40,13 @@ export function calculateBRProgressiveTax(income: number) {
 export function calculateBRINSS(monthlySalary: number) {
   let remaining = monthlySalary;
   let total = 0;
+  let previousMax = 0;
   for (const bracket of BR_INSS_2026.brackets) {
-    const taxableInBracket = Math.min(remaining, bracket.max);
+    const bracketWidth = bracket.max - previousMax;
+    const taxableInBracket = Math.min(remaining, bracketWidth);
     total += taxableInBracket * bracket.rate;
     remaining -= taxableInBracket;
+    previousMax = bracket.max;
     if (remaining <= 0) break;
   }
   return total;

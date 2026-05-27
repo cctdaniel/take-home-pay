@@ -7,10 +7,15 @@ export function buildCountryComparison({
   payFrequency, inputs, isMaxRetirement, buildAssumptionsSummary,
 }: CountryComparisonAdapterContext): CountryComparison | null {
   const defaultInputs = getDefaultInputs(country) as CHCalculatorInputs;
-  const chInputs: CHCalculatorInputs = { ...defaultInputs, grossSalary: grossLocal, payFrequency };
+  const chInputs: CHCalculatorInputs = {
+    ...defaultInputs,
+    grossSalary: grossLocal,
+    payFrequency,
+    contributions: { pillar3a: isMaxRetirement ? 7_258 : 0 },
+  };
   const result = calculateNetSalary(chInputs);
   const assumptions = buildAssumptionsSummary(country, inputs, false);
-  assumptions.push("Federal tax only (cantonal not modeled) + 6.4% social");
+  assumptions.push("Federal tax only (cantonal not modeled) + 6.4% social + optional pillar 3a");
 
   return {
     country, name: config.name, currency, rate, grossLocal,

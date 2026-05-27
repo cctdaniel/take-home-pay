@@ -16,12 +16,14 @@ export function calculatePL(inputs: PLCalculatorInputs): CalculationResult {
   // Health insurance base is gross minus social contributions
   const healthBase = Math.max(0, grossSalary - socialEmployee);
   const healthEmployee = r(healthBase * PL_HEALTH_INSURANCE_RATE);
-  // Tax base: gross - social contributions - tax-free amount
+  // Tax base: gross - social contributions
   const income = Math.max(0, grossSalary - socialEmployee);
-  const taxFree = Math.max(0, Math.min(PL_TAX_FREE_AMOUNT, income > 120_000 ? 0 : PL_TAX_FREE_AMOUNT));
-  const taxableIncome = Math.max(0, income - taxFree);
-  const { totalTax: grossTax, bracketTaxes } = calculatePLProgressiveTax(taxableIncome);
-  const incomeTax = r(Math.max(0, grossTax));
+  // Tax-reducing amount (kwota zmniejszająca podatek): PLN 3,600 for income ≤ 120K,
+  // phased out linearly to 0 at income = 240K
+  const taxReducingAmount = Math.max(0, 3_600 - Math.max(0, income - 120_000) * 0.03);
+  const { totalTax: grossTax, bracketTaxes } = calculatePLProgressiveTax(income);
+  const incomeTax = r(Math.max(0, grossTax - taxReducingAmount));
+  const taxableIncome = income;
 
   const taxes: PLTaxBreakdown = {
     type: "PL", totalIncomeTax: incomeTax, incomeTax,
@@ -32,7 +34,9 @@ export function calculatePL(inputs: PLCalculatorInputs): CalculationResult {
   const periodsPerYear = g(payFrequency);
 
   const breakdown: PLBreakdown = {
-    type: "PL", grossIncome: grossSalary, taxableIncome, taxFreeAmount: taxFree,
+    type: "PL", grossIncome: grossSalary, taxableIncome,
+    taxFreeAmount: PL_TAX_FREE_AMOUNT,
+    taxReducingAmount,
     bracketTaxes: bracketTaxes.map(b => ({ ...b, tax: r(b.tax) })),
     incomeTax,
     socialSecurity: { employee: socialEmployee, employeeRate: PL_TOTAL_SOCIAL_RATE },
