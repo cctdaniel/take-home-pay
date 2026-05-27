@@ -107,6 +107,9 @@ export function MultiCountryResults({
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="py-4 text-center">
+          <div className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+            Net Salary
+          </div>
           <div className="text-5xl font-bold tracking-tight text-emerald-400">
             {formatCurrency(result.netSalary, currency)}
           </div>

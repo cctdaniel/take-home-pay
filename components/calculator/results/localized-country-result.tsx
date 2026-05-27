@@ -6,6 +6,7 @@ import {
 import { formatCurrency } from "@/lib/format";
 import { DeductionRow } from "../deduction-row";
 import type { CountryResultBreakdownProps } from "./types";
+import { getUniqueSourceUrls } from "./source-helpers";
 
 function getSourceHost(url: string) {
   try {
@@ -72,6 +73,7 @@ export function LocalizedCountryResultBreakdown({
     breakdown.personalAllowance > 0 ||
     appliedDeductions.length > 0 ||
     visibleVoluntaryContributions.length > 0;
+  const uniqueSourceUrls = getUniqueSourceUrls(breakdown.sourceUrls);
 
   return (
     <>
@@ -222,7 +224,7 @@ export function LocalizedCountryResultBreakdown({
         </>
       ) : null}
 
-      {breakdown.sourceUrls.length > 0 ? (
+      {uniqueSourceUrls.length > 0 ? (
         <>
           <Separator className="my-2" />
           <div className="rounded-lg bg-zinc-800/50 p-3">
@@ -230,7 +232,7 @@ export function LocalizedCountryResultBreakdown({
               {countryName} Sources
             </p>
             <ul className="list-disc space-y-1 pl-4 text-xs text-zinc-500">
-              {breakdown.sourceUrls.map((url) => (
+              {uniqueSourceUrls.map((url) => (
                 <li key={url}>
                   <a
                     href={url}

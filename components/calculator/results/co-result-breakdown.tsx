@@ -6,6 +6,7 @@ import {
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { DeductionRow } from "../deduction-row";
 import type { CountryResultBreakdownProps } from "./types";
+import { getUniqueSourceUrls } from "./source-helpers";
 
 function ReliefRow({
   label,
@@ -65,6 +66,8 @@ export function COResultBreakdown({
   ) {
     return null;
   }
+
+  const uniqueSourceUrls = getUniqueSourceUrls(breakdown.sourceUrls);
 
   const findRelief = (name: string) =>
     breakdown.deductions.find((deduction) => deduction.name === name)?.amount ??
@@ -238,7 +241,7 @@ export function COResultBreakdown({
         </>
       ) : null}
 
-      {breakdown.sourceUrls.length > 0 ? (
+      {uniqueSourceUrls.length > 0 ? (
         <>
           <Separator className="my-2" />
           <div className="rounded-lg bg-zinc-800/50 p-3">
@@ -246,7 +249,7 @@ export function COResultBreakdown({
               Colombia Sources
             </p>
             <ul className="list-disc space-y-1 pl-4 text-xs text-zinc-500">
-              {breakdown.sourceUrls.map((url) => (
+              {uniqueSourceUrls.map((url) => (
                 <li key={url}>
                   <a
                     href={url}

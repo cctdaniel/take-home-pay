@@ -6,6 +6,7 @@ import {
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { DeductionRow } from "../deduction-row";
 import type { CountryResultBreakdownProps } from "./types";
+import { getUniqueSourceUrls } from "./source-helpers";
 
 function getThaiSourceLabel(url: string) {
   if (url.includes("GUIDE_90")) {
@@ -29,6 +30,7 @@ export function THResultBreakdown({
   if (!isTHTaxBreakdown(taxes) || !isTHBreakdown(breakdown)) {
     return null;
   }
+  const uniqueSourceUrls = getUniqueSourceUrls(breakdown.sourceUrls);
 
   const allowanceRows = [
     ["Personal Allowance", breakdown.allowances.personalAllowance],
@@ -174,7 +176,7 @@ export function THResultBreakdown({
         </>
       ) : null}
 
-      {breakdown.sourceUrls.length > 0 ? (
+      {uniqueSourceUrls.length > 0 ? (
         <>
           <Separator className="my-2" />
           <div className="rounded-lg bg-zinc-800/50 p-3">
@@ -182,7 +184,7 @@ export function THResultBreakdown({
               Thailand Official Sources
             </p>
             <ul className="list-disc space-y-1 pl-4 text-xs text-zinc-500">
-              {breakdown.sourceUrls.map((url) => (
+              {uniqueSourceUrls.map((url) => (
                 <li key={url}>
                   <a
                     href={url}

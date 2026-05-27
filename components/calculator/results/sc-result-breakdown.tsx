@@ -12,6 +12,7 @@ import type {
   TaxBreakdown,
 } from "@/lib/countries/types";
 import type { SCEmployeeTaxTable } from "@/lib/countries/sc/types";
+import { getUniqueSourceUrls } from "./source-helpers";
 
 const EMPLOYEE_TAX_TABLE_LABELS: Record<SCEmployeeTaxTable, string> = {
   citizen: "Citizen employee table",
@@ -69,6 +70,7 @@ export function SCResultBreakdown({
   if (!isSCTaxBreakdown(taxes) || !isSCBreakdown(breakdown)) {
     return null;
   }
+  const uniqueSourceUrls = getUniqueSourceUrls(breakdown.sourceUrls);
 
   return (
     <>
@@ -171,7 +173,7 @@ export function SCResultBreakdown({
         </>
       ) : null}
 
-      {breakdown.sourceUrls.length > 0 ? (
+      {uniqueSourceUrls.length > 0 ? (
         <>
           <Separator className="my-2" />
           <div className="rounded-lg bg-zinc-800/50 p-3">
@@ -179,7 +181,7 @@ export function SCResultBreakdown({
               Seychelles Sources
             </p>
             <ul className="list-disc space-y-1 pl-4 text-xs text-zinc-500">
-              {breakdown.sourceUrls.map((url) => (
+              {uniqueSourceUrls.map((url) => (
                 <li key={url}>
                   <a
                     href={url}

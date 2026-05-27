@@ -4,6 +4,7 @@ import { isBHBreakdown, isBHTaxBreakdown } from "@/lib/countries/bh/types";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { DeductionRow } from "../deduction-row";
 import type { CountryResultBreakdownProps } from "./types";
+import { getUniqueSourceUrls } from "./source-helpers";
 
 const BH_WORKER_TYPE_LABELS = {
   expatriate: "Expatriate employee",
@@ -68,6 +69,7 @@ export function BHResultBreakdown({
   if (!isBHTaxBreakdown(taxes) || !isBHBreakdown(breakdown)) {
     return null;
   }
+  const uniqueSourceUrls = getUniqueSourceUrls(breakdown.sourceUrls);
 
   return (
     <>
@@ -182,7 +184,7 @@ export function BHResultBreakdown({
         </>
       ) : null}
 
-      {breakdown.sourceUrls.length > 0 ? (
+      {uniqueSourceUrls.length > 0 ? (
         <>
           <Separator className="my-2" />
           <div className="rounded-lg bg-zinc-800/50 p-3">
@@ -190,7 +192,7 @@ export function BHResultBreakdown({
               Bahrain Sources
             </p>
             <ul className="list-disc space-y-1 pl-4 text-xs text-zinc-500">
-              {breakdown.sourceUrls.map((url) => (
+              {uniqueSourceUrls.map((url) => (
                 <li key={url}>
                   <a
                     href={url}

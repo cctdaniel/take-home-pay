@@ -1,4 +1,5 @@
 import { Separator } from "@/components/ui/separator";
+import { getUniqueSourceUrls } from "./source-helpers";
 
 function getSourceHost(url: string) {
   try {
@@ -31,11 +32,12 @@ export function ResultNotes({
 }) {
   const sourceLabel =
     getSourceLabel ?? ((url) => getDefaultSourceLabel(url, countryName));
+  const uniqueSourceUrls = getUniqueSourceUrls(sourceUrls);
 
   if (
     assumptions.length === 0 &&
     exclusions.length === 0 &&
-    sourceUrls.length === 0
+    uniqueSourceUrls.length === 0
   ) {
     return null;
   }
@@ -74,7 +76,7 @@ export function ResultNotes({
         </>
       ) : null}
 
-      {sourceUrls.length > 0 ? (
+      {uniqueSourceUrls.length > 0 ? (
         <>
           <Separator className="my-2" />
           <div className="rounded-lg bg-zinc-800/50 p-3">
@@ -82,7 +84,7 @@ export function ResultNotes({
               {countryName} Sources
             </p>
             <ul className="list-disc space-y-1 pl-4 text-xs text-zinc-500">
-              {sourceUrls.map((url) => (
+              {uniqueSourceUrls.map((url) => (
                 <li key={url}>
                   <a
                     href={url}

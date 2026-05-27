@@ -3,6 +3,7 @@ import { isQABreakdown, isQATaxBreakdown } from "@/lib/countries/qa/types";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { DeductionRow } from "../deduction-row";
 import type { CountryResultBreakdownProps } from "./types";
+import { getUniqueSourceUrls } from "./source-helpers";
 
 const QA_EMPLOYEE_TYPE_LABELS = {
   expatriate: "Expatriate employee",
@@ -51,6 +52,7 @@ export function QAResultBreakdown({
   if (!isQATaxBreakdown(taxes) || !isQABreakdown(breakdown)) {
     return null;
   }
+  const uniqueSourceUrls = getUniqueSourceUrls(breakdown.sourceUrls);
 
   const isPensionCovered = breakdown.employeeType === "qatariPensionCovered";
 
@@ -201,7 +203,7 @@ export function QAResultBreakdown({
         </>
       ) : null}
 
-      {breakdown.sourceUrls.length > 0 ? (
+      {uniqueSourceUrls.length > 0 ? (
         <>
           <Separator className="my-2" />
           <div className="rounded-lg bg-zinc-800/50 p-3">
@@ -209,7 +211,7 @@ export function QAResultBreakdown({
               Qatar Sources
             </p>
             <ul className="list-disc space-y-1 pl-4 text-xs text-zinc-500">
-              {breakdown.sourceUrls.map((url) => (
+              {uniqueSourceUrls.map((url) => (
                 <li key={url}>
                   <a
                     href={url}
