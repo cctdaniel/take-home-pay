@@ -14,7 +14,6 @@ import type {
   ESResidencyType,
 } from "@/lib/countries/es/types";
 import type { PayFrequency } from "@/lib/countries/types";
-import { clampCount } from "@/lib/utils";
 
 interface ESTaxOptionsProps {
   payFrequency: PayFrequency;
@@ -127,10 +126,9 @@ export function ESTaxOptions({
           label="Children / Descendants"
           value={numberOfChildren}
           onChange={(value) => {
-            const nextValue = Math.max(0, Math.floor(value));
-            onNumberOfChildrenChange(nextValue);
-            if (numberOfChildrenUnderThree > nextValue) {
-              onNumberOfChildrenUnderThreeChange(nextValue);
+            onNumberOfChildrenChange(value);
+            if (numberOfChildrenUnderThree > value) {
+              onNumberOfChildrenUnderThreeChange(value);
             }
           }}
           min={0}
@@ -143,9 +141,7 @@ export function ESTaxOptions({
           label="Children Under 3"
           value={numberOfChildrenUnderThree}
           onChange={(value) =>
-            onNumberOfChildrenUnderThreeChange(
-              clampCount(value, numberOfChildren),
-            )
+            onNumberOfChildrenUnderThreeChange(value)
           }
           min={0}
           max={numberOfChildren}

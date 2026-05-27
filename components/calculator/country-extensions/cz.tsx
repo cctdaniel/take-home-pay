@@ -120,7 +120,7 @@ export default function CZCountryExtension({
             label="Children for Tax Credit"
             value={inputs.taxReliefs.numberOfChildren}
             onChange={(value) =>
-              setTaxRelief("numberOfChildren", Math.max(0, Math.floor(value)))
+              setTaxRelief("numberOfChildren", value)
             }
             min={0}
             max={10}
