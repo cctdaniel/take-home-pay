@@ -69,7 +69,9 @@ export type CountryRegion =
   | "North America"
   | "Europe"
   | "Asia-Pacific"
-  | "Middle East";
+  | "Middle East"
+  | "Africa"
+  | "South America";
 
 export interface CountryConfig {
   code: CountryCode;

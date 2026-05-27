@@ -31,6 +31,16 @@ const COUNTRY_DESCRIPTIONS: Partial<Record<CountryCode, string>> = {
   IE: `Free 2026 take home pay calculator for Ireland. Calculate your salary after PAYE income tax, PRSI, Universal Social Charge, and standard single PAYE credits.`,
   AT: `Free 2026 take home pay calculator for Austria. Calculate your salary after progressive wage tax and employee social insurance contributions.`,
   BE: `Free 2026 take home pay calculator for Belgium. Calculate your salary after federal personal income tax, employee social security, professional-expense deduction, and municipal surcharge proxy.`,
+  SA: `Free 2026 take home pay calculator for Saudi Arabia. Calculate your salary with 0% personal income tax and GOSI social insurance contributions for Saudi nationals.`,
+  BG: `Free 2026 take home pay calculator for Bulgaria. Calculate your salary after flat 10% income tax and social security contributions (pension, health, unemployment).`,
+  RO: `Free 2026 take home pay calculator for Romania. Calculate your salary after flat 10% income tax, CAS pension (25%), and CASS health insurance (10%).`,
+  HU: `Free 2026 take home pay calculator for Hungary. Calculate your salary after flat 15% income tax and 18.5% social contributions (pension, health, unemployment).`,
+  PL: `Free 2026 take home pay calculator for Poland. Calculate your salary after progressive 12%/32% income tax, ZUS social security (13.71%), and NFZ health insurance (9%).`,
+  TR: `Free 2026 take home pay calculator for Turkey. Calculate your salary after progressive 15-40% income tax, SSI (14%), and unemployment insurance (1%).`,
+  ZA: `Free 2026 take home pay calculator for South Africa. Calculate your salary after progressive 18-45% income tax with age-based rebates and UIF (1%).`,
+  BR: `Free 2026 take home pay calculator for Brazil. Calculate your salary after progressive 0-27.5% IRPF income tax and INSS social security (7.5-14%).`,
+  IL: `Free 2026 take home pay calculator for Israel. Calculate your salary after progressive 10-50% income tax, Bituach Leumi, and health insurance.`,
+  CH: `Free 2026 take home pay calculator for Switzerland. Calculate your salary after federal direct tax and social security (AHV/IV/EO 5.3%, ALV 1.1%). Cantonal tax not modeled.`,
 };
 
 // Country-specific keywords for SEO
