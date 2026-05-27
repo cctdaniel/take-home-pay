@@ -25,6 +25,7 @@ import type {
   CYContributionInputs,
   CYTaxBreakdown,
 } from "./types";
+import { clampAmount } from "@/lib/utils";
 
 function getPeriodsPerYear(frequency: PayFrequency): number {
   switch (frequency) {
@@ -37,14 +38,6 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
     case "weekly":
       return 52;
   }
-}
-
-function clamp(value: number, min: number, max: number): number {
-  if (!Number.isFinite(value)) {
-    return min;
-  }
-
-  return Math.min(Math.max(value, min), max);
 }
 
 function roundCurrency(value: number): number {
@@ -77,26 +70,26 @@ function normalizeContributions(
     inputs.residencyType === "resident" ? baseLimit : 0;
 
   return {
-    approvedPensionProvidentFund: clamp(
+    approvedPensionProvidentFund: clampAmount(
       inputs.contributions.approvedPensionProvidentFund,
       0,
       pensionProvidentLimit,
     ),
-    homeInsurancePremium: clamp(
+    homeInsurancePremium: clampAmount(
       inputs.contributions.homeInsurancePremium,
       0,
       residentOnlyLimit(
         CYPRUS_TD59_DEDUCTIONS_2026.homeInsuranceNaturalDisastersMax,
       ),
     ),
-    primaryResidenceDeduction: clamp(
+    primaryResidenceDeduction: clampAmount(
       inputs.contributions.primaryResidenceDeduction,
       0,
       residentReliefLimit(
         CYPRUS_TD59_DEDUCTIONS_2026.primaryResidenceRentOrInterestMax,
       ),
     ),
-    greenTransitionExpense: clamp(
+    greenTransitionExpense: clampAmount(
       inputs.contributions.greenTransitionExpense,
       0,
       residentReliefLimit(CYPRUS_TD59_DEDUCTIONS_2026.greenTransitionMax),

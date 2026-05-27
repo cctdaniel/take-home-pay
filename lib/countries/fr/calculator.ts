@@ -7,6 +7,7 @@ import type {
   RegionInfo,
   TaxBracket,
 } from "../types";
+import { clampAmount } from "@/lib/utils";
 import { FR_CONFIG } from "./config";
 import { FR_TAX_CONFIG } from "./constants/tax-year-2026";
 import type { FRBreakdown, FRCalculatorInputs, FRTaxBreakdown } from "./types";
@@ -42,10 +43,6 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
     case "weekly":
       return 52;
   }
-}
-
-function clampAmount(value: number, min = 0, max = Infinity): number {
-  return Math.min(Math.max(value, min), max);
 }
 
 function calculateBracketTax(

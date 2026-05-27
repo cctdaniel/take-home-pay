@@ -22,6 +22,7 @@ import type {
 } from "@/lib/countries/nz/types";
 import type { ContributionLimits, PayFrequency } from "@/lib/countries/types";
 import { formatCurrency, formatPercentage } from "@/lib/format";
+import { clampAmount } from "@/lib/utils";
 
 const RESIDENCY_OPTIONS: SelectOption<NZResidencyType>[] = [
   { value: "tax_resident", label: "NZ Tax Resident" },
@@ -38,14 +39,6 @@ const KIWISAVER_OPTIONS: SelectOption<NZKiwiSaverRate>[] = [
   { value: "rate_10", label: "10%" },
 ];
 
-function clamp(value: number, min: number, max: number): number {
-  if (!Number.isFinite(value)) {
-    return min;
-  }
-
-  return Math.min(Math.max(value, min), max);
-}
-
 function getLimit(limits: ContributionLimits, key: string): number {
   return limits[key]?.limit ?? 0;
 }
@@ -57,7 +50,7 @@ function clampNzInputs(inputs: NZCalculatorInputs): NZCalculatorInputs {
     ...inputs,
     contributions: {
       ...inputs.contributions,
-      payrollGivingDonations: clamp(
+      payrollGivingDonations: clampAmount(
         inputs.contributions.payrollGivingDonations,
         0,
         getLimit(limits, "payrollGivingDonations"),

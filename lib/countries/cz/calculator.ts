@@ -14,10 +14,10 @@ import {
   calculateCzechProgressiveIncomeTax,
   calculateCzechSocialSecurity,
   calculateCzechTaxableIncome,
-  clampCzechAmount,
   CZECH_TAX_PARAMETERS_2026,
 } from "./constants/tax-parameters-2026";
 import type { CZBreakdown, CZCalculatorInputs, CZTaxBreakdown } from "./types";
+import { clampAmount } from "@/lib/utils";
 
 function getPeriodsPerYear(frequency: PayFrequency): number {
   switch (frequency) {
@@ -49,7 +49,7 @@ export function calculateCZ(inputs: CZCalculatorInputs): CalculationResult {
   );
 
   const retirementSavingsContribution = isResident
-    ? clampCzechAmount(
+    ? clampAmount(
         contributions.retirementSavingsContribution,
         CZECH_TAX_PARAMETERS_2026.deductions.retirementProductsLimit,
       )

@@ -161,6 +161,27 @@ Each country calculator handles country-specific combinations of:
 | `components/calculator/country-extensions/`  | Optional full country calculator extensions, auto-registered by filename |
 | `components/ui/contribution-slider.tsx`      | Shared contribution slider             |
 
+## Shared Utilities
+
+`lib/utils.ts` provides `clampAmount` and `clampCount` as shared helper functions. Do not inline duplicate `clampAmount`/`clampCount` definitions in individual country extension, tax-option, or additional-reliefs files — import them from `@/lib/utils` instead.
+
+```typescript
+import { clampAmount, clampCount } from "@/lib/utils";
+
+// Two-argument form: clamp to [0, max]
+clampAmount(value, max);
+
+// Three-argument form: clamp to [min, max]
+clampAmount(value, min, max);
+
+// Integer count clamped to [0, max]
+clampCount(value, max);
+```
+
+Both functions accept `undefined` values (treated as 0), so callers can safely pass optional inputs without null-coalescing.
+
+Mobile note: `Input` and `Select` intentionally render at 16px on mobile (`text-base sm:text-sm`) to avoid iOS Safari focus zoom. Do not override calculator inputs below 16px on mobile.
+
 ## Adding a New Country
 
 1. Create directory: `lib/countries/{country-code}/`

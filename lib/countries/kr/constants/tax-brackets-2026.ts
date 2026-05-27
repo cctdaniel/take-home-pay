@@ -4,6 +4,7 @@
 // ============================================================================
 
 import type { TaxBracket } from "../../types";
+import { clampAmount } from "@/lib/utils";
 
 // ============================================================================
 // SOUTH KOREA INCOME TAX BRACKETS (2026)
@@ -211,7 +212,7 @@ export function calculateNationalPension(monthlyIncome: number): number {
   const { employeeRate, monthlyCeiling, monthlyFloor } = KR_SOCIAL_INSURANCE.nationalPension;
 
   // Apply floor and ceiling to standard monthly income
-  const standardIncome = Math.max(monthlyFloor, Math.min(monthlyIncome, monthlyCeiling));
+  const standardIncome = clampAmount(monthlyIncome, monthlyFloor, monthlyCeiling);
 
   return Math.round(standardIncome * employeeRate);
 }

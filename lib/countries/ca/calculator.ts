@@ -22,6 +22,7 @@ import {
   QUEBEC_EI_2026,
   QUEBEC_QPIP_2026,
 } from "./constants/tax-year-2026";
+import { clampAmount } from "@/lib/utils";
 import type {
   CABreakdown,
   CACalculatorInputs,
@@ -40,10 +41,6 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
 
 function roundCurrency(value: number): number {
   return Math.round(value * 100) / 100;
-}
-
-function clampContribution(value: number | undefined, limit: number): number {
-  return Math.min(Math.max(0, value ?? 0), Math.max(0, limit));
 }
 
 function calculateProgressiveTax(income: number, brackets: TaxBracket[]) {
@@ -106,15 +103,15 @@ export function calculateCA(inputs: CACalculatorInputs): CalculationResult {
     grossSalary * CANADA_RPP_2026.modeledContributionRateLimit,
     CANADA_RPP_2026.moneyPurchaseDollarLimit,
   );
-  const rrspContribution = clampContribution(
+  const rrspContribution = clampAmount(
     inputs.contributions?.rrspContribution,
     rrspContributionLimit,
   );
-  const fhsaContribution = clampContribution(
+  const fhsaContribution = clampAmount(
     inputs.contributions?.fhsaContribution,
     CANADA_FHSA_2026.annualDollarLimit,
   );
-  const registeredPensionContribution = clampContribution(
+  const registeredPensionContribution = clampAmount(
     inputs.contributions?.registeredPensionContribution,
     registeredPensionContributionLimit,
   );

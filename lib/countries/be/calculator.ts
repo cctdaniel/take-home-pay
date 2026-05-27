@@ -10,6 +10,7 @@ import type {
 import { BE_CONFIG } from "./config";
 import { BE_TAX_CONFIG } from "./constants/tax-year-2026";
 import type { BEBreakdown, BECalculatorInputs, BETaxBreakdown } from "./types";
+import { clampAmount } from "@/lib/utils";
 
 interface LocalSalaryTaxConfig {
   defaultSalary: number;
@@ -42,9 +43,6 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
     case "weekly":
       return 52;
   }
-}
-function clampAmount(value: number, min = 0, max = Infinity): number {
-  return Math.min(Math.max(value, min), max);
 }
 function calculateBracketTax(
   taxableIncome: number,

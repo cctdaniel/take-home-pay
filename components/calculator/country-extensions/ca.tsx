@@ -19,6 +19,7 @@ import {
   CANADA_RRSP_2026,
 } from "@/lib/countries/ca/constants/tax-year-2026";
 import type { CACalculatorInputs } from "@/lib/countries/ca/types";
+import { clampAmount } from "@/lib/utils";
 import type { CanadaProvinceCode } from "@/lib/countries/ca/constants/tax-year-2026";
 
 
@@ -51,9 +52,9 @@ export default function CACountryExtension({ country }: CountryCalculatorExtensi
       return {
         ...next,
         contributions: {
-          rrspContribution: Math.min(Math.max(0, next.contributions.rrspContribution), nextRrspLimit),
-          fhsaContribution: Math.min(Math.max(0, next.contributions.fhsaContribution), CANADA_FHSA_2026.annualDollarLimit),
-          registeredPensionContribution: Math.min(Math.max(0, next.contributions.registeredPensionContribution), nextRppLimit),
+          rrspContribution: clampAmount(next.contributions.rrspContribution, nextRrspLimit),
+          fhsaContribution: clampAmount(next.contributions.fhsaContribution, CANADA_FHSA_2026.annualDollarLimit),
+          registeredPensionContribution: clampAmount(next.contributions.registeredPensionContribution, nextRppLimit),
           unionDues: Math.max(0, next.contributions.unionDues),
           childcareExpenses: Math.max(0, next.contributions.childcareExpenses),
         },

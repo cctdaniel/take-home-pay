@@ -15,6 +15,7 @@ import type {
   ATFamilyBonusChildren,
   ATTaxBreakdown,
 } from "./types";
+import { clampAmount } from "@/lib/utils";
 
 interface LocalSalaryTaxConfig {
   defaultSalary: number;
@@ -46,9 +47,6 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
     case "weekly":
       return 52;
   }
-}
-function clampAmount(value: number, min = 0, max = Infinity): number {
-  return Math.min(Math.max(value, min), max);
 }
 function calculateBracketTax(
   taxableIncome: number,
