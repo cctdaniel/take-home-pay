@@ -6,14 +6,11 @@ import {
 } from "@/components/calculator/calculator-fields";
 import { ContributionSlider } from "@/components/ui/contribution-slider";
 import type { THTaxReliefInputs } from "@/lib/countries/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 interface THAdditionalReliefsProps {
   reliefs: THTaxReliefInputs;
   onChange: (reliefs: THTaxReliefInputs) => void;
-}
-
-function clampCount(value: number, max: number) {
-  return Math.min(Math.max(0, Math.floor(value)), max);
 }
 
 export function THAdditionalReliefs({ reliefs, onChange }: THAdditionalReliefsProps) {

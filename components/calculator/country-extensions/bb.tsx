@@ -33,6 +33,7 @@ import type {
   BBContributionInputs,
   BBResidencyStatus,
 } from "@/lib/countries/bb/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const RESIDENCY_OPTIONS: Array<{
   value: BBResidencyStatus;
@@ -58,10 +59,6 @@ const CHARITY_TYPE_OPTIONS: Array<{
   { value: "registeredNonExempt", label: "Registered non-exempt charity" },
   { value: "exemptCharity", label: "Exempt charity" },
 ];
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 const ZERO_CONTRIBUTIONS: BBContributionInputs = {
   retirementContribution: 0,

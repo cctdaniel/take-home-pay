@@ -32,20 +32,14 @@ import type {
   SICalculatorInputs,
   SIContributionInputs,
 } from "@/lib/countries/si/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const MAX_DEPENDENTS = 10;
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 function clampAge(value: number) {
   return Math.min(Math.max(18, Math.floor(value)), 100);
 }
 
-function clampCount(value: number) {
-  return Math.min(Math.max(0, Math.floor(value)), MAX_DEPENDENTS);
-}
 
 export default function SICountryExtension({
   country,
@@ -146,7 +140,7 @@ export default function SICountryExtension({
               setInputs((current) => ({
                 ...current,
                 numberOfDependentChildren: clampCount(
-                  numberOfDependentChildren,
+                  numberOfDependentChildren, 99,
                 ),
               }))
             }
@@ -161,7 +155,7 @@ export default function SICountryExtension({
               setInputs((current) => ({
                 ...current,
                 numberOfSpecialCareChildren: clampCount(
-                  numberOfSpecialCareChildren,
+                  numberOfSpecialCareChildren, 99,
                 ),
               }))
             }
@@ -175,7 +169,7 @@ export default function SICountryExtension({
             onChange={(numberOfOtherDependents) =>
               setInputs((current) => ({
                 ...current,
-                numberOfOtherDependents: clampCount(numberOfOtherDependents),
+                numberOfOtherDependents: clampCount(numberOfOtherDependents, 99),
               }))
             }
             max={MAX_DEPENDENTS}

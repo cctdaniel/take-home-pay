@@ -12,10 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { ContributionSlider } from "@/components/ui/contribution-slider";
 import { TWCalculator } from "@/lib/countries/tw";
 import type { TWCalculatorInputs } from "@/lib/countries/types";
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
+import { clampAmount, clampCount } from "@/lib/utils";
 
 export default function TWCountryExtension({
   country,

@@ -24,6 +24,7 @@ import type {
   CZDisabilityCreditType,
   CZResidencyType,
 } from "@/lib/countries/cz/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const RESIDENCY_OPTIONS: Array<{
   value: CZResidencyType;
@@ -50,10 +51,6 @@ const COMPANY_CAR_EMISSION_OPTIONS: Array<{
   { value: "lowEmission", label: "Low-emission vehicle (0.5%)" },
   { value: "zeroEmission", label: "Zero-emission vehicle (0.25%)" },
 ];
-
-function clampAmount(value: number, max: number): number {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 function clampNonNegative(value: number): number {
   return Number.isFinite(value) ? Math.max(0, value) : 0;
@@ -172,7 +169,7 @@ export default function CZCountryExtension({
               onChange={(value) =>
                 setTaxRelief(
                   "numberOfChildren",
-                  Math.max(0, Math.floor(value)),
+                  value,
                 )
               }
               min={0}

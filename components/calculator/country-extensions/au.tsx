@@ -22,6 +22,7 @@ import type {
   AUMedicareFamilyStatus,
   AUResidencyType,
 } from "@/lib/countries/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const RESIDENCY_OPTIONS: Array<{ value: AUResidencyType; label: string }> = [
   { value: "resident", label: "Australian Resident" },
@@ -35,10 +36,6 @@ const MEDICARE_FAMILY_OPTIONS: Array<{
   { value: "single", label: "Single threshold" },
   { value: "family", label: "Family / sole-parent threshold" },
 ];
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 function clampChildCount(value: number): number {
   return Math.min(10, Math.max(0, Math.floor(value)));

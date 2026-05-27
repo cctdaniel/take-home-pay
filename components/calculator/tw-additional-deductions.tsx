@@ -16,6 +16,7 @@ import type {
   TWDeductionMethod,
   TWTaxReliefInputs,
 } from "@/lib/countries/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const DEDUCTION_METHOD_OPTIONS: Array<{
   value: TWDeductionMethod;
@@ -30,10 +31,6 @@ interface TWAdditionalDeductionsProps {
   reliefs: TWTaxReliefInputs;
   grossSalary: number;
   onChange: (reliefs: TWTaxReliefInputs) => void;
-}
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
 }
 
 export function TWAdditionalDeductions({

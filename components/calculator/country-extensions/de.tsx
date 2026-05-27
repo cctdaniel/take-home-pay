@@ -10,10 +10,7 @@ import {
 import { InfoPanel } from "@/components/calculator/info-panel";
 import { DECalculator } from "@/lib/countries/de";
 import type { DECalculatorInputs } from "@/lib/countries/types";
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
+import { clampAmount, clampCount } from "@/lib/utils";
 
 function getGermanLimits(inputs: DECalculatorInputs) {
   const limits = DECalculator.getContributionLimits(inputs);

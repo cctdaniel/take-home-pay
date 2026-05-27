@@ -22,10 +22,7 @@ import {
   AD_NON_WORKING_SPOUSE_PERSONAL_EXEMPT_AMOUNT,
 } from "@/lib/countries/ad/constants/tax-year-2026";
 import type { ADCalculatorInputs } from "@/lib/countries/ad/types";
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
+import { clampAmount, clampCount } from "@/lib/utils";
 
 export default function ADCountryExtension(props: CountryCalculatorExtensionProps) {
   const { country } = props;

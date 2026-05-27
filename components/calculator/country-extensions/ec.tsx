@@ -26,6 +26,7 @@ import type {
   ECCalculatorInputs,
   ECIncomeExemptionType,
 } from "@/lib/countries/ec/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const INCOME_EXEMPTION_OPTIONS: Array<{
   value: ECIncomeExemptionType;
@@ -38,10 +39,6 @@ const INCOME_EXEMPTION_OPTIONS: Array<{
   { value: "disability75to84", label: "Disability/sustituto 75%-84%" },
   { value: "disability85to100", label: "Disability/sustituto 85%-100%" },
 ];
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 export default function ECCountryExtension({
   country,

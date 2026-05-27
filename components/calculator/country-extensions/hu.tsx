@@ -32,6 +32,7 @@ import type {
   HUContributionInputs,
   HUPitBaseAllowance,
 } from "@/lib/countries/hu/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const PIT_BASE_ALLOWANCE_OPTIONS: Array<{
   value: HUPitBaseAllowance;
@@ -44,10 +45,6 @@ const PIT_BASE_ALLOWANCE_OPTIONS: Array<{
   { value: "mother_three_children", label: "Mother with 3 children" },
   { value: "mother_four_plus_children", label: "Mother with 4+ children" },
 ];
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 export default function HUCountryExtension({
   country,

@@ -27,10 +27,7 @@ import type {
   CRAguinaldoMode,
   CRCalculatorInputs,
 } from "@/lib/countries/cr/types";
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const CR_AGUINALDO_OPTIONS: SelectOption<CRAguinaldoMode>[] = [
   {

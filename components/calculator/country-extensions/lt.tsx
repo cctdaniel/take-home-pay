@@ -28,6 +28,7 @@ import type {
   LTDisabilityNpdType,
   LTSecondPillarRate,
 } from "@/lib/countries/lt/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const SECOND_PILLAR_OPTIONS: Array<{
   value: LTSecondPillarRate;
@@ -51,10 +52,6 @@ const DISABILITY_NPD_OPTIONS: Array<{
     label: "30-55% participation / mild or moderate disability",
   },
 ];
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 export default function LTCountryExtension({
   country,

@@ -14,10 +14,7 @@ import {
   MY_RELIEFS_YA_2025,
 } from "@/lib/countries/my/constants/tax-brackets-2025";
 import type { MYCalculatorInputs, MYTaxReliefInputs } from "@/lib/countries/types";
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
+import { clampAmount, clampCount } from "@/lib/utils";
 
 export default function MYCountryExtension({
   country,

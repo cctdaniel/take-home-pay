@@ -11,10 +11,7 @@ import { USTaxOptions } from "@/components/calculator/us-tax-options";
 import { USCalculator } from "@/lib/countries/us";
 import type { USCalculatorInputs } from "@/lib/countries/types";
 import type { HSACoverageType } from "@/lib/countries/us";
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
+import { clampAmount, clampCount } from "@/lib/utils";
 
 export default function USCountryExtension({
   country,

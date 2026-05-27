@@ -33,6 +33,7 @@ import type {
   BZContributionInputs,
   BZSocialSecurityStatus,
 } from "@/lib/countries/bz/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const SOCIAL_SECURITY_OPTIONS: Array<{
   value: BZSocialSecurityStatus;
@@ -45,10 +46,6 @@ const SOCIAL_SECURITY_OPTIONS: Array<{
   },
   { value: "age65Plus", label: "Age 65 or older" },
 ];
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 function isEmployeeSsbDeducted(status: BZSocialSecurityStatus) {
   return status === "standard";

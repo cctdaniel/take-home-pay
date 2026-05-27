@@ -27,6 +27,7 @@ import type {
   EESecondPillarRate,
 } from "@/lib/countries/ee/types";
 import { formatCurrency } from "@/lib/format";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const SECOND_PILLAR_OPTIONS: Array<{
   value: EESecondPillarRate;
@@ -37,10 +38,6 @@ const SECOND_PILLAR_OPTIONS: Array<{
   { value: "4", label: "4% increased" },
   { value: "6", label: "6% increased" },
 ];
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 export default function EECountryExtension({
   country,

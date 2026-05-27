@@ -32,6 +32,7 @@ import type {
   JPIdecoCategory,
   JPSpouseDeductionType,
 } from "@/lib/countries/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const MAX_DEPENDENTS = 10;
 
@@ -57,10 +58,6 @@ const DONATION_OPTIONS: SelectOption<JPDonationType>[] = [
   { value: "specified", label: "Specified donation deduction" },
   { value: "furusato", label: "Furusato nozei / municipal donation" },
 ];
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 function clampDependents(value: number) {
   return Math.min(Math.max(0, Math.floor(value)), MAX_DEPENDENTS);

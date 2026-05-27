@@ -26,15 +26,12 @@ import type {
   OMContributionInputs,
   OMWorkerType,
 } from "@/lib/countries/om/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const WORKER_TYPE_OPTIONS: SelectOption<OMWorkerType>[] = [
   { value: "expatriate", label: "Expatriate employee" },
   { value: "omani", label: "Omani employee" },
 ];
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 export default function OmanCalculatorExtension({
   country,

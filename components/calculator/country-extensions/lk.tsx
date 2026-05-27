@@ -30,6 +30,7 @@ import type {
   LKEmploymentType,
   LKTerminalBenefitTreatment,
 } from "@/lib/countries/lk/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const EMPLOYMENT_TYPE_OPTIONS: Array<{
   value: LKEmploymentType;
@@ -48,10 +49,6 @@ const TERMINAL_BENEFIT_TREATMENT_OPTIONS: Array<{
   { value: "approvedOrEtf", label: "Approved scheme / ETF Table 03" },
   { value: "otherOrUnapproved", label: "Other or unapproved Table 03" },
 ];
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 export default function LKCountryExtension({
   country,

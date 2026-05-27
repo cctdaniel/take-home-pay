@@ -10,10 +10,7 @@ import { InfoPanel } from "@/components/calculator/info-panel";
 import { ContributionSlider } from "@/components/ui/contribution-slider";
 import { ESCalculator } from "@/lib/countries/es";
 import type { ESCalculatorInputs } from "@/lib/countries/es";
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
+import { clampAmount, clampCount } from "@/lib/utils";
 
 function getPensionLimit(inputs: ESCalculatorInputs) {
   return ESCalculator.getContributionLimits(inputs).pensionContribution?.limit ?? 0;

@@ -21,6 +21,7 @@ import type {
   CHCalculatorInputs,
   CHContributionInputs,
 } from "@/lib/countries/ch/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const CH_CONTRIBUTION_KEYS: Array<keyof CHContributionInputs> = [
   "retirementContribution",
@@ -29,10 +30,6 @@ const CH_CONTRIBUTION_KEYS: Array<keyof CHContributionInputs> = [
   "educationExpenses",
   "charitableDonations",
 ];
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 export default function CHCountryExtension({
   country,

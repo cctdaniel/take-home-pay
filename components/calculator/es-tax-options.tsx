@@ -151,10 +151,9 @@ export function ESTaxOptions({
           label="Children / Descendants"
           value={numberOfChildren}
           onChange={(value) => {
-            const nextValue = Math.max(0, Math.floor(value));
-            onNumberOfChildrenChange(nextValue);
-            if (numberOfChildrenUnderThree > nextValue) {
-              onNumberOfChildrenUnderThreeChange(nextValue);
+            onNumberOfChildrenChange(value);
+            if (numberOfChildrenUnderThree > value) {
+              onNumberOfChildrenUnderThreeChange(value);
             }
           }}
           min={0}
@@ -166,9 +165,7 @@ export function ESTaxOptions({
           label="Children Under 3"
           value={numberOfChildrenUnderThree}
           onChange={(value) =>
-            onNumberOfChildrenUnderThreeChange(
-              Math.min(Math.max(0, Math.floor(value)), numberOfChildren),
-            )
+            onNumberOfChildrenUnderThreeChange(value)
           }
           min={0}
           max={numberOfChildren}

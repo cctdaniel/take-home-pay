@@ -26,6 +26,7 @@ import type {
   CLCalculatorInputs,
   CLContractType,
 } from "@/lib/countries/cl/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const CONTRACT_OPTIONS: Array<{
   value: CLContractType;
@@ -42,10 +43,6 @@ const APV_REGIME_OPTIONS: Array<{
   { value: "regimeB", label: "Regime B - tax deduction" },
   { value: "regimeA", label: "Regime A - fiscal bonus" },
 ];
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 export default function CLCountryExtension({
   country,

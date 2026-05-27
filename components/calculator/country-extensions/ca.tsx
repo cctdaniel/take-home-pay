@@ -28,6 +28,7 @@ import type {
   CAFederalFamilyCreditType,
 } from "@/lib/countries/ca/types";
 import type { CanadaProvinceCode } from "@/lib/countries/ca/constants/tax-year-2026";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 
 function getRrspLimit(grossSalary: number): number {
@@ -53,9 +54,6 @@ const FEDERAL_FAMILY_CREDIT_OPTIONS: Array<{
   { value: "eligible_dependant", label: "Eligible dependant amount" },
 ];
 
-function clampCount(value: number): number {
-  return Math.min(10, Math.max(0, Math.floor(value)));
-}
 
 export default function CACountryExtension({ country }: CountryCalculatorExtensionProps) {
   const { inputs, setInputs, currency, result } =
@@ -81,9 +79,9 @@ export default function CACountryExtension({ country }: CountryCalculatorExtensi
       const nextRppLimit = getRppLimit(nextTaxableGrossIncome);
       const nextChildcareLimit = calculateCanadaChildcareLimit({
         grossSalary: nextTaxableGrossIncome,
-        numberOfChildrenUnder7: clampCount(next.numberOfChildrenUnder7),
-        numberOfChildrenAge7To16: clampCount(next.numberOfChildrenAge7To16),
-        numberOfDisabledChildren: clampCount(next.numberOfDisabledChildren),
+        numberOfChildrenUnder7: clampCount(next.numberOfChildrenUnder7, 99),
+        numberOfChildrenAge7To16: clampCount(next.numberOfChildrenAge7To16, 99),
+        numberOfDisabledChildren: clampCount(next.numberOfDisabledChildren, 99),
       });
       const nextRrspContribution = Math.min(
         Math.max(0, next.contributions.rrspContribution),
@@ -118,9 +116,9 @@ export default function CACountryExtension({ country }: CountryCalculatorExtensi
           0,
           next.federalFamilyCreditDependentNetIncome,
         ),
-        numberOfChildrenUnder7: clampCount(next.numberOfChildrenUnder7),
-        numberOfChildrenAge7To16: clampCount(next.numberOfChildrenAge7To16),
-        numberOfDisabledChildren: clampCount(next.numberOfDisabledChildren),
+        numberOfChildrenUnder7: clampCount(next.numberOfChildrenUnder7, 99),
+        numberOfChildrenAge7To16: clampCount(next.numberOfChildrenAge7To16, 99),
+        numberOfDisabledChildren: clampCount(next.numberOfDisabledChildren, 99),
         contributions: {
           rrspContribution: nextRrspContribution,
           fhsaContribution: nextFhsaContribution,

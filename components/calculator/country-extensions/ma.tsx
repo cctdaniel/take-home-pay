@@ -22,10 +22,7 @@ import {
   MA_MORTGAGE_INTEREST_LIMIT_RATE,
 } from "@/lib/countries/ma/constants/tax-year-2026";
 import type { MACalculatorInputs } from "@/lib/countries/ma/types";
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
+import { clampAmount, clampCount } from "@/lib/utils";
 
 export default function MACountryExtension({
   country,

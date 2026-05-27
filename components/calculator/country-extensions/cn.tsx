@@ -28,6 +28,7 @@ import type {
   CNSpecialDeductions,
   CNYearEndBonusTaxTreatment,
 } from "@/lib/countries/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 import type { CountryCalculatorExtensionProps } from "../country-extension";
 
 const HOUSING_FUND_RATE_OPTIONS = [
@@ -70,9 +71,6 @@ const DEDUCTION_MODE_OPTIONS = [
   },
 ] satisfies Array<{ value: CNDeductionMode; label: string }>;
 
-function clampAmount(value: number, max = Number.POSITIVE_INFINITY) {
-  return Math.min(Math.max(0, value), max);
-}
 
 export default function CNCountryExtension({
   country,
@@ -118,7 +116,7 @@ export default function CNCountryExtension({
       ...current,
       foreignAllowanceExemptions: {
         ...current.foreignAllowanceExemptions,
-        [key]: clampAmount(amount),
+        [key]: clampAmount(amount, Infinity),
       },
     }));
   };
@@ -169,7 +167,7 @@ export default function CNCountryExtension({
               onChange={(yearEndBonus) =>
                 setInputs((current) => ({
                   ...current,
-                  yearEndBonus: clampAmount(yearEndBonus),
+                  yearEndBonus: clampAmount(yearEndBonus, Infinity),
                 }))
               }
               currency={currency}
@@ -200,7 +198,7 @@ export default function CNCountryExtension({
               onChange={(taxableInKindBenefits) =>
                 setInputs((current) => ({
                   ...current,
-                  taxableInKindBenefits: clampAmount(taxableInKindBenefits),
+                  taxableInKindBenefits: clampAmount(taxableInKindBenefits, Infinity),
                 }))
               }
               currency={currency}

@@ -30,6 +30,7 @@ import type {
   PLPitZeroRelief,
   PLPpkRate,
 } from "@/lib/countries/pl/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const PPK_OPTIONS: Array<{ value: PLPpkRate; label: string }> = [
   { value: "0", label: "No PPK employee contribution" },
@@ -45,10 +46,6 @@ const PIT_ZERO_OPTIONS: Array<{ value: PLPitZeroRelief; label: string }> = [
   { value: "family_4plus", label: "Family 4+ relief" },
   { value: "working_senior", label: "Working senior relief" },
 ];
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 export default function PLCountryExtension({
   country,

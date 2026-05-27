@@ -12,10 +12,7 @@ import { ContributionSlider } from "@/components/ui/contribution-slider";
 import { UKCalculator } from "@/lib/countries/uk";
 import type { UKCalculatorInputs } from "@/lib/countries/types";
 import { formatCurrency } from "@/lib/format";
-
-function clampAmount(value: number, max = Infinity) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
+import { clampAmount, clampCount } from "@/lib/utils";
 
 function getPensionLimit(inputs: UKCalculatorInputs) {
   const limit =
@@ -105,7 +102,7 @@ export default function UKCountryExtension({
             onChange={(taxableBenefitsInKind) =>
               setInputs((current) => ({
                 ...current,
-                taxableBenefitsInKind: clampAmount(taxableBenefitsInKind),
+                taxableBenefitsInKind: clampAmount(taxableBenefitsInKind, Infinity),
               }))
             }
             currency={currency}

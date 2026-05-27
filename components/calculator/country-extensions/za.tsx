@@ -28,6 +28,7 @@ import type {
   ZACalculatorInputs,
   ZAContributionInputs,
 } from "@/lib/countries/za/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const AGE_BAND_OPTIONS: Array<{ value: ZAAgeBand; label: string }> = [
   { value: "under65", label: "Under 65" },
@@ -35,9 +36,6 @@ const AGE_BAND_OPTIONS: Array<{ value: ZAAgeBand; label: string }> = [
   { value: "age75plus", label: "75 or older" },
 ];
 
-function clampAmount(value: number, max = Infinity) {
-  return Math.min(Math.max(0, value), max);
-}
 
 export default function ZACountryExtension({
   country,
@@ -102,7 +100,7 @@ export default function ZACountryExtension({
             onChange={(taxableNonCashBenefits) =>
               setInputs((current) => ({
                 ...current,
-                taxableNonCashBenefits: clampAmount(taxableNonCashBenefits),
+                taxableNonCashBenefits: clampAmount(taxableNonCashBenefits, Infinity),
               }))
             }
             currency={currency}

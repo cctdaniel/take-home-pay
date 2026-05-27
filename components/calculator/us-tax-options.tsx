@@ -85,7 +85,7 @@ export function USTaxOptions({
         label="Qualifying Children"
         value={numberOfQualifyingChildren}
         onChange={(value) =>
-          onNumberOfQualifyingChildrenChange(Math.max(0, Math.floor(value)))
+          onNumberOfQualifyingChildrenChange(value)
         }
         min={0}
         max={10}
@@ -97,7 +97,7 @@ export function USTaxOptions({
         label="Other Dependents"
         value={numberOfOtherDependents}
         onChange={(value) =>
-          onNumberOfOtherDependentsChange(Math.max(0, Math.floor(value)))
+          onNumberOfOtherDependentsChange(value)
         }
         min={0}
         max={10}

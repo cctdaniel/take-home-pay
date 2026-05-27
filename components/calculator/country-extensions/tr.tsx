@@ -28,6 +28,7 @@ import type {
   TRDisabilityDegree,
   TRDonationReliefCategory,
 } from "@/lib/countries/tr/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const DISABILITY_OPTIONS: Array<{
   value: TRDisabilityDegree;
@@ -47,10 +48,6 @@ const DONATION_RELIEF_OPTIONS: Array<{
   { value: "generalPublicBenefit", label: "General 5% relief" },
   { value: "fullEducationHealth", label: "Full education/health facility relief" },
 ];
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 export default function TRCountryExtension({
   country,

@@ -23,10 +23,7 @@ import type {
   FRProfessionalExpenseMethod,
 } from "@/lib/countries/fr/types";
 import { formatCurrency } from "@/lib/format";
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
+import { clampAmount, clampCount } from "@/lib/utils";
 
 function calculateFrenchHouseholdParts(
   householdStatus: FRHouseholdStatus,

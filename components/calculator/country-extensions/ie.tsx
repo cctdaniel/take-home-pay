@@ -29,10 +29,7 @@ import type {
   IETaxStatus,
 } from "@/lib/countries/ie/types";
 import { formatCurrency } from "@/lib/format";
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
+import { clampAmount, clampCount } from "@/lib/utils";
 
 function taxStatusAllowsHomeCarer(taxStatus: IETaxStatus) {
   return taxStatus !== "single";

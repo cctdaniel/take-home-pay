@@ -23,6 +23,7 @@ import type {
   LUContributionInputs,
   LUTaxClass,
 } from "@/lib/countries/lu/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const MAX_CHILDREN = 10;
 
@@ -31,10 +32,6 @@ const TAX_CLASS_OPTIONS: SelectOption<LUTaxClass>[] = [
   { value: "class1a", label: "Class 1a - single parent / age 65+" },
   { value: "class2", label: "Class 2 - married / PACS collective" },
 ];
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 function clampAge(value: number) {
   return Math.min(Math.max(18, Math.floor(value)), 100);

@@ -10,19 +10,12 @@ import type {
   ContributionLimits,
   HKTaxReliefInputs,
 } from "@/lib/countries/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 interface HKAdditionalReliefsProps {
   reliefs: HKTaxReliefInputs;
   deductionLimits: ContributionLimits;
   onChange: (reliefs: HKTaxReliefInputs) => void;
-}
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
-
-function clampCount(value: number, max: number) {
-  return Math.min(Math.max(0, Math.floor(value)), max);
 }
 
 export function HKAdditionalReliefs({

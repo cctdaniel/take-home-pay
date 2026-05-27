@@ -13,10 +13,7 @@ import type {
   GRCalculatorInputs,
   GRTaxRegime,
 } from "@/lib/countries/gr/types";
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
+import { clampAmount, clampCount } from "@/lib/utils";
 
 export default function GRCountryExtension({
   country,

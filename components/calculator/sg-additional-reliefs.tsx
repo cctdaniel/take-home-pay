@@ -15,6 +15,7 @@ import type {
   SGTaxResidencyType,
   SGTaxReliefInputs,
 } from "@/lib/countries/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const PARENT_RELIEF_OPTIONS: Array<{
   value: SGParentReliefType;
@@ -40,10 +41,6 @@ interface SGAdditionalReliefsProps {
   onChange: (reliefs: SGTaxReliefInputs) => void;
   grossSalary: number;
   taxResidency: SGTaxResidencyType;
-}
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
 }
 
 export function SGAdditionalReliefs({

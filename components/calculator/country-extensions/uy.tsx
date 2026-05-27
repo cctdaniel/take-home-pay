@@ -33,6 +33,7 @@ import type {
   UYContributionInputs,
   UYHousingCreditType,
 } from "@/lib/countries/uy/types";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const HOUSING_OPTIONS: Array<{
   value: UYHousingCreditType;
@@ -48,10 +49,6 @@ const AGUINALDO_OPTIONS: SelectOption<UYAguinaldoMode>[] = [
   { value: "additionalToGross", label: "Add aguinaldo on top" },
   { value: "none", label: "No aguinaldo" },
 ];
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
 
 export default function UYCountryExtension({
   country,

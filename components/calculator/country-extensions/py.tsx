@@ -24,10 +24,7 @@ import type {
   PYCalculatorInputs,
   PYContributionInputs,
 } from "@/lib/countries/py/types";
-
-function clampAmount(value: number, max: number) {
-  return Math.min(Math.max(0, value), Math.max(0, max));
-}
+import { clampAmount, clampCount } from "@/lib/utils";
 
 const PY_AGUINALDO_OPTIONS = [
   {
