@@ -1,19 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { calculateAT } from "./calculator";
+import { ATCalculator, calculateAT } from "./calculator";
 import { AT_TAX_CONFIG } from "./constants/tax-year-2026";
 import type { ATCalculatorInputs, ATFamilyBonusChildren } from "./types";
 
 function inputs(
   grossSalary: number,
   familyBonusChildren: ATFamilyBonusChildren = 0,
-  commuterAllowance = 0,
+  withCommuterAllowance = false,
 ): ATCalculatorInputs {
   return {
-    country: "AT",
+    ...ATCalculator.getDefaultInputs(),
     grossSalary,
-    payFrequency: "monthly",
     familyBonusChildren,
-    contributions: { commuterAllowance },
+    familyBonusChildrenUnder18: familyBonusChildren,
+    commuterAllowanceType: withCommuterAllowance ? "large" : "none",
+    commuterDistanceBand: withCommuterAllowance ? "km20to40" : "none",
+    commuterWorkdays: "full",
   };
 }
 
@@ -32,10 +34,11 @@ describe("Austria calculator", () => {
 
   it("applies commuter allowance and Family Bonus Plus locally", () => {
     const base = calculateAT(inputs(50_000));
-    const withLocalRelief = calculateAT(inputs(50_000, 2, 2_000));
+    const withLocalRelief = calculateAT(inputs(50_000, 2, true));
     expect(withLocalRelief.taxableIncome).toBeLessThan(base.taxableIncome);
     expect(withLocalRelief.taxes.incomeTax).toBeLessThan(base.taxes.incomeTax);
     expect(withLocalRelief.breakdown.familyBonusPlusCredit).toBeGreaterThan(0);
+    expect(withLocalRelief.breakdown.commuterAllowance).toBeGreaterThan(0);
   });
 
   it("keeps zero income tax for zero salary", () => {

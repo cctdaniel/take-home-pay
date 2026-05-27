@@ -24,6 +24,7 @@ import type {
 } from "../types";
 import { ES_CONFIG } from "./config";
 import {
+  SPAIN_BECKHAM_LAW_RATES_2026,
   SPAIN_IRNR_RATES_2026,
   SPAIN_JOINT_TAXATION_REDUCTIONS_2025,
   SPAIN_PENSION_CONTRIBUTION_REDUCTION_2025,
@@ -276,6 +277,7 @@ export function calculateES(inputs: ESCalculatorInputs): CalculationResult {
     grossSalary,
     payFrequency,
     residencyType,
+    taxRegime: rawTaxRegime,
     region,
     filingStatus,
     age,
@@ -286,6 +288,9 @@ export function calculateES(inputs: ESCalculatorInputs): CalculationResult {
   } = inputs;
 
   const isResident = residencyType === "resident";
+  const taxRegime =
+    isResident && rawTaxRegime === "beckhamLaw" ? "beckhamLaw" : "ordinary";
+  const isBeckhamLaw = taxRegime === "beckhamLaw";
   const regionScale = getSpainRegionScale(region);
   const socialSecurity = calculateSocialSecurity(
     grossSalary,
@@ -301,7 +306,7 @@ export function calculateES(inputs: ESCalculatorInputs): CalculationResult {
     filingStatus,
     numberOfChildren,
   );
-  const workExpenseDeduction = isResident
+  const workExpenseDeduction = isResident && !isBeckhamLaw
     ? Math.min(
         SPAIN_WORK_EXPENSE_DEDUCTION_2025,
         Math.max(0, grossSalary - socialSecurity.total),
@@ -311,15 +316,15 @@ export function calculateES(inputs: ESCalculatorInputs): CalculationResult {
     grossSalary,
     socialSecurityTotal: socialSecurity.total,
     workExpenseDeduction,
-    isResident,
+    isResident: isResident && !isBeckhamLaw,
   });
-  const pensionContribution = isResident
+  const pensionContribution = isResident && !isBeckhamLaw
     ? Math.min(
         Math.max(0, contributions.pensionContribution || 0),
         pensionContributionLimit,
       )
     : 0;
-  const taxableIncome = isResident
+  const taxableIncome = isResident && !isBeckhamLaw
     ? Math.max(
         0,
         grossSalary -
@@ -330,7 +335,7 @@ export function calculateES(inputs: ESCalculatorInputs): CalculationResult {
       )
     : grossSalary;
 
-  const residentTax = isResident
+  const residentTax = isResident && !isBeckhamLaw
     ? calculateResidentIncomeTax({
         taxableIncome,
         personalFamilyMinimum,
@@ -338,9 +343,22 @@ export function calculateES(inputs: ESCalculatorInputs): CalculationResult {
       })
     : null;
   const nonResidentRate = isResident ? undefined : getNonResidentRate(residencyType);
+  const beckhamLawIncomeTax = isBeckhamLaw
+    ? roundCurrency(
+        Math.min(grossSalary, SPAIN_BECKHAM_LAW_RATES_2026.threshold) *
+          SPAIN_BECKHAM_LAW_RATES_2026.firstRate +
+          Math.max(
+            0,
+            grossSalary - SPAIN_BECKHAM_LAW_RATES_2026.threshold,
+          ) *
+            SPAIN_BECKHAM_LAW_RATES_2026.excessRate,
+      )
+    : 0;
   const incomeTax = residentTax
     ? residentTax.incomeTax
-    : roundCurrency(grossSalary * (nonResidentRate ?? 0));
+    : isBeckhamLaw
+      ? beckhamLawIncomeTax
+      : roundCurrency(grossSalary * (nonResidentRate ?? 0));
   const stateIncomeTax = residentTax?.stateIncomeTax ?? incomeTax;
   const regionalIncomeTax = residentTax?.regionalIncomeTax ?? 0;
   const totalTax = incomeTax + socialSecurity.total;
@@ -362,6 +380,8 @@ export function calculateES(inputs: ESCalculatorInputs): CalculationResult {
     type: "ES",
     grossIncome: grossSalary,
     residencyType,
+    taxRegime,
+    isBeckhamLaw,
     isResident,
     region,
     regionName: regionScale.name,
@@ -388,6 +408,15 @@ export function calculateES(inputs: ESCalculatorInputs): CalculationResult {
     stateIncomeTax,
     regionalIncomeTax,
     nonResidentRate,
+    beckhamLawThreshold: isBeckhamLaw
+      ? SPAIN_BECKHAM_LAW_RATES_2026.threshold
+      : undefined,
+    beckhamLawFirstRate: isBeckhamLaw
+      ? SPAIN_BECKHAM_LAW_RATES_2026.firstRate
+      : undefined,
+    beckhamLawExcessRate: isBeckhamLaw
+      ? SPAIN_BECKHAM_LAW_RATES_2026.excessRate
+      : undefined,
     stateGrossTax: residentTax?.stateGrossTax ?? 0,
     regionalGrossTax: residentTax?.regionalGrossTax ?? 0,
     stateMinimumCredit: residentTax?.stateMinimumCredit ?? 0,
@@ -465,6 +494,10 @@ export const ESCalculator: CountryCalculator = {
     const esInputs = inputs as Partial<ESCalculatorInputs> | undefined;
     const grossSalary = Math.max(0, esInputs?.grossSalary ?? 36_000);
     const residencyType = esInputs?.residencyType ?? "resident";
+    const taxRegime =
+      residencyType === "resident" && esInputs?.taxRegime === "beckhamLaw"
+        ? "beckhamLaw"
+        : "ordinary";
     const employmentContractType =
       esInputs?.employmentContractType ?? "permanent";
     const socialSecurity = calculateSocialSecurity(
@@ -472,7 +505,7 @@ export const ESCalculator: CountryCalculator = {
       employmentContractType,
     );
     const workExpenseDeduction =
-      residencyType === "resident"
+      residencyType === "resident" && taxRegime !== "beckhamLaw"
         ? Math.min(
             SPAIN_WORK_EXPENSE_DEDUCTION_2025,
             Math.max(0, grossSalary - socialSecurity.total),
@@ -482,7 +515,7 @@ export const ESCalculator: CountryCalculator = {
       grossSalary,
       socialSecurityTotal: socialSecurity.total,
       workExpenseDeduction,
-      isResident: residencyType === "resident",
+      isResident: residencyType === "resident" && taxRegime !== "beckhamLaw",
     });
 
     return {
@@ -502,6 +535,7 @@ export const ESCalculator: CountryCalculator = {
       grossSalary: 36_000,
       payFrequency: "monthly",
       residencyType: "resident",
+      taxRegime: "ordinary",
       region: "general",
       filingStatus: "individual",
       age: 30,

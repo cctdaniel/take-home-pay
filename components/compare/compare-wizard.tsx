@@ -1,12 +1,14 @@
 "use client";
 
 import { SalaryInput } from "@/components/calculator/salary-input";
+import {
+  NumberField,
+  NumberStepperField,
+} from "@/components/calculator/calculator-fields";
 import { CompareBreakdown } from "@/components/compare/compare-breakdown";
 import { CompareResults } from "@/components/compare/compare-results";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { NumberStepper } from "@/components/ui/number-stepper";
 import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useCountryComparison, type ComparisonAssumptions, type MaritalStatus } from "@/hooks/use-country-comparison";
@@ -74,6 +76,7 @@ export function CompareWizard() {
     usState: "CA",
     age: 30,
     hasYoungChildren: false,
+    hasChildUnder3: false,
     hasPrivateHealthInsurance: true,
     retirementContributions: "none",
   });
@@ -89,10 +92,18 @@ export function CompareWizard() {
 
   const handleChildrenChange = (value: number) => {
     setNumberOfChildren(value);
+    if (value === 0) {
+      setAssumptions((prev) => ({
+        ...prev,
+        hasYoungChildren: false,
+        hasChildUnder3: false,
+      }));
+      return;
+    }
     if (!hasYoungChildrenTouched) {
       setAssumptions((prev) => ({
         ...prev,
-        hasYoungChildren: value > 0,
+        hasYoungChildren: true,
       }));
     }
   };
@@ -291,21 +302,15 @@ export function CompareWizard() {
               )}
 
               {currentStep === 2 && (
-                <div className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
-                  <div>
-                    <p className="text-sm font-medium text-zinc-200">
-                      Number of children
-                    </p>
-                    <p className="text-xs text-zinc-500 mt-1">
-                      Used for child reliefs and credits.
-                    </p>
-                  </div>
-                  <NumberStepper
+                <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
+                  <NumberStepperField
+                    id="compare-children"
+                    label="Number of children"
                     value={numberOfChildren}
                     onChange={handleChildrenChange}
                     min={0}
                     max={6}
-                    label="children"
+                    description="Used for country-specific child reliefs, allowances, credits, and family thresholds."
                   />
                 </div>
               )}
@@ -345,7 +350,9 @@ export function CompareWizard() {
                           Assume resident for destination countries
                         </p>
                         <p className="text-xs text-zinc-500 mt-1">
-                          Applies to AU, KR, TH, HK, SG, and PT.
+                          Applied by country adapters with resident and
+                          non-resident salary regimes; ignored where residency
+                          does not change salary tax.
                         </p>
                       </div>
                       <Switch
@@ -493,23 +500,21 @@ export function CompareWizard() {
                     </div>
 
                     <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 space-y-2">
-                      <Label htmlFor="age-input">Age</Label>
-                      <Input
+                      <NumberField
                         id="age-input"
-                        type="number"
-                        min={18}
-                        max={80}
+                        label="Age"
                         value={assumptions.age}
-                        onChange={(event) =>
+                        onChange={(age) =>
                           setAssumptions((prev) => ({
                             ...prev,
-                            age: Number(event.target.value) || 0,
+                            age: Math.min(80, Math.max(18, Math.floor(age))),
                           }))
                         }
+                        min={18}
+                        max={80}
+                        fallbackValue={30}
+                        description="Used by countries with age-specific payroll, pension, relief, or PAYE rules."
                       />
-                      <p className="text-xs text-zinc-500">
-                        Used for SG CPF and PT contribution limits.
-                      </p>
                     </div>
                   </div>
 
@@ -532,6 +537,29 @@ export function CompareWizard() {
                             setAssumptions((prev) => ({
                               ...prev,
                               hasYoungChildren: checked,
+                            }));
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-zinc-200">
+                            Child under 3 (CZ)
+                          </p>
+                          <p className="text-xs text-zinc-500 mt-1">
+                            Enables Czech spouse credit.
+                          </p>
+                        </div>
+                        <Switch
+                          checked={assumptions.hasChildUnder3}
+                          disabled={numberOfChildren === 0}
+                          onCheckedChange={(checked) => {
+                            setAssumptions((prev) => ({
+                              ...prev,
+                              hasChildUnder3: checked,
                             }));
                           }}
                         />

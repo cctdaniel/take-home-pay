@@ -13,6 +13,7 @@ import type {
 } from "../types";
 import { CY_CONFIG } from "./config";
 import {
+  CYPRUS_FIRST_EMPLOYMENT_EXEMPTIONS_2026,
   CYPRUS_GHS_2026,
   CYPRUS_SOCIAL_INSURANCE_2026,
   CYPRUS_TD59_DEDUCTIONS_2026,
@@ -23,6 +24,7 @@ import type {
   CYBreakdown,
   CYCalculatorInputs,
   CYContributionInputs,
+  CYEmploymentExemption,
   CYTaxBreakdown,
 } from "./types";
 
@@ -59,6 +61,83 @@ function getPensionProvidentModeledLimit(grossSalary: number): number {
   );
 }
 
+function getMedicalFundModeledLimit(grossSalary: number): number {
+  return Math.max(
+    0,
+    grossSalary * CYPRUS_TD59_DEDUCTIONS_2026.medicalFundContributionRate,
+  );
+}
+
+function normalizeEmploymentExemption(
+  value?: CYEmploymentExemption,
+): CYEmploymentExemption {
+  switch (value) {
+    case "article_8_21a_20":
+    case "article_8_23a_50":
+      return value;
+    default:
+      return "none";
+  }
+}
+
+function calculateFirstEmploymentExemption(
+  grossSalary: number,
+  employmentExemption?: CYEmploymentExemption,
+) {
+  const selected = normalizeEmploymentExemption(employmentExemption);
+  const normalizedGross = Math.max(0, grossSalary);
+
+  if (selected === "article_8_21a_20") {
+    const exemption =
+      CYPRUS_FIRST_EMPLOYMENT_EXEMPTIONS_2026.article8_21a_20;
+    const exemptIncome = roundCurrency(
+      Math.min(normalizedGross * exemption.exemptionRate, exemption.annualMax),
+    );
+
+    return {
+      selected,
+      applies: exemptIncome > 0,
+      exemptionRate: exemption.exemptionRate,
+      exemptIncome,
+      threshold: null,
+      annualMax: exemption.annualMax,
+      maxYears: exemption.maxYears,
+      thresholdMet: true,
+    };
+  }
+
+  if (selected === "article_8_23a_50") {
+    const exemption =
+      CYPRUS_FIRST_EMPLOYMENT_EXEMPTIONS_2026.article8_23a_50;
+    const thresholdMet = normalizedGross > exemption.remunerationThreshold;
+    const exemptIncome = thresholdMet
+      ? roundCurrency(normalizedGross * exemption.exemptionRate)
+      : 0;
+
+    return {
+      selected,
+      applies: exemptIncome > 0,
+      exemptionRate: exemption.exemptionRate,
+      exemptIncome,
+      threshold: exemption.remunerationThreshold,
+      annualMax: null,
+      maxYears: exemption.maxYears,
+      thresholdMet,
+    };
+  }
+
+  return {
+    selected,
+    applies: false,
+    exemptionRate: 0,
+    exemptIncome: 0,
+    threshold: null,
+    annualMax: null,
+    maxYears: 0,
+    thresholdMet: true,
+  };
+}
+
 function isResidentReliefEligible(inputs: CYCalculatorInputs): boolean {
   return inputs.residencyType === "resident" &&
     inputs.taxReliefs.meetsFamilyIncomeCriteria;
@@ -81,6 +160,11 @@ function normalizeContributions(
       inputs.contributions.approvedPensionProvidentFund,
       0,
       pensionProvidentLimit,
+    ),
+    medicalFundContribution: clamp(
+      inputs.contributions.medicalFundContribution,
+      0,
+      getMedicalFundModeledLimit(inputs.grossSalary),
     ),
     homeInsurancePremium: clamp(
       inputs.contributions.homeInsurancePremium,
@@ -138,8 +222,18 @@ function calculateGesy(grossSalary: number) {
 }
 
 export function calculateCY(inputs: CYCalculatorInputs): CalculationResult {
-  const { grossSalary, payFrequency, residencyType, taxReliefs } = inputs;
+  const {
+    grossSalary,
+    payFrequency,
+    residencyType,
+    taxReliefs,
+    employmentExemption,
+  } = inputs;
   const isResident = residencyType === "resident";
+  const firstEmploymentExemption = calculateFirstEmploymentExemption(
+    grossSalary,
+    employmentExemption,
+  );
   const normalizedChildren = Math.max(
     0,
     Math.floor(taxReliefs.numberOfDependentChildren),
@@ -157,14 +251,17 @@ export function calculateCY(inputs: CYCalculatorInputs): CalculationResult {
   const mandatoryContributionTotal = socialInsurance.employee + gesy.employee;
   const intermediaryCalculation = Math.max(
     0,
-    grossSalary - normalizedContributions.homeInsurancePremium,
+    grossSalary -
+      firstEmploymentExemption.exemptIncome -
+      normalizedContributions.homeInsurancePremium,
   );
   const contributionGroupCap =
     intermediaryCalculation *
     CYPRUS_TD59_DEDUCTIONS_2026.aggregateContributionDeductionRate;
   const contributionGroupActual =
     mandatoryContributionTotal +
-    normalizedContributions.approvedPensionProvidentFund;
+    normalizedContributions.approvedPensionProvidentFund +
+    normalizedContributions.medicalFundContribution;
   const contributionGroupDeduction = Math.min(
     contributionGroupActual,
     contributionGroupCap,
@@ -175,7 +272,16 @@ export function calculateCY(inputs: CYCalculatorInputs): CalculationResult {
   );
   const approvedPensionProvidentFundDeduction = Math.max(
     0,
-    contributionGroupDeduction - mandatoryContributionDeduction,
+    Math.min(
+      normalizedContributions.approvedPensionProvidentFund,
+      contributionGroupDeduction - mandatoryContributionDeduction,
+    ),
+  );
+  const medicalFundContributionDeduction = Math.max(
+    0,
+    contributionGroupDeduction -
+      mandatoryContributionDeduction -
+      approvedPensionProvidentFundDeduction,
   );
   const disallowedContributionDeduction = Math.max(
     0,
@@ -197,6 +303,7 @@ export function calculateCY(inputs: CYCalculatorInputs): CalculationResult {
       ? normalizedContributions.greenTransitionExpense
       : 0;
   const totalTaxDeductions =
+    firstEmploymentExemption.exemptIncome +
     normalizedContributions.homeInsurancePremium +
     contributionGroupDeduction +
     childDeduction +
@@ -218,7 +325,8 @@ export function calculateCY(inputs: CYCalculatorInputs): CalculationResult {
 
   const totalTax = incomeTax + taxes.socialSecurity;
   const voluntaryContributions =
-    normalizedContributions.approvedPensionProvidentFund;
+    normalizedContributions.approvedPensionProvidentFund +
+    normalizedContributions.medicalFundContribution;
   const totalDeductions = totalTax + voluntaryContributions;
   const netSalary = grossSalary - totalDeductions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
@@ -229,6 +337,8 @@ export function calculateCY(inputs: CYCalculatorInputs): CalculationResult {
     grossIncome: grossSalary,
     residencyType,
     isResident,
+    employmentExemption: firstEmploymentExemption.selected,
+    firstEmploymentExemption,
     taxableIncome: chargeableIncome,
     chargeableIncome,
     familyStatus: taxReliefs.familyStatus,
@@ -261,6 +371,7 @@ export function calculateCY(inputs: CYCalculatorInputs): CalculationResult {
       contributionGroupCap,
       mandatoryContributionDeduction,
       approvedPensionProvidentFundDeduction,
+      medicalFundContributionDeduction,
       contributionGroupDeduction,
       disallowedContributionDeduction,
       childDeduction,
@@ -271,15 +382,17 @@ export function calculateCY(inputs: CYCalculatorInputs): CalculationResult {
     voluntaryContributions: {
       approvedPensionProvidentFund:
         normalizedContributions.approvedPensionProvidentFund,
+      medicalFundContribution: normalizedContributions.medicalFundContribution,
       pensionProvidentModeledLimit: getPensionProvidentModeledLimit(
         grossSalary,
       ),
+      medicalFundModeledLimit: getMedicalFundModeledLimit(grossSalary),
       total: voluntaryContributions,
     },
     assumptions: {
-      appliesFirstEmploymentExemption: false,
+      appliesFirstEmploymentExemption: firstEmploymentExemption.applies,
       includesLifeInsurancePremiums: false,
-      includesMedicalFundContributions: false,
+      includesMedicalFundContributions: true,
       includesSpecialDefenceContribution: false,
     },
   };
@@ -343,6 +456,13 @@ export const CYCalculator: CountryCalculator = {
           "Modeled approved pension or provident fund contribution, capped at 10% of gross remuneration and subject to the TD59A 20% aggregate deduction cap.",
         preTax: true,
       },
+      medicalFundContribution: {
+        limit: getMedicalFundModeledLimit(grossSalary),
+        name: "Approved Medical Fund Contribution",
+        description:
+          "Modeled approved medical-fund contribution, capped at 2% of gross salary and subject to the TD59A 20% aggregate deduction cap.",
+        preTax: true,
+      },
       homeInsurancePremium: {
         limit: residentOnlyLimit(
           CYPRUS_TD59_DEDUCTIONS_2026.homeInsuranceNaturalDisastersMax,
@@ -377,8 +497,10 @@ export const CYCalculator: CountryCalculator = {
       grossSalary: 36_000,
       payFrequency: "monthly",
       residencyType: "resident",
+      employmentExemption: "none",
       contributions: {
         approvedPensionProvidentFund: 0,
+        medicalFundContribution: 0,
         homeInsurancePremium: 0,
         primaryResidenceDeduction: 0,
         greenTransitionExpense: 0,

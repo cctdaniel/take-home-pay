@@ -8,7 +8,14 @@ import type {
   TaxBracket,
 } from "../types";
 import { IT_CONFIG } from "./config";
-import { IT_TAX_CONFIG } from "./constants/tax-year-2026";
+import {
+  calculateItalyAscendantCredit,
+  calculateItalyDependentSpouseCredit,
+  calculateItalyEligibleChildCredit,
+  IT_IMPATRIATE_REGIME_2026,
+  IT_LOCAL_ADD_ON_RATE_LIMITS_2026,
+  IT_TAX_CONFIG,
+} from "./constants/tax-year-2026";
 import type { ITBreakdown, ITCalculatorInputs, ITTaxBreakdown } from "./types";
 
 interface LocalSalaryTaxConfig {
@@ -20,6 +27,11 @@ interface LocalSalaryTaxConfig {
   deductEmployeeSocialBeforeIncomeTax: boolean;
   additionalFlatIncomeTaxName?: string;
   additionalFlatIncomeTaxRate?: number;
+  localAddOnRateLimits?: {
+    defaultRate: number;
+    minRate: number;
+    maxRate: number;
+  };
   pensionDeductionLimit: number;
   taxCredit?: number | ((grossSalary: number, taxableIncome: number) => number);
   brackets: TaxBracket[];
@@ -43,6 +55,10 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
 }
 function clampAmount(value: number, min = 0, max = Infinity): number {
   return Math.min(Math.max(value, min), max);
+}
+function clampInteger(value: number, min = 0, max = Infinity): number {
+  if (!Number.isFinite(value)) return min;
+  return Math.min(Math.max(Math.trunc(value), min), max);
 }
 function calculateBracketTax(
   taxableIncome: number,
@@ -76,6 +92,19 @@ function calculateBracketTax(
 }
 const taxConfig = IT_TAX_CONFIG as LocalSalaryTaxConfig;
 export function calculateIT(inputs: ITCalculatorInputs): CalculationResult {
+  const localAddOnRateLimits =
+    taxConfig.localAddOnRateLimits ?? IT_LOCAL_ADD_ON_RATE_LIMITS_2026;
+  const localAddOnRate = clampAmount(
+    inputs.localAddOnRate ?? localAddOnRateLimits.defaultRate,
+    localAddOnRateLimits.minRate,
+    localAddOnRateLimits.maxRate,
+  );
+  const taxableFringeBenefits = roundCurrency(
+    Math.max(0, inputs.taxableFringeBenefits ?? 0),
+  );
+  const taxableGrossIncome = roundCurrency(
+    inputs.grossSalary + taxableFringeBenefits,
+  );
   const pensionContribution = roundCurrency(
     clampAmount(
       inputs.contributions.pensionContribution,
@@ -85,22 +114,39 @@ export function calculateIT(inputs: ITCalculatorInputs): CalculationResult {
   );
   const pensionDeduction = pensionContribution;
   const employeeSocialBase = Math.min(
-    inputs.grossSalary,
-    taxConfig.employeeSocialCap ?? inputs.grossSalary,
+    taxableGrossIncome,
+    taxConfig.employeeSocialCap ?? taxableGrossIncome,
   );
   const employeeSocialContribution = roundCurrency(
     employeeSocialBase * taxConfig.employeeSocialRate,
   );
   const standardDeduction = roundCurrency(
     typeof taxConfig.standardDeduction === "function"
-      ? taxConfig.standardDeduction(inputs.grossSalary)
+      ? taxConfig.standardDeduction(taxableGrossIncome)
       : taxConfig.standardDeduction,
+  );
+  const impatriateTaxableShare =
+    inputs.impatriateRegime === "standard"
+      ? IT_IMPATRIATE_REGIME_2026.standardTaxableShare
+      : inputs.impatriateRegime === "minorChild"
+        ? IT_IMPATRIATE_REGIME_2026.minorChildTaxableShare
+        : 1;
+  const impatriateEligibleIncome =
+    inputs.impatriateRegime === "none"
+      ? 0
+      : Math.min(
+          taxableGrossIncome,
+          IT_IMPATRIATE_REGIME_2026.eligibleIncomeCap,
+        );
+  const impatriateIncomeExemption = roundCurrency(
+    impatriateEligibleIncome * (1 - impatriateTaxableShare),
   );
   const taxableIncome = roundCurrency(
     Math.max(
       0,
-      inputs.grossSalary -
+      taxableGrossIncome -
         standardDeduction -
+        impatriateIncomeExemption -
         pensionDeduction -
         (taxConfig.deductEmployeeSocialBeforeIncomeTax
           ? employeeSocialContribution
@@ -111,19 +157,50 @@ export function calculateIT(inputs: ITCalculatorInputs): CalculationResult {
     taxableIncome,
     taxConfig.brackets,
   );
-  const taxCredit = roundCurrency(
+  const employmentTaxCredit = roundCurrency(
     clampAmount(
       typeof taxConfig.taxCredit === "function"
-        ? taxConfig.taxCredit(inputs.grossSalary, taxableIncome)
+        ? taxConfig.taxCredit(taxableGrossIncome, taxableIncome)
         : (taxConfig.taxCredit ?? 0),
       0,
       incomeTaxBeforeCredits,
     ),
   );
-  const incomeTax = roundCurrency(incomeTaxBeforeCredits - taxCredit);
-  const additionalIncomeTax = roundCurrency(
-    taxableIncome * (taxConfig.additionalFlatIncomeTaxRate ?? 0),
+  const dependentSpouseCredit = inputs.dependentSpouse
+    ? calculateItalyDependentSpouseCredit(taxableIncome)
+    : 0;
+  const childCreditShare = inputs.childCreditShare === "half" ? 0.5 : 1;
+  const eligibleChildren = clampInteger(inputs.eligibleChildren, 0, 20);
+  const eligibleChildCredit = calculateItalyEligibleChildCredit(
+    taxableIncome,
+    eligibleChildren,
+    childCreditShare,
   );
+  const cohabitingAscendants = clampInteger(inputs.cohabitingAscendants, 0, 20);
+  const ascendantCreditSharePercent = clampAmount(
+    inputs.ascendantCreditSharePercent,
+    0,
+    100,
+  );
+  const ascendantCredit = calculateItalyAscendantCredit(
+    taxableIncome,
+    cohabitingAscendants,
+    ascendantCreditSharePercent,
+  );
+  const familyCreditPotential = roundCurrency(
+    dependentSpouseCredit + eligibleChildCredit + ascendantCredit,
+  );
+  const familyTaxCredit = roundCurrency(
+    clampAmount(
+      familyCreditPotential,
+      0,
+      Math.max(0, incomeTaxBeforeCredits - employmentTaxCredit),
+    ),
+  );
+  const totalTaxCredits = roundCurrency(employmentTaxCredit + familyTaxCredit);
+  const taxCredit = totalTaxCredits;
+  const incomeTax = roundCurrency(incomeTaxBeforeCredits - totalTaxCredits);
+  const additionalIncomeTax = roundCurrency(taxableIncome * localAddOnRate);
   const totalTax = roundCurrency(
     incomeTax +
       additionalIncomeTax +
@@ -142,10 +219,28 @@ export function calculateIT(inputs: ITCalculatorInputs): CalculationResult {
   const breakdown: ITBreakdown = {
     type: "IT",
     grossIncome: inputs.grossSalary,
+    taxableFringeBenefits,
+    taxableGrossIncome,
     taxableIncome,
     standardDeduction,
     bracketTaxes,
     taxCredit,
+    employmentTaxCredit,
+    familyTaxCredit,
+    totalTaxCredits,
+    familyCreditIncomeBase: taxableIncome,
+    impatriateRegime: inputs.impatriateRegime ?? "none",
+    impatriateIncomeExemption,
+    impatriateEligibleIncome,
+    familyCredits: {
+      dependentSpouse: dependentSpouseCredit,
+      eligibleChildren: eligibleChildCredit,
+      cohabitingAscendants: ascendantCredit,
+      totalPotential: familyCreditPotential,
+      applied: familyTaxCredit,
+      childCreditShare: inputs.childCreditShare ?? "full",
+      ascendantCreditSharePercent,
+    },
     pensionContribution,
     pensionDeduction,
     disallowedPensionContribution: 0,
@@ -158,7 +253,7 @@ export function calculateIT(inputs: ITCalculatorInputs): CalculationResult {
     additionalIncomeTax: {
       name: taxConfig.additionalFlatIncomeTaxName ?? "Additional income tax",
       amount: additionalIncomeTax,
-      rate: taxConfig.additionalFlatIncomeTaxRate ?? 0,
+      rate: localAddOnRate,
     },
     assumptions: taxConfig.assumptions,
     sourceUrls: taxConfig.sourceUrls,
@@ -209,6 +304,16 @@ export const ITCalculator: CountryCalculator = {
       country: "IT",
       grossSalary: taxConfig.defaultSalary,
       payFrequency: "monthly",
+      localAddOnRate:
+        taxConfig.additionalFlatIncomeTaxRate ??
+        IT_LOCAL_ADD_ON_RATE_LIMITS_2026.defaultRate,
+      taxableFringeBenefits: 0,
+      impatriateRegime: "none",
+      dependentSpouse: false,
+      eligibleChildren: 0,
+      childCreditShare: "full",
+      cohabitingAscendants: 0,
+      ascendantCreditSharePercent: 100,
       contributions: { pensionContribution: 0 },
     };
   },

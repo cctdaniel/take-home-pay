@@ -19,9 +19,12 @@ export type ESFilingStatus = "individual" | "married_jointly" | "single_parent";
 
 export type ESEmploymentContractType = "permanent" | "fixed_term";
 
+export type ESTaxRegime = "ordinary" | "beckhamLaw";
+
 export interface ESCalculatorInputs extends BaseCalculatorInputs {
   country: "ES";
   residencyType: ESResidencyType;
+  taxRegime: ESTaxRegime;
   region: string;
   filingStatus: ESFilingStatus;
   age: number;
@@ -52,6 +55,8 @@ export interface ESBreakdown {
   type: "ES";
   grossIncome: number;
   residencyType: ESResidencyType;
+  taxRegime: ESTaxRegime;
+  isBeckhamLaw: boolean;
   isResident: boolean;
   region: string;
   regionName: string;
@@ -76,6 +81,9 @@ export interface ESBreakdown {
   stateIncomeTax: number;
   regionalIncomeTax: number;
   nonResidentRate?: number;
+  beckhamLawThreshold?: number;
+  beckhamLawFirstRate?: number;
+  beckhamLawExcessRate?: number;
   stateGrossTax: number;
   regionalGrossTax: number;
   stateMinimumCredit: number;

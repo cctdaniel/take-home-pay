@@ -17,7 +17,7 @@ export const NL_CONFIG: CountryConfig = {
   region: "Europe",
   currency: NL_CURRENCY,
   taxYear: 2026,
-  lastUpdated: "2026-01-28",
+  lastUpdated: "2026-05-25",
   defaultRegion: undefined,
   supportsFilingStatus: false,
   supportsRegions: false,

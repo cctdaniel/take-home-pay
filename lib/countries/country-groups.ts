@@ -13,9 +13,12 @@ export interface CountryGroup {
 
 export const COUNTRY_REGION_ORDER: CountryRegion[] = [
   "North America",
+  "Latin America",
+  "Caribbean",
   "Europe",
   "Asia-Pacific",
   "Middle East",
+  "Africa",
 ];
 
 export function groupCountriesByRegion(

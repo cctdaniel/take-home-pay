@@ -1,6 +1,6 @@
 import { calculateNetSalary, getDefaultInputs } from "@/lib/countries/registry";
 import type { CountryComparisonAdapter } from "@/hooks/use-country-comparison";
-import type { ATCalculatorInputs, ATFamilyBonusChildren } from "./types";
+import type { ATCalculatorInputs } from "./types";
 
 export const buildCountryComparison: CountryComparisonAdapter = ({
   country,
@@ -10,6 +10,7 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
   grossLocal,
   payFrequency,
   inputs,
+  isMaxRetirement,
   buildAssumptionsSummary,
 }) => {
   const defaultInputs = getDefaultInputs(country) as ATCalculatorInputs;
@@ -17,10 +18,27 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
-    familyBonusChildren: Math.min(
-      inputs.numberOfChildren,
-      4,
-    ) as ATFamilyBonusChildren,
+    familyBonusChildren: Math.min(inputs.numberOfChildren, 10),
+    familyBonusChildrenUnder18: inputs.assumptions.hasYoungChildren
+      ? Math.min(inputs.numberOfChildren, 10)
+      : 0,
+    familyBonusChildrenOver18: inputs.assumptions.hasYoungChildren
+      ? 0
+      : Math.min(inputs.numberOfChildren, 10),
+    familyBonusShare:
+      inputs.maritalStatus === "married" && !inputs.assumptions.spouseHasNoIncome
+        ? "half"
+        : "full",
+    familyCreditStatus:
+      inputs.numberOfChildren > 0 && inputs.maritalStatus === "married" &&
+      inputs.assumptions.spouseHasNoIncome
+        ? "singleEarner"
+      : inputs.numberOfChildren > 0 && inputs.maritalStatus === "single"
+        ? "singleParent"
+        : "none",
+    specialPaymentMode: "includedInGross",
+    customSpecialPayments: 0,
+    taxableInKindBenefits: 0,
   };
   const result = calculateNetSalary(calculatorInputs);
   return {
@@ -39,9 +57,23 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
       ...buildAssumptionsSummary(country, inputs, false),
       "Ordinary resident employee model for Austria",
       inputs.numberOfChildren > 0
-        ? "Family Bonus Plus children mapped from compare profile"
+        ? inputs.assumptions.hasYoungChildren
+          ? "Family Bonus Plus mapped as under-18 children"
+          : "Family Bonus Plus mapped as children 18+ with continuing family allowance"
         : "No modeled Family Bonus Plus children",
-      "No modeled commuter allowance in compare",
+      calculatorInputs.familyCreditStatus === "singleEarner"
+        ? "Single-earner credit included"
+        : calculatorInputs.familyCreditStatus === "singleParent"
+          ? "Single-parent credit included"
+          : "No single-earner or single-parent credit assumed",
+      "Annual gross is treated as a standard Austrian 14-payment package with 13th/14th salary included",
+      "No taxable in-kind benefits are entered in compare results",
+      "No commuter allowance, Pendlereuro, church contributions, donations, or voluntary pension insurance assumed in compare",
+      ...(isMaxRetirement
+        ? [
+            "Max-retirement mode does not add an Austria retirement amount because voluntary pension insurance is not a modeled compare assumption.",
+          ]
+        : []),
     ],
     calculation: result,
   };

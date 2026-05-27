@@ -13,7 +13,7 @@ export const NO_CONFIG: CountryConfig = {
   region: "Europe",
   currency: NO_CURRENCY,
   taxYear: 2026,
-  lastUpdated: "2026-05-16",
+  lastUpdated: "2026-05-25",
   supportsFilingStatus: false,
   supportsRegions: false,
 };

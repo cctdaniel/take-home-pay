@@ -1,5 +1,15 @@
 import type { IDTaxReliefInputs, TaxBracket } from "../../types";
 
+export const ID_SOURCE_URLS = [
+  "https://www.pajak.go.id/index.php/id/pemotongan-pajak-penghasilan-pasal-21",
+  "https://www.pajak.go.id/sites/default/files/2024-02/PMK%20168%20Tahun%202023%20Tentang%20PPh%20Pasal%2021%20TER.pdf",
+  "https://jdih.kemenkeu.go.id/dok/pmk-168-tahun-2023/summary",
+  "https://www.pajak.go.id/id/peraturan/pedoman-teknis-tata-cara-pemotongan-penyetoran-dan-pelaporan-pajak-penghasilan-pasal-21",
+  "https://www.bpjsketenagakerjaan.go.id/en/penerima-upah.html",
+  "https://www.bpjsketenagakerjaan.go.id/download/Brosur-PU.pdf",
+  "https://www.ramco.com/payce/payroll-compliance-indonesia",
+] as const;
+
 export const ID_TAX_BRACKETS_2026: TaxBracket[] = [
   { min: 0, max: 60_000_000, rate: 0.05 },
   { min: 60_000_000, max: 250_000_000, rate: 0.15 },
@@ -35,9 +45,11 @@ export const ID_BPJS_2026 = {
   jp: {
     employeeRate: 0.01,
     employerRate: 0.02,
-    monthlyWageCap: 10_547_400,
+    monthlyWageCap: 11_086_300,
   },
 } as const;
+
+export const ID_MODELED_CONTRIBUTION_CASH_CAP_RATE = 1;
 
 export function calculatePtkp(inputs: IDTaxReliefInputs): {
   total: number;

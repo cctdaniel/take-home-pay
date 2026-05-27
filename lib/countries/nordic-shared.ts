@@ -64,7 +64,11 @@ export function calculateProgressiveTax(income: number, brackets: TaxBracket[]) 
   return { tax: roundCurrency(total), details };
 }
 
-export function calculateNordicTax(grossSalary: number, config: NordicTaxConfig): NordicTaxComputation {
+export function calculateNordicTax(
+  grossSalary: number,
+  config: NordicTaxConfig,
+  options: { additionalPreTaxDeduction?: number } = {},
+): NordicTaxComputation {
   const socialBase = config.employeeSocialCap === undefined
     ? grossSalary
     : Math.min(grossSalary, config.employeeSocialCap);
@@ -74,9 +78,12 @@ export function calculateNordicTax(grossSalary: number, config: NordicTaxConfig)
       ? uncappedEmployeeSocialContribution
       : Math.min(uncappedEmployeeSocialContribution, config.employeeSocialContributionCap),
   );
-  const incomeTaxBase = config.deductEmployeeSocialBeforeIncomeTax
-    ? grossSalary - employeeSocialContribution
-    : grossSalary;
+  const incomeTaxBase =
+    grossSalary -
+    (config.deductEmployeeSocialBeforeIncomeTax
+      ? employeeSocialContribution
+      : 0) -
+    (options.additionalPreTaxDeduction ?? 0);
   const taxableIncome = Math.max(
     0,
     incomeTaxBase - config.standardDeduction - (config.flatTaxBaseDeduction ?? 0),

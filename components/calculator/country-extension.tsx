@@ -25,7 +25,6 @@ import { useCallback, useMemo, useState } from "react";
 import { CountrySelector } from "./country-selector";
 import { MultiCountryResults } from "./multi-country-results";
 import { SalaryInput } from "./salary-input";
-import { SEOTaxInfo } from "./seo-tax-info";
 
 export interface CountryCalculatorExtensionProps {
   country: CountryCode;
@@ -93,30 +92,42 @@ interface CountryCalculatorExtensionShellProps {
   country: CountryCode;
   currency: CurrencyCode;
   grossSalary: number;
+  incomeLabel?: string;
   onGrossSalaryChange: (value: number) => void;
   result: CalculationResult;
+  usState?: string;
+  usContributions?: {
+    traditional401k: number;
+    rothIRA: number;
+    hsa: number;
+    healthFsa?: number;
+    dependentCareFsa?: number;
+  };
   taxOptions?: ReactNode;
   contributions?: ReactNode;
   contributionsTitle?: string;
   contributionsDescription?: string;
+  contributionsEmptyState?: ReactNode;
   infoCard?: ReactNode;
   seoInfo?: ReactNode;
-  hideDefaultSeoTaxInfo?: boolean;
 }
 
 export function CountryCalculatorExtensionShell({
   country,
   currency,
   grossSalary,
+  incomeLabel,
   onGrossSalaryChange,
   result,
+  usState,
+  usContributions,
   taxOptions,
   contributions,
-  contributionsTitle = "Voluntary Contributions",
-  contributionsDescription = "Optional tax-saving contributions",
+  contributionsTitle = "Country-Specific Tax Inputs",
+  contributionsDescription = "Localized deductions, reliefs, credits, and contribution inputs",
+  contributionsEmptyState,
   infoCard,
   seoInfo,
-  hideDefaultSeoTaxInfo = false,
 }: CountryCalculatorExtensionShellProps) {
   return (
     <>
@@ -136,6 +147,7 @@ export function CountryCalculatorExtensionShell({
                   value={grossSalary}
                   onChange={onGrossSalaryChange}
                   currency={currency}
+                  label={incomeLabel}
                 />
               </div>
 
@@ -148,13 +160,19 @@ export function CountryCalculatorExtensionShell({
             </CardContent>
           </Card>
 
-          {contributions && (
+          {(contributions || contributionsEmptyState) && (
             <Card>
               <CardHeader>
                 <CardTitle>{contributionsTitle}</CardTitle>
                 <CardDescription>{contributionsDescription}</CardDescription>
               </CardHeader>
-              <CardContent>{contributions}</CardContent>
+              <CardContent>
+                {contributions ?? (
+                  <div className="rounded-md bg-zinc-800/50 p-3 text-sm text-zinc-400">
+                    {contributionsEmptyState}
+                  </div>
+                )}
+              </CardContent>
             </Card>
           )}
 
@@ -162,13 +180,15 @@ export function CountryCalculatorExtensionShell({
         </div>
 
         <div className="lg:col-span-2">
-          <MultiCountryResults result={result} />
+          <MultiCountryResults
+            result={result}
+            usState={usState}
+            usContributions={usContributions}
+          />
         </div>
       </div>
 
       {seoInfo}
-
-      {!hideDefaultSeoTaxInfo && <SEOTaxInfo country={country} />}
     </>
   );
 }

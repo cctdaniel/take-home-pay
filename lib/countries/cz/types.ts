@@ -8,19 +8,37 @@ import type {
 
 export type CZResidencyType = "resident" | "non_resident";
 
+export type CZDisabilityCreditType = "none" | "basic" | "extended";
+
+export type CZCompanyCarEmissionType =
+  | "standard"
+  | "lowEmission"
+  | "zeroEmission";
+
 export interface CZContributionInputs {
   retirementSavingsContribution: number;
   charitableDonations: number;
 }
 
+export interface CZBenefitInputs {
+  otherTaxableNonCashBenefits: number;
+  companyCarEntryPrice: number;
+  companyCarEmissionType: CZCompanyCarEmissionType;
+  companyCarMonths: number;
+}
+
 export interface CZTaxReliefInputs {
   numberOfChildren: number;
   hasSpouseCredit: boolean;
+  hasSpouseZtpP: boolean;
+  disabilityCreditType: CZDisabilityCreditType;
+  hasZtpPCard: boolean;
 }
 
 export interface CZCalculatorInputs extends BaseCalculatorInputs {
   country: "CZ";
   residencyType: CZResidencyType;
+  benefits: CZBenefitInputs;
   contributions: CZContributionInputs;
   taxReliefs: CZTaxReliefInputs;
 }
@@ -36,6 +54,16 @@ export interface CZTaxBreakdown extends BaseTaxBreakdown {
 export interface CZBreakdown {
   type: "CZ";
   grossIncome: number;
+  cashGrossIncome: number;
+  taxableEmploymentIncome: number;
+  taxableBenefits: {
+    otherTaxableNonCashBenefits: number;
+    companyCarBenefit: number;
+    companyCarEntryPrice: number;
+    companyCarEmissionType: CZCompanyCarEmissionType;
+    companyCarMonths: number;
+    total: number;
+  };
   isResident: boolean;
   taxableIncomeBeforeRounding: number;
   taxableIncome: number;
@@ -54,6 +82,8 @@ export interface CZBreakdown {
   taxCredits: {
     basicTaxpayerCredit: number;
     spouseCredit: number;
+    disabilityCredit: number;
+    ztpPCardCredit: number;
     childCredit: number;
     childCreditAgainstTax: number;
     childTaxBonus: number;

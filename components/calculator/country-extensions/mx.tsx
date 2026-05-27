@@ -4,6 +4,7 @@ import { ContributionSlider } from "@/components/ui/contribution-slider";
 import { InfoPanel } from "@/components/calculator/info-panel";
 import {
   CalculatorFieldGrid,
+  CurrencyAmountField,
   PayFrequencyField,
   SelectField,
 } from "@/components/calculator/calculator-fields";
@@ -13,11 +14,16 @@ import {
   useCountryCalculatorExtension,
 } from "@/components/calculator/country-extension";
 import {
+  MEXICO_SALARY_EXEMPTIONS_2026,
   MEXICO_PERSONAL_DEDUCTIONS_2026,
   MEXICO_STATES,
+  MEXICO_UMA_2026,
   MEXICO_VOLUNTARY_RETIREMENT_2026,
 } from "@/lib/countries/mx/constants/tax-year-2026";
-import type { MXCalculatorInputs } from "@/lib/countries/mx/types";
+import type {
+  MXAguinaldoTreatment,
+  MXCalculatorInputs,
+} from "@/lib/countries/mx/types";
 import type { MexicoStateCode } from "@/lib/countries/mx/constants/tax-year-2026";
 import { formatCurrency } from "@/lib/format";
 
@@ -34,6 +40,15 @@ function getGeneralDeductionLimit(grossSalary: number): number {
     MEXICO_PERSONAL_DEDUCTIONS_2026.modeledGeneralDeductionCap,
   );
 }
+
+const AGUINALDO_TREATMENT_OPTIONS: Array<{
+  value: MXAguinaldoTreatment;
+  label: string;
+}> = [
+  { value: "statutoryOnTop", label: "Add 15-day statutory" },
+  { value: "includedInGross", label: "Included in gross" },
+  { value: "excluded", label: "No separate aguinaldo" },
+];
 
 export default function MXCountryExtension({ country }: CountryCalculatorExtensionProps) {
   const { inputs, setInputs, currency, result } =
@@ -118,6 +133,66 @@ export default function MXCountryExtension({ country }: CountryCalculatorExtensi
               updateInputs((current) => ({ ...current, payFrequency }))
             }
           />
+          <SelectField<MXAguinaldoTreatment>
+            id="mx-aguinaldo-treatment"
+            label="Aguinaldo Treatment"
+            value={inputs.aguinaldoTreatment ?? "excluded"}
+            onChange={(aguinaldoTreatment) =>
+              updateInputs((current) => ({
+                ...current,
+                aguinaldoTreatment,
+              }))
+            }
+            options={AGUINALDO_TREATMENT_OPTIONS}
+            description={`Models the annual bonus with a ${MEXICO_SALARY_EXEMPTIONS_2026.aguinaldoExemptUmaDays}-UMA exempt amount.`}
+          />
+          {inputs.aguinaldoTreatment === "includedInGross" ? (
+            <CurrencyAmountField
+              id="mx-aguinaldo-included"
+              label="Aguinaldo Included in Gross"
+              value={inputs.aguinaldoIncludedInGross}
+              onChange={(aguinaldoIncludedInGross) =>
+                updateInputs((current) => ({
+                  ...current,
+                  aguinaldoIncludedInGross: Math.min(
+                    Math.max(0, aguinaldoIncludedInGross),
+                    current.grossSalary,
+                  ),
+                }))
+              }
+              currency={currency}
+              step={500}
+              description="Enter the annual aguinaldo amount already included in the gross salary above."
+            />
+          ) : null}
+          <CurrencyAmountField
+            id="mx-vacation-premium"
+            label="Vacation Premium"
+            value={inputs.vacationPremium}
+            onChange={(vacationPremium) =>
+              updateInputs((current) => ({
+                ...current,
+                vacationPremium: Math.max(0, vacationPremium),
+              }))
+            }
+            currency={currency}
+            step={500}
+            description={`Added on top of gross salary; the first ${MEXICO_SALARY_EXEMPTIONS_2026.vacationPremiumExemptUmaDays} UMA are exempt.`}
+          />
+          <CurrencyAmountField
+            id="mx-ptu-profit-sharing"
+            label="PTU Profit Sharing"
+            value={inputs.ptuProfitSharing}
+            onChange={(ptuProfitSharing) =>
+              updateInputs((current) => ({
+                ...current,
+                ptuProfitSharing: Math.max(0, ptuProfitSharing),
+              }))
+            }
+            currency={currency}
+            step={500}
+            description={`Added on top of gross salary; the first ${MEXICO_SALARY_EXEMPTIONS_2026.ptuExemptUmaDays} UMA are exempt.`}
+          />
         </CalculatorFieldGrid>
       }
       contributions={
@@ -169,8 +244,8 @@ export default function MXCountryExtension({ country }: CountryCalculatorExtensi
           />
         </div>
       }
-      contributionsTitle="Retirement, Benefits & Deductions"
-      contributionsDescription="AFORE, medical, funeral, mortgage, and education deductions"
+      contributionsTitle="Retirement and Personal Deductions"
+      contributionsDescription="AFORE, medical, funeral, mortgage, and education deductions; salary exemptions are modeled above"
       infoCard={
         <InfoPanel title="Modeled Scope">
           Uses the 2026 annual ISR tariff, employee IMSS branches with SBC capped
@@ -178,7 +253,10 @@ export default function MXCountryExtension({ country }: CountryCalculatorExtensi
             MEXICO_VOLUNTARY_RETIREMENT_2026.modeledAnnualCap,
             currency,
           )} for modeled retirement and {formatCurrency(generalDeductionLimit, currency)}
-          for general personal deductions. State ISN payroll taxes are employer-side.
+          for general personal deductions. Aguinaldo, vacation premium, and PTU
+          salary exemptions use the 2026 UMA of{" "}
+          {formatCurrency(MEXICO_UMA_2026.daily, currency)} per day. State ISN
+          payroll taxes are employer-side.
         </InfoPanel>
       }
       seoInfo={
@@ -186,8 +264,10 @@ export default function MXCountryExtension({ country }: CountryCalculatorExtensi
           <h2 className="text-xl font-semibold text-zinc-100 mb-3">Mexico salary after tax calculator</h2>
           <p>
             Estimate Mexico take-home pay using ISR, employee-side IMSS, AFORE or
-            voluntary retirement savings, medical and dental, funeral, mortgage-interest,
-            education deductions, and state context for employer-side payroll tax notes.
+            voluntary retirement savings, common salary exemptions for aguinaldo,
+            vacation premium and PTU, medical and dental, funeral,
+            mortgage-interest, education deductions, and state context for
+            employer-side payroll tax notes.
           </p>
         </section>
       }

@@ -7,12 +7,13 @@ import {
   SelectField,
 } from "@/components/calculator/calculator-fields";
 import type { PayFrequency } from "@/lib/countries/types";
+import type { TWTaxResidencyType } from "@/lib/countries/types";
 
 interface TWTaxOptionsProps {
+  taxResidency: TWTaxResidencyType;
+  onTaxResidencyChange: (value: TWTaxResidencyType) => void;
   isMarried: boolean;
   onMarriedChange: (value: boolean) => void;
-  hasDisability: boolean;
-  onDisabilityChange: (value: boolean) => void;
   isGoldCardHolder: boolean;
   onGoldCardChange: (value: boolean) => void;
   payFrequency: PayFrequency;
@@ -20,10 +21,10 @@ interface TWTaxOptionsProps {
 }
 
 export function TWTaxOptions({
+  taxResidency,
+  onTaxResidencyChange,
   isMarried,
   onMarriedChange,
-  hasDisability,
-  onDisabilityChange,
   isGoldCardHolder,
   onGoldCardChange,
   payFrequency,
@@ -32,6 +33,21 @@ export function TWTaxOptions({
   return (
     <CalculatorFieldGrid columns={3}>
       <PayFrequencyField value={payFrequency} onChange={onPayFrequencyChange} />
+      <SelectField
+        id="tw-tax-residency"
+        label="Tax Residency"
+        value={taxResidency}
+        onChange={onTaxResidencyChange}
+        options={[
+          { value: "resident", label: "Resident (183+ days)" },
+          { value: "non_resident", label: "Non-resident" },
+        ]}
+        description={
+          taxResidency === "resident"
+            ? "Resident aliens use progressive rates and resident deductions."
+            : "Non-resident salary is modeled at the 18% salary withholding rate with no resident deductions."
+        }
+      />
       <SelectField
         id="filing-status"
         label="Filing Status"
@@ -48,23 +64,17 @@ export function TWTaxOptions({
         }.`}
       />
       <BooleanSelectField
-        id="disability-status"
-        label="Disability Status"
-        value={hasDisability}
-        onChange={onDisabilityChange}
-        trueLabel="Person with Disability"
-        falseLabel="No Disability"
-        description={hasDisability ? "Additional deduction: NT$227,000" : undefined}
-      />
-      <BooleanSelectField
         id="gold-card-status"
         label="Employment Gold Card"
         value={isGoldCardHolder}
         onChange={onGoldCardChange}
         trueLabel="Gold Card Holder (50% exemption on income > NT$3M)"
         falseLabel="Regular Taxpayer"
+        className={taxResidency === "non_resident" ? "opacity-50" : undefined}
         description={
-          isGoldCardHolder
+          taxResidency === "non_resident"
+            ? "Gold Card tax incentives require resident status."
+            : isGoldCardHolder
             ? "50% of income above NT$3M is tax-exempt for first 5 years as tax resident"
             : undefined
         }

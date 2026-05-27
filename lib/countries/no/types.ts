@@ -8,10 +8,24 @@ import type {
 
 export interface NOContributionInputs {
   ipsContribution: number;
+  tradeUnionFees: number;
+  childcareExpenses: number;
+  debtInterestPaid: number;
 }
+
+export type NOTaxScheme = "ordinary" | "paye";
+
+export type NOPayeNationalInsurance = "included" | "exempt";
+export type NOChildcareDeductionMode = "ordinary" | "specialNeeds";
 
 export interface NOCalculatorInputs extends BaseCalculatorInputs {
   country: "NO";
+  taxScheme: NOTaxScheme;
+  payeNationalInsurance: NOPayeNationalInsurance;
+  childcareDeductionMode: NOChildcareDeductionMode;
+  childcareChildren: number;
+  roundTripCommutingKm: number;
+  commutingWorkdays: number;
   contributions: NOContributionInputs;
 }
 
@@ -32,6 +46,16 @@ export interface NOBreakdown {
     rate: number;
     cap?: number;
   };
+  taxScheme: NOTaxScheme;
+  paye: {
+    selected: boolean;
+    applied: boolean;
+    nationalInsurance: NOPayeNationalInsurance;
+    threshold: number;
+    totalRate: number;
+    incomeTaxRate: number;
+    nationalInsuranceRate: number;
+  };
   standardDeduction: number;
   assumptions: string[];
   sourceUrls: string[];
@@ -39,6 +63,12 @@ export interface NOBreakdown {
     ipsContribution: number;
     ipsDeductionApplied: number;
     ipsDeductionLimit: number;
+    tradeUnionFees: number;
+    childcareExpenses: number;
+    childcareDeductionApplied: number;
+    childcareDeductionLimit: number;
+    debtInterestPaid: number;
+    commutingDeduction: number;
   };
 }
 

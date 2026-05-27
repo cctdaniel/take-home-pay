@@ -5,6 +5,15 @@
 
 import type { TaxBracket, USFilingStatus } from "../../types";
 
+export const US_SOURCE_URLS = [
+  "https://www.irs.gov/newsroom/irs-releases-tax-inflation-adjustments-for-tax-year-2026-including-amendments-from-the-one-big-beautiful-bill/",
+  "https://www.irs.gov/Retirement-Plans",
+  "https://www.irs.gov/irb/2025-21_IRB/index.html",
+  "https://www.irs.gov/publications/p15b",
+  "https://www.ssa.gov/OACT/cola/cbb.html",
+  "https://www.irs.gov/affordable-care-act/affordable-care-act-tax-provisions",
+] as const;
+
 export const FEDERAL_TAX_BRACKETS: Record<USFilingStatus, TaxBracket[]> = {
   single: [
     { min: 0, max: 12400, rate: 0.10 },

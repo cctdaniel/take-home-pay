@@ -3,26 +3,95 @@
 
 import type { CountryCode } from "@/lib/countries/types";
 import type { ReactNode } from "react";
+import { ADResultBreakdown } from "./ad-result-breakdown";
 import { AEResultBreakdown } from "./ae-result-breakdown";
+import { ALResultBreakdown } from "./al-result-breakdown";
+import { AMResultBreakdown } from "./am-result-breakdown";
 import { ATResultBreakdown } from "./at-result-breakdown";
+import { AUResultBreakdown } from "./au-result-breakdown";
+import { BAResultBreakdown } from "./ba-result-breakdown";
+import { BBResultBreakdown } from "./bb-result-breakdown";
 import { BEResultBreakdown } from "./be-result-breakdown";
+import { BGResultBreakdown } from "./bg-result-breakdown";
+import { BHResultBreakdown } from "./bh-result-breakdown";
+import { BMResultBreakdown } from "./bm-result-breakdown";
+import { BRResultBreakdown } from "./br-result-breakdown";
+import { BSResultBreakdown } from "./bs-result-breakdown";
+import { BZResultBreakdown } from "./bz-result-breakdown";
+import { CAResultBreakdown } from "./ca-result-breakdown";
+import { CHResultBreakdown } from "./ch-result-breakdown";
+import { CLResultBreakdown } from "./cl-result-breakdown";
 import { CNResultBreakdown } from "./cn-result-breakdown";
+import { COResultBreakdown } from "./co-result-breakdown";
+import { CRResultBreakdown } from "./cr-result-breakdown";
+import { CWResultBreakdown } from "./cw-result-breakdown";
 import { CYResultBreakdown } from "./cy-result-breakdown";
 import { CZResultBreakdown } from "./cz-result-breakdown";
+import { DEResultBreakdown } from "./de-result-breakdown";
+import { DKResultBreakdown } from "./dk-result-breakdown";
+import { DOResultBreakdown } from "./do-result-breakdown";
+import { ECResultBreakdown } from "./ec-result-breakdown";
+import { EEResultBreakdown } from "./ee-result-breakdown";
+import { EGResultBreakdown } from "./eg-result-breakdown";
 import { ESResultBreakdown } from "./es-result-breakdown";
+import { FIResultBreakdown } from "./fi-result-breakdown";
 import { FRResultBreakdown } from "./fr-result-breakdown";
 import { GEResultBreakdown } from "./ge-result-breakdown";
 import { GRResultBreakdown } from "./gr-result-breakdown";
+import { GTResultBreakdown } from "./gt-result-breakdown";
+import { HKResultBreakdown } from "./hk-result-breakdown";
 import { HRResultBreakdown } from "./hr-result-breakdown";
+import { HUResultBreakdown } from "./hu-result-breakdown";
+import { IDResultBreakdown } from "./id-result-breakdown";
 import { IEResultBreakdown } from "./ie-result-breakdown";
+import { ILResultBreakdown } from "./il-result-breakdown";
 import { INResultBreakdown } from "./in-result-breakdown";
+import { ISResultBreakdown } from "./is-result-breakdown";
 import { ITResultBreakdown } from "./it-result-breakdown";
+import { JOResultBreakdown } from "./jo-result-breakdown";
 import { JPResultBreakdown } from "./jp-result-breakdown";
+import { KEResultBreakdown } from "./ke-result-breakdown";
+import { KHResultBreakdown } from "./kh-result-breakdown";
+import { KRResultBreakdown } from "./kr-result-breakdown";
+import { KWResultBreakdown } from "./kw-result-breakdown";
+import { LKResultBreakdown } from "./lk-result-breakdown";
+import { LTResultBreakdown } from "./lt-result-breakdown";
+import { LUResultBreakdown } from "./lu-result-breakdown";
+import { LVResultBreakdown } from "./lv-result-breakdown";
+import { MAResultBreakdown } from "./ma-result-breakdown";
+import { MEResultBreakdown } from "./me-result-breakdown";
 import { MTResultBreakdown } from "./mt-result-breakdown";
+import { MUResultBreakdown } from "./mu-result-breakdown";
+import { MXResultBreakdown } from "./mx-result-breakdown";
 import { MYResultBreakdown } from "./my-result-breakdown";
+import { NLResultBreakdown } from "./nl-result-breakdown";
+import { NOResultBreakdown } from "./no-result-breakdown";
 import { NZResultBreakdown } from "./nz-result-breakdown";
+import { OMResultBreakdown } from "./om-result-breakdown";
+import { PAResultBreakdown } from "./pa-result-breakdown";
+import { PEResultBreakdown } from "./pe-result-breakdown";
 import { PHResultBreakdown } from "./ph-result-breakdown";
+import { PLResultBreakdown } from "./pl-result-breakdown";
+import { PTResultBreakdown } from "./pt-result-breakdown";
+import { PYResultBreakdown } from "./py-result-breakdown";
+import { QAResultBreakdown } from "./qa-result-breakdown";
+import { ROResultBreakdown } from "./ro-result-breakdown";
+import { RSResultBreakdown } from "./rs-result-breakdown";
+import { RWResultBreakdown } from "./rw-result-breakdown";
+import { SAResultBreakdown } from "./sa-result-breakdown";
+import { SCResultBreakdown } from "./sc-result-breakdown";
+import { SEResultBreakdown } from "./se-result-breakdown";
+import { SGResultBreakdown } from "./sg-result-breakdown";
+import { SIResultBreakdown } from "./si-result-breakdown";
+import { SVResultBreakdown } from "./sv-result-breakdown";
+import { THResultBreakdown } from "./th-result-breakdown";
+import { TRResultBreakdown } from "./tr-result-breakdown";
+import { TWResultBreakdown } from "./tw-result-breakdown";
+import { UKResultBreakdown } from "./uk-result-breakdown";
+import { USResultBreakdown } from "./us-result-breakdown";
+import { UYResultBreakdown } from "./uy-result-breakdown";
 import { VNResultBreakdown } from "./vn-result-breakdown";
+import { ZAResultBreakdown } from "./za-result-breakdown";
 import type { CountryResultBreakdownProps } from "./types";
 
 export type CountryResultBreakdownComponent = (
@@ -32,24 +101,93 @@ export type CountryResultBreakdownComponent = (
 export const COUNTRY_RESULT_BREAKDOWNS: Partial<
   Record<CountryCode, CountryResultBreakdownComponent>
 > = {
+  AD: ADResultBreakdown,
   AE: AEResultBreakdown,
+  AL: ALResultBreakdown,
+  AM: AMResultBreakdown,
   AT: ATResultBreakdown,
+  AU: AUResultBreakdown,
+  BA: BAResultBreakdown,
+  BB: BBResultBreakdown,
   BE: BEResultBreakdown,
+  BG: BGResultBreakdown,
+  BH: BHResultBreakdown,
+  BM: BMResultBreakdown,
+  BR: BRResultBreakdown,
+  BS: BSResultBreakdown,
+  BZ: BZResultBreakdown,
+  CA: CAResultBreakdown,
+  CH: CHResultBreakdown,
+  CL: CLResultBreakdown,
   CN: CNResultBreakdown,
+  CO: COResultBreakdown,
+  CR: CRResultBreakdown,
+  CW: CWResultBreakdown,
   CY: CYResultBreakdown,
   CZ: CZResultBreakdown,
+  DE: DEResultBreakdown,
+  DK: DKResultBreakdown,
+  DO: DOResultBreakdown,
+  EC: ECResultBreakdown,
+  EE: EEResultBreakdown,
+  EG: EGResultBreakdown,
   ES: ESResultBreakdown,
+  FI: FIResultBreakdown,
   FR: FRResultBreakdown,
   GE: GEResultBreakdown,
   GR: GRResultBreakdown,
+  GT: GTResultBreakdown,
+  HK: HKResultBreakdown,
   HR: HRResultBreakdown,
+  HU: HUResultBreakdown,
+  ID: IDResultBreakdown,
   IE: IEResultBreakdown,
+  IL: ILResultBreakdown,
   IN: INResultBreakdown,
+  IS: ISResultBreakdown,
   IT: ITResultBreakdown,
+  JO: JOResultBreakdown,
   JP: JPResultBreakdown,
+  KE: KEResultBreakdown,
+  KH: KHResultBreakdown,
+  KR: KRResultBreakdown,
+  KW: KWResultBreakdown,
+  LK: LKResultBreakdown,
+  LT: LTResultBreakdown,
+  LU: LUResultBreakdown,
+  LV: LVResultBreakdown,
+  MA: MAResultBreakdown,
+  ME: MEResultBreakdown,
   MT: MTResultBreakdown,
+  MU: MUResultBreakdown,
+  MX: MXResultBreakdown,
   MY: MYResultBreakdown,
+  NL: NLResultBreakdown,
+  NO: NOResultBreakdown,
   NZ: NZResultBreakdown,
+  OM: OMResultBreakdown,
+  PA: PAResultBreakdown,
+  PE: PEResultBreakdown,
   PH: PHResultBreakdown,
+  PL: PLResultBreakdown,
+  PT: PTResultBreakdown,
+  PY: PYResultBreakdown,
+  QA: QAResultBreakdown,
+  RO: ROResultBreakdown,
+  RS: RSResultBreakdown,
+  RW: RWResultBreakdown,
+  SA: SAResultBreakdown,
+  SC: SCResultBreakdown,
+  SE: SEResultBreakdown,
+  SG: SGResultBreakdown,
+  SI: SIResultBreakdown,
+  SV: SVResultBreakdown,
+  TH: THResultBreakdown,
+  TR: TRResultBreakdown,
+  TW: TWResultBreakdown,
+  UK: UKResultBreakdown,
+  US: USResultBreakdown,
+  UY: UYResultBreakdown,
   VN: VNResultBreakdown,
+  ZA: ZAResultBreakdown,
 };

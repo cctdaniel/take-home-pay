@@ -1,6 +1,8 @@
 import { Separator } from "@/components/ui/separator";
+import { MY_SOURCE_URLS } from "@/lib/countries/my/constants/tax-brackets-2025";
 import { formatCurrency } from "@/lib/format";
 import { DeductionRow } from "../deduction-row";
+import { ResultNotes } from "./result-notes";
 import type { CountryResultBreakdownProps } from "./types";
 
 export function MYResultBreakdown({
@@ -35,14 +37,33 @@ export function MYResultBreakdown({
           {Object.entries({
             "Individual relief": breakdown.taxReliefs.individual,
             "Spouse relief": breakdown.taxReliefs.spouse,
+            "Disabled spouse relief": breakdown.taxReliefs.disabledSpouse,
             "Child under 18": breakdown.taxReliefs.childUnder18,
+            "Child 18+ education": breakdown.taxReliefs.child18PlusEducation,
             "Tertiary child": breakdown.taxReliefs.childTertiary,
+            "Disabled child": breakdown.taxReliefs.disabledChild,
+            "Disabled tertiary child":
+              breakdown.taxReliefs.disabledChildTertiary,
             "Disabled individual": breakdown.taxReliefs.disabledIndividual,
+            "Parent/grandparent medical": breakdown.taxReliefs.parentMedical,
+            "Supporting equipment": breakdown.taxReliefs.supportingEquipment,
+            "Self education fees": breakdown.taxReliefs.selfEducation,
             "EPF relief": breakdown.taxReliefs.epf,
+            "Life insurance relief": breakdown.taxReliefs.lifeInsurance,
             "PRS relief": breakdown.taxReliefs.prs,
             "SOCSO relief": breakdown.taxReliefs.socso,
             "Lifestyle relief": breakdown.taxReliefs.lifestyle,
+            "Sports lifestyle relief": breakdown.taxReliefs.sportsLifestyle,
             "Medical relief": breakdown.taxReliefs.medical,
+            "Breastfeeding equipment": breakdown.taxReliefs.breastfeedingEquipment,
+            "Childcare fees": breakdown.taxReliefs.childcare,
+            "SSPN net savings": breakdown.taxReliefs.sspn,
+            "Education/medical insurance":
+              breakdown.taxReliefs.educationMedicalInsurance,
+            "EV charging/composting": breakdown.taxReliefs.evCharging,
+            "First-home loan interest":
+              breakdown.taxReliefs.firstHomeLoanInterest,
+            "Approved donations/gifts": breakdown.taxReliefs.approvedDonations,
           }).map(([label, amount]) =>
             amount > 0 ? (
               <div
@@ -87,6 +108,31 @@ export function MYResultBreakdown({
         grossSalary={grossSalary}
         currency={currency}
       />
+
+      {breakdown.taxRebates.total > 0 && (
+        <>
+          <Separator className="my-2" />
+          <p className="text-xs text-zinc-500 pt-2 pb-1">Tax Rebates</p>
+          {Object.entries({
+            "Resident individual/spouse rebate":
+              breakdown.taxRebates.residentIndividual,
+            "Zakat or fitrah rebate": breakdown.taxRebates.zakatFitrah,
+            "Departure levy rebate": breakdown.taxRebates.departureLevy,
+          }).map(([label, amount]) =>
+            amount > 0 ? (
+              <div
+                key={label}
+                className="flex items-center justify-between py-1"
+              >
+                <span className="text-sm text-zinc-400">{label}</span>
+                <span className="text-sm text-emerald-400 tabular-nums">
+                  -{formatCurrency(amount, currency)}
+                </span>
+              </div>
+            ) : null,
+          )}
+        </>
+      )}
 
       <Separator className="my-2" />
       <p className="text-xs text-zinc-500 pt-2 pb-1">
@@ -144,7 +190,7 @@ export function MYResultBreakdown({
         <>
           <Separator className="my-2" />
           <p className="text-xs text-zinc-500 pt-2 pb-1">
-            Voluntary Contributions
+            EPF and PRS Contributions
           </p>
           {breakdown.voluntaryContributions.voluntaryEpf > 0 && (
             <DeductionRow
@@ -164,6 +210,19 @@ export function MYResultBreakdown({
           )}
         </>
       )}
+
+      <ResultNotes
+        countryName="Malaysia"
+        assumptions={[
+          "Resident employment uses the latest HASiL resident individual table available in the modeled YA 2025 constants, with reliefs, rebates, EPF, SOCSO, EIS, PRS, and approved donation inputs.",
+          "Non-resident employment income is modeled with the flat non-resident employment rate and without resident-only reliefs.",
+          "Employee EPF, SOCSO, and EIS reduce take-home pay; employer EPF is shown for context and is not deducted from salary.",
+        ]}
+        exclusions={[
+          "Monthly PCB/MTD withholding timing, Zakat authority validation, Form EA component splits, foreign-source income, and director fee or business income treatment require separate filing facts.",
+        ]}
+        sourceUrls={MY_SOURCE_URLS}
+      />
     </>
   );
 }

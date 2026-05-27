@@ -18,6 +18,7 @@ import type {
 } from "../types";
 import { AU_CONFIG } from "./config";
 import {
+  AU_CONCESSIONAL_SUPER_CAP_2026,
   AU_NON_RESIDENT_TAX_BRACKETS_2026,
   AU_RESIDENT_TAX_BRACKETS_2026,
   calculateDivision293Tax,
@@ -25,6 +26,8 @@ import {
   calculateMedicareLevy,
   calculateMedicareLevySurcharge,
   calculateSuperannuation,
+  getMedicareLevySurchargeThresholds,
+  getMedicareLevyThresholds,
 } from "./constants/tax-brackets-2026";
 
 // ============================================================================
@@ -63,6 +66,20 @@ function calculateProgressiveTax(income: number, brackets: TaxBracket[]) {
   return { totalTax, bracketTaxes };
 }
 
+function clampAmount(value: number, max: number): number {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  return Math.min(Math.max(0, value), Math.max(0, max));
+}
+
+function calculateRemainingConcessionalCap(grossSalary: number): number {
+  const employerSuperannuation = calculateSuperannuation(grossSalary);
+
+  return Math.max(0, AU_CONCESSIONAL_SUPER_CAP_2026 - employerSuperannuation);
+}
+
 // ============================================================================
 // AUSTRALIA CALCULATOR
 // ============================================================================
@@ -71,13 +88,46 @@ export function calculateAU(inputs: AUCalculatorInputs): CalculationResult {
     grossSalary,
     payFrequency,
     residencyType,
+    medicareFamilyStatus = "single",
+    medicareSpouseIncome = 0,
+    numberOfDependentChildren = 0,
     hasPrivateHealthInsurance,
+    contributions,
   } = inputs;
 
   const isResident = residencyType === "resident";
+  const normalizedDependentChildren = Math.max(
+    0,
+    Math.floor(numberOfDependentChildren),
+  );
+  const normalizedSpouseIncome = Math.max(0, medicareSpouseIncome);
+  const normalizedMedicareFamilyStatus =
+    medicareFamilyStatus === "family" ? "family" : "single";
+  const employerSuperannuation = calculateSuperannuation(grossSalary);
+  const remainingConcessionalCap =
+    calculateRemainingConcessionalCap(grossSalary);
+  const salarySacrificeSuper = clampAmount(
+    contributions?.salarySacrificeSuper ?? 0,
+    remainingConcessionalCap,
+  );
 
-  // Step 1: Calculate taxable income (same as gross for basic calculation)
-  const taxableIncome = grossSalary;
+  // Step 1: Salary-sacrifice / deductible concessional super lowers taxable salary.
+  const taxBaseBeforeAnnualDeductions = Math.max(
+    0,
+    grossSalary - salarySacrificeSuper,
+  );
+  const workRelatedExpenses = clampAmount(
+    contributions?.workRelatedExpenses ?? 0,
+    taxBaseBeforeAnnualDeductions,
+  );
+  const charitableDonations = clampAmount(
+    contributions?.charitableDonations ?? 0,
+    taxBaseBeforeAnnualDeductions - workRelatedExpenses,
+  );
+  const taxableIncome = Math.max(
+    0,
+    taxBaseBeforeAnnualDeductions - workRelatedExpenses - charitableDonations,
+  );
 
   // Step 2: Calculate income tax based on residency
   const taxBrackets = isResident
@@ -96,19 +146,48 @@ export function calculateAU(inputs: AUCalculatorInputs): CalculationResult {
   const incomeTax = Math.max(0, grossIncomeTax - lito);
 
   // Step 5: Calculate Medicare levy (residents only)
-  const medicareLevy = isResident ? calculateMedicareLevy(taxableIncome) : 0;
-
-  // Step 6: Calculate Medicare levy surcharge (if no private health insurance)
-  const medicareLevySurcharge = isResident
-    ? calculateMedicareLevySurcharge(taxableIncome, hasPrivateHealthInsurance)
+  const medicareFamilyIncome =
+    normalizedMedicareFamilyStatus === "family"
+      ? taxableIncome + normalizedSpouseIncome
+      : taxableIncome;
+  const medicareLevyThresholds = getMedicareLevyThresholds({
+    familyStatus: normalizedMedicareFamilyStatus,
+    numberOfDependentChildren: normalizedDependentChildren,
+  });
+  const medicareLevy = isResident
+    ? calculateMedicareLevy(taxableIncome, {
+        familyStatus: normalizedMedicareFamilyStatus,
+        spouseTaxableIncome: normalizedSpouseIncome,
+        numberOfDependentChildren: normalizedDependentChildren,
+      })
     : 0;
 
-  // Step 7: Calculate superannuation (employer contribution - informational)
-  const superannuation = calculateSuperannuation(grossSalary);
+  // Step 6: Calculate Medicare levy surcharge (if no private health insurance)
+  // MLS income adds reportable super back, so salary sacrifice should not lower
+  // the surcharge threshold; ordinary deductions still reduce taxable income.
+  const medicareSurchargeIncome =
+    normalizedMedicareFamilyStatus === "family"
+      ? taxableIncome + salarySacrificeSuper + normalizedSpouseIncome
+      : taxableIncome + salarySacrificeSuper;
+  const medicareSurchargeThresholds = getMedicareLevySurchargeThresholds({
+    familyStatus: normalizedMedicareFamilyStatus,
+    numberOfDependentChildren: normalizedDependentChildren,
+  });
+  const familyAwareMedicareLevySurcharge = isResident
+    ? calculateMedicareLevySurcharge(
+        taxableIncome + salarySacrificeSuper,
+        hasPrivateHealthInsurance,
+        {
+          familyStatus: normalizedMedicareFamilyStatus,
+          spouseIncomeForSurcharge: normalizedSpouseIncome,
+          numberOfDependentChildren: normalizedDependentChildren,
+        },
+      )
+    : 0;
 
   // Step 8: Calculate Division 293 tax (for high income earners)
-  // Concessional contributions = employer super (for most employees)
-  const concessionalContributions = superannuation;
+  // Concessional contributions = employer super plus selected salary sacrifice.
+  const concessionalContributions = employerSuperannuation + salarySacrificeSuper;
   const {
     division293Tax,
     division293Income,
@@ -117,16 +196,16 @@ export function calculateAU(inputs: AUCalculatorInputs): CalculationResult {
 
   // Step 9: Build tax breakdown
   const taxes: AUTaxBreakdown = {
-    totalIncomeTax: incomeTax + medicareLevy + medicareLevySurcharge + division293Tax,
+    totalIncomeTax: incomeTax + medicareLevy + familyAwareMedicareLevySurcharge + division293Tax,
     incomeTax,
     medicareLevy,
-    medicareLevySurcharge,
+    medicareLevySurcharge: familyAwareMedicareLevySurcharge,
     division293Tax,
   };
 
   // Step 10: Calculate totals
-  const totalTax = incomeTax + medicareLevy + medicareLevySurcharge + division293Tax;
-  const totalDeductions = totalTax;
+  const totalTax = incomeTax + medicareLevy + familyAwareMedicareLevySurcharge + division293Tax;
+  const totalDeductions = totalTax + salarySacrificeSuper;
   const netSalary = grossSalary - totalDeductions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(payFrequency);
@@ -139,16 +218,34 @@ export function calculateAU(inputs: AUCalculatorInputs): CalculationResult {
     grossIncomeTax,
     lito,
     incomeTax,
+    taxBaseBeforeAnnualDeductions,
+    workRelatedExpenses,
+    charitableDonations,
     medicareLevy,
-    medicareLevySurcharge,
+    medicareLevySurcharge: familyAwareMedicareLevySurcharge,
     hasPrivateHealthInsurance,
+    medicareFamilyStatus: normalizedMedicareFamilyStatus,
+    medicareSpouseIncome: normalizedSpouseIncome,
+    numberOfDependentChildren: normalizedDependentChildren,
+    medicareFamilyIncome,
+    medicareLevyReductionApplied:
+      isResident &&
+      medicareFamilyIncome > medicareLevyThresholds.lowerThreshold &&
+      medicareFamilyIncome <= medicareLevyThresholds.upperThreshold,
+    medicareLevyThresholds,
+    medicareSurchargeIncome,
+    medicareSurchargeThresholds,
     division293Tax,
     division293Income,
     division293Threshold: 250000,
     superannuation: {
-      employerContribution: superannuation,
+      employerContribution: employerSuperannuation,
+      salarySacrificeContribution: salarySacrificeSuper,
       rate: 0.12,
-      concessionalContributions: taxableContributions,
+      concessionalContributions,
+      division293TaxableContributions: taxableContributions,
+      concessionalCap: AU_CONCESSIONAL_SUPER_CAP_2026,
+      remainingConcessionalCap,
     },
     isResident,
   };
@@ -190,9 +287,46 @@ export const AUCalculator: CountryCalculator = {
     return []; // Australia has no state income tax
   },
 
-  getContributionLimits(): ContributionLimits {
+  getContributionLimits(inputs?: Partial<CalculatorInputs>): ContributionLimits {
+    const grossSalary = inputs?.grossSalary ?? 100000;
+    const remainingConcessionalCap =
+      calculateRemainingConcessionalCap(grossSalary);
+    const auInputs = inputs as Partial<AUCalculatorInputs> | undefined;
+    const salarySacrificeSuper = clampAmount(
+      auInputs?.contributions?.salarySacrificeSuper ?? 0,
+      remainingConcessionalCap,
+    );
+    const taxBaseBeforeAnnualDeductions = Math.max(
+      0,
+      grossSalary - salarySacrificeSuper,
+    );
+    const workRelatedExpenses = clampAmount(
+      auInputs?.contributions?.workRelatedExpenses ?? 0,
+      taxBaseBeforeAnnualDeductions,
+    );
+
     return {
-      // Superannuation voluntary contribution limits could be added here
+      salarySacrificeSuper: {
+        limit: remainingConcessionalCap,
+        name: "Salary-sacrifice / deductible concessional super",
+        description:
+          "Employee-controlled concessional super contribution up to the remaining ATO concessional cap after modeled employer Super Guarantee.",
+        preTax: true,
+      },
+      workRelatedExpenses: {
+        limit: taxBaseBeforeAnnualDeductions,
+        name: "Work-related deductions",
+        description:
+          "Unreimbursed employment expenses that directly relate to earning salary income, capped here to the modeled post-super salary base.",
+        preTax: true,
+      },
+      charitableDonations: {
+        limit: Math.max(0, taxBaseBeforeAnnualDeductions - workRelatedExpenses),
+        name: "DGR gifts / donations",
+        description:
+          "Deductible gifts of A$2 or more to deductible gift recipients, capped here to the remaining modeled taxable salary base after work deductions.",
+        preTax: true,
+      },
     };
   },
 
@@ -202,7 +336,15 @@ export const AUCalculator: CountryCalculator = {
       grossSalary: 100000,
       payFrequency: "monthly",
       residencyType: "resident",
+      medicareFamilyStatus: "single",
+      medicareSpouseIncome: 0,
+      numberOfDependentChildren: 0,
       hasPrivateHealthInsurance: true, // Assume most have PHI
+      contributions: {
+        salarySacrificeSuper: 0,
+        workRelatedExpenses: 0,
+        charitableDonations: 0,
+      },
     };
   },
 };

@@ -6,12 +6,14 @@
 //   https://www.etax.nat.gov.tw/etwmain/en/announcement/alien-individual-income-tax/progressive-tax-rate
 // - eTax Portal, Ministry of Finance (Exemption and Deduction Table 2026):
 //   https://www.etax.nat.gov.tw/etwmain/en/announcement/alien-individual-income-tax/exemption-deduction-table
+// - National Taxation Bureau of Taipei (Exemptions and deductions):
+//   https://www.ntbt.gov.tw/English/multiplehtml/9ab03ab159f94181abab5d1ba60d89c4
+// - Ministry of Finance (2025 basic living expense for returns filed in 2026):
+//   https://www.mof.gov.tw/Eng/singlehtml/f48d641f159a4866b1d31c0916fbcc71?cntId=bae4acfc9c9f4ba2873a4b9db8dcfa03
 // - Bureau of Labor Insurance (Labor Insurance Grade Tables 2026):
 //   https://www.bli.gov.tw/EN/0016423.html
 // - National Health Insurance (Premium Calculation 2026):
 //   https://www.nhi.gov.tw/en/cp-19435-fdaba-114-2.html
-// - Ministry of Labor (Labor Pension Tables 2026):
-//   https://www.ramco.com/payce/payroll-compliance-taiwan
 //
 // Tax Year: 2026 (for income earned in 2025, filed in 2026)
 // ============================================================================
@@ -40,6 +42,8 @@ export const TW_PROGRESSIVE_DIFFERENCES_2026 = {
   bracket5: 949_100,  // 40% bracket
 };
 
+export const TW_NON_RESIDENT_SALARY_TAX_RATE = 0.18;
+
 // ============================================================================
 // PERSONAL EXEMPTIONS AND DEDUCTIONS (2026)
 // Source: Ministry of Finance (Nov 27, 2025 announcement)
@@ -58,7 +62,44 @@ export const TW_STANDARD_DEDUCTION_2026 = {
 export const TW_SPECIAL_DEDUCTIONS_2026 = {
   salary: 227_000,      // Special deduction for salary/wage income
   disability: 227_000,  // Special deduction for disabled individuals
+  savingsAndInvestment: 270_000,
+  collegeTuition: 25_000,
+  preschoolFirstChild: 150_000,
+  preschoolSecondAndLaterChild: 225_000,
+  longTermCare: 180_000,
+  rent: 180_000,
+  rentExpandedHousehold: 225_000,
+  incomeTestThreshold: 1_380_000, // 20% bracket starts above this amount
+  basicIncomeTestThreshold: 7_500_000,
 };
+
+export const TW_ITEMIZED_DEDUCTIONS_2026 = {
+  charitableDonationGrossIncomeCapRate: 0.2,
+  insurancePremiumPerPersonCap: 24_000,
+  mortgageInterestCap: 300_000,
+};
+
+export const TW_BASIC_LIVING_EXPENSE_2025 = 213_000;
+
+export const TW_GOLD_CARD_2026 = {
+  salaryThreshold: 3_000_000,
+  exemptionRate: 0.5,
+};
+
+export const TW_SOURCE_URLS = {
+  progressiveRates:
+    "https://www.etax.nat.gov.tw/etwmain/en/announcement/alien-individual-income-tax/progressive-tax-rate",
+  exemptionDeductionTable:
+    "https://www.etax.nat.gov.tw/etwmain/en/announcement/alien-individual-income-tax/exemption-deduction-table",
+  exemptionsAndDeductions:
+    "https://www.ntbt.gov.tw/English/multiplehtml/9ab03ab159f94181abab5d1ba60d89c4",
+  basicLivingExpense:
+    "https://www.mof.gov.tw/Eng/singlehtml/f48d641f159a4866b1d31c0916fbcc71?cntId=bae4acfc9c9f4ba2873a4b9db8dcfa03",
+  foreignProfessionalTaxIncentive:
+    "https://www.ntbt.gov.tw/English/singlehtml/745d73afa03148fea8b721bb9403238e?cntId=d3f1c08222504aedadc2c15a123831d7",
+  nonResidentWithholding:
+    "https://www.etax.nat.gov.tw/etwmain/alien-tax-service/alien-individual-income-tax/vV8Z3o9",
+} as const;
 
 // ============================================================================
 // LABOR INSURANCE (勞工保險) - 2026

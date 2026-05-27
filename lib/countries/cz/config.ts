@@ -13,7 +13,7 @@ export const CZ_CONFIG: CountryConfig = {
   region: "Europe",
   currency: CZ_CURRENCY,
   taxYear: 2026,
-  lastUpdated: "2026-05-16",
+  lastUpdated: "2026-05-25",
   defaultRegion: undefined,
   supportsFilingStatus: false,
   supportsRegions: false,

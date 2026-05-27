@@ -67,9 +67,12 @@ export type CountryCode = Extract<keyof CountryCodeMap, string>;
 
 export type CountryRegion =
   | "North America"
+  | "Latin America"
+  | "Caribbean"
   | "Europe"
   | "Asia-Pacific"
-  | "Middle East";
+  | "Middle East"
+  | "Africa";
 
 export interface CountryConfig {
   code: CountryCode;
@@ -105,6 +108,7 @@ export type USFilingStatus =
 // RESIDENCY TYPES - Singapore specific
 // ============================================================================
 export type SGResidencyType = "citizen_pr" | "foreigner";
+export type SGTaxResidencyType = "resident" | "non_resident";
 
 // ============================================================================
 // RESIDENCY TYPES - South Korea specific
@@ -115,6 +119,7 @@ export type KRResidencyType = "resident" | "non_resident";
 // RESIDENCY TYPES - Australia specific
 // ============================================================================
 export type AUResidencyType = "resident" | "non_resident";
+export type AUMedicareFamilyStatus = "single" | "family";
 
 // ============================================================================
 // CONTRIBUTION TYPES
@@ -124,6 +129,8 @@ export interface USContributionInputs {
   traditional401k: number;
   rothIRA: number;
   hsa: number;
+  healthFsa: number;
+  dependentCareFsa: number;
   hsaCoverageType: "self" | "family";
 }
 
@@ -140,14 +147,27 @@ export interface KRContributionInputs {
   // This interface is kept for consistency but currently has no optional contributions
 }
 
-// Netherlands-specific contributions (none modeled yet)
-export type NLContributionInputs = Record<never, never>;
+// Netherlands-specific contributions. Employee pension premiums are payroll
+// withholdings; lijfrente deposits are self-paid annual-return deductions.
+export interface NLContributionInputs {
+  lijfrenteContribution: number;
+}
+export type NLThirtyPercentRulingType =
+  | "none"
+  | "standard"
+  | "under30Masters"
+  | "researcherNoSalaryNorm";
+export type NLIackEligibility =
+  | "none"
+  | "noFiscalPartner"
+  | "lowerEarningPartner"
+  | "partnerUnderSixMonths";
 
-// Australia-specific contributions (superannuation is employer-paid, not deducted)
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+// Australia-specific contributions
 export interface AUContributionInputs {
-  // Superannuation is mandatory and paid by employer on top of salary
-  // This interface is kept for consistency
+  salarySacrificeSuper: number;
+  workRelatedExpenses: number;
+  charitableDonations: number;
 }
 
 // Portugal-specific contributions (Social Security is mandatory)
@@ -188,20 +208,43 @@ export type JPResidencyType = "resident";
 // ============================================================================
 export type INRegime = "new" | "old";
 
+export interface INHraInputs {
+  annualHraReceived: number;
+  annualRentPaid: number;
+  annualBasicSalaryForHra: number;
+  isMetroCity: boolean;
+}
+
+export interface INContributionInputs {
+  section80CInvestments: number;
+  npsEmployeeContribution: number;
+  section80DHealthInsuranceSelfFamily: number;
+  section80DHealthInsuranceParents: number;
+}
+
 // ============================================================================
 // RESIDENCY TYPES - Philippines specific
 // ============================================================================
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export type PHTaxpayerType = "residentOrNraEtb" | "nraNotEngaged";
+
 export interface PHContributionInputs {
-  // All contributions are mandatory and calculated automatically
+  thirteenthMonthAndOtherBenefits: number;
+  deMinimisMedicalCashAllowance: number;
+  deMinimisRiceSubsidy: number;
+  deMinimisUniformClothing: number;
+  deMinimisActualMedicalAssistance: number;
+  deMinimisLaundryAllowance: number;
+  deMinimisAchievementAwards: number;
+  deMinimisChristmasGifts: number;
+  deMinimisCbaProductivityIncentives: number;
 }
 
 // ============================================================================
 // RESIDENCY TYPES - Vietnam specific
 // ============================================================================
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface VNContributionInputs {
-  // All contributions are mandatory and calculated automatically
+  voluntaryPensionContribution: number;
+  charitableDonations: number;
 }
 
 // Thailand-specific contributions (voluntary retirement savings)
@@ -235,10 +278,18 @@ export interface TWContributionInputs {
   voluntaryPensionContribution: number; // Employee voluntary contribution to labor pension (0-6% of salary, max NT$150,000)
 }
 
+export type TWTaxResidencyType = "resident" | "non_resident";
+export type TWDeductionMethod = "auto" | "standard" | "itemized";
+
 // ============================================================================
 // RESIDENCY TYPES - UK specific
 // ============================================================================
 export type UKResidencyType = "resident" | "non_resident";
+export type UKStudentLoanPlan = "none" | "plan1" | "plan2" | "plan4" | "plan5";
+export type UKMarriageAllowanceTreatment =
+  | "none"
+  | "receiving"
+  | "transferring";
 
 // UK-specific contribution inputs (pension contributions are voluntary)
 export interface UKContributionInputs {
@@ -252,34 +303,57 @@ export interface DEContributionInputs {
   ruerupContribution: number; // Ruerup (Basisrente)
 }
 
-// China-specific contribution inputs
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface CNContributionInputs {
-  // All social insurance and housing fund contributions are mandatory
+  enterpriseAnnuityContribution: number;
+  individualPensionContribution: number;
+  taxPreferredHealthInsurance: number;
+  charitableDonations: number;
+}
+
+export type CNYearEndBonusTaxTreatment = "separate" | "combined";
+export type CNDeductionMode =
+  | "specialAdditionalDeductions"
+  | "foreignAllowanceExemption";
+
+export interface CNForeignAllowanceExemptions {
+  housingMealsLaundryRelocation: number;
+  businessTravelAllowance: number;
+  homeLeaveTravel: number;
+  languageTraining: number;
+  childrenEducation: number;
 }
 
 // China-specific special deductions (专项附加扣除)
 export interface CNSpecialDeductions {
   numberOfChildren: number; // 2,000 CNY/month per child (age 3+)
   numberOfChildrenUnder3: number; // 2,000 CNY/month per child under 3
-  numberOfElderlyCare: number; // Up to 1,500 CNY/month (only child) or 1,500 shared
+  numberOfElderlyCare: number; // 0/1 eligibility flag; deduction is capped per taxpayer, not per elderly relative
   isOnlyChild: boolean; // Affects elderly care deduction (3,000 vs 1,500)
   housingRentCity: "tier1" | "tier2" | "tier3" | "none"; // 1,500/1,100/800 CNY/month
   housingLoanInterest: boolean; // 1,000 CNY/month (mutually exclusive with rent)
   continuingEducation: boolean; // 400 CNY/month (self)
+  professionalQualificationEducation: boolean; // 3,600 CNY in certificate year
+  majorIllnessMedicalExpenses: number; // Annual post-reimbursement medical cost
 }
 
-// Japan-specific contribution inputs
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface JPContributionInputs {
-  // All social insurance is mandatory and calculated automatically
+  idecoContribution: number; // Individual-type DC pension contribution
+  lifeInsurancePremiums: number; // New-system life insurance premiums
+  careMedicalInsurancePremiums: number; // New-system care/medical insurance premiums
+  privatePensionInsurancePremiums: number; // New-system individual pension insurance premiums
+  earthquakeInsurancePremiums: number; // Earthquake insurance premiums
+  medicalExpenses: number; // Ordinary medical expense deduction input
+  medicalExpenseReimbursements: number; // Insurance reimbursements reducing medical expenses
+  qualifiedDonations: number; // Specified donations / furusato nozei amount
 }
 
-// India-specific contribution inputs
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface INContributionInputs {
-  // EPF is mandatory (12%) for organized sector
-}
+export type JPSpouseDeductionType = "none" | "ordinary" | "elderly";
+
+export type JPIdecoCategory =
+  | "employee_no_corporate_pension"
+  | "employee_with_corporate_pension";
+
+export type JPDonationType = "none" | "specified" | "furusato";
 
 // Thailand additional tax reliefs/allowances
 export interface THTaxReliefInputs {
@@ -322,14 +396,29 @@ export interface HKTaxReliefInputs {
   numberOfNewbornChildren: number; // Additional allowance in year of birth
   numberOfDependentParents: number;
   numberOfDependentParentsLivingWith: number;
+  numberOfDependentParentsAged55To59: number;
+  numberOfDependentParentsAged55To59LivingWith: number;
   numberOfDependentSiblings: number;
   hasDisabilityAllowance: boolean;
   numberOfDisabledDependents: number;
+  vhisInsuredPersons: number;
+  vhisPremiums: number;
   selfEducationExpenses: number;
+  hasHomeLoanInterestAdditionalCeiling: boolean;
   homeLoanInterest: number;
+  hasDomesticRentAdditionalCeiling: boolean;
   domesticRent: number;
+  housingBenefitType:
+    | "none"
+    | "residential"
+    | "hotelTwoRooms"
+    | "hotelOneRoom"
+    | "customRentalValue";
+  housingRentPaid: number;
+  customHousingRentalValue: number;
   charitableDonations: number;
   elderlyResidentialCareExpenses: number;
+  assistedReproductiveServicesExpenses: number;
 }
 
 // Indonesia tax relief inputs (PTKP)
@@ -342,22 +431,60 @@ export interface IDTaxReliefInputs {
 // Malaysia tax relief inputs (selected YA 2025 resident individual reliefs)
 export interface MYTaxReliefInputs {
   hasSpouseRelief: boolean; // Husband/wife/alimony relief, RM4,000
+  hasDisabledSpouseRelief: boolean; // Disabled husband/wife relief, RM6,000
   numberOfChildrenUnder18: number; // RM2,000 each
+  numberOfChildren18PlusEducation: number; // RM2,000 each for full-time A-level/certificate/preparatory education
   numberOfChildrenTertiary: number; // RM8,000 each for qualifying tertiary education
+  numberOfDisabledChildren: number; // RM8,000 each
+  numberOfDisabledChildrenTertiary: number; // Additional RM8,000 each
   isDisabled: boolean; // Disabled individual relief, RM7,000
+  parentMedicalRelief: number; // Parent/grandparent medical, special needs, carer, capped at RM8,000
+  supportingEquipmentRelief: number; // Basic supporting equipment, capped at RM6,000
+  selfEducationFees: number; // Self education fees, capped at RM7,000
   lifestyleRelief: number; // Lifestyle relief, capped at RM2,500
+  sportsLifestyleRelief: number; // Additional sports lifestyle relief, capped at RM1,000
   medicalRelief: number; // Selected medical expenses, capped at RM10,000
+  breastfeedingEquipmentRelief: number; // Breastfeeding equipment, capped at RM1,000
+  childcareFees: number; // Registered child-care/kindergarten fees, capped at RM3,000
+  sspnNetSavings: number; // Net SSPN deposit, capped at RM8,000
+  educationMedicalInsurance: number; // Education/medical insurance, capped at RM4,000
+  lifeInsuranceRelief: number; // Life insurance/family takaful relief, shares RM3,000 bucket with extra voluntary EPF
+  evChargingRelief: number; // EV charging/composting relief, capped at RM2,500
+  firstHomeLoanInterest: number; // First-home loan interest, cap depends on price band
+  firstHomePriceBand: "none" | "up_to_500k" | "500k_to_750k";
+  approvedDonations: number; // Approved donations/gifts capped at 10% of aggregate income
+  zakatFitrah: number; // Zakat/fitrah rebate, capped at tax charged
+  departureLevyRebate: number; // Religious travel departure levy rebate, capped at modeled maximum
 }
 
 // Taiwan tax relief inputs
 export interface TWTaxReliefInputs {
   isMarried: boolean; // Affects standard deduction amount
-  hasDisability: boolean; // Special deduction for disabled individuals
+  hasDisability: boolean; // Backwards-compatible flag; use disabledPersons for current UI
+  deductionMethod: TWDeductionMethod; // Choose standard, itemized, or whichever is larger
+  numberOfDependents: number; // General dependent exemptions
+  numberOfElderlyLinealAscendants: number; // 70+ lineal ascendants eligible for higher exemption
+  disabledPersons: number; // Taxpayer, spouse, or dependents with disability
+  savingsAndInvestmentIncome: number; // Special deduction capped per household
+  collegeTuitionChildren: number; // Children in qualifying college/university
+  preschoolChildren: number; // Children aged 6 or under, subject to income tests
+  longTermCarePersons: number; // Qualified long-term-care persons, subject to income tests
+  rentPaid: number; // Self-use Taiwan housing rent, subject to cap and income tests
+  charitableDonations: number; // Official charity/cultural/public welfare donations
+  insurancePremiums: number; // Non-NHI insurance premiums capped per household member
+  medicalAndMaternityExpenses: number; // Qualifying medical/maternity expenses, uncapped
+  mortgageInterest: number; // Owner-occupied home loan interest, net of savings deduction
+  calamityLosses: number; // Disaster losses after insurance/reimbursements
   isGoldCardHolder: boolean; // Employment Gold Card - 50% exemption on income > NT$3M
 }
 
 // South Korea additional tax reliefs/deductions (인적공제 및 세액공제)
 export interface KRTaxReliefInputs {
+  // ============================================================================
+  // FOREIGN EMPLOYEE FLAT-TAX ELECTION (외국인근로자 단일세율)
+  // ============================================================================
+  foreignWorkerFlatTax: boolean; // 19% national tax + 10% local add-on on gross employment income; ordinary reliefs forfeited
+
   // ============================================================================
   // DEPENDENT DEDUCTIONS (인적공제) - Income deductions
   // ============================================================================
@@ -381,7 +508,8 @@ export interface KRTaxReliefInputs {
   // ============================================================================
   // HOUSING (주거 관련)
   // ============================================================================
-  monthlyRent: number; // 15-17% credit for renters (income threshold applies)
+  monthlyRent: number; // Backward-compatible monthly rent amount
+  annualRentPaid?: number; // 15-17% credit for renters, capped annually
   isHomeowner: boolean; // If true, not eligible for rent credit
 
   // ============================================================================
@@ -393,14 +521,35 @@ export interface KRTaxReliefInputs {
 
 // Singapore additional tax reliefs
 export type SGParentReliefType = "none" | "not_staying" | "staying";
+export type SGNsmanSelfReliefType =
+  | "none"
+  | "basic"
+  | "active"
+  | "key_or_command";
 
 export interface SGTaxReliefInputs {
   hasSpouseRelief: boolean; // S$2,000 if spouse income < $4,000
+  hasDisabledSpouseRelief: boolean; // S$5,500 spouse relief for disability
   numberOfChildren: number; // S$4,000 per qualifying child
-  isWorkingMother: boolean; // Working Mother's Child Relief (WMCR)
+  numberOfDisabledChildren: number; // S$7,500 per qualifying child with disability
+  isWorkingMother: boolean; // Enables Working Mother's Child Relief (WMCR)
+  wmcrPre2024Children: number; // 15%/20%/25% earned-income WMCR for children before 2024
+  wmcrPost2024FirstChild: boolean; // Fixed S$8,000 WMCR for first child born/adopted from 2024
+  wmcrPost2024SecondChild: boolean; // Fixed S$10,000 WMCR for second child born/adopted from 2024
+  wmcrPost2024ThirdAndLaterChildren: number; // Fixed S$12,000 each for third+ child born/adopted from 2024
   parentRelief: SGParentReliefType; // S$5,500 (not staying) or S$9,000 (staying)
-  numberOfParents: number; // 1 or 2 parents
-  courseFees: number; // Up to S$5,500
+  parentReliefForDisability: boolean; // Higher S$10,000/S$14,000 parent relief
+  numberOfParents: number; // qualifying parent/grandparent count
+  grandparentCaregiverRelief: boolean; // S$3,000 for working mothers
+  numberOfDisabledSiblings: number; // S$5,500 each
+  lifeInsurancePremiums: number; // Life insurance premiums paid
+  lifeInsuranceCapitalSum: number; // Capital sum insured for 7% cap
+  approvedDonations: number; // Cash amount to approved IPCs; 2.5x deduction
+  parenthoodTaxRebate: number; // PTR used this YA, capped by child order amount and tax payable
+  nsmanSelfRelief: SGNsmanSelfReliefType;
+  hasNsmanWifeRelief: boolean; // S$750
+  numberOfNsmanParentReliefs: number; // S$750 each
+  courseFees: number; // Lapsed from YA 2026; kept for backwards-compatible state only
 }
 
 export interface ContributionInputMap {
@@ -440,12 +589,15 @@ export interface USCalculatorInputs extends BaseCalculatorInputs {
   country: "US";
   state: string;
   filingStatus: USFilingStatus;
+  numberOfQualifyingChildren: number;
+  numberOfOtherDependents: number;
   contributions: USContributionInputs;
 }
 
 export interface SGCalculatorInputs extends BaseCalculatorInputs {
   country: "SG";
   residencyType: SGResidencyType;
+  taxResidency: SGTaxResidencyType;
   age: number; // CPF rates depend on age
   contributions: SGContributionInputs;
   taxReliefs: SGTaxReliefInputs;
@@ -462,17 +614,34 @@ export interface NLCalculatorInputs extends BaseCalculatorInputs {
   country: "NL";
   hasThirtyPercentRuling: boolean;
   hasYoungChildren: boolean; // For IACK (children under 12)
+  thirtyPercentRulingType: NLThirtyPercentRulingType;
+  iackEligibility: NLIackEligibility;
+  employeePensionPremiumAnnual: number;
+  pensionAccrualFactorA: number;
+  unusedAnnuityReserveMargin: number;
+  contributions: NLContributionInputs;
 }
 
 export interface AUCalculatorInputs extends BaseCalculatorInputs {
   country: "AU";
   residencyType: AUResidencyType;
+  medicareFamilyStatus: AUMedicareFamilyStatus;
+  medicareSpouseIncome: number;
+  numberOfDependentChildren: number;
   hasPrivateHealthInsurance: boolean; // Affects Medicare Levy Surcharge
+  contributions: AUContributionInputs;
 }
 
 export type PTFilingStatus = "single" | "married_jointly" | "married_separately";
 
 export type PTResidencyType = "resident" | "non_resident" | "nhr_2";
+
+export type PTIrsJovemYear =
+  | "none"
+  | "year_1"
+  | "years_2_to_4"
+  | "years_5_to_7"
+  | "years_8_to_10";
 
 export interface PTCalculatorInputs extends BaseCalculatorInputs {
   country: "PT";
@@ -480,6 +649,7 @@ export interface PTCalculatorInputs extends BaseCalculatorInputs {
   filingStatus: PTFilingStatus;
   numberOfDependents: number; // For tax benefits
   age: number; // For PPR contribution limits
+  irsJovemYear: PTIrsJovemYear;
   contributions: PTContributionInputs;
 }
 
@@ -514,6 +684,7 @@ export interface MYCalculatorInputs extends BaseCalculatorInputs {
 
 export interface TWCalculatorInputs extends BaseCalculatorInputs {
   country: "TW";
+  taxResidency: TWTaxResidencyType;
   contributions: TWContributionInputs;
   taxReliefs: TWTaxReliefInputs;
 }
@@ -522,26 +693,60 @@ export interface CNCalculatorInputs extends BaseCalculatorInputs {
   country: "CN";
   socialInsuranceBase: number; // Monthly base for social insurance (capped)
   housingFundRate: number; // 5-12% of monthly salary
+  taxableInKindBenefits: number; // Annual taxable value of non-cash/economic benefits
+  yearEndBonus: number; // Annual one-time bonus amount
+  yearEndBonusTaxTreatment: CNYearEndBonusTaxTreatment;
+  deductionMode: CNDeductionMode;
   specialDeductions: CNSpecialDeductions;
+  foreignAllowanceExemptions: CNForeignAllowanceExemptions;
+  contributions: CNContributionInputs;
 }
 
 export interface JPCalculatorInputs extends BaseCalculatorInputs {
   country: "JP";
+  spouseDeductionType: JPSpouseDeductionType;
+  numberOfOrdinaryDependents: number;
+  numberOfSpecifiedDependents: number;
+  numberOfElderlyDependents: number;
+  numberOfCohabitingElderlyParents: number;
+  hasIncomeAdjustmentDeduction: boolean;
+  idecoCategory: JPIdecoCategory;
+  donationType: JPDonationType;
+  contributions: JPContributionInputs;
 }
 
 export interface INCalculatorInputs extends BaseCalculatorInputs {
   country: "IN";
   regime: INRegime; // "new" (default, 2026) or "old"
   isEpfApplicable: boolean; // Whether EPF (12% employee) applies
+  professionalTaxPaid: number;
+  hra: INHraInputs;
+  hasSeniorCitizenSelfOrFamilyFor80D: boolean;
+  hasSeniorCitizenParentsFor80D: boolean;
+  contributions: INContributionInputs;
 }
 
 export interface PHCalculatorInputs extends BaseCalculatorInputs {
   country: "PH";
+  taxpayerType: PHTaxpayerType;
+  sssCovered: boolean;
+  philHealthCovered: boolean;
+  pagIbigCovered: boolean;
+  contributions: PHContributionInputs;
 }
+
+export type VNResidencyStatus = "resident" | "nonResident";
+export type VNInsuranceCoverage =
+  | "vietnameseEmployee"
+  | "foreignCovered"
+  | "exempt";
 
 export interface VNCalculatorInputs extends BaseCalculatorInputs {
   country: "VN";
+  residencyStatus: VNResidencyStatus;
+  insuranceCoverage: VNInsuranceCoverage;
   numberOfDependents: number; // Number of tax dependents
+  contributions: VNContributionInputs;
 }
 
 // ============================================================================
@@ -552,6 +757,10 @@ export interface UKCalculatorInputs extends BaseCalculatorInputs {
   country: "UK";
   residencyType: UKResidencyType;
   region: "rest_of_uk" | "scotland";
+  taxableBenefitsInKind: number;
+  studentLoanPlan: UKStudentLoanPlan;
+  hasPostgraduateLoan: boolean;
+  marriageAllowance: UKMarriageAllowanceTreatment;
   contributions: UKContributionInputs;
 }
 
@@ -600,6 +809,8 @@ export interface BaseTaxBreakdown {
 }
 
 export interface USTaxBreakdown extends BaseTaxBreakdown {
+  federalIncomeTaxBeforeCredits: number;
+  federalTaxCredits: number;
   federalIncomeTax: number;
   stateIncomeTax: number;
   socialSecurity: number;
@@ -676,6 +887,8 @@ export interface TWTaxBreakdown extends BaseTaxBreakdown {
 export interface UKTaxBreakdown extends BaseTaxBreakdown {
   incomeTax: number; // Income tax after personal allowance
   nationalInsurance: number; // Class 1 National Insurance (employee)
+  studentLoanRepayment: number;
+  postgraduateLoanRepayment: number;
 }
 
 export interface DETaxBreakdown extends BaseTaxBreakdown {
@@ -693,6 +906,7 @@ export interface DETaxBreakdown extends BaseTaxBreakdown {
 export interface CNTaxBreakdown extends BaseTaxBreakdown {
   type: "CN";
   incomeTax: number; // Individual income tax (IIT)
+  yearEndBonusTax: number; // Separate annual one-time bonus IIT, if selected
   pensionInsurance: number; // 8% employee contribution
   medicalInsurance: number; // 2% employee contribution
   unemploymentInsurance: number; // 0.5% employee contribution
@@ -790,6 +1004,19 @@ export interface USBreakdown {
     traditional401k: number;
     rothIRA: number;
     hsa: number;
+    healthFsa: number;
+    dependentCareFsa: number;
+    total: number;
+  };
+  taxCredits: {
+    childTaxCredit: number;
+    otherDependentCredit: number;
+    phaseoutReduction: number;
+    totalCreditsApplied: number;
+  };
+  payrollTaxableWages: {
+    socialSecurity: number;
+    medicare: number;
   };
 }
 
@@ -813,11 +1040,24 @@ export interface SGBreakdown {
     voluntaryCpfTopUpRelief: number;
     // Additional reliefs
     spouseRelief: number;
+    disabledSpouseRelief: number;
     childRelief: number;
+    disabledChildRelief: number;
     workingMotherRelief: number;
     parentRelief: number;
+    grandparentCaregiverRelief: number;
+    disabledSiblingRelief: number;
+    lifeInsuranceRelief: number;
+    nsmanRelief: number;
+    reliefCapReduction: number;
+    cappedPersonalReliefs: number;
+    donationDeduction: number;
     courseFeesRelief: number;
     totalReliefs: number;
+  };
+  taxRebates: {
+    parenthoodTaxRebate: number;
+    totalRebates: number;
   };
   chargeableIncome: number; // Income after reliefs
   grossTaxBeforeReliefs: number; // Tax on gross income (for comparison with IRAS table)
@@ -875,12 +1115,22 @@ export interface KRBreakdown {
     rentCredit: number;
     totalCredits: number;
   };
+  voluntaryContributions: {
+    personalPensionContribution: number;
+    total: number;
+  };
   // Tax details
   taxDetails: {
     grossIncomeTax: number; // Before tax credits
     finalIncomeTax: number;
     localIncomeTax: number;
     totalIncomeTax: number;
+    foreignWorkerFlatTaxApplied?: boolean;
+    foreignWorkerFlatTaxBase?: number;
+    foreignWorkerFlatNationalTax?: number;
+    foreignWorkerFlatLocalTax?: number;
+    ordinaryTotalIncomeTax?: number;
+    nonResidentFlatTaxApplied?: boolean;
   };
 }
 
@@ -916,8 +1166,20 @@ export interface NLBreakdown {
   };
   taxBeforeCredits: number; // Combined tax before credits
   taxableIncome: number;
+  employeePensionPremiumAnnual: number;
+  payrollTaxBaseBeforeRuling: number;
+  taxableIncomeBeforeAnnuityDeduction: number;
+  pensionAccrualFactorA: number;
+  annuityAnnualMargin: number;
+  unusedAnnuityReserveMargin: number;
+  personalAnnuityContribution: number;
+  personalAnnuityContributionLimit: number;
   thirtyPercentRulingApplied: boolean;
   taxExemptAllowance: number;
+  thirtyPercentRulingType: NLThirtyPercentRulingType;
+  thirtyPercentSalaryNorm: number | null;
+  thirtyPercentMaxAllowance: number;
+  iackEligibility: NLIackEligibility;
 }
 
 export interface AUBreakdown {
@@ -934,10 +1196,28 @@ export interface AUBreakdown {
   grossIncomeTax: number; // Before LITO
   lito: number; // Low Income Tax Offset
   incomeTax: number; // After LITO
+  taxBaseBeforeAnnualDeductions: number;
+  workRelatedExpenses: number;
+  charitableDonations: number;
   // Medicare
   medicareLevy: number;
   medicareLevySurcharge: number;
   hasPrivateHealthInsurance: boolean;
+  medicareFamilyStatus: AUMedicareFamilyStatus;
+  medicareSpouseIncome: number;
+  numberOfDependentChildren: number;
+  medicareFamilyIncome: number;
+  medicareLevyReductionApplied: boolean;
+  medicareLevyThresholds: {
+    lowerThreshold: number;
+    upperThreshold: number;
+  };
+  medicareSurchargeIncome: number;
+  medicareSurchargeThresholds: {
+    base: number;
+    tier1: number;
+    tier2: number;
+  };
   // Division 293 tax (high income earners)
   division293Tax: number;
   division293Income: number; // Income + super for Division 293 purposes
@@ -945,8 +1225,12 @@ export interface AUBreakdown {
   // Superannuation (informational - paid by employer)
   superannuation: {
     employerContribution: number;
+    salarySacrificeContribution: number;
     rate: number; // 12% for 2025-26
-    concessionalContributions: number; // Used for Division 293 calc
+    concessionalContributions: number; // Employer SG plus selected salary sacrifice
+    division293TaxableContributions: number;
+    concessionalCap: number;
+    remainingConcessionalCap: number;
   };
   isResident: boolean;
 }
@@ -970,6 +1254,15 @@ export interface PTBreakdown {
   // Taxpayer info
   isResident: boolean;
   isNhr2: boolean; // NHR 2.0 regime
+  irsJovem: {
+    selectedYear: PTIrsJovemYear;
+    applies: boolean;
+    exemptionRate: number;
+    exemptIncome: number;
+    annualCap: number;
+    maxYears: number;
+    maxAge: number;
+  };
   filingStatus: PTFilingStatus;
   numberOfDependents: number;
   // Employer SS contribution (informational)
@@ -1036,6 +1329,9 @@ export interface THBreakdown {
     cap: number; // Monthly cap
     annualCap: number;
   };
+  assumptions: string[];
+  modeledExclusions: string[];
+  sourceUrls: string[];
   // Tax bracket breakdown
   bracketTaxes: Array<{
     min: number;
@@ -1048,6 +1344,7 @@ export interface THBreakdown {
 export interface HKBreakdown {
   type: "HK";
   assessableIncome: number;
+  housingRentalValue: number;
   netIncome: number;
   netChargeableIncome: number;
   isResident: boolean;
@@ -1062,10 +1359,12 @@ export interface HKBreakdown {
   deductions: {
     mandatoryMpf: number;
     voluntaryMpfAnnuity: number;
+    vhisPremiums: number;
     selfEducation: number;
     homeLoanInterest: number;
     domesticRent: number;
     elderlyResidentialCare: number;
+    assistedReproductiveServices: number;
     charitableDonations: number;
     totalDeductions: number;
   };
@@ -1077,6 +1376,8 @@ export interface HKBreakdown {
     newbornChild: number;
     dependentParent: number;
     dependentParentLivingWith: number;
+    dependentParentAged55To59: number;
+    dependentParentAged55To59LivingWith: number;
     dependentSibling: number;
     disability: number;
     disabledDependent: number;
@@ -1088,6 +1389,9 @@ export interface HKBreakdown {
     standardRateThreshold: number;
     standardRate: number;
     higherStandardRate: number;
+    taxBeforeReduction: number;
+    taxReduction: number;
+    taxReductionCap: number;
   };
   voluntaryContributions: {
     taxDeductibleVoluntaryContributions: number;
@@ -1139,14 +1443,36 @@ export interface MYBreakdown {
   taxReliefs: {
     individual: number;
     spouse: number;
+    disabledSpouse: number;
     childUnder18: number;
+    child18PlusEducation: number;
     childTertiary: number;
+    disabledChild: number;
+    disabledChildTertiary: number;
     disabledIndividual: number;
+    parentMedical: number;
+    supportingEquipment: number;
+    selfEducation: number;
     epf: number;
     prs: number;
     socso: number;
     lifestyle: number;
+    sportsLifestyle: number;
     medical: number;
+    breastfeedingEquipment: number;
+    childcare: number;
+    sspn: number;
+    educationMedicalInsurance: number;
+    lifeInsurance: number;
+    evCharging: number;
+    firstHomeLoanInterest: number;
+    approvedDonations: number;
+    total: number;
+  };
+  taxRebates: {
+    residentIndividual: number;
+    zakatFitrah: number;
+    departureLevy: number;
     total: number;
   };
   bracketTaxes: Array<{
@@ -1208,11 +1534,28 @@ export interface TWBreakdown {
 
   // Deductions breakdown
   deductions: {
+    deductionMethod: TWDeductionMethod;
+    deductionMethodApplied: "standard" | "itemized";
     standardDeduction: number;
+    itemizedDeduction: number;
     personalExemption: number;
+    dependentExemption: number;
+    elderlyLinealAscendantExemption: number;
     specialSalaryDeduction: number;
     disabilityDeduction: number;
+    savingsAndInvestmentDeduction: number;
+    collegeTuitionDeduction: number;
+    preschoolChildrenDeduction: number;
+    longTermCareDeduction: number;
+    rentDeduction: number;
+    basicLivingExpenseDifference: number;
+    charitableDonations: number;
+    insurancePremiums: number;
+    medicalAndMaternityExpenses: number;
+    mortgageInterest: number;
+    calamityLosses: number;
     voluntaryPensionContribution: number;
+    conditionalDeductionsAllowed: boolean;
     totalDeductionsAndExemptions: number;
   };
 
@@ -1238,8 +1581,13 @@ export interface UKBreakdown {
   region: "rest_of_uk" | "scotland";
   isResident: boolean;
   grossIncome: number;
+  taxableBenefitsInKind: number;
+  taxableGrossIncome: number;
   personalAllowance: number;
   personalAllowanceReduction: number;
+  marriageAllowanceTransferredOut: number;
+  marriageAllowanceTaxReduction: number;
+  marriageAllowanceEligible: boolean;
   taxableIncome: number;
   bracketTaxes: Array<{
     min: number;
@@ -1260,6 +1608,18 @@ export interface UKBreakdown {
   pensionContribution: number;  // Gross amount in pension pot
   pensionNetCost: number;        // Actual cost to employee (after tax relief)
   pensionTaxRelief: number;     // Total tax relief amount
+  studentLoan: {
+    plan: UKStudentLoanPlan;
+    threshold: number;
+    rate: number;
+    repayment: number;
+  };
+  postgraduateLoan: {
+    applies: boolean;
+    threshold: number;
+    rate: number;
+    repayment: number;
+  };
 }
 
 export interface DEBreakdown {
@@ -1323,7 +1683,16 @@ export interface DEBreakdown {
 export interface CNBreakdown {
   type: "CN";
   grossIncome: number;
+  taxableGrossIncome: number;
   taxableIncome: number;
+  ordinarySalary: number;
+  taxableInKindBenefits: number;
+  yearEndBonus: number;
+  yearEndBonusTaxTreatment: CNYearEndBonusTaxTreatment;
+  yearEndBonusTaxableIncome: number;
+  yearEndBonusRate: number;
+  yearEndBonusQuickDeduction: number;
+  deductionMode: CNDeductionMode;
   standardDeduction: number; // 60,000 CNY/year
   specialDeductions: {
     children: number;
@@ -1332,6 +1701,18 @@ export interface CNBreakdown {
     housingRent: number;
     housingLoanInterest: number;
     continuingEducation: number;
+    professionalQualificationEducation: number;
+    majorIllnessMedical: number;
+    total: number;
+  };
+  foreignAllowanceExemptions: CNForeignAllowanceExemptions & {
+    total: number;
+  };
+  voluntaryDeductions: {
+    enterpriseAnnuityContribution: number;
+    individualPensionContribution: number;
+    taxPreferredHealthInsurance: number;
+    charitableDonations: number;
     total: number;
   };
   socialInsurance: {
@@ -1358,12 +1739,32 @@ export interface JPBreakdown {
   type: "JP";
   grossIncome: number;
   employmentIncomeDeduction: number;
-  basicDeduction: number; // 480,000 JPY
+  incomeAdjustmentDeduction: number;
+  employmentIncome: number;
+  basicDeduction: number;
   socialInsuranceDeduction: number;
+  spouseDeduction: number;
+  dependentDeduction: number;
+  idecoDeduction: number;
+  lifeInsurancePremiumDeduction: number;
+  residentTaxLifeInsurancePremiumDeduction: number;
+  earthquakeInsuranceDeduction: number;
+  residentTaxEarthquakeInsuranceDeduction: number;
+  medicalExpenseDeduction: number;
+  medicalExpenseNetAmount: number;
+  medicalExpenseThreshold: number;
+  qualifiedDonationDeduction: number;
+  qualifiedDonationAmount: number;
+  furusatoResidentBasicCredit: number;
+  furusatoResidentSpecialCredit: number;
+  furusatoResidentCreditLimit: number;
   taxableIncome: number;
+  residentTaxableIncome: number;
   nationalIncomeTax: number;
+  nationalIncomeTaxBeforeCredits: number;
   reconstructionSurtax: number; // 2.1% of national tax
   residentTax: number; // 10% flat
+  residentTaxBeforeDonationCredits: number;
   socialInsurance: {
     pension: { rate: number; employee: number; monthlyCeiling: number };
     health: { rate: number; employee: number; monthlyCeiling: number };
@@ -1384,6 +1785,17 @@ export interface INBreakdown {
   grossIncome: number;
   regime: INRegime;
   standardDeduction: number; // 75,000 INR (new regime)
+  hraExemption: number;
+  professionalTaxPaid: number;
+  professionalTaxDeduction: number;
+  section80CDeduction: number;
+  nps80CCD1BDeduction: number;
+  section80DDeduction: {
+    selfFamily: number;
+    parents: number;
+    total: number;
+  };
+  voluntaryContributions: INContributionInputs;
   taxableIncome: number;
   grossTax: number;
   rebateUnder87A: number; // Up to 60,000
@@ -1407,6 +1819,20 @@ export interface PHBreakdown {
   type: "PH";
   grossIncome: number;
   taxableIncome: number;
+  taxpayerType: PHTaxpayerType;
+  thirteenthMonthAndOtherBenefitsExempt: number;
+  deMinimisBenefitsExempt: {
+    medicalCashAllowance: number;
+    riceSubsidy: number;
+    uniformClothing: number;
+    actualMedicalAssistance: number;
+    laundryAllowance: number;
+    achievementAwards: number;
+    christmasGifts: number;
+    cbaProductivityIncentives: number;
+    total: number;
+  };
+  mandatoryContributionsTaxDeductible: boolean;
   sss: {
     rate: number;
     employee: number;
@@ -1438,10 +1864,17 @@ export interface PHBreakdown {
 export interface VNBreakdown {
   type: "VN";
   grossIncome: number;
-  personalDeduction: number; // 132,000,000 VND/year (11M/month)
-  dependentDeduction: number; // 52,800,000 VND/year/dependent
+  residencyStatus: VNResidencyStatus;
+  insuranceCoverage: VNInsuranceCoverage;
+  personalDeduction: number; // 186,000,000 VND/year (15.5M/month)
+  dependentDeduction: number; // 74,400,000 VND/year/dependent
   numberOfDependents: number;
   totalDeductions: number;
+  voluntaryDeductions: {
+    voluntaryPensionContribution: number;
+    charitableDonations: number;
+    total: number;
+  };
   taxableIncome: number;
   socialInsurance: {
     rate: number;

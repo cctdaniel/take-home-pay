@@ -9,6 +9,12 @@
 // https://financnisprava.gov.cz/cs/dane/danovy-system-cr/popis-systemu
 // Financial Administration, 2025/2026 individual income tax Q&A:
 // https://financnisprava.gov.cz/cs/dane/dane/dan-z-prijmu/dotazy-a-odpovedi/dan-z-prijmu-fyzickych-osob/aktualne-k-dani-z-prijmu-fyzickych-osob-2025
+// Financial Administration, 2026 employee tax-credit overview:
+// https://financnisprava.gov.cz/cs/dane/dane/dan-z-prijmu/zamestnanci-zamestnavatele/obecne-informace
+// Financial Administration, 2026 employee taxable benefits and car benefit rules:
+// https://financnisprava.gov.cz/cs/dane/dane/dan-z-prijmu/zamestnanci-zamestnavatele/obecne-informace
+// Financial Administration, 2026 employee benefit Q&A:
+// https://financnisprava.gov.cz/cs/dane/dane/dan-z-prijmu/zamestnanci-zamestnavatele/dotazy-a-odpovedi/2026/aktualni-dotazy-a-odpovedi-k-dani-z
 // Financial Administration, gifts deduction extended through 2026:
 // https://financnisprava.gov.cz/cs/financni-sprava/novinky/novinky-2025/dary-a-dane-zvyseny-odpocet-prodlouzen
 //
@@ -19,6 +25,9 @@
 // https://www.cssz.cz/vyse-a-sazba
 // Czech Social Security Administration, maximum assessment base:
 // https://www.cssz.cz/maximalni-vymerovaci-zaklad
+// Czech Social Security Administration, assessed income includes taxable
+// cash, non-cash, and benefit-form remuneration:
+// https://www.cssz.cz/vypocet-pojistneho
 //
 // Health insurance source:
 // VZP CR, employer payment rules for public health insurance:
@@ -29,17 +38,31 @@
 //   settlement concepts.
 // - Employment income tax base is gross employment income less modeled
 //   non-taxable parts, rounded down to whole hundreds before tax.
+// - Taxable non-cash benefits entered in the calculator are treated as
+//   employment income and as payroll assessment-base income, but they do not
+//   increase cash take-home pay.
 // - The basic taxpayer credit is available to residents and non-residents.
-// - Child and spouse credits, retirement-product deductions, and gift deductions
-//   are modeled for Czech tax residents only. EU/EEA non-resident 90% tests and
-//   partial-year spouse-credit month counting are excluded.
+// - Child, spouse, disability, and ZTP/P credits, retirement-product
+//   deductions, and gift deductions are modeled for Czech tax residents only.
+//   EU/EEA non-resident 90% tests and partial-year credit month counting are
+//   excluded.
 // - Trade-license/self-employment, lump-sum expenses, paušální daň, agreements
 //   below participation thresholds, minimum health-insurance top-ups, working
 //   pensioner social-insurance discounts, risky-profession employer regimes,
-//   disability/ZTP credits, and employer benefit exemptions are excluded.
+//   and employer benefit exemptions are excluded.
 // ============================================================================
 
 import type { TaxBracket } from "../../types";
+
+export const CZECH_SOURCE_URLS = [
+  "https://financnisprava.gov.cz/cs/dane/dane/dan-z-prijmu/zamestnanci-zamestnavatele/obecne-informace",
+  "https://financnisprava.gov.cz/cs/dane/danovy-system-cr/popis-systemu",
+  "https://financnisprava.gov.cz/cs/dane/dane/dan-z-prijmu/dotazy-a-odpovedi/dan-z-prijmu-fyzickych-osob/aktualne-k-dani-z-prijmu-fyzickych-osob-2025",
+  "https://www.cssz.cz/-/prehled-nejdulezitejsich-udaju-pro-socialni-zabezpeceni-v-roce-2026",
+  "https://www.cssz.cz/vyse-a-sazba",
+  "https://www.cssz.cz/maximalni-vymerovaci-zaklad",
+  "https://www.vzp.cz/platci/informace/zamestnavatel/splatnost-a-dalsi-zasady-pro-platbu-pojistneho/jakym-zpusobem-se-plati-pojistne-na-zdravotni-pojisteni",
+] as const;
 
 export const CZECH_TAX_PARAMETERS_2026 = {
   averageWage: 48_967,
@@ -54,6 +77,10 @@ export const CZECH_TAX_PARAMETERS_2026 = {
   credits: {
     basicTaxpayer: 30_840,
     spouse: 24_840,
+    spouseZtpP: 49_680,
+    disabilityBasic: 2_520,
+    disabilityExtended: 5_040,
+    ztpPCard: 16_140,
     childFirst: 15_204,
     childSecond: 22_320,
     childThirdAndEachAdditional: 27_840,
@@ -63,6 +90,18 @@ export const CZECH_TAX_PARAMETERS_2026 = {
     charitableDonationMaxRate: 0.3,
     charitableDonationMinRate: 0.02,
     charitableDonationMinAmount: 1_000,
+  },
+  benefits: {
+    healthBenefitExemptionLimit: 48_967,
+    leisureCultureSportRecreationExemptionLimit: 24_483.5,
+    employerRetirementProductExemptionLimit: 50_000,
+    mealContributionExemptionPerShift: 129.5,
+    companyCarMinimumMonthlyBenefit: 1_000,
+    companyCarRates: {
+      standard: 0.01,
+      lowEmission: 0.005,
+      zeroEmission: 0.0025,
+    },
   },
   socialSecurity: {
     employeeRate: 0.071,
@@ -144,6 +183,33 @@ export function calculateCzechDeductibleCharitableDonations(
     grossIncome *
       CZECH_TAX_PARAMETERS_2026.deductions.charitableDonationMaxRate,
   );
+}
+
+export function calculateCzechCompanyCarBenefit({
+  entryPrice,
+  emissionType,
+  months,
+}: {
+  entryPrice: number;
+  emissionType: keyof typeof CZECH_TAX_PARAMETERS_2026.benefits.companyCarRates;
+  months: number;
+}): number {
+  const normalizedEntryPrice = Math.max(0, entryPrice || 0);
+  const normalizedMonths = Math.min(Math.max(0, Math.floor(months || 0)), 12);
+
+  if (normalizedEntryPrice <= 0 || normalizedMonths <= 0) {
+    return 0;
+  }
+
+  const rate =
+    CZECH_TAX_PARAMETERS_2026.benefits.companyCarRates[emissionType] ??
+    CZECH_TAX_PARAMETERS_2026.benefits.companyCarRates.standard;
+  const monthlyBenefit = Math.max(
+    CZECH_TAX_PARAMETERS_2026.benefits.companyCarMinimumMonthlyBenefit,
+    normalizedEntryPrice * rate,
+  );
+
+  return roundKoruna(monthlyBenefit * normalizedMonths);
 }
 
 export function calculateCzechTaxableIncome(

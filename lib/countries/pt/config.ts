@@ -17,7 +17,7 @@ export const PT_CONFIG: CountryConfig = {
   region: "Europe",
   currency: PT_CURRENCY,
   taxYear: 2026,
-  lastUpdated: "2026-01-30",
+  lastUpdated: "2026-05-25",
   defaultRegion: undefined,
   supportsFilingStatus: false,
   supportsRegions: false,

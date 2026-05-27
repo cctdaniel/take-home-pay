@@ -33,11 +33,16 @@ import {
   UK_INCOME_TAX_BANDS_SCOTLAND,
   UK_NI_RATES_2026_27,
   UK_NI_THRESHOLDS_2026_27,
+  UK_MARRIAGE_ALLOWANCE_TAX_REDUCTION,
+  UK_MARRIAGE_ALLOWANCE_TRANSFERABLE_AMOUNT,
   UK_PENSION_ANNUAL_ALLOWANCE,
+  calculatePostgraduateLoanRepayment,
+  calculateStudentLoanRepayment,
   calculateNationalInsurance,
   calculatePersonalAllowance,
   calculatePensionTaxRelief,
   calculateProgressiveTax,
+  isMarriageAllowanceRecipientEligible,
 } from "./constants/tax-brackets-2026-27";
 
 // ==========================================================================
@@ -69,6 +74,10 @@ function isHigherRateTaxpayer(taxableIncome: number): boolean {
   return taxableIncome > 37700;
 }
 
+function clampAmount(value: number, max = Infinity): number {
+  return Math.min(Math.max(0, value), Math.max(0, max));
+}
+
 // ==========================================================================
 // UNITED KINGDOM CALCULATOR
 // ==========================================================================
@@ -79,26 +88,47 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
     payFrequency,
     residencyType,
     region,
+    taxableBenefitsInKind = 0,
+    studentLoanPlan = "none",
+    hasPostgraduateLoan = false,
+    marriageAllowance = "none",
     contributions,
   } = inputs;
 
   const isResident = residencyType === "resident";
+  const cashGrossSalary = Math.max(0, grossSalary);
+  const taxableBenefits = Math.max(0, taxableBenefitsInKind || 0);
+  const taxableGrossIncome = cashGrossSalary + taxableBenefits;
   
   // Get raw pension contribution (if any)
-  const rawPensionContribution = contributions?.pensionContribution || 0;
+  const rawPensionContribution = clampAmount(
+    contributions?.pensionContribution || 0,
+    UK_PENSION_ANNUAL_ALLOWANCE,
+  );
   
   // ==========================================================================
   // STEP 1: Calculate Personal Allowance (without pension for now)
   // ==========================================================================
   const personalAllowanceResult = calculatePersonalAllowance(
-    grossSalary,
+    taxableGrossIncome,
     isResident,
+  );
+  const marriageAllowanceTransferredOut =
+    isResident && marriageAllowance === "transferring"
+      ? Math.min(
+          UK_MARRIAGE_ALLOWANCE_TRANSFERABLE_AMOUNT,
+          personalAllowanceResult.allowance,
+        )
+      : 0;
+  const personalAllowance = Math.max(
+    0,
+    personalAllowanceResult.allowance - marriageAllowanceTransferredOut,
   );
 
   // ==========================================================================
   // STEP 2: Calculate Taxable Income
   // ==========================================================================
-  const taxableIncome = Math.max(0, grossSalary - personalAllowanceResult.allowance);
+  const taxableIncome = Math.max(0, taxableGrossIncome - personalAllowance);
 
   // ==========================================================================
   // STEP 3: Calculate Income Tax
@@ -106,15 +136,32 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
   const taxBands =
     region === "scotland" ? UK_INCOME_TAX_BANDS_SCOTLAND : UK_INCOME_TAX_BANDS_RUK;
   
-  const { totalTax: incomeTax, bracketTaxes } = calculateProgressiveTax(
+  const { totalTax: incomeTaxBeforeMarriageAllowance, bracketTaxes } = calculateProgressiveTax(
     taxableIncome,
     taxBands,
+  );
+  const marriageAllowanceEligible =
+    marriageAllowance === "receiving" &&
+    isMarriageAllowanceRecipientEligible({
+      taxableIncome,
+      region,
+      isResident,
+    });
+  const marriageAllowanceTaxReduction = marriageAllowanceEligible
+    ? Math.min(
+        incomeTaxBeforeMarriageAllowance,
+        UK_MARRIAGE_ALLOWANCE_TAX_REDUCTION,
+      )
+    : 0;
+  const incomeTax = Math.max(
+    0,
+    incomeTaxBeforeMarriageAllowance - marriageAllowanceTaxReduction,
   );
 
   // ==========================================================================
   // STEP 4: Calculate National Insurance
   // ==========================================================================
-  const nationalInsurance = calculateNationalInsurance(grossSalary);
+  const nationalInsurance = calculateNationalInsurance(cashGrossSalary);
 
   // ==========================================================================
   // STEP 5: Calculate Pension Tax Relief and Net Cost
@@ -127,7 +174,10 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
   const higherRateTaxpayer = isHigherRateTaxpayer(taxableIncome);
   
   // Calculate gross pension (capped at gross salary for practical reasons)
-  const grossPensionContribution = Math.min(rawPensionContribution, grossSalary);
+  const grossPensionContribution = Math.min(
+    rawPensionContribution,
+    cashGrossSalary,
+  );
   
   // For relief at source: you pay net, HMRC adds 20% to make it gross
   // Net cost = Gross × 0.80 (for basic rate)
@@ -141,10 +191,22 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
   // Net cost to employee = Gross - total relief
   // This is what actually reduces take-home pay
   const netPensionCost = Math.max(0, grossPensionContribution - pensionRelief.totalRelief);
+  const studentLoan = calculateStudentLoanRepayment(
+    cashGrossSalary,
+    studentLoanPlan,
+  );
+  const postgraduateLoan = calculatePostgraduateLoanRepayment(
+    cashGrossSalary,
+    hasPostgraduateLoan,
+  );
   
   // Cap net cost to ensure non-negative take-home
-  const totalTax = incomeTax + nationalInsurance.total;
-  const maxAffordableNetCost = Math.max(0, grossSalary - totalTax);
+  const statutoryBeforePension =
+    incomeTax +
+    nationalInsurance.total +
+    studentLoan.repayment +
+    postgraduateLoan.repayment;
+  const maxAffordableNetCost = Math.max(0, cashGrossSalary - statutoryBeforePension);
   const cappedNetPensionCost = Math.min(netPensionCost, maxAffordableNetCost);
   
 
@@ -155,11 +217,17 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
     totalIncomeTax: incomeTax,
     incomeTax,
     nationalInsurance: nationalInsurance.total,
+    studentLoanRepayment: studentLoan.repayment,
+    postgraduateLoanRepayment: postgraduateLoan.repayment,
   };
 
-  const totalDeductions = totalTax + cappedNetPensionCost;
-  const netSalary = grossSalary - totalDeductions;
-  const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
+  const statutoryPayrollDeductions =
+    nationalInsurance.total + studentLoan.repayment + postgraduateLoan.repayment;
+  const totalTaxWithPayrollDeductions = incomeTax + statutoryPayrollDeductions;
+  const totalDeductions = totalTaxWithPayrollDeductions + cappedNetPensionCost;
+  const netSalary = cashGrossSalary - totalDeductions;
+  const effectiveTaxRate =
+    cashGrossSalary > 0 ? totalTaxWithPayrollDeductions / cashGrossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(payFrequency);
 
   // ==========================================================================
@@ -169,9 +237,14 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
     type: "UK",
     region,
     isResident,
-    grossIncome: grossSalary,
-    personalAllowance: personalAllowanceResult.allowance,
+    grossIncome: cashGrossSalary,
+    taxableBenefitsInKind: taxableBenefits,
+    taxableGrossIncome,
+    personalAllowance,
     personalAllowanceReduction: personalAllowanceResult.reduction,
+    marriageAllowanceTransferredOut,
+    marriageAllowanceTaxReduction,
+    marriageAllowanceEligible,
     taxableIncome,
     bracketTaxes,
     incomeTax,
@@ -187,20 +260,27 @@ export function calculateUK(inputs: UKCalculatorInputs): CalculationResult {
     pensionContribution: grossPensionContribution,
     pensionNetCost: cappedNetPensionCost,
     pensionTaxRelief: pensionRelief.totalRelief,
+    studentLoan: {
+      plan: studentLoanPlan,
+      threshold: studentLoan.threshold,
+      rate: studentLoan.rate,
+      repayment: studentLoan.repayment,
+    },
+    postgraduateLoan,
   };
 
   return {
     country: "UK",
     currency: "GBP",
-    grossSalary,
+    grossSalary: cashGrossSalary,
     taxableIncome,
     taxes,
-    totalTax,
+    totalTax: totalTaxWithPayrollDeductions,
     totalDeductions,
     netSalary,
     effectiveTaxRate,
     perPeriod: {
-      gross: grossSalary / periodsPerYear,
+      gross: cashGrossSalary / periodsPerYear,
       net: netSalary / periodsPerYear,
       frequency: payFrequency,
     },
@@ -241,12 +321,6 @@ export const UKCalculator: CountryCalculator = {
 
   getContributionLimits(): ContributionLimits {
     return {
-      nationalInsurance: {
-        limit: UK_NI_THRESHOLDS_2026_27.upperEarningsLimit,
-        name: "Class 1 National Insurance",
-        description: "Employee NI: 0% below PT, 8% to UEL, 2% above",
-        preTax: false, // NI is calculated on gross, not reduced by pension
-      },
       pensionContribution: {
         limit: UK_PENSION_ANNUAL_ALLOWANCE,
         name: "Pension Annual Allowance",
@@ -263,6 +337,10 @@ export const UKCalculator: CountryCalculator = {
       payFrequency: "monthly",
       residencyType: "resident",
       region: "rest_of_uk",
+      taxableBenefitsInKind: 0,
+      studentLoanPlan: "none",
+      hasPostgraduateLoan: false,
+      marriageAllowance: "none",
       contributions: {
         pensionContribution: 0,
       },

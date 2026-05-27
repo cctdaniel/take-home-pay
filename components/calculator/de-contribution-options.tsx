@@ -61,9 +61,11 @@ export function DEContributionOptions({
       />
 
       <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
-        These inputs reduce taxable income in the calculator. Actual eligibility and
-        deductibility can depend on your employment status, subsidies, and mandatory
-        pension contributions.
+        These inputs reduce taxable income in the calculator. If several plans
+        are maxed together, the calculator caps the combined salary cash
+        deduction to gross pay after mandatory employee social security. Actual
+        eligibility and deductibility can depend on employment status, subsidies,
+        and mandatory pension contributions.
       </p>
     </div>
   );

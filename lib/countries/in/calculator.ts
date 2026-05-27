@@ -16,6 +16,11 @@ import {
   calculateINSurcharge,
   IN_CESS_RATE,
   IN_EPF_2026,
+  IN_HRA_2026,
+  IN_NPS_80CCD_1B_LIMIT,
+  IN_PROFESSIONAL_TAX_ANNUAL_CAP,
+  IN_SECTION_80D_2026,
+  IN_SECTION_80C_LIMIT,
   IN_STANDARD_DEDUCTION_NEW_REGIME,
   IN_STANDARD_DEDUCTION_OLD_REGIME,
 } from "./constants/tax-parameters-2026";
@@ -35,6 +40,10 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
 
 function roundCurrency(value: number): number {
   return Math.round(value);
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
 }
 
 function calculateEPF(grossSalary: number, isApplicable: boolean) {
@@ -59,8 +68,131 @@ function calculateEPF(grossSalary: number, isApplicable: boolean) {
   };
 }
 
+function calculateHraExemption(inputs: INCalculatorInputs): number {
+  if (inputs.regime !== "old") {
+    return 0;
+  }
+
+  const hra = inputs.hra;
+  const annualHraReceived = clamp(hra.annualHraReceived, 0, inputs.grossSalary);
+  const annualBasicSalaryForHra = clamp(
+    hra.annualBasicSalaryForHra,
+    0,
+    inputs.grossSalary,
+  );
+  const annualRentPaid = Math.max(0, hra.annualRentPaid);
+  const rentMinusTenPercentSalary = Math.max(
+    0,
+    annualRentPaid -
+      annualBasicSalaryForHra * IN_HRA_2026.rentSalaryReductionRate,
+  );
+  const salaryPercentageLimit =
+    annualBasicSalaryForHra *
+    (hra.isMetroCity
+      ? IN_HRA_2026.metroSalaryRate
+      : IN_HRA_2026.nonMetroSalaryRate);
+
+  return roundCurrency(
+    Math.min(annualHraReceived, rentMinusTenPercentSalary, salaryPercentageLimit),
+  );
+}
+
+function calculateSection80D(inputs: INCalculatorInputs) {
+  if (inputs.regime !== "old") {
+    return { selfFamily: 0, parents: 0, total: 0 };
+  }
+
+  const selfFamilyLimit = inputs.hasSeniorCitizenSelfOrFamilyFor80D
+    ? IN_SECTION_80D_2026.selfFamilySeniorLimit
+    : IN_SECTION_80D_2026.selfFamilyLimit;
+  const parentsLimit = inputs.hasSeniorCitizenParentsFor80D
+    ? IN_SECTION_80D_2026.parentsSeniorLimit
+    : IN_SECTION_80D_2026.parentsLimit;
+  const selfFamily = roundCurrency(
+    clamp(
+      inputs.contributions.section80DHealthInsuranceSelfFamily,
+      0,
+      selfFamilyLimit,
+    ),
+  );
+  const parents = roundCurrency(
+    clamp(inputs.contributions.section80DHealthInsuranceParents, 0, parentsLimit),
+  );
+
+  return {
+    selfFamily,
+    parents,
+    total: Math.min(IN_SECTION_80D_2026.aggregateLimit, selfFamily + parents),
+  };
+}
+
+function normalizeINInputs(inputs: INCalculatorInputs): INCalculatorInputs {
+  const hasSeniorCitizenSelfOrFamilyFor80D =
+    inputs.hasSeniorCitizenSelfOrFamilyFor80D ?? false;
+  const hasSeniorCitizenParentsFor80D =
+    inputs.hasSeniorCitizenParentsFor80D ?? false;
+  const selfFamily80DLimit = hasSeniorCitizenSelfOrFamilyFor80D
+    ? IN_SECTION_80D_2026.selfFamilySeniorLimit
+    : IN_SECTION_80D_2026.selfFamilyLimit;
+  const parents80DLimit = hasSeniorCitizenParentsFor80D
+    ? IN_SECTION_80D_2026.parentsSeniorLimit
+    : IN_SECTION_80D_2026.parentsLimit;
+
+  return {
+    ...inputs,
+    regime: inputs.regime ?? "new",
+    isEpfApplicable: inputs.isEpfApplicable ?? true,
+    professionalTaxPaid: clamp(
+      inputs.professionalTaxPaid ?? 0,
+      0,
+      IN_PROFESSIONAL_TAX_ANNUAL_CAP,
+    ),
+    hasSeniorCitizenSelfOrFamilyFor80D,
+    hasSeniorCitizenParentsFor80D,
+    hra: {
+      annualHraReceived: Math.max(0, inputs.hra?.annualHraReceived ?? 0),
+      annualRentPaid: Math.max(0, inputs.hra?.annualRentPaid ?? 0),
+      annualBasicSalaryForHra: Math.max(
+        0,
+        inputs.hra?.annualBasicSalaryForHra ?? 0,
+      ),
+      isMetroCity: inputs.hra?.isMetroCity ?? false,
+    },
+    contributions: {
+      section80CInvestments: clamp(
+        inputs.contributions?.section80CInvestments ?? 0,
+        0,
+        IN_SECTION_80C_LIMIT,
+      ),
+      npsEmployeeContribution: clamp(
+        inputs.contributions?.npsEmployeeContribution ?? 0,
+        0,
+        IN_NPS_80CCD_1B_LIMIT,
+      ),
+      section80DHealthInsuranceSelfFamily: clamp(
+        inputs.contributions?.section80DHealthInsuranceSelfFamily ?? 0,
+        0,
+        selfFamily80DLimit,
+      ),
+      section80DHealthInsuranceParents: clamp(
+        inputs.contributions?.section80DHealthInsuranceParents ?? 0,
+        0,
+        parents80DLimit,
+      ),
+    },
+  };
+}
+
 export function calculateIN(inputs: INCalculatorInputs): CalculationResult {
-  const { grossSalary, payFrequency, regime, isEpfApplicable } = inputs;
+  const normalizedInputs = normalizeINInputs(inputs);
+  const {
+    grossSalary,
+    payFrequency,
+    regime,
+    isEpfApplicable,
+    professionalTaxPaid,
+    contributions,
+  } = normalizedInputs;
 
   const standardDeduction =
     regime === "new"
@@ -68,10 +200,33 @@ export function calculateIN(inputs: INCalculatorInputs): CalculationResult {
       : IN_STANDARD_DEDUCTION_OLD_REGIME;
 
   const epf = calculateEPF(grossSalary, isEpfApplicable);
+  const isOldRegime = regime === "old";
+  const hraExemption = calculateHraExemption(normalizedInputs);
+  const professionalTaxDeduction = isOldRegime ? professionalTaxPaid : 0;
+  const section80CDeduction = isOldRegime
+    ? Math.min(
+        IN_SECTION_80C_LIMIT,
+        epf.employee + contributions.section80CInvestments,
+      )
+    : 0;
+  const nps80CCD1BDeduction = isOldRegime
+    ? Math.min(
+        IN_NPS_80CCD_1B_LIMIT,
+        contributions.npsEmployeeContribution,
+      )
+    : 0;
+  const section80DDeduction = calculateSection80D(normalizedInputs);
 
-  // Taxable income = gross - standard deduction
-  // Note: EPF contribution is deducted from salary but does not reduce taxable income under new regime
-  const taxableIncomeBase = Math.max(0, grossSalary - standardDeduction);
+  const taxableIncomeBase = Math.max(
+    0,
+    grossSalary -
+      hraExemption -
+      standardDeduction -
+      professionalTaxDeduction -
+      section80CDeduction -
+      nps80CCD1BDeduction -
+      section80DDeduction.total,
+  );
   const taxableIncome = Math.round(taxableIncomeBase);
 
   const taxResult = calculateINProgressiveTax(taxableIncome, regime);
@@ -98,8 +253,16 @@ export function calculateIN(inputs: INCalculatorInputs): CalculationResult {
     epfEmployee: epf.employee,
   };
 
-  const totalTax = totalIncomeTax + epf.employee;
-  const netSalary = grossSalary - totalTax;
+  const mandatoryDeductions =
+    totalIncomeTax + epf.employee + professionalTaxPaid;
+  const voluntaryContributions =
+    contributions.section80CInvestments +
+    contributions.npsEmployeeContribution +
+    contributions.section80DHealthInsuranceSelfFamily +
+    contributions.section80DHealthInsuranceParents;
+  const totalTax = mandatoryDeductions;
+  const totalDeductions = totalTax + voluntaryContributions;
+  const netSalary = grossSalary - totalDeductions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(payFrequency);
 
@@ -108,6 +271,13 @@ export function calculateIN(inputs: INCalculatorInputs): CalculationResult {
     grossIncome: grossSalary,
     regime,
     standardDeduction,
+    hraExemption,
+    professionalTaxPaid,
+    professionalTaxDeduction,
+    section80CDeduction,
+    nps80CCD1BDeduction,
+    section80DDeduction,
+    voluntaryContributions: contributions,
     taxableIncome,
     grossTax,
     rebateUnder87A: rebate,
@@ -124,7 +294,7 @@ export function calculateIN(inputs: INCalculatorInputs): CalculationResult {
     taxableIncome,
     taxes,
     totalTax,
-    totalDeductions: totalTax,
+    totalDeductions,
     netSalary,
     effectiveTaxRate,
     perPeriod: {
@@ -151,8 +321,53 @@ export const INCalculator: CountryCalculator = {
     return [];
   },
 
-  getContributionLimits(): ContributionLimits {
-    return {};
+  getContributionLimits(inputs?: Partial<CalculatorInputs>): ContributionLimits {
+    const inInputs =
+      inputs?.country === "IN" ? (inputs as Partial<INCalculatorInputs>) : {};
+    const selfFamily80DLimit = inInputs.hasSeniorCitizenSelfOrFamilyFor80D
+      ? IN_SECTION_80D_2026.selfFamilySeniorLimit
+      : IN_SECTION_80D_2026.selfFamilyLimit;
+    const parents80DLimit = inInputs.hasSeniorCitizenParentsFor80D
+      ? IN_SECTION_80D_2026.parentsSeniorLimit
+      : IN_SECTION_80D_2026.parentsLimit;
+
+    return {
+      section80CInvestments: {
+        limit: IN_SECTION_80C_LIMIT,
+        name: "Section 80C investments",
+        description:
+          "Old-regime deduction cap for qualifying 80C investments, combined with employee EPF.",
+        preTax: true,
+      },
+      npsEmployeeContribution: {
+        limit: IN_NPS_80CCD_1B_LIMIT,
+        name: "NPS employee contribution",
+        description:
+          "Old-regime additional NPS deduction under Section 80CCD(1B).",
+        preTax: true,
+      },
+      section80DHealthInsuranceSelfFamily: {
+        limit: selfFamily80DLimit,
+        name: "Section 80D self/family health insurance",
+        description:
+          "Old-regime Section 80D cap for self, spouse, and dependent children; senior-citizen cases use the higher modeled cap.",
+        preTax: true,
+      },
+      section80DHealthInsuranceParents: {
+        limit: parents80DLimit,
+        name: "Section 80D parents health insurance",
+        description:
+          "Old-regime Section 80D cap for parents; senior-citizen parent cases use the higher modeled cap.",
+        preTax: true,
+      },
+      professionalTaxPaid: {
+        limit: IN_PROFESSIONAL_TAX_ANNUAL_CAP,
+        name: "Professional tax paid",
+        description:
+          "Employee-paid state professional tax. It reduces cash take-home; section 16(iii) deduction is modeled only under the old regime.",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): INCalculatorInputs {
@@ -162,6 +377,21 @@ export const INCalculator: CountryCalculator = {
       payFrequency: "monthly",
       regime: "new",
       isEpfApplicable: true,
+      professionalTaxPaid: 0,
+      hasSeniorCitizenSelfOrFamilyFor80D: false,
+      hasSeniorCitizenParentsFor80D: false,
+      hra: {
+        annualHraReceived: 0,
+        annualRentPaid: 0,
+        annualBasicSalaryForHra: 0,
+        isMetroCity: false,
+      },
+      contributions: {
+        section80CInvestments: 0,
+        npsEmployeeContribution: 0,
+        section80DHealthInsuranceSelfFamily: 0,
+        section80DHealthInsuranceParents: 0,
+      },
     };
   },
 };

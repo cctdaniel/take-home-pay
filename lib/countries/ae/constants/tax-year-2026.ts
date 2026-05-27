@@ -3,17 +3,27 @@ import type { AEEmployeeCategory } from "../types";
 export const UAE_TAX_YEAR = 2026;
 
 export const UAE_PERSONAL_INCOME_TAX_RATE = 0;
+export const UAE_ILOE_CATEGORY_1_BASIC_SALARY_MAX = 16_000;
 
 export const UAE_SOURCE_URLS = {
   // The Official Platform of the UAE Government: UAE does not levy income tax on individuals.
   personalIncomeTax:
     "https://u.ae/en/information-and-services/finance-and-investment/taxation",
+  // The Official Platform of the UAE Government: unemployment insurance scheme.
+  unemploymentInsurance:
+    "https://u.ae/en/information-and-services/jobs/insurance/unemployment-insurance-scheme",
+  // MoHRE: employee-paid unemployment insurance category premiums.
+  mohreUnemploymentInsurance:
+    "https://www.mohre.gov.ae/en/media-center/news/28/12/2022/subscription-to-unemployment-insurance-scheme-starts-on-1st-january-2023",
   // Federal Tax Authority: wages are outside natural-person business activity for UAE Corporate Tax.
   naturalPersonWages:
     "https://tax.gov.ae/en/taxes/corporate.tax/corporate.tax.topics/basis.of.taxation.natural.person.aspx",
   // GPSSA: Emirati contribution rates and UAE national contribution salary caps.
   emiratePensionRates:
     "https://www.gpssa.gov.ae/pages/en/media-center/news/gpssa-insureds-contribution-payment-may-be-extended-15th-day-each-month",
+  // GPSSA: contribution calculation salary timing and private-sector January base.
+  contributionSalaryTiming:
+    "https://www.gpssa.gov.ae/pages/en/help/faq/which-salary-upon-which-contributions-are-calculated",
   // GPSSA: GPSSA registration and contributions are mandatory for Emiratis.
   emirateRegistration:
     "https://www.gpssa.gov.ae/pages/en/help/faq/registration-gpssa-mandatory",
@@ -24,6 +34,48 @@ export const UAE_SOURCE_URLS = {
   gccRegistration:
     "https://gpssa.gov.ae/pages/en/services/registration-gcc-nationals",
 } as const;
+
+export const UAE_UNEMPLOYMENT_INSURANCE_CATEGORIES = {
+  notCovered: {
+    label: "Not covered / excluded",
+    monthlyPremium: 0,
+    annualPremium: 0,
+    description:
+      "Use for investors, domestic workers, temporary-contract exclusions, retirees with a pension who joined a new employer, juveniles, or employees outside the federal/private-sector ILOE scope.",
+  },
+  category1: {
+    label: "Basic salary AED 16,000 or less",
+    monthlyPremium: 5,
+    annualPremium: 60,
+    description:
+      "First ILOE category for covered employees with basic salary of AED 16,000 or less.",
+  },
+  category2: {
+    label: "Basic salary above AED 16,000",
+    monthlyPremium: 10,
+    annualPremium: 120,
+    description:
+      "Second ILOE category for covered employees with basic salary above AED 16,000.",
+  },
+} as const;
+
+export type UAEUnemploymentInsuranceCategory =
+  keyof typeof UAE_UNEMPLOYMENT_INSURANCE_CATEGORIES;
+
+export const UAE_UNEMPLOYMENT_INSURANCE_OPTIONS = Object.entries(
+  UAE_UNEMPLOYMENT_INSURANCE_CATEGORIES,
+).map(([value, settings]) => ({
+  value: value as UAEUnemploymentInsuranceCategory,
+  label: settings.label,
+}));
+
+export function getUaeIloeCategoryFromBasicSalary(
+  basicSalaryMonthly: number,
+): UAEUnemploymentInsuranceCategory {
+  return basicSalaryMonthly > UAE_ILOE_CATEGORY_1_BASIC_SALARY_MAX
+    ? "category2"
+    : "category1";
+}
 
 export interface AEPensionCategorySettings {
   label: string;
@@ -54,7 +106,7 @@ export const UAE_EMPLOYEE_CATEGORY_SETTINGS: Record<
     sourceUrl: UAE_SOURCE_URLS.personalIncomeTax,
     notes: [
       "Default category for non-UAE and non-GCC employees.",
-      "End-of-service gratuity, unemployment insurance, private medical cover, and visa costs are excluded.",
+      "End-of-service gratuity, private medical cover, and visa costs are excluded.",
     ],
   },
   uae_national_new_private: {
@@ -166,7 +218,7 @@ export const UAE_EMPLOYEE_CATEGORY_OPTIONS = Object.entries(
 export const UAE_MODELED_EXCLUSIONS = [
   "Visa, work-permit, relocation, and free-zone employment costs.",
   "Corporate tax, free-zone corporate tax, VAT, and business/self-employment tax positions.",
-  "End-of-service gratuity, unemployment insurance, private medical insurance, and employer-specific benefits.",
+  "End-of-service gratuity, private medical insurance, and employer-specific benefits.",
   "Emirate-level pension funds outside this simplified GPSSA/GCC extension model.",
   "Detailed GCC home-country salary components and foreign-currency contribution caps.",
 ];

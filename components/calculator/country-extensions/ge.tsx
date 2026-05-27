@@ -20,25 +20,57 @@ import {
 } from "@/components/ui/card";
 import type {
   GECalculatorInputs,
+  GEIncomeRegime,
   GEPensionParticipation,
   GEResidencyType,
+  GESmallBusinessThresholdTreatment,
 } from "@/lib/countries/ge/types";
+import {
+  GE_MICRO_BUSINESS_2026,
+  GE_SMALL_BUSINESS_2026,
+} from "@/lib/countries/ge/constants/tax-brackets-2026";
 import type { CalculationResult, PayFrequency } from "@/lib/countries/types";
 import { formatCurrency } from "@/lib/format";
 
 function GeorgiaTaxOptions({
   inputs,
+  onIncomeRegimeChange,
   onResidencyTypeChange,
   onPensionParticipationChange,
+  onSmallBusinessThresholdTreatmentChange,
   onPayFrequencyChange,
 }: {
   inputs: GECalculatorInputs;
+  onIncomeRegimeChange: (value: GEIncomeRegime) => void;
   onResidencyTypeChange: (value: GEResidencyType) => void;
   onPensionParticipationChange: (value: GEPensionParticipation) => void;
+  onSmallBusinessThresholdTreatmentChange: (
+    value: GESmallBusinessThresholdTreatment,
+  ) => void;
   onPayFrequencyChange: (value: PayFrequency) => void;
 }) {
   return (
     <CalculatorFieldGrid columns={3}>
+      <SelectField
+        id="ge-income-regime"
+        label="Income Regime"
+        value={inputs.incomeRegime}
+        onChange={onIncomeRegimeChange}
+        options={[
+          { value: "employment", label: "Employment salary" },
+          { value: "small_business", label: "IE small business status" },
+          { value: "micro_business", label: "Micro business status" },
+        ]}
+        description={
+          inputs.incomeRegime === "small_business"
+            ? `Models Georgian individual entrepreneur small business status at 1%, or 3% after the GEL ${GE_SMALL_BUSINESS_2026.incomeLimit.toLocaleString()} threshold.`
+            : inputs.incomeRegime === "micro_business"
+              ? `Models micro business status for eligible no-employee activity up to GEL ${GE_MICRO_BUSINESS_2026.incomeLimit.toLocaleString()}.`
+              : "Models ordinary payroll salary with salary income tax and funded pension participation."
+        }
+      />
+      {inputs.incomeRegime === "employment" ? (
+        <>
       <SelectField
         id="ge-residency-type"
         label="Residency Status"
@@ -72,6 +104,21 @@ function GeorgiaTaxOptions({
         ]}
         description="Mandatory for most resident employees; older eligible employees may opt out or enroll voluntarily."
       />
+        </>
+      ) : null}
+      {inputs.incomeRegime === "small_business" ? (
+        <SelectField
+          id="ge-small-business-threshold-treatment"
+          label="500k Threshold"
+          value={inputs.smallBusinessThresholdTreatment}
+          onChange={onSmallBusinessThresholdTreatmentChange}
+          options={[
+            { value: "even_monthly", label: "Even monthly receipts" },
+            { value: "three_percent_full_year", label: "3% for full year" },
+          ]}
+          description="The Tax Code applies 3% from the beginning of the month the threshold is exceeded; use full-year 3% if the higher rate applied all year."
+        />
+      ) : null}
       <PayFrequencyField
         id="ge-pay-frequency"
         value={inputs.payFrequency}
@@ -89,12 +136,20 @@ function GeorgiaInfoCard({ result }: { result: CalculationResult }) {
   }
 
   return (
-    <InfoPanel title="Georgia salary assumptions">
-      Ordinary employment salary is modeled with 20% salary income tax. Funded
-      pension, when enrolled, withholds 2% from the employee and shows the 2%
-      employer contribution plus the state contribution separately. Small
-      business, micro business, and individual entrepreneur regimes are excluded
-      from this salary take-home calculation.
+    <InfoPanel title="Georgia Modeled Scope">
+      Employment salary is modeled with 20% salary income tax and funded pension
+      withholding when selected. Individual entrepreneur small business status is
+      modeled as turnover tax on eligible Georgian-source business income, not
+      as payroll salary. Micro business status is modeled only up to the official
+      gross-income limit.
+      {breakdown.incomeRegime === "micro_business" &&
+      breakdown.businessRegime.microBusinessLimitExceeded ? (
+        <span className="mt-2 block text-amber-300">
+          The entered income exceeds the micro business limit, so this model
+          applies ordinary 20% income tax. Select small business status if you
+          obtained that status after exceeding the micro limit.
+        </span>
+      ) : null}
       {breakdown.isPensionParticipant ? (
         <span className="mt-2 block text-zinc-400">
           Estimated annual funded pension account inflow: {" "}
@@ -104,6 +159,11 @@ function GeorgiaInfoCard({ result }: { result: CalculationResult }) {
           )}.
         </span>
       ) : null}
+      <span className="mt-2 block text-zinc-400">
+        Activity eligibility, VAT registration, filing penalties, and
+        self-employed voluntary funded pension mechanics require business or
+        pension-account facts instead of employee salary sliders.
+      </span>
     </InfoPanel>
   );
 }
@@ -112,9 +172,9 @@ function GeorgiaTaxInfo() {
   return (
     <Card className="mt-8">
       <CardHeader>
-        <CardTitle>Georgia Employment Salary Tax</CardTitle>
+        <CardTitle>Georgia Employment And IE Tax</CardTitle>
         <CardDescription>
-          2026 model for ordinary salary income paid through payroll
+          2026 model for payroll salary and individual entrepreneur regimes
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 text-sm text-zinc-400 md:grid-cols-3">
@@ -133,11 +193,12 @@ function GeorgiaTaxInfo() {
           </p>
         </div>
         <div>
-          <p className="font-medium text-zinc-200">Excluded regimes</p>
+          <p className="font-medium text-zinc-200">Business regimes</p>
           <p className="mt-1 leading-relaxed">
-            Small business, micro business, individual entrepreneur, and
-            self-employed pension scenarios are not included in this salary
-            calculator.
+            Small business status applies 1% turnover tax up to GEL{" "}
+            {GE_SMALL_BUSINESS_2026.incomeLimit.toLocaleString()} and 3% from
+            the threshold month. Micro business status is modeled at 0% only up
+            to GEL {GE_MICRO_BUSINESS_2026.incomeLimit.toLocaleString()}.
           </p>
         </div>
       </CardContent>
@@ -156,6 +217,17 @@ export default function GECountryExtension({
     setGrossSalary,
     setPayFrequency,
   } = useCountryCalculatorExtension<GECalculatorInputs>(country);
+
+  const setIncomeRegime = (incomeRegime: GEIncomeRegime) => {
+    setInputs((current) => ({
+      ...current,
+      incomeRegime,
+      pensionParticipation:
+        incomeRegime === "employment"
+          ? current.pensionParticipation
+          : "not_participating",
+    }));
+  };
 
   const setResidencyType = (residencyType: GEResidencyType) => {
     setInputs((current) => ({
@@ -180,20 +252,45 @@ export default function GECountryExtension({
     }));
   };
 
+  const setSmallBusinessThresholdTreatment = (
+    smallBusinessThresholdTreatment: GESmallBusinessThresholdTreatment,
+  ) => {
+    setInputs((current) => ({
+      ...current,
+      smallBusinessThresholdTreatment,
+    }));
+  };
+
   return (
     <CountryCalculatorExtensionShell
       country={country}
       currency={currency}
       grossSalary={inputs.grossSalary}
+      incomeLabel={
+        inputs.incomeRegime === "employment"
+          ? "Annual Gross Salary"
+          : "Annual Gross Business Income"
+      }
       onGrossSalaryChange={setGrossSalary}
       result={result}
       taxOptions={
         <GeorgiaTaxOptions
           inputs={inputs}
+          onIncomeRegimeChange={setIncomeRegime}
           onResidencyTypeChange={setResidencyType}
           onPensionParticipationChange={setPensionParticipation}
+          onSmallBusinessThresholdTreatmentChange={
+            setSmallBusinessThresholdTreatment
+          }
           onPayFrequencyChange={setPayFrequency}
         />
+      }
+      contributionsTitle="Georgia Payroll and Regime Notes"
+      contributionsDescription="Modeled payroll and individual entrepreneur settings"
+      contributionsEmptyState={
+        inputs.incomeRegime === "employment"
+          ? "Funded pension participation is modeled above as a payroll choice rather than a free-form annual contribution. The ordinary salary model has no additional employee-controlled annual salary deduction."
+          : "Small and micro business status are modeled as separate income regimes above. Activity eligibility, VAT, and self-employed voluntary pension mechanics require separate return facts."
       }
       infoCard={<GeorgiaInfoCard result={result} />}
       seoInfo={<GeorgiaTaxInfo />}

@@ -9,9 +9,11 @@ import type {
 import { AE_CONFIG } from "./config";
 import {
   UAE_EMPLOYEE_CATEGORY_SETTINGS,
+  getUaeIloeCategoryFromBasicSalary,
   UAE_MODELED_EXCLUSIONS,
   UAE_PERSONAL_INCOME_TAX_RATE,
   UAE_SOURCE_URLS,
+  UAE_UNEMPLOYMENT_INSURANCE_CATEGORIES,
 } from "./constants/tax-year-2026";
 import type {
   AEBreakdown,
@@ -45,6 +47,7 @@ function clamp(value: number, min?: number, max?: number): number {
 function calculateContributionSalary(
   grossSalary: number,
   employeeCategory: AEEmployeeCategory,
+  enteredContributionSalaryMonthly = 0,
 ) {
   const settings = UAE_EMPLOYEE_CATEGORY_SETTINGS[employeeCategory];
   const monthlySalary = grossSalary / 12;
@@ -56,10 +59,28 @@ function calculateContributionSalary(
     };
   }
 
+  if (grossSalary <= 0) {
+    return {
+      monthly: 0,
+      annual: 0,
+    };
+  }
+
+  const upperMonthlySalary =
+    settings.monthlyMaximum === undefined
+      ? monthlySalary
+      : Math.min(
+          Math.max(monthlySalary, settings.monthlyMinimum ?? 0),
+          settings.monthlyMaximum,
+        );
+  const selectedMonthlySalary =
+    enteredContributionSalaryMonthly > 0
+      ? enteredContributionSalaryMonthly
+      : upperMonthlySalary;
   const monthly = clamp(
-    monthlySalary,
+    selectedMonthlySalary,
     grossSalary > 0 ? settings.monthlyMinimum : undefined,
-    settings.monthlyMaximum,
+    upperMonthlySalary,
   );
 
   return {
@@ -79,11 +100,32 @@ function getAssumptions(employeeCategory: AEEmployeeCategory): string[] {
 }
 
 export function calculateAE(inputs: AECalculatorInputs): CalculationResult {
-  const { grossSalary, payFrequency, employeeCategory } = inputs;
+  const { payFrequency, employeeCategory } = inputs;
+  const grossSalary = Math.max(0, inputs.grossSalary);
   const settings = UAE_EMPLOYEE_CATEGORY_SETTINGS[employeeCategory];
+  const defaultMonthlySalary = grossSalary / 12;
+  const iloeBasicSalaryMonthly =
+    grossSalary > 0
+      ? Math.max(0, inputs.iloeBasicSalaryMonthly || defaultMonthlySalary)
+      : 0;
+  const selectedUnemploymentInsuranceCategory =
+    inputs.unemploymentInsuranceCategory ??
+    getUaeIloeCategoryFromBasicSalary(iloeBasicSalaryMonthly);
+  const unemploymentInsuranceCategory =
+    selectedUnemploymentInsuranceCategory === "notCovered"
+      ? selectedUnemploymentInsuranceCategory
+      : getUaeIloeCategoryFromBasicSalary(iloeBasicSalaryMonthly);
+  const unemploymentInsurance =
+    UAE_UNEMPLOYMENT_INSURANCE_CATEGORIES[unemploymentInsuranceCategory] ??
+    UAE_UNEMPLOYMENT_INSURANCE_CATEGORIES.category2;
+  const unemploymentInsuranceAnnualPremium =
+    grossSalary > 0 ? unemploymentInsurance.annualPremium : 0;
+  const unemploymentInsuranceMonthlyPremium =
+    grossSalary > 0 ? unemploymentInsurance.monthlyPremium : 0;
   const contributionSalary = calculateContributionSalary(
     grossSalary,
     employeeCategory,
+    Math.max(0, inputs.pensionContributionSalaryMonthly ?? 0),
   );
   const incomeTax = 0;
   const pensionEmployee = roundCurrency(
@@ -112,8 +154,10 @@ export function calculateAE(inputs: AECalculatorInputs): CalculationResult {
     totalIncomeTax: incomeTax,
     incomeTax,
     pensionEmployee,
+    unemploymentInsurance: unemploymentInsuranceAnnualPremium,
   };
-  const totalTax = incomeTax + pensionEmployee;
+  const totalTax =
+    incomeTax + pensionEmployee + unemploymentInsuranceAnnualPremium;
   const totalDeductions = totalTax;
   const netSalary = grossSalary - totalDeductions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
@@ -126,6 +170,17 @@ export function calculateAE(inputs: AECalculatorInputs): CalculationResult {
     employeeCategoryLabel: settings.label,
     taxableIncome: 0,
     incomeTaxRate: UAE_PERSONAL_INCOME_TAX_RATE,
+    unemploymentInsurance: {
+      category: unemploymentInsuranceCategory,
+      label: unemploymentInsurance.label,
+      basicSalaryMonthly:
+        unemploymentInsuranceCategory === "notCovered"
+          ? 0
+          : iloeBasicSalaryMonthly,
+      annualPremium: unemploymentInsuranceAnnualPremium,
+      monthlyPremium: unemploymentInsuranceMonthlyPremium,
+      description: unemploymentInsurance.description,
+    },
     pension: {
       employee: pensionEmployee,
       employer: pensionEmployer,
@@ -144,13 +199,18 @@ export function calculateAE(inputs: AECalculatorInputs): CalculationResult {
     },
     assumptions: getAssumptions(employeeCategory),
     exclusions: UAE_MODELED_EXCLUSIONS,
-    sourceUrls: [
-      UAE_SOURCE_URLS.personalIncomeTax,
-      UAE_SOURCE_URLS.naturalPersonWages,
-      settings.sourceUrl,
-      UAE_SOURCE_URLS.emirateRegistration,
-      UAE_SOURCE_URLS.gccRegistration,
-    ],
+    sourceUrls: Array.from(
+      new Set([
+        UAE_SOURCE_URLS.personalIncomeTax,
+        UAE_SOURCE_URLS.naturalPersonWages,
+        UAE_SOURCE_URLS.unemploymentInsurance,
+        UAE_SOURCE_URLS.mohreUnemploymentInsurance,
+        settings.sourceUrl,
+        UAE_SOURCE_URLS.contributionSalaryTiming,
+        UAE_SOURCE_URLS.emirateRegistration,
+        UAE_SOURCE_URLS.gccRegistration,
+      ]),
+    ),
   };
 
   return {
@@ -198,6 +258,9 @@ export const AECalculator: CountryCalculator = {
       grossSalary: 360_000,
       payFrequency: "monthly",
       employeeCategory: "foreign_expat",
+      unemploymentInsuranceCategory: "category2",
+      iloeBasicSalaryMonthly: 0,
+      pensionContributionSalaryMonthly: 0,
       contributions: {},
     };
   },

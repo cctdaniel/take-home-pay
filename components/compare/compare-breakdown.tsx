@@ -7,14 +7,81 @@ import {
   formatCurrencyWithCodeAndCents,
   formatPercentage,
 } from "@/lib/format";
-import type { CurrencyCode } from "@/lib/countries/types";
+import { getCountryCalculator } from "@/lib/countries/registry";
+import type { CalculatorInputs, CurrencyCode } from "@/lib/countries/types";
 import { cn } from "@/lib/utils";
 import type { CountryComparison, MaritalStatus } from "@/hooks/use-country-comparison";
+import { COUNTRY_MODELED_INPUT_LABELS } from "./country-modeled-inputs.generated";
 import Link from "next/link";
 
 interface BreakdownLine {
   label: string;
   amount: number;
+}
+
+interface TaxSavingInputLine {
+  key: string;
+  name: string;
+}
+
+function getAvailableContributionInputs(
+  selected: CountryComparison,
+): TaxSavingInputLine[] {
+  try {
+    const calculator = getCountryCalculator(selected.country);
+    const defaults = calculator.getDefaultInputs();
+    const contributionLimits =
+      calculator.getContributionLimits?.({
+        ...defaults,
+        grossSalary: selected.grossLocal,
+        payFrequency: selected.calculation.perPeriod.frequency,
+      } as Partial<CalculatorInputs>) ?? {};
+
+    return Object.entries(contributionLimits)
+      .filter(([, contribution]) =>
+        Number.isFinite(contribution.limit) ? contribution.limit > 0 : true,
+      )
+      .map(([key, contribution]) => ({
+        key,
+        name: contribution.name,
+      }));
+  } catch {
+    return [];
+  }
+}
+
+function getAvailableModeledInputs(selected: CountryComparison) {
+  const generatedLabels = COUNTRY_MODELED_INPUT_LABELS[selected.country] ?? [];
+  const contributionInputs = getAvailableContributionInputs(selected);
+  const seen = new Set<string>();
+  const inputs: TaxSavingInputLine[] = [];
+
+  for (const label of generatedLabels) {
+    const key = label.toLowerCase();
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    inputs.push({
+      key: `modeled-${key}`,
+      name: label,
+    });
+  }
+
+  for (const input of contributionInputs) {
+    const key = input.name.toLowerCase();
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    inputs.push(input);
+  }
+
+  return inputs;
 }
 
 function BreakdownRow({
@@ -154,6 +221,7 @@ export function CompareBreakdown({
   );
   const takeHomeRate = grossSalary > 0 ? calculation.netSalary / grossSalary : 0;
   const taxes = calculation.taxes;
+  const availableModeledInputs = getAvailableModeledInputs(selected);
 
   const incomeTaxBreakdown: BreakdownLine[] = [];
   const mandatoryBreakdown: BreakdownLine[] = [];
@@ -378,6 +446,29 @@ export function CompareBreakdown({
             {assumptions.join(" • ")}
           </p>
         )}
+
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3">
+          <p className="text-xs font-medium text-zinc-300">
+            Country-specific modeled controls
+          </p>
+          {availableModeledInputs.length > 0 ? (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {availableModeledInputs.map((input) => (
+                <span
+                  key={input.key}
+                  className="rounded-md border border-zinc-700 bg-zinc-800/70 px-2 py-1 text-[11px] text-zinc-300"
+                >
+                  {input.name}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-2 text-xs text-zinc-500">
+              No additional country-specific employee control is modeled for
+              this salary scenario.
+            </p>
+          )}
+        </div>
 
         <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 text-xs text-zinc-400">
           This is a simplified snapshot. For the most accurate take-home pay,

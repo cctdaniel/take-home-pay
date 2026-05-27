@@ -1,8 +1,7 @@
 "use client";
 
 import { ContributionSlider } from "@/components/ui/contribution-slider";
-import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
+import { SelectField } from "@/components/calculator/calculator-fields";
 import type { HSACoverageType } from "@/lib/constants/contribution-limits";
 
 interface ContributionOptionsProps {
@@ -15,6 +14,12 @@ interface ContributionOptionsProps {
   hsa: number;
   onHsaChange: (value: number) => void;
   hsaLimit: number;
+  healthFsa: number;
+  onHealthFsaChange: (value: number) => void;
+  healthFsaLimit: number;
+  dependentCareFsa: number;
+  onDependentCareFsaChange: (value: number) => void;
+  dependentCareFsaLimit: number;
   hsaCoverageType: HSACoverageType;
   onHsaCoverageTypeChange: (value: HSACoverageType) => void;
 }
@@ -29,6 +34,12 @@ export function ContributionOptions({
   hsa,
   onHsaChange,
   hsaLimit,
+  healthFsa,
+  onHealthFsaChange,
+  healthFsaLimit,
+  dependentCareFsa,
+  onDependentCareFsaChange,
+  dependentCareFsaLimit,
   hsaCoverageType,
   onHsaCoverageTypeChange,
 }: ContributionOptionsProps) {
@@ -58,28 +69,44 @@ export function ContributionOptions({
         currency="USD"
       />
 
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <Label className="text-sm">HSA Coverage</Label>
-            <p className="text-xs text-zinc-500 mt-0.5">Pre-tax (reduces taxable income)</p>
-          </div>
-          <Select
-            value={hsaCoverageType}
-            onChange={(e) => onHsaCoverageTypeChange(e.target.value as HSACoverageType)}
-            className="w-32"
-          >
-            <option value="self">Self Only</option>
-            <option value="family">Family</option>
-          </Select>
-        </div>
-      </div>
+      <SelectField
+        id="hsa-coverage"
+        label="HSA Coverage"
+        value={hsaCoverageType}
+        onChange={onHsaCoverageTypeChange}
+        options={[
+          { value: "self", label: "Self Only" },
+          { value: "family", label: "Family" },
+        ]}
+        description="Pre-tax (reduces taxable income)"
+      />
 
       <ContributionSlider
         label="HSA Contribution"
+        description="Pre-tax if made through payroll; requires HSA eligibility."
         value={hsa}
         onChange={onHsaChange}
         max={hsaLimit}
+        step={50}
+        currency="USD"
+      />
+
+      <ContributionSlider
+        label="Health FSA Contribution"
+        description="Pre-tax health FSA salary reduction. If also using an HSA, treat this as limited-purpose or post-deductible FSA coverage."
+        value={healthFsa}
+        onChange={onHealthFsaChange}
+        max={healthFsaLimit}
+        step={50}
+        currency="USD"
+      />
+
+      <ContributionSlider
+        label="Dependent Care FSA"
+        description="Pre-tax dependent care assistance exclusion from wages."
+        value={dependentCareFsa}
+        onChange={onDependentCareFsaChange}
+        max={dependentCareFsaLimit}
         step={50}
         currency="USD"
       />

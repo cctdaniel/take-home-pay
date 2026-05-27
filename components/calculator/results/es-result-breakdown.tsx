@@ -1,6 +1,8 @@
 import { Separator } from "@/components/ui/separator";
+import { SPAIN_SOURCE_URLS } from "@/lib/countries/es/constants/tax-brackets-2026";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { DeductionRow } from "../deduction-row";
+import { ResultNotes } from "./result-notes";
 import type { CountryResultBreakdownProps } from "./types";
 
 export function ESResultBreakdown({
@@ -19,7 +21,9 @@ export function ESResultBreakdown({
       <div className="flex items-center justify-between py-2">
         <span className="text-sm text-zinc-400">Tax Residency</span>
         <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
-          {breakdown.isResident
+          {breakdown.isBeckhamLaw
+            ? "Article 93 / Beckham law"
+            : breakdown.isResident
             ? "Spanish Resident (IRPF)"
             : breakdown.residencyType === "non_resident_eu_eea"
               ? "Non-Resident EU/EEA (19% IRNR)"
@@ -34,7 +38,7 @@ export function ESResultBreakdown({
         </span>
       </div>
 
-      {breakdown.isResident && (
+      {breakdown.isResident && !breakdown.isBeckhamLaw && (
         <>
           <Separator className="my-2" />
           <p className="text-xs text-zinc-500 pt-2 pb-1">
@@ -91,10 +95,46 @@ export function ESResultBreakdown({
 
       <Separator className="my-2" />
       <p className="text-xs text-zinc-500 pt-2 pb-1">
-        {breakdown.isResident ? "IRPF Income Tax" : "IRNR Income Tax"}
+        {breakdown.isBeckhamLaw
+          ? "Article 93 Income Tax"
+          : breakdown.isResident
+            ? "IRPF Income Tax"
+            : "IRNR Income Tax"}
       </p>
 
-      {breakdown.isResident ? (
+      {breakdown.isBeckhamLaw ? (
+        <>
+          <DeductionRow
+            label={`24% up to ${formatCurrency(
+              breakdown.beckhamLawThreshold ?? 0,
+              currency,
+            )}`}
+            amount={
+              Math.min(
+                breakdown.taxableIncome,
+                breakdown.beckhamLawThreshold ?? 0,
+              ) * (breakdown.beckhamLawFirstRate ?? 0)
+            }
+            grossSalary={grossSalary}
+            currency={currency}
+          />
+          {breakdown.taxableIncome > (breakdown.beckhamLawThreshold ?? 0) && (
+            <DeductionRow
+              label={`47% above ${formatCurrency(
+                breakdown.beckhamLawThreshold ?? 0,
+                currency,
+              )}`}
+              amount={
+                (breakdown.taxableIncome -
+                  (breakdown.beckhamLawThreshold ?? 0)) *
+                (breakdown.beckhamLawExcessRate ?? 0)
+              }
+              grossSalary={grossSalary}
+              currency={currency}
+            />
+          )}
+        </>
+      ) : breakdown.isResident ? (
         <>
           <div className="flex items-center justify-between py-1">
             <span className="text-sm text-zinc-400">
@@ -197,7 +237,7 @@ export function ESResultBreakdown({
         <>
           <Separator className="my-2" />
           <p className="text-xs text-zinc-500 pt-2 pb-1">
-            Voluntary Contributions
+            Pension Plan Reduction
           </p>
           <DeductionRow
             label="Pension Plan Contribution"
@@ -208,17 +248,18 @@ export function ESResultBreakdown({
         </>
       )}
 
-      <Separator className="my-2" />
-      <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
-        <p className="text-xs text-zinc-400 font-medium mb-1">
-          Spain Assumptions
-        </p>
-        <p className="text-xs text-zinc-500">
-          Uses {breakdown.assumptions.irpfRateYear} AEAT IRPF scales and{" "}
-          {breakdown.assumptions.socialSecurityYear} payroll contribution rates.
-          Regional deductions and Basque/Navarre foral regimes are not included.
-        </p>
-      </div>
+      <ResultNotes
+        countryName="Spain"
+        assumptions={[
+          `Uses ${breakdown.assumptions.irpfRateYear} AEAT IRPF scales and ${breakdown.assumptions.socialSecurityYear} payroll contribution rates.`,
+          "Resident IRPF applies the selected state/autonomous scale combination, personal and family minimums, employee social security, joint-return reduction where selected, and pension contribution reductions.",
+          "Article 93 / Beckham-law mode uses the special flat salary rates and excludes ordinary resident minimums and reductions.",
+        ]}
+        exclusions={[
+          "Regional deductions, Basque/Navarre foral regimes, exact withholding form logic, treaty positions, special expatriate eligibility determinations, and sector-specific accident premiums require separate facts.",
+        ]}
+        sourceUrls={SPAIN_SOURCE_URLS}
+      />
     </>
   );
 }

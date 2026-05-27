@@ -6,9 +6,25 @@
 // IRS 2026 - Progressive tax brackets for employment income
 // Social Security contributions: 11% (employee share)
 // Solidarity surcharge for high incomes
+//
+// IRS Jovem official sources:
+// - gov.pt service page, updated 30 March 2026:
+//   https://www.gov.pt/servicos/pedir-o-irs-jovem
+// - Orçamento do Estado explainer, 23 April 2026:
+//   https://www.oe.gov.pt/financas-a-lupa/artigos/como-funciona-o-irs-jovem/
+// - DGAEP IAS table, 2026 IAS under Portaria n.º 480-A/2025/1:
+//   https://www.dgaep.gov.pt/index.cfm?OBJID=3E74CF19-DA87-4B8F-81E2-51E0649AAA9F
 // ============================================================================
 
 import type { TaxBracket } from "../../types";
+
+export const PT_SOURCE_URLS = [
+  "https://www.portaldasfinancas.gov.pt/",
+  "https://www.gov.pt/guias/imposto-sobre-o-rendimento-das-pessoas-singulares-irs-em-portugal",
+  "https://www.gov.pt/servicos/pedir-o-irs-jovem",
+  "https://www.oe.gov.pt/financas-a-lupa/artigos/como-funciona-o-irs-jovem/",
+  "https://www.dgaep.gov.pt/index.cfm?OBJID=3E74CF19-DA87-4B8F-81E2-51E0649AAA9F",
+] as const;
 
 // ============================================================================
 // IRS TAX BRACKETS 2026
@@ -103,6 +119,22 @@ export const PORTUGAL_TAX_CREDITS_2026 = {
   // No automatic tax credits in Portugal
   // Credits are based on actual expenses incurred
   // (health, education, housing, etc.)
+};
+
+// ============================================================================
+// IRS JOVEM (Article 12-B CIRS, modeled for resident employment income)
+// ============================================================================
+export const PORTUGAL_IRS_JOVEM_2026 = {
+  ias: 537.13,
+  annualCap: 55 * 537.13,
+  maxYears: 10,
+  maxAge: 35,
+  rates: {
+    year1: 1,
+    years2To4: 0.75,
+    years5To7: 0.5,
+    years8To10: 0.25,
+  },
 };
 
 // ============================================================================

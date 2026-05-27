@@ -13,9 +13,12 @@ import type {
 } from "../types";
 import { GE_CONFIG } from "./config";
 import {
+  calculateGeorgiaSmallBusinessTax,
   calculateGeorgiaStatePensionContribution,
   GE_INCOME_TAX_2026,
+  GE_MICRO_BUSINESS_2026,
   GE_PENSION_2026,
+  GE_SMALL_BUSINESS_2026,
 } from "./constants/tax-brackets-2026";
 import type { GEBreakdown, GECalculatorInputs, GETaxBreakdown } from "./types";
 
@@ -38,16 +41,39 @@ function roundCurrency(value: number): number {
 
 function isFundedPensionParticipant(inputs: GECalculatorInputs): boolean {
   return (
+    inputs.incomeRegime === "employment" &&
     inputs.residencyType === "resident" &&
     inputs.pensionParticipation === "mandatory_or_enrolled"
   );
 }
 
 export function calculateGE(inputs: GECalculatorInputs): CalculationResult {
-  const { grossSalary, payFrequency, residencyType, pensionParticipation } =
-    inputs;
+  const {
+    grossSalary,
+    payFrequency,
+    incomeRegime = "employment",
+    residencyType,
+    pensionParticipation,
+  } = inputs;
   const taxableIncome = Math.max(0, grossSalary);
-  const incomeTax = roundCurrency(taxableIncome * GE_INCOME_TAX_2026.rate);
+  const smallBusinessThresholdTreatment =
+    inputs.smallBusinessThresholdTreatment ?? "even_monthly";
+  const smallBusinessTax = calculateGeorgiaSmallBusinessTax(
+    taxableIncome,
+    smallBusinessThresholdTreatment,
+  );
+  const microBusinessLimitExceeded =
+    incomeRegime === "micro_business" &&
+    taxableIncome > GE_MICRO_BUSINESS_2026.incomeLimit;
+  const incomeTax = roundCurrency(
+    incomeRegime === "small_business"
+      ? smallBusinessTax.tax
+      : incomeRegime === "micro_business"
+        ? microBusinessLimitExceeded
+          ? taxableIncome * GE_INCOME_TAX_2026.rate
+          : taxableIncome * GE_MICRO_BUSINESS_2026.rate
+        : taxableIncome * GE_INCOME_TAX_2026.rate,
+  );
   const isPensionParticipant = isFundedPensionParticipant(inputs);
 
   const pensionEmployee = isPensionParticipant
@@ -61,6 +87,8 @@ export function calculateGE(inputs: GECalculatorInputs): CalculationResult {
     : {
         contributionSalary: 0,
         rate: 0,
+        firstBandContributionSalary: 0,
+        secondBandContributionSalary: 0,
         total: 0,
       };
 
@@ -81,13 +109,37 @@ export function calculateGE(inputs: GECalculatorInputs): CalculationResult {
     type: "GE",
     grossIncome: grossSalary,
     taxableIncome,
+    incomeRegime,
     residencyType,
     pensionParticipation,
     isPensionParticipant,
     incomeTax: {
-      rate: GE_INCOME_TAX_2026.rate,
+      rate:
+        incomeRegime === "small_business"
+          ? smallBusinessTax.effectiveRate
+          : incomeRegime === "micro_business" && !microBusinessLimitExceeded
+            ? GE_MICRO_BUSINESS_2026.rate
+            : GE_INCOME_TAX_2026.rate,
       taxableIncome,
       total: incomeTax,
+    },
+    businessRegime: {
+      microBusinessIncomeLimit: GE_MICRO_BUSINESS_2026.incomeLimit,
+      microBusinessLimitExceeded,
+      smallBusinessIncomeLimit: GE_SMALL_BUSINESS_2026.incomeLimit,
+      smallBusinessThresholdTreatment,
+      standardRateIncome:
+        incomeRegime === "small_business"
+          ? smallBusinessTax.standardRateIncome
+          : 0,
+      overLimitRateIncome:
+        incomeRegime === "small_business"
+          ? smallBusinessTax.overLimitRateIncome
+          : 0,
+      standardRate: GE_SMALL_BUSINESS_2026.standardRate,
+      overLimitRate: GE_SMALL_BUSINESS_2026.overLimitRate,
+      effectiveRate:
+        incomeRegime === "small_business" ? smallBusinessTax.effectiveRate : 0,
     },
     pension: {
       employee: pensionEmployee,
@@ -105,11 +157,14 @@ export function calculateGE(inputs: GECalculatorInputs): CalculationResult {
       stateAboveSecondBandRate: GE_PENSION_2026.stateAboveSecondBandRate,
       stateContributionSalary: statePension.contributionSalary,
       stateRate: statePension.rate,
+      stateFirstBandContributionSalary:
+        statePension.firstBandContributionSalary,
+      stateSecondBandContributionSalary:
+        statePension.secondBandContributionSalary,
     },
     assumptions: {
-      ordinaryEmploymentSalaryOnly: true,
-      excludesSmallBusinessRegimes: true,
-      excludesIndividualEntrepreneurRegimes: true,
+      ordinaryEmploymentSalaryOnly: incomeRegime === "employment",
+      includesIndividualEntrepreneurRegimes: incomeRegime !== "employment",
     },
   };
 
@@ -156,8 +211,10 @@ export const GECalculator: CountryCalculator = {
       country: "GE",
       grossSalary: 36_000,
       payFrequency: "monthly",
+      incomeRegime: "employment",
       residencyType: "resident",
       pensionParticipation: "mandatory_or_enrolled",
+      smallBusinessThresholdTreatment: "even_monthly",
       contributions: {},
     };
   },

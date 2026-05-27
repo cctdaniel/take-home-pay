@@ -5,6 +5,7 @@ import type {
   ContributionLimits,
   IDBreakdown,
   IDCalculatorInputs,
+  IDTaxReliefInputs,
   IDTaxBreakdown,
   PayFrequency,
   RegionInfo,
@@ -12,6 +13,7 @@ import type {
 import { ID_CONFIG } from "./config";
 import {
   ID_BPJS_2026,
+  ID_MODELED_CONTRIBUTION_CASH_CAP_RATE,
   ID_JOB_EXPENSE_2026,
   calculatePtkp,
   calculateProgressiveTax,
@@ -56,6 +58,41 @@ function calculateBpjsContributions(annualSalary: number) {
   };
 }
 
+function clampAmount(value: number, min = 0, max = Infinity): number {
+  if (!Number.isFinite(value)) {
+    return min;
+  }
+
+  return Math.min(Math.max(value, min), max);
+}
+
+function normalizeVoluntaryDeductions(
+  cashCap: number,
+  contributions: IDCalculatorInputs["contributions"],
+) {
+  const modeledCashCap = Math.max(
+    0,
+    cashCap * ID_MODELED_CONTRIBUTION_CASH_CAP_RATE,
+  );
+  const dplkContribution = Math.round(
+    clampAmount(contributions.dplkContribution ?? 0, 0, modeledCashCap),
+  );
+  const zakatContribution = Math.round(
+    clampAmount(
+      contributions.zakatContribution ?? 0,
+      0,
+      modeledCashCap - dplkContribution,
+    ),
+  );
+
+  return {
+    dplkContribution,
+    zakatContribution,
+    total: dplkContribution + zakatContribution,
+    cashCap: modeledCashCap,
+  };
+}
+
 export function calculateID(inputs: IDCalculatorInputs): CalculationResult {
   const { grossSalary, payFrequency, taxReliefs, contributions } = inputs;
 
@@ -66,14 +103,35 @@ export function calculateID(inputs: IDCalculatorInputs): CalculationResult {
 
   const bpjs = calculateBpjsContributions(grossSalary);
   const pensionDeduction = bpjs.jhtEmployee + bpjs.jpEmployee;
-
-  // Voluntary tax-deductible contributions
-  const dplkContribution = contributions.dplkContribution || 0;
-  const zakatContribution = contributions.zakatContribution || 0;
-  const voluntaryDeductions = dplkContribution + zakatContribution;
-
-  const netIncome = Math.max(0, grossSalary - jobExpense - pensionDeduction - voluntaryDeductions);
   const ptkp = calculatePtkp(taxReliefs);
+  const taxableIncomeBeforeVoluntary = Math.floor(
+    Math.max(
+      0,
+      grossSalary - jobExpense - pensionDeduction - ptkp.total,
+    ) / 1000,
+  ) * 1000;
+  const taxBeforeVoluntary = calculateProgressiveTax(
+    taxableIncomeBeforeVoluntary,
+  ).totalTax;
+  const availableVoluntaryCash = Math.max(
+    0,
+    grossSalary -
+      bpjs.healthEmployee -
+      bpjs.jhtEmployee -
+      bpjs.jpEmployee -
+      taxBeforeVoluntary,
+  );
+
+  const {
+    dplkContribution,
+    zakatContribution,
+    total: voluntaryDeductions,
+  } = normalizeVoluntaryDeductions(availableVoluntaryCash, contributions);
+
+  const netIncome = Math.max(
+    0,
+    grossSalary - jobExpense - pensionDeduction - voluntaryDeductions,
+  );
 
   const taxableIncomeBeforeRounding = Math.max(0, netIncome - ptkp.total);
   const taxableIncome = Math.floor(taxableIncomeBeforeRounding / 1000) * 1000;
@@ -90,7 +148,7 @@ export function calculateID(inputs: IDCalculatorInputs): CalculationResult {
 
   const totalTax =
     taxes.incomeTax + taxes.bpjsHealth + taxes.bpjsJht + taxes.bpjsJp;
-  const totalDeductions = totalTax;
+  const totalDeductions = totalTax + voluntaryDeductions;
   const netSalary = grossSalary - totalDeductions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
 
@@ -150,18 +208,57 @@ export const IDCalculator: CountryCalculator = {
     return [];
   },
 
-  getContributionLimits(): ContributionLimits {
+  getContributionLimits(inputs?: Partial<CalculatorInputs>): ContributionLimits {
+    const idInputs = inputs as Partial<IDCalculatorInputs> | undefined;
+    const annualSalary =
+      idInputs?.grossSalary && idInputs.grossSalary > 0
+        ? idInputs.grossSalary
+        : 120_000_000;
+    const taxReliefs =
+      idInputs?.taxReliefs ??
+      ({
+        maritalStatus: "single",
+        numberOfDependents: 0,
+        spouseIncomeCombined: false,
+      } satisfies IDTaxReliefInputs);
+    const jobExpense = Math.min(
+      annualSalary * ID_JOB_EXPENSE_2026.rate,
+      ID_JOB_EXPENSE_2026.annualCap,
+    );
+    const bpjs = calculateBpjsContributions(annualSalary);
+    const pensionDeduction = bpjs.jhtEmployee + bpjs.jpEmployee;
+    const ptkp = calculatePtkp(taxReliefs);
+    const taxableIncomeBeforeVoluntary = Math.floor(
+      Math.max(
+        0,
+        annualSalary - jobExpense - pensionDeduction - ptkp.total,
+      ) / 1000,
+    ) * 1000;
+    const taxBeforeVoluntary = calculateProgressiveTax(
+      taxableIncomeBeforeVoluntary,
+    ).totalTax;
+    const availableVoluntaryCash = Math.max(
+      0,
+      annualSalary -
+        bpjs.healthEmployee -
+        bpjs.jhtEmployee -
+        bpjs.jpEmployee -
+        taxBeforeVoluntary,
+    );
+
     return {
       dplkContribution: {
-        limit: Number.POSITIVE_INFINITY, // No specific annual cap, but must be reasonable
+        limit: availableVoluntaryCash * ID_MODELED_CONTRIBUTION_CASH_CAP_RATE,
         name: "DPLK Contribution",
-        description: "Voluntary contributions to Dana Pensiun Lembaga Keuangan (DPLK)",
+        description:
+          "Voluntary contributions to Dana Pensiun Lembaga Keuangan (DPLK). No general annual statutory cap is modeled; the entry is limited to remaining modeled cash compensation.",
         preTax: true,
       },
       zakatContribution: {
-        limit: Number.POSITIVE_INFINITY, // No specific cap, but generally limited to 2.5% of wealth
+        limit: availableVoluntaryCash * ID_MODELED_CONTRIBUTION_CASH_CAP_RATE,
         name: "Zakat",
-        description: "Zakat paid to BAZNAS or authorized amil zakat institutions",
+        description:
+          "Zakat or mandatory religious donation paid through the employer to an approved institution. No general annual statutory cap is modeled; the entry is limited to remaining modeled cash compensation.",
         preTax: true,
       },
     };

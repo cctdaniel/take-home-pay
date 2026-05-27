@@ -1,6 +1,8 @@
 import { Separator } from "@/components/ui/separator";
-import { formatCurrency } from "@/lib/format";
+import { GREECE_SOURCE_URLS } from "@/lib/countries/gr/constants/tax-brackets-2026";
+import { formatCurrency, formatPercentage } from "@/lib/format";
 import { DeductionRow } from "../deduction-row";
+import { ResultNotes } from "./result-notes";
 import type { CountryResultBreakdownProps } from "./types";
 
 export function GRResultBreakdown({
@@ -19,7 +21,11 @@ export function GRResultBreakdown({
       <div className="flex items-center justify-between py-2">
         <span className="text-sm text-zinc-400">Tax Residency</span>
         <span className="text-xs font-medium text-zinc-300 bg-zinc-700/50 px-2 py-1 rounded">
-          {breakdown.isResident ? "Greek Tax Resident" : "Non-Resident"}
+          {breakdown.article5CRelief.applies
+            ? "Article 5C new tax resident"
+            : breakdown.isResident
+              ? "Greek Tax Resident"
+              : "Non-Resident"}
         </span>
       </div>
 
@@ -29,10 +35,50 @@ export function GRResultBreakdown({
           {formatCurrency(result.taxableIncome, currency)}
         </span>
       </div>
+      {breakdown.taxableBenefitsInKind > 0 && (
+        <>
+          <div className="flex items-center justify-between py-2">
+            <span className="text-sm text-zinc-400">
+              Taxable Benefits in Kind
+            </span>
+            <span className="text-sm text-zinc-200 tabular-nums">
+              +{formatCurrency(breakdown.taxableBenefitsInKind, currency)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between py-1">
+            <span className="text-sm text-zinc-400">
+              Income-Tax / e-EFKA Gross Base
+            </span>
+            <span className="text-sm text-zinc-200 tabular-nums">
+              {formatCurrency(breakdown.taxableGrossIncome, currency)}
+            </span>
+          </div>
+        </>
+      )}
 
       <Separator className="my-2" />
 
       <p className="text-xs text-zinc-500 pt-2 pb-1">Income Tax</p>
+      {breakdown.article5CRelief.applies && (
+        <>
+          <div className="flex items-center justify-between py-1">
+            <span className="text-sm text-zinc-400">
+              Article 5C Exempt Employment Income
+            </span>
+            <span className="text-sm text-emerald-400 tabular-nums">
+              -
+              {formatCurrency(breakdown.article5CRelief.exemptIncome, currency)}
+            </span>
+          </div>
+          <p className="text-xs text-zinc-500 italic">
+            Article 5C exempts{" "}
+            {formatPercentage(breakdown.article5CRelief.exemptionRate)} of
+            eligible Greek employment income from income tax for up to{" "}
+            {breakdown.article5CRelief.maxYears} tax years. e-EFKA remains on
+            full insured salary.
+          </p>
+        </>
+      )}
       <DeductionRow
         label="Income Tax"
         amount={taxes.incomeTax}
@@ -99,7 +145,7 @@ export function GRResultBreakdown({
         <>
           <Separator className="my-2" />
           <p className="text-xs text-zinc-500 pt-2 pb-1">
-            Voluntary Contributions
+            Occupational Pension Deduction
           </p>
           <DeductionRow
             label="Occupational Pension"
@@ -139,6 +185,18 @@ export function GRResultBreakdown({
           statutory salary payments.
         </p>
       </div>
+      <ResultNotes
+        countryName="Greece"
+        assumptions={[
+          "Dependent employment income is modeled with the 2026 employment/pension tax scale, child and youth rate adjustments, the employment tax reduction, and employee e-EFKA deductions.",
+          "Article 5C new-tax-resident relief is applied only when selected and exempts eligible employment income from income tax, while e-EFKA remains on full insured salary.",
+          "Taxable benefits in kind increase employment income and e-EFKA remuneration bases but do not increase cash salary.",
+        ]}
+        exclusions={[
+          "Heavy or unhealthy work regimes, professional-fund special cases, benefits-in-kind valuation worksheets, working-pensioner rules, Article 5A/5B regimes, and separate solidarity items require separate facts.",
+        ]}
+        sourceUrls={GREECE_SOURCE_URLS}
+      />
     </>
   );
 }

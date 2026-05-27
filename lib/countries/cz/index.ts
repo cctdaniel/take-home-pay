@@ -15,6 +15,7 @@ export type {
   CZBreakdown,
   CZCalculatorInputs,
   CZContributionInputs,
+  CZDisabilityCreditType,
   CZResidencyType,
   CZTaxBreakdown,
   CZTaxReliefInputs,

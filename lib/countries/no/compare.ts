@@ -22,10 +22,19 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
-    contributions: {
-      ipsContribution,
-    },
-  };
+	    taxScheme: "ordinary",
+	    payeNationalInsurance: "included",
+	    childcareDeductionMode: "ordinary",
+	    childcareChildren: 0,
+	    roundTripCommutingKm: 0,
+	    commutingWorkdays: 0,
+	    contributions: {
+	      ipsContribution,
+	      tradeUnionFees: 0,
+	      childcareExpenses: 0,
+	      debtInterestPaid: 0,
+	    },
+	  };
   const result = calculateNetSalary(calculatorInputs);
 
   return {
@@ -42,9 +51,11 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     deltaPercent: 0,
     assumptions: [
       ...buildAssumptionsSummary(country, inputs, ipsContribution > 0),
-      "Resident employee, standard salary assumptions",
-      ipsContribution > 0
-        ? "IPS: max modeled deduction"
+      "Resident employee, general taxation rules",
+	      "PAYE for eligible foreign workers is selectable on the Norway page but not assumed in compare",
+	      "Union dues, childcare, commuting, and debt-interest deductions are left at zero in compare because the questionnaire does not collect those Norway-specific amounts.",
+	      ipsContribution > 0
+	        ? "IPS: max modeled deduction"
         : "IPS not applied",
     ],
     calculation: result,

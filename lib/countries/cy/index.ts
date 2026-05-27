@@ -8,12 +8,14 @@ export type {
   CYBreakdown,
   CYCalculatorInputs,
   CYContributionInputs,
+  CYEmploymentExemption,
   CYFamilyStatus,
   CYResidencyType,
   CYTaxBreakdown,
   CYTaxReliefInputs,
 } from "./types";
 export {
+  CYPRUS_FIRST_EMPLOYMENT_EXEMPTIONS_2026,
   CYPRUS_GHS_2026,
   CYPRUS_SOCIAL_INSURANCE_2026,
   CYPRUS_TD59_DEDUCTIONS_2026,

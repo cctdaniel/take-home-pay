@@ -1,20 +1,24 @@
 "use client";
 
-import { CurrencyAmountField } from "@/components/calculator/calculator-fields";
 import { InfoPanel } from "@/components/calculator/info-panel";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
 
 interface IDContributionOptionsProps {
   dplkContribution: number;
   onDplkContributionChange: (value: number) => void;
+  dplkContributionLimit: number;
   zakatContribution: number;
   onZakatContributionChange: (value: number) => void;
+  zakatContributionLimit: number;
 }
 
 export function IDContributionOptions({
   dplkContribution,
   onDplkContributionChange,
+  dplkContributionLimit,
   zakatContribution,
   onZakatContributionChange,
+  zakatContributionLimit,
 }: IDContributionOptionsProps) {
   return (
     <div className="space-y-6">
@@ -23,30 +27,32 @@ export function IDContributionOptions({
       </h3>
 
       <div className="space-y-4">
-        <CurrencyAmountField
-          id="id-dplk"
-          label="DPLK Pension (Rp/year)"
-          value={dplkContribution}
+        <ContributionSlider
+          label="DPLK Pension Contribution"
+          value={Math.min(dplkContribution, dplkContributionLimit)}
           onChange={onDplkContributionChange}
+          max={dplkContributionLimit}
           currency="IDR"
           step={1000000}
-          description="Dana Pensiun Lembaga Keuangan contributions reduce taxable income."
+          description="Dana Pensiun Lembaga Keuangan contributions reduce taxable income and cash take-home when paid by the employee. No general annual statutory cap is modeled."
         />
 
-        <CurrencyAmountField
-          id="id-zakat"
-          label="Zakat (Rp/year)"
-          value={zakatContribution}
+        <ContributionSlider
+          label="Approved Zakat"
+          value={Math.min(zakatContribution, zakatContributionLimit)}
           onChange={onZakatContributionChange}
+          max={zakatContributionLimit}
           currency="IDR"
           step={1000000}
-          description="Zakat paid to BAZNAS or authorized institutions reduces taxable income."
+          description="Zakat or mandatory religious donations paid through the employer to approved institutions reduce taxable income. No general annual statutory cap is modeled."
         />
       </div>
 
       <InfoPanel title="Tip" tone="positive">
-        Both DPLK and Zakat contributions are fully tax-deductible, reducing
-        your taxable income and lowering your PPh 21 tax.
+        DPLK and approved zakat are modeled as employee cash outflows that also
+        reduce taxable income for the annual PPh 21 calculation. The entries
+        are limited to remaining modeled cash compensation so take-home cannot
+        go below zero.
       </InfoPanel>
     </div>
   );

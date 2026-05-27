@@ -21,6 +21,19 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
+    taxableFringeBenefits: 0,
+    dependentSpouse:
+      inputs.maritalStatus === "married" && inputs.assumptions.spouseHasNoIncome,
+    eligibleChildren:
+      inputs.numberOfChildren > 0 && !inputs.assumptions.hasYoungChildren
+        ? inputs.numberOfChildren
+        : 0,
+    childCreditShare:
+      inputs.maritalStatus === "married" && !inputs.assumptions.spouseHasNoIncome
+        ? "half"
+        : "full",
+    cohabitingAscendants: 0,
+    ascendantCreditSharePercent: 100,
   };
   const pensionLimit =
     getCountryCalculator(country).getContributionLimits(calculatorInputs)
@@ -49,6 +62,17 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
       retirementApplied
         ? "Max modeled supplementary pension contribution"
         : "No modeled supplementary pension contribution",
+      "No Italy impatriate-worker regime assumed in compare",
+      "No taxable fringe benefits entered in compare",
+      inputs.maritalStatus === "married" && inputs.assumptions.spouseHasNoIncome
+        ? "Dependent spouse Article 12 credit included"
+        : "No dependent spouse credit assumed",
+      inputs.numberOfChildren > 0 && inputs.assumptions.hasYoungChildren
+        ? "Italy child tax credit not applied for children under 21 in this salary model"
+        : inputs.numberOfChildren > 0
+          ? "Children treated as Article 12 eligible age 21-29 or disabled age 30+"
+          : "No eligible child credit assumed",
+      "No cohabiting ascendant credit assumed in compare",
     ],
     calculation: result,
   };

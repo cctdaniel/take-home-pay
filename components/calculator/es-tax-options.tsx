@@ -3,6 +3,7 @@
 import {
   CalculatorFieldGrid,
   NumberField,
+  NumberStepperField,
   PayFrequencyField,
   SelectField,
 } from "@/components/calculator/calculator-fields";
@@ -12,6 +13,7 @@ import type {
   ESEmploymentContractType,
   ESFilingStatus,
   ESResidencyType,
+  ESTaxRegime,
 } from "@/lib/countries/es/types";
 import type { PayFrequency } from "@/lib/countries/types";
 
@@ -20,6 +22,8 @@ interface ESTaxOptionsProps {
   onPayFrequencyChange: (value: PayFrequency) => void;
   residencyType: ESResidencyType;
   onResidencyTypeChange: (value: ESResidencyType) => void;
+  taxRegime: ESTaxRegime;
+  onTaxRegimeChange: (value: ESTaxRegime) => void;
   region: string;
   onRegionChange: (value: string) => void;
   filingStatus: ESFilingStatus;
@@ -39,6 +43,8 @@ export function ESTaxOptions({
   onPayFrequencyChange,
   residencyType,
   onResidencyTypeChange,
+  taxRegime,
+  onTaxRegimeChange,
   region,
   onRegionChange,
   filingStatus,
@@ -65,6 +71,25 @@ export function ESTaxOptions({
             { value: "non_resident_eu_eea", label: "Non-resident EU/EEA (19% IRNR)" },
             { value: "non_resident_other", label: "Non-resident other (24% IRNR)" },
           ]}
+        />
+        <SelectField
+          id="es-tax-regime"
+          label="Tax Regime"
+          value={taxRegime}
+          onChange={onTaxRegimeChange}
+          options={[
+            { value: "ordinary", label: "Ordinary IRPF / IRNR" },
+            {
+              value: "beckhamLaw",
+              label: "Article 93 / Beckham law",
+              disabled: residencyType !== "resident",
+            },
+          ]}
+          description={
+            residencyType === "resident"
+              ? "The special displaced-worker regime taxes salary at 24% up to EUR 600,000 and 47% above."
+              : "The special displaced-worker regime applies to qualifying new Spanish tax residents."
+          }
         />
         <SelectField
           id="es-region"
@@ -121,7 +146,7 @@ export function ESTaxOptions({
       </CalculatorFieldGrid>
 
       <CalculatorFieldGrid columns={2}>
-        <NumberField
+        <NumberStepperField
           id="es-children"
           label="Children / Descendants"
           value={numberOfChildren}
@@ -134,10 +159,9 @@ export function ESTaxOptions({
           }}
           min={0}
           max={8}
-          fallbackValue={0}
           description="Uses the national descendant minimums."
         />
-        <NumberField
+        <NumberStepperField
           id="es-children-under-three"
           label="Children Under 3"
           value={numberOfChildrenUnderThree}
@@ -148,7 +172,6 @@ export function ESTaxOptions({
           }
           min={0}
           max={numberOfChildren}
-          fallbackValue={0}
           description="Adds EUR 2,800 to the descendant minimum per child."
         />
       </CalculatorFieldGrid>

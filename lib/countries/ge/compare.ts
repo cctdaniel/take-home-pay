@@ -26,8 +26,10 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
+    incomeRegime: "employment",
     residencyType: isResident ? "resident" : "non_resident",
     pensionParticipation,
+    smallBusinessThresholdTreatment: "even_monthly",
     contributions: {},
   };
 
@@ -41,8 +43,14 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
   );
 
   if (isMaxRetirement) {
-    assumptions.push("Retirement: mandatory pension only");
+    assumptions.push(
+      "Max-retirement mode does not add a Georgia retirement amount because mandatory funded pension is the only modeled employment-salary pension item.",
+    );
   }
+
+  assumptions.push(
+    "Georgia compare keeps the ordinary employment salary model; use the Georgia page for individual-entrepreneur small business or micro business scenarios.",
+  );
 
   return {
     country,

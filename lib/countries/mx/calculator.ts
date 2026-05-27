@@ -8,14 +8,22 @@ import type {
 } from "../types";
 import { MX_CONFIG } from "./config";
 import {
+  MEXICO_EMPLOYMENT_SUBSIDY_2026,
   MEXICO_IMSS_2026,
   MEXICO_ISR_BRACKETS_2026,
   MEXICO_PERSONAL_DEDUCTIONS_2026,
+  MEXICO_SALARY_EXEMPTIONS_2026,
   MEXICO_SOURCE_URLS,
   MEXICO_STATES,
+  MEXICO_UMA_2026,
   MEXICO_VOLUNTARY_RETIREMENT_2026,
 } from "./constants/tax-year-2026";
-import type { MXBreakdown, MXCalculatorInputs, MXTaxBreakdown } from "./types";
+import type {
+  MXAguinaldoTreatment,
+  MXBreakdown,
+  MXCalculatorInputs,
+  MXTaxBreakdown,
+} from "./types";
 import type { MexicoStateCode } from "./constants/tax-year-2026";
 
 function getPeriodsPerYear(frequency: PayFrequency): number {
@@ -37,6 +45,14 @@ function clampContribution(value: number | undefined, limit: number): number {
 
 function getState(state: MexicoStateCode) {
   return MEXICO_STATES.find((candidate) => candidate.code === state) ?? MEXICO_STATES[6];
+}
+
+function normalizeAguinaldoTreatment(
+  value: unknown,
+): MXAguinaldoTreatment {
+  return value === "statutoryOnTop" || value === "includedInGross"
+    ? value
+    : "excluded";
 }
 
 function calculateImss(grossSalary: number) {
@@ -74,8 +90,113 @@ function calculateImss(grossSalary: number) {
   };
 }
 
+function calculateISR(taxableIncome: number) {
+  const bracket =
+    MEXICO_ISR_BRACKETS_2026.find(
+      (candidate) =>
+        taxableIncome > candidate.min && taxableIncome <= candidate.max,
+    ) ?? MEXICO_ISR_BRACKETS_2026[0];
+  const marginalTax = roundCurrency((taxableIncome - bracket.min) * bracket.rate);
+
+  return {
+    bracket,
+    marginalTax,
+    grossIncomeTax: roundCurrency(bracket.fixedFee + marginalTax),
+  };
+}
+
+function calculateEmploymentSubsidy(
+  ordinaryCashSalary: number,
+  incomeTaxBeforeSubsidy: number,
+): number {
+  const monthlyOrdinarySalary = ordinaryCashSalary / 12;
+
+  if (
+    monthlyOrdinarySalary <= 0 ||
+    monthlyOrdinarySalary > MEXICO_EMPLOYMENT_SUBSIDY_2026.monthlyIncomeThreshold
+  ) {
+    return 0;
+  }
+
+  const monthlySubsidy = roundCurrency(
+    MEXICO_UMA_2026.monthly *
+      MEXICO_EMPLOYMENT_SUBSIDY_2026.monthlyUmaRate,
+  );
+
+  return Math.min(roundCurrency(monthlySubsidy * 12), incomeTaxBeforeSubsidy);
+}
+
+function calculateSalaryPerceptions(inputs: MXCalculatorInputs) {
+  const ordinaryCashSalary = Math.max(0, inputs.grossSalary);
+  const aguinaldoTreatment = normalizeAguinaldoTreatment(
+    inputs.aguinaldoTreatment,
+  );
+  const aguinaldoAmount =
+    aguinaldoTreatment === "statutoryOnTop"
+      ? roundCurrency(
+          (ordinaryCashSalary / 365) *
+            MEXICO_SALARY_EXEMPTIONS_2026.statutoryAguinaldoDays,
+        )
+      : aguinaldoTreatment === "includedInGross"
+        ? Math.min(
+            Math.max(0, inputs.aguinaldoIncludedInGross ?? 0),
+            ordinaryCashSalary,
+          )
+        : 0;
+  const vacationPremium = Math.max(0, inputs.vacationPremium ?? 0);
+  const ptuProfitSharing = Math.max(0, inputs.ptuProfitSharing ?? 0);
+  const cashGrossIncome = roundCurrency(
+    ordinaryCashSalary +
+      (aguinaldoTreatment === "statutoryOnTop" ? aguinaldoAmount : 0) +
+      vacationPremium +
+      ptuProfitSharing,
+  );
+  const aguinaldoExempt = Math.min(
+    aguinaldoAmount,
+    MEXICO_UMA_2026.daily *
+      MEXICO_SALARY_EXEMPTIONS_2026.aguinaldoExemptUmaDays,
+  );
+  const vacationPremiumExempt = Math.min(
+    vacationPremium,
+    MEXICO_UMA_2026.daily *
+      MEXICO_SALARY_EXEMPTIONS_2026.vacationPremiumExemptUmaDays,
+  );
+  const ptuExempt = Math.min(
+    ptuProfitSharing,
+    MEXICO_UMA_2026.daily *
+      MEXICO_SALARY_EXEMPTIONS_2026.ptuExemptUmaDays,
+  );
+  const totalExempt = roundCurrency(
+    aguinaldoExempt + vacationPremiumExempt + ptuExempt,
+  );
+  const taxableAdditionalIncome = roundCurrency(
+    Math.max(
+      0,
+      aguinaldoAmount +
+        vacationPremium +
+        ptuProfitSharing -
+        totalExempt,
+    ),
+  );
+
+  return {
+    ordinaryCashSalary,
+    cashGrossIncome,
+    aguinaldoTreatment,
+    aguinaldoAmount: roundCurrency(aguinaldoAmount),
+    aguinaldoExempt: roundCurrency(aguinaldoExempt),
+    vacationPremium: roundCurrency(vacationPremium),
+    vacationPremiumExempt: roundCurrency(vacationPremiumExempt),
+    ptuProfitSharing: roundCurrency(ptuProfitSharing),
+    ptuExempt: roundCurrency(ptuExempt),
+    totalExempt,
+    taxableAdditionalIncome,
+  };
+}
+
 export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
-  const grossSalary = Math.max(0, inputs.grossSalary);
+  const salaryPerceptions = calculateSalaryPerceptions(inputs);
+  const grossSalary = salaryPerceptions.cashGrossIncome;
   const state = getState(inputs.state ?? "CMX");
   const voluntaryRetirementContributionLimit = Math.min(
     grossSalary * MEXICO_VOLUNTARY_RETIREMENT_2026.deductionRateLimit,
@@ -102,13 +223,16 @@ export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
   );
   const totalPersonalDeductions =
     voluntaryRetirementContribution + generalPersonalDeductions + educationExpenses;
-  const taxableIncome = Math.max(0, grossSalary - totalPersonalDeductions);
-  const bracket =
-    MEXICO_ISR_BRACKETS_2026.find(
-      (candidate) => taxableIncome > candidate.min && taxableIncome <= candidate.max,
-    ) ?? MEXICO_ISR_BRACKETS_2026[0];
-  const marginalTax = roundCurrency((taxableIncome - bracket.min) * bracket.rate);
-  const incomeTax = roundCurrency(bracket.fixedFee + marginalTax);
+  const taxableIncome = Math.max(
+    0,
+    grossSalary - salaryPerceptions.totalExempt - totalPersonalDeductions,
+  );
+  const { bracket, marginalTax, grossIncomeTax } = calculateISR(taxableIncome);
+  const employmentSubsidy = calculateEmploymentSubsidy(
+    salaryPerceptions.ordinaryCashSalary,
+    grossIncomeTax,
+  );
+  const incomeTax = roundCurrency(Math.max(0, grossIncomeTax - employmentSubsidy));
   const imss = calculateImss(grossSalary);
   const socialSecurity = imss.total;
 
@@ -117,6 +241,7 @@ export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
     totalIncomeTax: incomeTax,
     incomeTax,
     socialSecurity,
+    employmentSubsidy,
   };
   const totalTax = incomeTax + socialSecurity;
   const voluntaryContributions = totalPersonalDeductions;
@@ -129,11 +254,15 @@ export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
     type: "MX",
     grossIncome: grossSalary,
     taxableIncome,
+    ordinaryCashSalary: salaryPerceptions.ordinaryCashSalary,
+    cashGrossIncome: grossSalary,
     state: state.code,
     stateName: state.name,
     isrBracket: bracket,
     fixedFee: bracket.fixedFee,
     marginalTax,
+    salaryPerceptions,
+    employmentSubsidy,
     imss,
     voluntaryContributions: {
       voluntaryRetirementContribution,
@@ -147,11 +276,13 @@ export function calculateMX(inputs: MXCalculatorInputs): CalculationResult {
       total: voluntaryContributions,
     },
     assumptions: [
-      "Uses the 2026 annual ISR tariff for resident salary income.",
+      "Uses the 2026 SAT/DOF ISR payroll tariff annualized from the monthly table for resident salary income.",
       "Employee IMSS is modeled with national employee-side branches and a daily SBC capped at 25x UMA; gross pay is used as the SBC proxy.",
+      "Models common salary exempt-income treatment for aguinaldo, vacation premium, and PTU using 2026 UMA-based limits.",
+      "Employment subsidy is modeled as an annualized single-employer estimate for ordinary monthly salary up to the 2026 threshold, capped at income tax due.",
       "Models AFORE/voluntary retirement, medical/dental, funeral, mortgage-interest, and education deductions within simplified annual caps.",
       "Mexican state payroll taxes (ISN) are generally employer-side taxes, so state selection is informational and does not reduce employee take-home pay.",
-      "Does not yet model employment subsidy, exempt income, aguinaldo treatment, INFONAVIT loan repayments, or employer-only payroll costs.",
+      "Does not yet model INFONAVIT loan repayments, employer-only payroll costs, exact payslip-period withholding, or employer-specific SBC integration factors.",
     ],
     sourceUrls: MEXICO_SOURCE_URLS,
   };
@@ -236,6 +367,10 @@ export const MXCalculator: CountryCalculator = {
       grossSalary: 600_000,
       payFrequency: "monthly",
       state: "CMX",
+      aguinaldoTreatment: "statutoryOnTop",
+      aguinaldoIncludedInGross: 0,
+      vacationPremium: 0,
+      ptuProfitSharing: 0,
       contributions: {
         voluntaryRetirementContribution: 0,
         medicalDentalExpenses: 0,

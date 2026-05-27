@@ -2,57 +2,187 @@
 // Do not edit by hand.
 
 import type { CountryCode } from "@/lib/countries/types";
+import ADCountryExtension from "./country-extensions/ad";
 import AECountryExtension from "./country-extensions/ae";
+import ALCountryExtension from "./country-extensions/al";
+import AMCountryExtension from "./country-extensions/am";
 import ATCountryExtension from "./country-extensions/at";
+import AUCountryExtension from "./country-extensions/au";
+import BACountryExtension from "./country-extensions/ba";
+import BBCountryExtension from "./country-extensions/bb";
 import BECountryExtension from "./country-extensions/be";
+import BGCountryExtension from "./country-extensions/bg";
+import BHCountryExtension from "./country-extensions/bh";
+import BMCountryExtension from "./country-extensions/bm";
+import BRCountryExtension from "./country-extensions/br";
+import BSCountryExtension from "./country-extensions/bs";
+import BZCountryExtension from "./country-extensions/bz";
 import CACountryExtension from "./country-extensions/ca";
+import CHCountryExtension from "./country-extensions/ch";
+import CLCountryExtension from "./country-extensions/cl";
 import CNCountryExtension from "./country-extensions/cn";
+import COCountryExtension from "./country-extensions/co";
+import CRCountryExtension from "./country-extensions/cr";
+import CWCountryExtension from "./country-extensions/cw";
 import CYCountryExtension from "./country-extensions/cy";
 import CZCountryExtension from "./country-extensions/cz";
+import DECountryExtension from "./country-extensions/de";
 import DKCountryExtension from "./country-extensions/dk";
+import DOCountryExtension from "./country-extensions/do";
+import ECCountryExtension from "./country-extensions/ec";
+import EECountryExtension from "./country-extensions/ee";
+import EGCountryExtension from "./country-extensions/eg";
+import ESCountryExtension from "./country-extensions/es";
 import FICountryExtension from "./country-extensions/fi";
 import FRCountryExtension from "./country-extensions/fr";
 import GECountryExtension from "./country-extensions/ge";
+import GRCountryExtension from "./country-extensions/gr";
+import GTCountryExtension from "./country-extensions/gt";
+import HKCountryExtension from "./country-extensions/hk";
 import HRCountryExtension from "./country-extensions/hr";
+import HUCountryExtension from "./country-extensions/hu";
+import IDCountryExtension from "./country-extensions/id";
 import IECountryExtension from "./country-extensions/ie";
+import ILCountryExtension from "./country-extensions/il";
 import INCountryExtension from "./country-extensions/in";
 import ISCountryExtension from "./country-extensions/is";
 import ITCountryExtension from "./country-extensions/it";
+import JOCountryExtension from "./country-extensions/jo";
 import JPCountryExtension from "./country-extensions/jp";
+import KECountryExtension from "./country-extensions/ke";
+import KHCountryExtension from "./country-extensions/kh";
+import KRCountryExtension from "./country-extensions/kr";
+import KWCountryExtension from "./country-extensions/kw";
+import LKCountryExtension from "./country-extensions/lk";
+import LTCountryExtension from "./country-extensions/lt";
+import LUCountryExtension from "./country-extensions/lu";
+import LVCountryExtension from "./country-extensions/lv";
+import MACountryExtension from "./country-extensions/ma";
+import MECountryExtension from "./country-extensions/me";
 import MTCountryExtension from "./country-extensions/mt";
+import MUCountryExtension from "./country-extensions/mu";
 import MXCountryExtension from "./country-extensions/mx";
+import MYCountryExtension from "./country-extensions/my";
+import NLCountryExtension from "./country-extensions/nl";
 import NOCountryExtension from "./country-extensions/no";
 import NZCountryExtension from "./country-extensions/nz";
+import OMCountryExtension from "./country-extensions/om";
+import PACountryExtension from "./country-extensions/pa";
+import PECountryExtension from "./country-extensions/pe";
 import PHCountryExtension from "./country-extensions/ph";
+import PLCountryExtension from "./country-extensions/pl";
+import PTCountryExtension from "./country-extensions/pt";
+import PYCountryExtension from "./country-extensions/py";
+import QACountryExtension from "./country-extensions/qa";
+import ROCountryExtension from "./country-extensions/ro";
+import RSCountryExtension from "./country-extensions/rs";
+import RWCountryExtension from "./country-extensions/rw";
+import SACountryExtension from "./country-extensions/sa";
+import SCCountryExtension from "./country-extensions/sc";
 import SECountryExtension from "./country-extensions/se";
+import SGCountryExtension from "./country-extensions/sg";
+import SICountryExtension from "./country-extensions/si";
+import SVCountryExtension from "./country-extensions/sv";
+import THCountryExtension from "./country-extensions/th";
+import TRCountryExtension from "./country-extensions/tr";
+import TWCountryExtension from "./country-extensions/tw";
+import UKCountryExtension from "./country-extensions/uk";
+import USCountryExtension from "./country-extensions/us";
+import UYCountryExtension from "./country-extensions/uy";
 import VNCountryExtension from "./country-extensions/vn";
+import ZACountryExtension from "./country-extensions/za";
 import type { CountryCalculatorExtensionComponent } from "./country-extension";
 
 export const COUNTRY_CALCULATOR_EXTENSIONS: Partial<
   Record<CountryCode, CountryCalculatorExtensionComponent>
 > = {
+  AD: ADCountryExtension,
   AE: AECountryExtension,
+  AL: ALCountryExtension,
+  AM: AMCountryExtension,
   AT: ATCountryExtension,
+  AU: AUCountryExtension,
+  BA: BACountryExtension,
+  BB: BBCountryExtension,
   BE: BECountryExtension,
+  BG: BGCountryExtension,
+  BH: BHCountryExtension,
+  BM: BMCountryExtension,
+  BR: BRCountryExtension,
+  BS: BSCountryExtension,
+  BZ: BZCountryExtension,
   CA: CACountryExtension,
+  CH: CHCountryExtension,
+  CL: CLCountryExtension,
   CN: CNCountryExtension,
+  CO: COCountryExtension,
+  CR: CRCountryExtension,
+  CW: CWCountryExtension,
   CY: CYCountryExtension,
   CZ: CZCountryExtension,
+  DE: DECountryExtension,
   DK: DKCountryExtension,
+  DO: DOCountryExtension,
+  EC: ECCountryExtension,
+  EE: EECountryExtension,
+  EG: EGCountryExtension,
+  ES: ESCountryExtension,
   FI: FICountryExtension,
   FR: FRCountryExtension,
   GE: GECountryExtension,
+  GR: GRCountryExtension,
+  GT: GTCountryExtension,
+  HK: HKCountryExtension,
   HR: HRCountryExtension,
+  HU: HUCountryExtension,
+  ID: IDCountryExtension,
   IE: IECountryExtension,
+  IL: ILCountryExtension,
   IN: INCountryExtension,
   IS: ISCountryExtension,
   IT: ITCountryExtension,
+  JO: JOCountryExtension,
   JP: JPCountryExtension,
+  KE: KECountryExtension,
+  KH: KHCountryExtension,
+  KR: KRCountryExtension,
+  KW: KWCountryExtension,
+  LK: LKCountryExtension,
+  LT: LTCountryExtension,
+  LU: LUCountryExtension,
+  LV: LVCountryExtension,
+  MA: MACountryExtension,
+  ME: MECountryExtension,
   MT: MTCountryExtension,
+  MU: MUCountryExtension,
   MX: MXCountryExtension,
+  MY: MYCountryExtension,
+  NL: NLCountryExtension,
   NO: NOCountryExtension,
   NZ: NZCountryExtension,
+  OM: OMCountryExtension,
+  PA: PACountryExtension,
+  PE: PECountryExtension,
   PH: PHCountryExtension,
+  PL: PLCountryExtension,
+  PT: PTCountryExtension,
+  PY: PYCountryExtension,
+  QA: QACountryExtension,
+  RO: ROCountryExtension,
+  RS: RSCountryExtension,
+  RW: RWCountryExtension,
+  SA: SACountryExtension,
+  SC: SCCountryExtension,
   SE: SECountryExtension,
+  SG: SGCountryExtension,
+  SI: SICountryExtension,
+  SV: SVCountryExtension,
+  TH: THCountryExtension,
+  TR: TRCountryExtension,
+  TW: TWCountryExtension,
+  UK: UKCountryExtension,
+  US: USCountryExtension,
+  UY: UYCountryExtension,
   VN: VNCountryExtension,
+  ZA: ZACountryExtension,
 };

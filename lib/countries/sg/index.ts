@@ -24,7 +24,7 @@ export {
 // Tax exports
 export {
   SG_TAX_BRACKETS,
-  SG_NON_RESIDENT_FLAT_RATE,
+  SG_NON_RESIDENT_EMPLOYMENT_RATE,
   SG_TAX_RELIEFS,
   calculateProgressiveTax,
   calculateSGIncomeTax,

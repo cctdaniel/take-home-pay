@@ -5,6 +5,7 @@ import type {
   CountrySpecificBreakdown,
   TaxBreakdown,
 } from "../types";
+import type { UAEUnemploymentInsuranceCategory } from "./constants/tax-year-2026";
 
 export type AEEmployeeCategory =
   | "foreign_expat"
@@ -21,6 +22,9 @@ export type AEContributionInputs = Record<never, never>;
 export interface AECalculatorInputs extends BaseCalculatorInputs {
   country: "AE";
   employeeCategory: AEEmployeeCategory;
+  unemploymentInsuranceCategory: UAEUnemploymentInsuranceCategory;
+  iloeBasicSalaryMonthly: number;
+  pensionContributionSalaryMonthly: number;
   contributions: AEContributionInputs;
 }
 
@@ -28,6 +32,7 @@ export interface AETaxBreakdown extends BaseTaxBreakdown {
   type: "AE";
   incomeTax: number;
   pensionEmployee: number;
+  unemploymentInsurance: number;
 }
 
 export interface AEBreakdown {
@@ -37,6 +42,14 @@ export interface AEBreakdown {
   employeeCategoryLabel: string;
   taxableIncome: number;
   incomeTaxRate: number;
+  unemploymentInsurance: {
+    category: UAEUnemploymentInsuranceCategory;
+    label: string;
+    basicSalaryMonthly: number;
+    annualPremium: number;
+    monthlyPremium: number;
+    description: string;
+  };
   pension: {
     employee: number;
     employer: number;

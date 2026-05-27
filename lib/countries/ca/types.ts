@@ -14,11 +14,23 @@ export interface CAContributionInputs {
   registeredPensionContribution: number;
   unionDues: number;
   childcareExpenses: number;
+  charitableDonations: number;
 }
+
+export type CAFederalFamilyCreditType =
+  | "none"
+  | "spouse_or_common_law"
+  | "eligible_dependant";
 
 export interface CACalculatorInputs extends BaseCalculatorInputs {
   country: "CA";
   province: CanadaProvinceCode;
+  taxableNonCashBenefits: number;
+  federalFamilyCreditType: CAFederalFamilyCreditType;
+  federalFamilyCreditDependentNetIncome: number;
+  numberOfChildrenUnder7: number;
+  numberOfChildrenAge7To16: number;
+  numberOfDisabledChildren: number;
   contributions: CAContributionInputs;
 }
 
@@ -32,12 +44,22 @@ export interface CATaxBreakdown extends BaseTaxBreakdown {
   qpp2: number;
   qpip: number;
   ei: number;
+  federalIncomeTaxBeforeCredits: number;
+  federalTaxCredits: number;
+  quebecAbatement: number;
+  provincialIncomeTaxBeforeCredits: number;
+  provincialTaxCredits: number;
+  ontarioSurtax: number;
+  ontarioHealthPremium: number;
 }
 
 export interface CABreakdown {
   type: "CA";
   grossIncome: number;
+  taxableNonCashBenefits: number;
+  taxableGrossIncome: number;
   taxableIncome: number;
+  provincialTaxableIncome: number;
   province: CanadaProvinceCode;
   provinceName: string;
   federalBracketTaxes: Array<TaxBracket & { tax: number }>;
@@ -61,6 +83,34 @@ export interface CABreakdown {
     employeeRate: number;
     maximumEmployeePremium: number;
   };
+  taxCredits: {
+    federalBasicPersonalAmount: number;
+    federalFamilyAmount: number;
+    canadaEmploymentAmount: number;
+    basePensionCreditAmount: number;
+    eiPremiumCreditAmount: number;
+    qpipPremiumCreditAmount: number;
+    federalCredit: number;
+    federalDonationCredit: number;
+    provincialBasicPersonalAmount: number;
+    provincialCredit: number;
+    provincialDonationCredit: number;
+    quebecAbatement: number;
+    ontarioSurtax: number;
+    ontarioHealthPremium: number;
+  };
+  childcare: {
+    requestedExpenses: number;
+    allowedExpenses: number;
+    limit: number;
+    numberOfChildrenUnder7: number;
+    numberOfChildrenAge7To16: number;
+    numberOfDisabledChildren: number;
+  };
+  taxableIncomeDeductions: {
+    enhancedPensionDeduction: number;
+    quebecWorkersDeduction: number;
+  };
   voluntaryContributions: {
     rrspContribution: number;
     rrspContributionLimit: number;
@@ -70,6 +120,9 @@ export interface CABreakdown {
     registeredPensionContributionLimit: number;
     unionDues: number;
     childcareExpenses: number;
+    charitableDonations: number;
+    charitableDonationLimit: number;
+    charitableDonationCredit: number;
     total: number;
   };
   assumptions: string[];

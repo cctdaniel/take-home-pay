@@ -1,7 +1,32 @@
-import { calculateNetSalary, getDefaultInputs } from "@/lib/countries/registry";
+import {
+  calculateNetSalary,
+  getCountryCalculator,
+  getDefaultInputs,
+} from "@/lib/countries/registry";
 import type { CountryComparisonAdapter } from "@/hooks/use-country-comparison";
-import { FR_TAX_CONFIG } from "./constants/tax-year-2026";
-import type { FRCalculatorInputs } from "./types";
+import type { FRCalculatorInputs, FRHouseholdStatus } from "./types";
+
+function getHouseholdStatus(
+  maritalStatus: "single" | "married",
+  children: number,
+): FRHouseholdStatus {
+  if (maritalStatus === "married") {
+    return "married_pacs";
+  }
+
+  return children > 0 ? "single_parent" : "single";
+}
+
+function calculateHouseholdParts(
+  householdStatus: FRHouseholdStatus,
+  children: number,
+) {
+  const base = householdStatus === "married_pacs" ? 2 : 1;
+  const childParts = Math.min(children, 2) * 0.5 + Math.max(0, children - 2);
+  const singleParentExtra =
+    householdStatus === "single_parent" && children > 0 ? 0.5 : 0;
+  return base + childParts + singleParentExtra;
+}
 
 export const buildCountryComparison: CountryComparisonAdapter = ({
   country,
@@ -14,21 +39,39 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
   buildAssumptionsSummary,
 }) => {
   const defaultInputs = getDefaultInputs(country) as FRCalculatorInputs;
-  const retirementSavingsLimit = FR_TAX_CONFIG.retirementSavingsLimit;
-  const retirementSavings = inputs.assumptions.retirementContributions === "max"
-    ? Math.min(retirementSavingsLimit, grossLocal)
-    : 0;
-  const taxHouseholdParts = inputs.maritalStatus === "married"
-    ? 2 + Math.min(inputs.numberOfChildren, 2) * 0.5 + Math.max(0, inputs.numberOfChildren - 2)
-    : 1 + Math.min(inputs.numberOfChildren, 2) * 0.5 + Math.max(0, inputs.numberOfChildren - 2);
+  const householdStatus = getHouseholdStatus(
+    inputs.maritalStatus,
+    inputs.numberOfChildren,
+  );
+  const taxHouseholdParts = calculateHouseholdParts(
+    householdStatus,
+    inputs.numberOfChildren,
+  );
+  const calculatorLimits = getCountryCalculator(country).getContributionLimits({
+    ...defaultInputs,
+    grossSalary: grossLocal,
+  });
+  const retirementSavings =
+    inputs.assumptions.retirementContributions === "max"
+      ? Math.min(calculatorLimits.retirementSavings.limit, grossLocal)
+      : 0;
   const calculatorInputs: FRCalculatorInputs = {
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
+    taxableBenefitsInKind: 0,
+    householdStatus,
+    numberOfChildren: inputs.numberOfChildren,
     taxHouseholdParts,
+    professionalExpenseMethod: "standard_10_percent",
+    impatriateRegime: "none",
+    impatriatePremiumAmount: 0,
+    frenchReferenceSalary: 0,
     contributions: {
       ...defaultInputs.contributions,
       retirementSavings,
+      actualProfessionalExpenses: 0,
+      charitableDonations: 0,
     },
   };
   const result = calculateNetSalary(calculatorInputs);
@@ -49,6 +92,10 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
       ...buildAssumptionsSummary(country, inputs, retirementSavings > 0),
       "Ordinary resident employee model for France",
       `Family quotient parts: ${taxHouseholdParts}`,
+      "Automatic 10% professional expense deduction",
+      "No taxable avantages en nature entered in compare",
+      "No charitable donations or actual professional expenses in compare",
+      "French impatriate salary-premium regime left off in compare because it depends on eligibility, contract wording, and a French reference-salary floor",
     ],
     calculation: result,
   };

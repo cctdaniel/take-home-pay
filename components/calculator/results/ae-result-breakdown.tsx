@@ -3,6 +3,46 @@ import { formatCurrency, formatPercentage } from "@/lib/format";
 import { DeductionRow } from "../deduction-row";
 import type { CountryResultBreakdownProps } from "./types";
 
+function getUaeSourceLabel(url: string) {
+  if (url.includes("taxation")) {
+    return "UAE Government taxation overview";
+  }
+
+  if (url.includes("natural.person")) {
+    return "Federal Tax Authority natural-person wage guidance";
+  }
+
+  if (url.includes("unemployment-insurance-scheme")) {
+    return "UAE Government unemployment insurance scheme";
+  }
+
+  if (url.includes("mohre.gov.ae")) {
+    return "MoHRE unemployment insurance premium notice";
+  }
+
+  if (url.includes("contribution-payment")) {
+    return "GPSSA contribution-account salary and rates";
+  }
+
+  if (url.includes("which-salary-upon-which-contributions")) {
+    return "GPSSA contribution salary timing FAQ";
+  }
+
+  if (url.includes("registration-gpssa-mandatory")) {
+    return "GPSSA Emirati registration guidance";
+  }
+
+  if (url.includes("gcc-overview")) {
+    return "GPSSA GCC insurance extension program";
+  }
+
+  if (url.includes("registration-gcc-nationals")) {
+    return "GPSSA GCC national registration";
+  }
+
+  return "UAE payroll source";
+}
+
 export function AEResultBreakdown({
   result,
   grossSalary,
@@ -37,6 +77,45 @@ export function AEResultBreakdown({
       <p className="mt-1 text-xs italic text-zinc-500">
         Salary and wage income is modeled with no UAE personal income tax.
       </p>
+
+      <Separator className="my-2" />
+      <p className="pb-1 pt-2 text-xs text-zinc-500">
+        Employee Insurance
+      </p>
+      {breakdown.unemploymentInsurance.basicSalaryMonthly > 0 ? (
+        <div className="flex items-center justify-between py-1">
+          <span className="text-sm text-zinc-400">
+            Basic salary for ILOE
+          </span>
+          <span className="text-sm tabular-nums text-zinc-300">
+            {formatCurrency(
+              breakdown.unemploymentInsurance.basicSalaryMonthly,
+              currency,
+            )}
+          </span>
+        </div>
+      ) : null}
+      <DeductionRow
+        label={`ILOE unemployment insurance - ${breakdown.unemploymentInsurance.label}`}
+        amount={taxes.unemploymentInsurance}
+        grossSalary={grossSalary}
+        currency={currency}
+      />
+      {taxes.unemploymentInsurance > 0 ? (
+        <p className="mt-1 text-xs italic text-zinc-500">
+          Premium modeled at{" "}
+          {formatCurrency(
+            breakdown.unemploymentInsurance.monthlyPremium,
+            currency,
+          )}
+          /month for covered employees.
+        </p>
+      ) : (
+        <p className="mt-1 text-xs italic text-zinc-500">
+          No ILOE premium is deducted for the selected uncovered/excluded
+          status.
+        </p>
+      )}
 
       {hasPension ? (
         <>
@@ -112,15 +191,55 @@ export function AEResultBreakdown({
       <Separator className="my-2" />
       <div className="rounded-lg bg-zinc-800/50 p-3">
         <p className="mb-1 text-xs font-medium text-zinc-400">
-          Exclusions
+          UAE Salary Assumptions
         </p>
-        <p className="text-xs text-zinc-500">
-          Visa/free-zone costs, corporate or self-employment tax positions,
-          end-of-service gratuity, unemployment insurance, medical insurance,
-          employer benefits, and detailed GCC salary-component caps are not
-          modeled.
-        </p>
+        <ul className="list-disc space-y-1 pl-4 text-xs text-zinc-500">
+          {breakdown.assumptions.map((assumption) => (
+            <li key={assumption}>{assumption}</li>
+          ))}
+        </ul>
       </div>
+
+      {breakdown.exclusions.length > 0 ? (
+        <>
+          <Separator className="my-2" />
+          <div className="rounded-lg bg-zinc-800/50 p-3">
+            <p className="mb-1 text-xs font-medium text-zinc-400">
+              UAE Items Requiring Separate Facts
+            </p>
+            <ul className="list-disc space-y-1 pl-4 text-xs text-zinc-500">
+              {breakdown.exclusions.map((exclusion) => (
+                <li key={exclusion}>{exclusion}</li>
+              ))}
+            </ul>
+          </div>
+        </>
+      ) : null}
+
+      {breakdown.sourceUrls.length > 0 ? (
+        <>
+          <Separator className="my-2" />
+          <div className="rounded-lg bg-zinc-800/50 p-3">
+            <p className="mb-1 text-xs font-medium text-zinc-400">
+              UAE Sources
+            </p>
+            <ul className="list-disc space-y-1 pl-4 text-xs text-zinc-500">
+              {breakdown.sourceUrls.map((url) => (
+                <li key={url}>
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-emerald-300 hover:text-emerald-200"
+                  >
+                    {getUaeSourceLabel(url)}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </>
+      ) : null}
     </>
   );
 }

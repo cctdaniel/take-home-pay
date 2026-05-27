@@ -16,11 +16,17 @@ import {
   calculateGreekEmploymentTaxReduction,
   calculateGreekProgressiveIncomeTax,
   calculateGreekSocialInsurance,
+  GREECE_ARTICLE_5C_NEW_RESIDENT_REGIME_2026,
   getGreekEmploymentTaxBrackets2026,
   GREECE_OCCUPATIONAL_PENSION_CONTRIBUTION_LIMIT_RATE,
   GREECE_SOCIAL_INSURANCE_2026,
 } from "./constants/tax-brackets-2026";
-import type { GRBreakdown, GRCalculatorInputs, GRTaxBreakdown } from "./types";
+import type {
+  GRBreakdown,
+  GRCalculatorInputs,
+  GRTaxBreakdown,
+  GRTaxRegime,
+} from "./types";
 
 function getPeriodsPerYear(frequency: PayFrequency): number {
   switch (frequency) {
@@ -35,10 +41,18 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
   }
 }
 
+function normalizeTaxRegime(taxRegime: GRTaxRegime | undefined): GRTaxRegime {
+  return taxRegime === "article_5c_new_resident"
+    ? taxRegime
+    : "ordinary";
+}
+
 export function calculateGR(inputs: GRCalculatorInputs): CalculationResult {
   const {
     grossSalary,
     payFrequency,
+    taxableBenefitsInKind,
+    taxRegime,
     residencyType,
     age,
     numberOfDependents,
@@ -46,24 +60,37 @@ export function calculateGR(inputs: GRCalculatorInputs): CalculationResult {
   } = inputs;
 
   const isResident = residencyType === "resident";
+  const taxableBenefitValue = Math.max(0, taxableBenefitsInKind ?? 0);
+  const taxableGrossIncome = grossSalary + taxableBenefitValue;
+  const normalizedTaxRegime = normalizeTaxRegime(taxRegime);
+  const appliesArticle5C =
+    isResident && normalizedTaxRegime === "article_5c_new_resident";
   const normalizedAge = Math.max(16, Math.floor(age));
   const normalizedDependents = Math.max(0, Math.floor(numberOfDependents));
 
   // e-EFKA employee contributions are deductible for income tax purposes.
-  const socialInsurance = calculateGreekSocialInsurance(grossSalary);
+  const socialInsurance = calculateGreekSocialInsurance(taxableGrossIncome);
   const pensionContributionLimit =
-    grossSalary * GREECE_OCCUPATIONAL_PENSION_CONTRIBUTION_LIMIT_RATE;
+    taxableGrossIncome * GREECE_OCCUPATIONAL_PENSION_CONTRIBUTION_LIMIT_RATE;
   const occupationalPensionContribution = isResident
     ? Math.min(
         Math.max(0, contributions.occupationalPensionContribution || 0),
         pensionContributionLimit,
       )
     : 0;
-  const taxableIncome = Math.max(
+  const eligibleEmploymentIncome = Math.max(
     0,
-    grossSalary -
+    taxableGrossIncome -
       socialInsurance.employeeTotal -
       occupationalPensionContribution,
+  );
+  const article5CExemptIncome = appliesArticle5C
+    ? eligibleEmploymentIncome *
+      GREECE_ARTICLE_5C_NEW_RESIDENT_REGIME_2026.exemptionRate
+    : 0;
+  const taxableIncome = Math.max(
+    0,
+    eligibleEmploymentIncome - article5CExemptIncome,
   );
 
   // Conservative non-resident treatment: use the standard no-child adult scale
@@ -110,8 +137,11 @@ export function calculateGR(inputs: GRCalculatorInputs): CalculationResult {
   const breakdown: GRBreakdown = {
     type: "GR",
     grossIncome: grossSalary,
+    taxableBenefitsInKind: taxableBenefitValue,
+    taxableGrossIncome,
     taxableIncome,
     isResident,
+    taxRegime: normalizedTaxRegime,
     age: normalizedAge,
     numberOfDependents: normalizedDependents,
     effectiveDependentsForScale,
@@ -124,6 +154,14 @@ export function calculateGR(inputs: GRCalculatorInputs): CalculationResult {
       availableTaxReduction: taxReduction.availableReduction,
       appliedTaxReduction: taxReduction.appliedReduction,
       finalIncomeTax: incomeTax,
+    },
+    article5CRelief: {
+      applies: appliesArticle5C,
+      exemptionRate:
+        GREECE_ARTICLE_5C_NEW_RESIDENT_REGIME_2026.exemptionRate,
+      exemptIncome: article5CExemptIncome,
+      eligibleIncome: eligibleEmploymentIncome,
+      maxYears: GREECE_ARTICLE_5C_NEW_RESIDENT_REGIME_2026.maxYears,
     },
     socialInsurance: {
       employee: socialInsurance.employeeTotal,
@@ -204,6 +242,8 @@ export const GRCalculator: CountryCalculator = {
       country: "GR",
       grossSalary: 24_000,
       payFrequency: "monthly",
+      taxableBenefitsInKind: 0,
+      taxRegime: "ordinary",
       residencyType: "resident",
       age: 31,
       numberOfDependents: 0,

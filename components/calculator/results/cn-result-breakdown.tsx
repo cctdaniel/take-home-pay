@@ -1,6 +1,8 @@
 import { Separator } from "@/components/ui/separator";
+import { CN_SOURCE_URLS } from "@/lib/countries/cn/constants/tax-parameters-2026";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { DeductionRow } from "../deduction-row";
+import { ResultNotes } from "./result-notes";
 import type { CountryResultBreakdownProps } from "./types";
 
 export function CNResultBreakdown({
@@ -17,9 +19,66 @@ export function CNResultBreakdown({
   const hasSocialInsurance = taxes.pensionInsurance > 0 || taxes.medicalInsurance > 0;
   const hasHousingFund = taxes.housingFund > 0;
   const hasSpecialDeductions = breakdown.specialDeductions.total > 0;
+  const hasVoluntaryDeductions = breakdown.voluntaryDeductions.total > 0;
+  const hasYearEndBonus = breakdown.yearEndBonus > 0;
+  const hasTaxableInKindBenefits = breakdown.taxableInKindBenefits > 0;
+  const hasForeignAllowanceExemptions =
+    breakdown.foreignAllowanceExemptions.total > 0;
+  const hasSalaryStructure = hasYearEndBonus || hasTaxableInKindBenefits;
 
   return (
     <>
+      {hasSalaryStructure && (
+        <>
+          <Separator className="my-2" />
+          <p className="pb-1 pt-2 text-xs text-zinc-500">
+            China Salary Structure
+          </p>
+          <div className="flex items-center justify-between py-1">
+            <span className="text-sm text-zinc-400">Ordinary salary</span>
+            <span className="text-sm tabular-nums text-zinc-200">
+              {formatCurrency(breakdown.ordinarySalary, currency)}
+            </span>
+          </div>
+          {hasTaxableInKindBenefits && (
+            <div className="flex items-center justify-between py-1">
+              <span className="text-sm text-zinc-400">
+                Taxable in-kind / economic benefits
+              </span>
+              <span className="text-sm tabular-nums text-zinc-200">
+                {formatCurrency(breakdown.taxableInKindBenefits, currency)}
+              </span>
+            </div>
+          )}
+          {hasYearEndBonus && (
+            <>
+              <div className="flex items-center justify-between py-1">
+                <span className="text-sm text-zinc-400">
+                  Annual one-time bonus
+                </span>
+                <span className="text-sm tabular-nums text-zinc-200">
+                  {formatCurrency(breakdown.yearEndBonus, currency)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-1">
+                <span className="text-sm text-zinc-400">Bonus tax treatment</span>
+                <span className="text-sm tabular-nums text-zinc-200">
+                  {breakdown.yearEndBonusTaxTreatment === "separate"
+                    ? "Separate preferential"
+                    : "Combined with salary"}
+                </span>
+              </div>
+            </>
+          )}
+          {hasTaxableInKindBenefits && (
+            <p className="mt-1 text-xs italic text-zinc-500">
+              Taxable gross for IIT includes non-cash benefits:{" "}
+              {formatCurrency(breakdown.taxableGrossIncome, currency)}.
+            </p>
+          )}
+        </>
+      )}
+
       <Separator className="my-2" />
       <p className="pb-1 pt-2 text-xs text-zinc-500">Income Tax</p>
       <DeductionRow
@@ -31,6 +90,82 @@ export function CNResultBreakdown({
       <p className="mt-1 text-xs italic text-zinc-500">
         Standard deduction: {formatCurrency(60000, currency)}/year.
       </p>
+      {breakdown.deductionMode === "foreignAllowanceExemption" && (
+        <p className="mt-1 text-xs italic text-zinc-500">
+          Foreign allowance exemptions are modeled instead of special additional
+          deductions for this tax year.
+        </p>
+      )}
+      {hasYearEndBonus && breakdown.yearEndBonusTaxTreatment === "separate" && (
+        <>
+          <div className="flex items-center justify-between py-1">
+            <span className="text-sm text-zinc-400">
+              Separate bonus IIT included
+            </span>
+            <span className="text-sm tabular-nums text-zinc-200">
+              {formatCurrency(taxes.yearEndBonusTax, currency)}
+            </span>
+          </div>
+          <p className="mt-1 text-xs italic text-zinc-500">
+            Bonus rate: {formatPercentage(breakdown.yearEndBonusRate)}; quick
+            deduction:{" "}
+            {formatCurrency(breakdown.yearEndBonusQuickDeduction, currency)}.
+          </p>
+        </>
+      )}
+
+      {hasForeignAllowanceExemptions && (
+        <>
+          <Separator className="my-2" />
+          <p className="pb-1 pt-2 text-xs text-zinc-500">
+            Foreign Individual Allowance Exemptions
+          </p>
+          {breakdown.foreignAllowanceExemptions
+            .housingMealsLaundryRelocation > 0 && (
+            <DeductionRow
+              label="Housing / meals / laundry / relocation"
+              amount={
+                breakdown.foreignAllowanceExemptions
+                  .housingMealsLaundryRelocation
+              }
+              grossSalary={grossSalary}
+              currency={currency}
+            />
+          )}
+          {breakdown.foreignAllowanceExemptions.businessTravelAllowance > 0 && (
+            <DeductionRow
+              label="Business travel allowance"
+              amount={breakdown.foreignAllowanceExemptions.businessTravelAllowance}
+              grossSalary={grossSalary}
+              currency={currency}
+            />
+          )}
+          {breakdown.foreignAllowanceExemptions.homeLeaveTravel > 0 && (
+            <DeductionRow
+              label="Home leave travel"
+              amount={breakdown.foreignAllowanceExemptions.homeLeaveTravel}
+              grossSalary={grossSalary}
+              currency={currency}
+            />
+          )}
+          {breakdown.foreignAllowanceExemptions.languageTraining > 0 && (
+            <DeductionRow
+              label="Language training"
+              amount={breakdown.foreignAllowanceExemptions.languageTraining}
+              grossSalary={grossSalary}
+              currency={currency}
+            />
+          )}
+          {breakdown.foreignAllowanceExemptions.childrenEducation > 0 && (
+            <DeductionRow
+              label="Children's education"
+              amount={breakdown.foreignAllowanceExemptions.childrenEducation}
+              grossSalary={grossSalary}
+              currency={currency}
+            />
+          )}
+        </>
+      )}
 
       {hasSpecialDeductions && (
         <>
@@ -80,11 +215,71 @@ export function CNResultBreakdown({
           )}
           {breakdown.specialDeductions.continuingEducation > 0 && (
             <div className="flex items-center justify-between py-1 opacity-60">
-              <span className="text-sm text-zinc-400">Continuing education</span>
+              <span className="text-sm text-zinc-400">Degree continuing education</span>
               <span className="text-sm tabular-nums text-zinc-500">
                 {formatCurrency(breakdown.specialDeductions.continuingEducation, currency)}/yr
               </span>
             </div>
+          )}
+          {breakdown.specialDeductions.professionalQualificationEducation > 0 && (
+            <div className="flex items-center justify-between py-1 opacity-60">
+              <span className="text-sm text-zinc-400">Professional qualification</span>
+              <span className="text-sm tabular-nums text-zinc-500">
+                {formatCurrency(
+                  breakdown.specialDeductions.professionalQualificationEducation,
+                  currency
+                )}/yr
+              </span>
+            </div>
+          )}
+          {breakdown.specialDeductions.majorIllnessMedical > 0 && (
+            <div className="flex items-center justify-between py-1 opacity-60">
+              <span className="text-sm text-zinc-400">Major illness medical</span>
+              <span className="text-sm tabular-nums text-zinc-500">
+                {formatCurrency(breakdown.specialDeductions.majorIllnessMedical, currency)}/yr
+              </span>
+            </div>
+          )}
+        </>
+      )}
+
+      {hasVoluntaryDeductions && (
+        <>
+          <Separator className="my-2" />
+          <p className="pb-1 pt-2 text-xs text-zinc-500">
+            Resident Pension / Insurance / Donation Deductions
+          </p>
+          {breakdown.voluntaryDeductions.enterpriseAnnuityContribution > 0 && (
+            <DeductionRow
+              label="Enterprise / occupational annuity"
+              amount={breakdown.voluntaryDeductions.enterpriseAnnuityContribution}
+              grossSalary={grossSalary}
+              currency={currency}
+            />
+          )}
+          {breakdown.voluntaryDeductions.individualPensionContribution > 0 && (
+            <DeductionRow
+              label="Individual pension"
+              amount={breakdown.voluntaryDeductions.individualPensionContribution}
+              grossSalary={grossSalary}
+              currency={currency}
+            />
+          )}
+          {breakdown.voluntaryDeductions.taxPreferredHealthInsurance > 0 && (
+            <DeductionRow
+              label="Tax-preferred health insurance"
+              amount={breakdown.voluntaryDeductions.taxPreferredHealthInsurance}
+              grossSalary={grossSalary}
+              currency={currency}
+            />
+          )}
+          {breakdown.voluntaryDeductions.charitableDonations > 0 && (
+            <DeductionRow
+              label="Approved charity donations"
+              amount={breakdown.voluntaryDeductions.charitableDonations}
+              grossSalary={grossSalary}
+              currency={currency}
+            />
           )}
         </>
       )}
@@ -135,15 +330,17 @@ export function CNResultBreakdown({
         </>
       )}
 
-      <Separator className="my-2" />
-      <div className="rounded-lg bg-zinc-800/50 p-3">
-        <p className="mb-1 text-xs font-medium text-zinc-400">Exclusions</p>
-        <p className="text-xs text-zinc-500">
-          Employer social insurance contributions, employer housing fund
-          matching, local city variations, year-end bonus tax treatment,
-          self-employment tax, and other employer benefits are not modeled.
-        </p>
-      </div>
+      <ResultNotes
+        countryName="China"
+        assumptions={[
+          "Resident salary IIT uses the annual comprehensive-income method, standard deduction, selected special additional deductions, and selected bonus treatment.",
+          "Social insurance and housing fund use the selected modeled city/ceiling assumptions and the user-selected housing-fund rate.",
+        ]}
+        exclusions={[
+          "Employer social insurance, employer housing fund matching, local city variations, employer plan eligibility, self-employment tax, foreigner treaty positions, and benefit valuation or exemption-documentation reviews require separate facts.",
+        ]}
+        sourceUrls={CN_SOURCE_URLS}
+      />
     </>
   );
 }

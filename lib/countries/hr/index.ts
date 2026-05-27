@@ -18,5 +18,6 @@ export type {
   HRContributionInputs,
   HRPensionScheme,
   HRResidencyType,
+  HRWorkScenario,
   HRTaxBreakdown,
 } from "./types";

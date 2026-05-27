@@ -21,6 +21,12 @@ export type MTSSCBirthCohort = "born_1962_or_later" | "born_before_1962";
 
 export type MTLowIncomeSscOption = "standard" | "pro_rata";
 
+export type MTTaxScenario =
+  | "ordinary_employment"
+  | "highly_skilled_15_percent"
+  | "nomad_first_12_months"
+  | "nomad_10_percent";
+
 export type MTSchoolFeeLevel =
   | "none"
   | "kindergarten"
@@ -42,6 +48,7 @@ export interface MTTaxReliefInputs {
 
 export interface MTCalculatorInputs extends BaseCalculatorInputs {
   country: "MT";
+  taxScenario: MTTaxScenario;
   residencyType: MTResidencyType;
   taxStatus: MTTaxStatus;
   sscBirthCohort: MTSSCBirthCohort;
@@ -62,6 +69,7 @@ export interface MTBreakdown {
   taxableIncome: number;
   chargeableIncome: number;
   isResident: boolean;
+  taxScenario: MTTaxScenario;
   residencyType: MTResidencyType;
   taxStatus: MTTaxStatus;
   taxScheduleName: string;
@@ -101,15 +109,31 @@ export interface MTBreakdown {
     employerRate: number;
     annualContributionWage: number;
   };
+  nomadResidencePermit: {
+    applies: boolean;
+    taxRate: number;
+    authorisedWorkIncome: number;
+    firstTwelveMonthsExemption: boolean;
+  };
+  highlySkilledIndividuals: {
+    applies: boolean;
+    eligible: boolean;
+    taxRate: number;
+    minimumIncome: number;
+    maximumFlatRateIncome: number;
+    flatRateIncome: number;
+    excessIncome: number;
+    noReliefsOrCredits: boolean;
+  };
   voluntaryContributions: {
     personalRetirementScheme: number;
     voluntaryOccupationalPension: number;
     total: number;
   };
   assumptions: {
-    ordinaryEmploymentOnly: true;
-    excludesNomadResidencePermit: true;
-    excludesSpecialTaxStatuses: true;
+    ordinaryEmploymentOnly: boolean;
+    excludesNomadResidencePermit: boolean;
+    excludesSpecialTaxStatuses: boolean;
     excludesUnder18AndApprenticeSsc: true;
   };
 }

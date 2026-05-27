@@ -14,7 +14,13 @@ import type {
   PayFrequency,
 } from "../types";
 import { TH_CONFIG } from "./config";
-import { calculateTHIncomeTax, calculateSocialSecurityContribution, TH_TAX_ALLOWANCES, TH_TAX_BRACKETS } from "./constants/tax-brackets-2026";
+import {
+  calculateTHIncomeTax,
+  calculateSocialSecurityContribution,
+  TH_SOURCE_URLS,
+  TH_TAX_ALLOWANCES,
+  TH_TAX_BRACKETS,
+} from "./constants/tax-brackets-2026";
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -99,6 +105,16 @@ export function calculateTH(inputs: THCalculatorInputs): CalculationResult {
       cap: 750, // Monthly cap
       annualCap: 9000,
     },
+    assumptions: [
+      "Employment salary is modeled using the Revenue Department progressive personal income tax scale for both residents and non-residents.",
+      "Residency controls income scope: residents include Thai-source salary plus taxable remitted foreign-source income; non-residents include Thai-source salary only.",
+      "The 15% non-resident withholding rule is not applied to ordinary Section 40(1) employment salary in this calculator.",
+      "The 2026 page currently exposes only advance filing forms, so the latest available English P.N.D.90 guide is used for detailed allowance mechanics alongside the Revenue Department PIT overview.",
+    ],
+    modeledExclusions: [
+      "Remote-work source analysis, treaty positions, remitted foreign-source income tracing, employer matching, and one-off campaign deductions require taxpayer-specific facts.",
+    ],
+    sourceUrls: [...TH_SOURCE_URLS],
     // Tax brackets applied
     bracketTaxes: (() => {
       const brackets = [];

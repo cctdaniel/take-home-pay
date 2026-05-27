@@ -9,12 +9,28 @@
 //   https://www.gov.uk/income-tax-rates
 // - Scottish Income Tax:
 //   https://www.gov.uk/scottish-income-tax
+// - GOV.UK tax on company benefits:
+//   https://www.gov.uk/tax-company-benefits
+// - HMRC payrolling taxable benefits:
+//   https://www.gov.uk/guidance/payrolling-tax-employees-benefits-and-expenses-through-your-payroll
+// - HMRC CWG5 Class 1A NICs on benefits in kind:
+//   https://www.gov.uk/government/publications/cwg5-class-1a-national-insurance-contributions-on-benefits-in-kind/2026-class-1a-national-insurance-contributions-on-benefits-in-kind-termination-payments-and-sporting-testimonial-payments
 //
 // Note: For 2026/27, UK income tax thresholds remain frozen at 2025/26 levels
 // per government policy announced in previous budgets.
 // ==========================================================================
 
-import type { TaxBracket } from "../../types";
+import type { TaxBracket, UKStudentLoanPlan } from "../../types";
+
+export const UK_SOURCE_URLS = [
+  "https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2026-to-2027",
+  "https://www.gov.uk/income-tax-rates",
+  "https://www.gov.uk/scottish-income-tax",
+  "https://www.gov.uk/tax-company-benefits",
+  "https://www.gov.uk/guidance/payrolling-tax-employees-benefits-and-expenses-through-your-payroll",
+  "https://www.gov.uk/government/publications/cwg5-class-1a-national-insurance-contributions-on-benefits-in-kind/2026-class-1a-national-insurance-contributions-on-benefits-in-kind-termination-payments-and-sporting-testimonial-payments",
+  "https://www.gov.uk/tax-on-your-private-pension/annual-allowance",
+] as const;
 
 // Tax year label for UI copy
 export const UK_TAX_YEAR_LABEL = "2026/27";
@@ -26,6 +42,8 @@ export const UK_TAX_YEAR_LABEL = "2026/27";
 export const UK_PERSONAL_ALLOWANCE = 12570; // £12,570 per year
 export const UK_PERSONAL_ALLOWANCE_TAPER_THRESHOLD = 100000; // Allowance reduces above £100,000
 export const UK_PERSONAL_ALLOWANCE_ZERO_AT = 125140; // Allowance is zero above £125,140
+export const UK_MARRIAGE_ALLOWANCE_TRANSFERABLE_AMOUNT = 1260;
+export const UK_MARRIAGE_ALLOWANCE_TAX_REDUCTION = 252;
 
 // ==========================================================================
 // INCOME TAX BANDS - ENGLAND, WALES, NORTHERN IRELAND
@@ -95,6 +113,24 @@ export const UK_PENSION_ANNUAL_ALLOWANCE = 60000; // £60,000 annual allowance
 export const UK_PENSION_MINIMUM_ANNUAL_ALLOWANCE = 10000; // Reduces to £10,000 for high earners
 export const UK_PENSION_TAPER_THRESHOLD = 260000; // Threshold income for taper
 export const UK_PENSION_ADJUSTED_INCOME_THRESHOLD = 200000; // Adjusted income for taper
+
+// ==========================================================================
+// STUDENT AND POSTGRADUATE LOAN RECOVERY
+// Source: https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2026-to-2027
+// ==========================================================================
+export const UK_STUDENT_LOAN_THRESHOLDS_2026_27: Record<
+  Exclude<UKStudentLoanPlan, "none">,
+  number
+> = {
+  plan1: 26_900,
+  plan2: 29_385,
+  plan4: 33_795,
+  plan5: 25_000,
+};
+
+export const UK_STUDENT_LOAN_RATE_2026_27 = 0.09;
+export const UK_POSTGRADUATE_LOAN_THRESHOLD_2026_27 = 21_000;
+export const UK_POSTGRADUATE_LOAN_RATE_2026_27 = 0.06;
 
 // ==========================================================================
 // HELPER FUNCTIONS
@@ -216,6 +252,72 @@ export function calculateNationalInsurance(annualIncome: number): {
     additionalContribution,
     total: roundToPence(mainContribution + additionalContribution),
   };
+}
+
+export function calculateStudentLoanRepayment(
+  annualIncome: number,
+  plan: UKStudentLoanPlan,
+): { threshold: number; rate: number; repayment: number } {
+  if (plan === "none") {
+    return {
+      threshold: 0,
+      rate: UK_STUDENT_LOAN_RATE_2026_27,
+      repayment: 0,
+    };
+  }
+
+  const threshold = UK_STUDENT_LOAN_THRESHOLDS_2026_27[plan];
+  const repayment = roundToPence(
+    Math.max(0, annualIncome - threshold) * UK_STUDENT_LOAN_RATE_2026_27,
+  );
+
+  return {
+    threshold,
+    rate: UK_STUDENT_LOAN_RATE_2026_27,
+    repayment,
+  };
+}
+
+export function calculatePostgraduateLoanRepayment(
+  annualIncome: number,
+  applies: boolean,
+): { applies: boolean; threshold: number; rate: number; repayment: number } {
+  if (!applies) {
+    return {
+      applies: false,
+      threshold: UK_POSTGRADUATE_LOAN_THRESHOLD_2026_27,
+      rate: UK_POSTGRADUATE_LOAN_RATE_2026_27,
+      repayment: 0,
+    };
+  }
+
+  return {
+    applies: true,
+    threshold: UK_POSTGRADUATE_LOAN_THRESHOLD_2026_27,
+    rate: UK_POSTGRADUATE_LOAN_RATE_2026_27,
+    repayment: roundToPence(
+      Math.max(0, annualIncome - UK_POSTGRADUATE_LOAN_THRESHOLD_2026_27) *
+        UK_POSTGRADUATE_LOAN_RATE_2026_27,
+    ),
+  };
+}
+
+export function isMarriageAllowanceRecipientEligible({
+  taxableIncome,
+  region,
+  isResident,
+}: {
+  taxableIncome: number;
+  region: "rest_of_uk" | "scotland";
+  isResident: boolean;
+}) {
+  if (!isResident) {
+    return false;
+  }
+
+  return region === "scotland"
+    ? taxableIncome <= 31_092
+    : taxableIncome <= 37_700;
 }
 
 /**

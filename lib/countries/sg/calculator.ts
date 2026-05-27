@@ -33,11 +33,42 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
   }
 }
 
+function getSGContributionLimits(inputs?: Partial<SGCalculatorInputs>) {
+  const residencyType = inputs?.residencyType ?? "citizen_pr";
+  const taxResidency = inputs?.taxResidency ?? "resident";
+  const isTaxResident = taxResidency === "resident";
+
+  return {
+    voluntaryCpfTopUp:
+      isTaxResident && residencyType === "citizen_pr"
+        ? CPF_VOLUNTARY_TOPUP_LIMIT
+        : 0,
+    srsContribution: isTaxResident ? getSRSLimit(residencyType) : 0,
+  };
+}
+
 // ============================================================================
 // SINGAPORE CALCULATOR
 // ============================================================================
 export function calculateSG(inputs: SGCalculatorInputs): CalculationResult {
-  const { grossSalary, payFrequency, residencyType, age, contributions, taxReliefs } = inputs;
+  const {
+    grossSalary,
+    payFrequency,
+    residencyType,
+    taxResidency,
+    age,
+    contributions,
+    taxReliefs,
+  } = inputs;
+  const contributionLimits = getSGContributionLimits(inputs);
+  const voluntaryCpfTopUp = Math.min(
+    Math.max(0, contributions.voluntaryCpfTopUp),
+    contributionLimits.voluntaryCpfTopUp,
+  );
+  const srsContribution = Math.min(
+    Math.max(0, contributions.srsContribution),
+    contributionLimits.srsContribution,
+  );
 
   // Calculate CPF contributions
   const cpfResult = calculateAnnualCPF(grossSalary, age, residencyType);
@@ -46,10 +77,11 @@ export function calculateSG(inputs: SGCalculatorInputs): CalculationResult {
   const taxResult = calculateSGIncomeTax(
     grossSalary,
     cpfResult.employeeContribution,
-    contributions.srsContribution,
-    contributions.voluntaryCpfTopUp,
+    srsContribution,
+    voluntaryCpfTopUp,
     age,
     residencyType,
+    taxResidency,
     taxReliefs
   );
 
@@ -66,7 +98,7 @@ export function calculateSG(inputs: SGCalculatorInputs): CalculationResult {
   const totalTax = taxes.incomeTax + taxes.cpfEmployee;
 
   // Voluntary contributions
-  const voluntaryContributions = contributions.voluntaryCpfTopUp + contributions.srsContribution;
+  const voluntaryContributions = voluntaryCpfTopUp + srsContribution;
 
   // Total deductions from gross
   const totalDeductions = totalTax + voluntaryContributions;
@@ -104,12 +136,23 @@ export function calculateSG(inputs: SGCalculatorInputs): CalculationResult {
       voluntaryCpfTopUpRelief: taxResult.reliefs.voluntaryCpfTopUpRelief,
       // Additional reliefs
       spouseRelief: taxResult.reliefs.spouseRelief,
+      disabledSpouseRelief: taxResult.reliefs.disabledSpouseRelief,
       childRelief: taxResult.reliefs.childRelief,
+      disabledChildRelief: taxResult.reliefs.disabledChildRelief,
       workingMotherRelief: taxResult.reliefs.workingMotherRelief,
       parentRelief: taxResult.reliefs.parentRelief,
+      grandparentCaregiverRelief:
+        taxResult.reliefs.grandparentCaregiverRelief,
+      disabledSiblingRelief: taxResult.reliefs.disabledSiblingRelief,
+      lifeInsuranceRelief: taxResult.reliefs.lifeInsuranceRelief,
+      nsmanRelief: taxResult.reliefs.nsmanRelief,
+      reliefCapReduction: taxResult.reliefs.reliefCapReduction,
+      cappedPersonalReliefs: taxResult.reliefs.cappedPersonalReliefs,
+      donationDeduction: taxResult.reliefs.donationDeduction,
       courseFeesRelief: taxResult.reliefs.courseFeesRelief,
       totalReliefs: taxResult.reliefs.totalReliefs,
     },
+    taxRebates: taxResult.rebates,
     chargeableIncome: taxResult.chargeableIncome,
     grossTaxBeforeReliefs: taxResult.grossTaxBeforeReliefs,
   };
@@ -153,20 +196,25 @@ export const SGCalculator: CountryCalculator = {
   },
 
   getContributionLimits(inputs?: Partial<CalculatorInputs>): ContributionLimits {
-    const sgInputs = inputs as Partial<SGCalculatorInputs>;
-    const residencyType = sgInputs?.residencyType ?? "citizen_pr";
+    const limits = getSGContributionLimits(inputs as Partial<SGCalculatorInputs>);
 
     return {
       voluntaryCpfTopUp: {
-        limit: CPF_VOLUNTARY_TOPUP_LIMIT,
+        limit: limits.voluntaryCpfTopUp,
         name: "Voluntary CPF Top-up",
-        description: "Tax relief up to S$8,000 for voluntary CPF contributions",
+        description:
+          limits.voluntaryCpfTopUp > 0
+            ? "Tax relief up to S$8,000 for voluntary CPF contributions"
+            : "CPF top-up relief is modeled for Singapore tax-resident citizens and PRs",
         preTax: true,
       },
       srsContribution: {
-        limit: getSRSLimit(residencyType),
+        limit: limits.srsContribution,
         name: "SRS Contribution",
-        description: "Supplementary Retirement Scheme - fully tax deductible",
+        description:
+          limits.srsContribution > 0
+            ? "Supplementary Retirement Scheme - fully tax deductible"
+            : "SRS relief is not available in the non-resident employment model",
         preTax: true,
       },
     };
@@ -178,6 +226,7 @@ export const SGCalculator: CountryCalculator = {
       grossSalary: 60000, // SGD - typical salary
       payFrequency: "monthly",
       residencyType: "citizen_pr",
+      taxResidency: "resident",
       age: 30,
       contributions: {
         voluntaryCpfTopUp: 0,
@@ -185,10 +234,26 @@ export const SGCalculator: CountryCalculator = {
       },
       taxReliefs: {
         hasSpouseRelief: false,
+        hasDisabledSpouseRelief: false,
         numberOfChildren: 0,
+        numberOfDisabledChildren: 0,
         isWorkingMother: false,
+        wmcrPre2024Children: 0,
+        wmcrPost2024FirstChild: false,
+        wmcrPost2024SecondChild: false,
+        wmcrPost2024ThirdAndLaterChildren: 0,
         parentRelief: "none",
+        parentReliefForDisability: false,
         numberOfParents: 0,
+        grandparentCaregiverRelief: false,
+        numberOfDisabledSiblings: 0,
+        lifeInsurancePremiums: 0,
+        lifeInsuranceCapitalSum: 0,
+        approvedDonations: 0,
+        parenthoodTaxRebate: 0,
+        nsmanSelfRelief: "none",
+        hasNsmanWifeRelief: false,
+        numberOfNsmanParentReliefs: 0,
         courseFees: 0,
       },
     };

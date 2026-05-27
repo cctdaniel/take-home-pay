@@ -20,12 +20,15 @@ const ADDITIONAL_MEDICARE_THRESHOLD_MARRIED = 250000;
 // CALCULATION FUNCTIONS
 // ============================================================================
 export function calculateSocialSecurity(grossIncome: number): number {
-  const taxableWages = Math.min(grossIncome, SOCIAL_SECURITY_WAGE_BASE);
+  const taxableWages = Math.min(
+    Math.max(0, grossIncome),
+    SOCIAL_SECURITY_WAGE_BASE,
+  );
   return taxableWages * SOCIAL_SECURITY_RATE;
 }
 
 export function calculateMedicare(grossIncome: number): number {
-  return grossIncome * MEDICARE_RATE;
+  return Math.max(0, grossIncome) * MEDICARE_RATE;
 }
 
 export function calculateAdditionalMedicare(
@@ -38,7 +41,7 @@ export function calculateAdditionalMedicare(
 
   if (grossIncome <= threshold) return 0;
 
-  return (grossIncome - threshold) * ADDITIONAL_MEDICARE_RATE;
+  return Math.max(0, grossIncome - threshold) * ADDITIONAL_MEDICARE_RATE;
 }
 
 export function calculatePayrollTaxes(

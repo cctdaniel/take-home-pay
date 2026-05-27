@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { calculateBE } from "./calculator";
-import { BE_TAX_CONFIG } from "./constants/tax-year-2026";
+import {
+  BE_EXPAT_REGIME_2026,
+  BE_TAX_CONFIG,
+} from "./constants/tax-year-2026";
 import type { BECalculatorInputs } from "./types";
 
 function inputs(grossSalary: number, pensionSavings = 0): BECalculatorInputs {
@@ -8,7 +11,17 @@ function inputs(grossSalary: number, pensionSavings = 0): BECalculatorInputs {
     country: "BE",
     grossSalary,
     payFrequency: "monthly",
-    contributions: { pensionSavings },
+    numberOfDependentChildren: 0,
+    numberOfChildrenUnderThreeNoChildcare: 0,
+    childcareDays: 0,
+    isSingleParentWithChildren: false,
+    expatRegimeType: "none",
+    expatRecurringAllowance: 0,
+    contributions: {
+      pensionSavings,
+      childcareExpenses: 0,
+      charitableDonations: 0,
+    },
   };
 }
 
@@ -45,6 +58,71 @@ describe("Belgium calculator", () => {
     expect(withPension.breakdown.pensionSavingsTaxCredit).toBeGreaterThan(0);
     expect(withPension.taxes.incomeTax).toBeLessThan(base.taxes.incomeTax);
     expect(withPension.totalDeductions).toBeGreaterThan(base.totalDeductions);
+  });
+
+  it("applies capped childcare and qualifying gift tax reductions", () => {
+    const base = calculateBE(inputs(50_000));
+    const withReductions = calculateBE({
+      ...inputs(50_000),
+      numberOfDependentChildren: 1,
+      childcareDays: 100,
+      contributions: {
+        pensionSavings: 0,
+        childcareExpenses: 3_000,
+        charitableDonations: 1_000,
+      },
+    });
+
+    expect(withReductions.breakdown.childcareExpenses).toBeCloseTo(
+      BE_TAX_CONFIG.childcareDailyExpenseLimit * 100,
+      2,
+    );
+    expect(withReductions.breakdown.childcareTaxReduction).toBe(
+      Math.round(
+        BE_TAX_CONFIG.childcareDailyExpenseLimit *
+          100 *
+          BE_TAX_CONFIG.childcareTaxReductionRate *
+          100,
+      ) / 100,
+    );
+    expect(withReductions.breakdown.charitableDonationTaxReduction).toBe(300);
+    expect(withReductions.taxes.incomeTax).toBeLessThan(base.taxes.incomeTax);
+  });
+
+  it("caps the special inpatriate allowance separately for tax and social security", () => {
+    const result = calculateBE({
+      ...inputs(100_000),
+      expatRegimeType: "inboundTaxpayer",
+      expatRecurringAllowance: 100_000,
+    });
+
+    expect(result.breakdown.expatRecurringAllowance).toBe(
+      100_000 * BE_EXPAT_REGIME_2026.taxFreeAllowanceRate,
+    );
+    expect(result.breakdown.expatSocialSecurityExemptAllowance).toBe(
+      100_000 * BE_EXPAT_REGIME_2026.socialSecurityExemptRate,
+    );
+    expect(result.taxes.employeeSocialContribution).toBe(
+      Math.round(
+        (100_000 +
+          100_000 *
+            (BE_EXPAT_REGIME_2026.taxFreeAllowanceRate -
+              BE_EXPAT_REGIME_2026.socialSecurityExemptRate)) *
+          BE_TAX_CONFIG.employeeSocialRate *
+          100,
+      ) / 100,
+    );
+  });
+
+  it("requires the salary threshold for inbound taxpayer treatment", () => {
+    const result = calculateBE({
+      ...inputs(50_000),
+      expatRegimeType: "inboundTaxpayer",
+      expatRecurringAllowance: 10_000,
+    });
+
+    expect(result.breakdown.expatRecurringAllowance).toBe(0);
+    expect(result.breakdown.expatTaxpayerMinimumMet).toBe(false);
   });
 
   it("keeps zero income tax for zero salary", () => {

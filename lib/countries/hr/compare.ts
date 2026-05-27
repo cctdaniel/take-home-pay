@@ -21,14 +21,21 @@ export function buildCountryComparison({
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
+    workScenario: "croatian_payroll",
     residencyType: inputs.assumptions.isResident
       ? "resident"
       : "non_resident",
     locality: "zagreb",
+    age: inputs.assumptions.age,
+    croatianReturneeRelief: false,
     hasDependentSpouse:
       inputs.maritalStatus === "married" &&
       inputs.assumptions.spouseHasNoIncome,
+    numberOfOtherDependents: 0,
     numberOfChildren: inputs.numberOfChildren,
+    numberOfDisabilityAllowances: 0,
+    numberOfSevereDisabilityAllowances: 0,
+    taxableBenefitsInKind: 0,
     contributions: {},
   };
   const result = calculateNetSalary(hrInputs);
@@ -38,12 +45,40 @@ export function buildCountryComparison({
     inputs.assumptions.isResident ? "Resident" : "Non-resident",
   );
   assumptions.push("Zagreb rates");
+  assumptions.push(
+    inputs.assumptions.age <= 30
+      ? `Croatia youth employment income-tax relief mapped from compare age ${inputs.assumptions.age}`
+      : "No Croatia youth income-tax relief",
+  );
+  assumptions.push(
+    "Croatian returnee relief is not assumed in compare because it requires returnee/citizenship and five-year eligibility facts.",
+  );
+  assumptions.push(
+    inputs.numberOfChildren > 0
+      ? `${inputs.numberOfChildren} dependent child allowance${
+          inputs.numberOfChildren > 1 ? "s" : ""
+        } mapped from compare children`
+      : "No dependent child allowance",
+  );
+  assumptions.push(
+    hrInputs.hasDependentSpouse
+      ? "Dependent spouse allowance applied"
+      : "No dependent spouse allowance",
+  );
+  assumptions.push(
+    "Other dependent and disability allowance counts are set to zero in compare because the compare questionnaire does not collect those Croatia-specific certificate facts.",
+  );
+  assumptions.push("No taxable benefits in kind are entered in compare results.");
+  assumptions.push(
+    "Croatian payroll scenario; digital-nomad foreign-employer exemption is selectable on the Croatia page",
+  );
 
-  // No employee-controlled retirement contribution is modeled for Croatian
-  // payroll. Ordinary pension is mandatory; employer-paid voluntary pension
-  // premiums are outside this employee salary calculator.
+  // Croatian payroll has mandatory pension contributions; employer-paid
+  // voluntary pension premiums require employer-plan facts.
   if (isMaxRetirement) {
-    assumptions.push("No voluntary payroll retirement deduction modeled");
+    assumptions.push(
+      "Max-retirement mode does not add a Croatia amount because the modeled payroll pension is mandatory and employer-plan voluntary premiums need separate facts.",
+    );
   }
 
   return {

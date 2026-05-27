@@ -1,6 +1,7 @@
 import { Separator } from "@/components/ui/separator";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { DeductionRow } from "../deduction-row";
+import { ResultNotes } from "./result-notes";
 import type { CountryResultBreakdownProps } from "./types";
 
 export function NZResultBreakdown({
@@ -165,15 +166,33 @@ export function NZResultBreakdown({
         </>
       )}
 
-      <Separator className="my-2" />
-      <div className="bg-zinc-800/50 rounded-lg p-3 mt-2">
-        <p className="text-xs text-zinc-400 font-medium mb-1">
-          New Zealand Assumptions
-        </p>
-        <p className="text-xs text-zinc-500">
-          {breakdown.assumptions.join(" ")}
-        </p>
-      </div>
+      {breakdown.kiwiSaver.governmentContribution > 0 && (
+        <>
+          <div className="flex items-center justify-between py-2 opacity-60">
+            <span className="text-sm text-zinc-400">
+              KiwiSaver government contribution
+            </span>
+            <span className="text-sm text-zinc-500 tabular-nums">
+              +{formatCurrency(breakdown.kiwiSaver.governmentContribution, currency)}
+            </span>
+          </div>
+          <p className="text-xs text-zinc-500 italic">
+            Shown for retirement-account context only; not included in salary
+            take-home. Full annual amount requires at least{" "}
+            {formatCurrency(
+              breakdown.kiwiSaver.governmentContributionEmployeeContributionForMax,
+              currency,
+            )}{" "}
+            of eligible member contributions.
+          </p>
+        </>
+      )}
+
+      <ResultNotes
+        countryName="New Zealand"
+        assumptions={breakdown.assumptions}
+        sourceUrls={breakdown.sourceUrls}
+      />
     </>
   );
 }

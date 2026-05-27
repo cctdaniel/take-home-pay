@@ -11,15 +11,26 @@ export type HRResidencyType = "resident" | "non_resident";
 
 export type HRPensionScheme = "pillar_1_and_2" | "pillar_1_only";
 
+export type HRWorkScenario =
+  | "croatian_payroll"
+  | "digital_nomad_foreign_employer";
+
 export type HRContributionInputs = Record<never, never>;
 
 export interface HRCalculatorInputs extends BaseCalculatorInputs {
   country: "HR";
+  workScenario: HRWorkScenario;
   residencyType: HRResidencyType;
   locality: HRLocalityCode;
   pensionScheme: HRPensionScheme;
+  age: number;
+  croatianReturneeRelief: boolean;
   hasDependentSpouse: boolean;
+  numberOfOtherDependents: number;
   numberOfChildren: number;
+  numberOfDisabilityAllowances: number;
+  numberOfSevereDisabilityAllowances: number;
+  taxableBenefitsInKind: number;
   contributions: HRContributionInputs;
 }
 
@@ -33,8 +44,12 @@ export interface HRTaxBreakdown extends BaseTaxBreakdown {
 export interface HRBreakdown {
   type: "HR";
   grossIncome: number;
+  taxableBenefitsInKind: number;
+  taxableGrossIncome: number;
+  workScenario: HRWorkScenario;
   residencyType: HRResidencyType;
   isResident: boolean;
+  isDigitalNomadForeignEmployer: boolean;
   locality: {
     code: HRLocalityCode;
     name: string;
@@ -55,6 +70,13 @@ export interface HRBreakdown {
     secondPillarRate: number;
     totalRate: number;
   };
+  taxReliefs: {
+    incomeTaxBeforeReliefs: number;
+    youthRelief: number;
+    youthReliefRate: number;
+    returneeRelief: number;
+    croatianReturneeReliefApplied: boolean;
+  };
   employerContributions: {
     healthInsurance: number;
     healthInsuranceRate: number;
@@ -62,10 +84,16 @@ export interface HRBreakdown {
   personalAllowance: {
     basic: number;
     dependentSpouse: number;
+    otherDependents: number;
     children: number;
+    disability: number;
+    severeDisability: number;
     total: number;
     numberOfChildren: number;
     hasDependentSpouse: boolean;
+    numberOfOtherDependents: number;
+    numberOfDisabilityAllowances: number;
+    numberOfSevereDisabilityAllowances: number;
   };
   taxableIncomeBeforeAllowance: number;
   taxableIncome: number;

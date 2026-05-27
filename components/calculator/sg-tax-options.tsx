@@ -6,9 +6,15 @@ import {
   PayFrequencyField,
   SelectField,
 } from "@/components/calculator/calculator-fields";
-import type { SGResidencyType, PayFrequency } from "@/lib/countries/types";
+import type {
+  SGResidencyType,
+  SGTaxResidencyType,
+  PayFrequency,
+} from "@/lib/countries/types";
 
 interface SGTaxOptionsProps {
+  taxResidency: SGTaxResidencyType;
+  onTaxResidencyChange: (value: SGTaxResidencyType) => void;
   residencyType: SGResidencyType;
   onResidencyTypeChange: (value: SGResidencyType) => void;
   age: number;
@@ -18,6 +24,8 @@ interface SGTaxOptionsProps {
 }
 
 export function SGTaxOptions({
+  taxResidency,
+  onTaxResidencyChange,
   residencyType,
   onResidencyTypeChange,
   age,
@@ -28,14 +36,26 @@ export function SGTaxOptions({
   return (
     <CalculatorFieldGrid columns={3}>
       <SelectField
-        id="residency-type"
-        label="Residency Status"
+        id="sg-tax-residency"
+        label="Tax Residency"
+        value={taxResidency}
+        onChange={onTaxResidencyChange}
+        options={[
+          { value: "resident", label: "Tax resident" },
+          { value: "non_resident", label: "Non-resident" },
+        ]}
+        description="Controls IRAS relief eligibility and the non-resident employment tax rule."
+      />
+      <SelectField
+        id="sg-cpf-srs-status"
+        label="CPF / SRS Status"
         value={residencyType}
         onChange={onResidencyTypeChange}
         options={[
           { value: "citizen_pr", label: "Citizen / Permanent Resident" },
-          { value: "foreigner", label: "Foreigner" },
+          { value: "foreigner", label: "Foreigner / no CPF" },
         ]}
+        description="Controls CPF payroll contributions and the SRS contribution cap."
       />
       <NumberField
         id="age"

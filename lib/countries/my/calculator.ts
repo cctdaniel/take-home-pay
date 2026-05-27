@@ -17,6 +17,7 @@ import {
   MY_NON_RESIDENT_EMPLOYMENT_TAX_RATE,
   MY_PERKESO_2025,
   MY_PRS_RELIEF_LIMIT,
+  MY_RELIEFS_YA_2025,
   MY_VOLUNTARY_EPF_ANNUAL_LIMIT,
 } from "./constants/tax-brackets-2025";
 
@@ -157,6 +158,7 @@ export function calculateMY(inputs: MYCalculatorInputs): CalculationResult {
   const reliefs = isResident
     ? calculateMYResidentReliefs({
         taxReliefs,
+        grossSalary,
         epfEmployee: statutoryContributions.epfEmployee,
         voluntaryEpf,
         prsContribution,
@@ -165,14 +167,30 @@ export function calculateMY(inputs: MYCalculatorInputs): CalculationResult {
     : {
         individual: 0,
         spouse: 0,
+        disabledSpouse: 0,
         childUnder18: 0,
+        child18PlusEducation: 0,
         childTertiary: 0,
+        disabledChild: 0,
+        disabledChildTertiary: 0,
         disabledIndividual: 0,
+        parentMedical: 0,
+        supportingEquipment: 0,
+        selfEducation: 0,
         epf: 0,
+        lifeInsurance: 0,
         prs: 0,
         socso: 0,
         lifestyle: 0,
+        sportsLifestyle: 0,
         medical: 0,
+        breastfeedingEquipment: 0,
+        childcare: 0,
+        sspn: 0,
+        educationMedicalInsurance: 0,
+        evCharging: 0,
+        firstHomeLoanInterest: 0,
+        approvedDonations: 0,
         total: 0,
       };
 
@@ -194,9 +212,39 @@ export function calculateMY(inputs: MYCalculatorInputs): CalculationResult {
         ],
       };
 
+  const residentIndividualRebate =
+    isResident &&
+    taxableIncome <=
+      MY_RELIEFS_YA_2025.residentIndividualRebateChargeableIncomeThreshold
+      ? MY_RELIEFS_YA_2025.residentIndividualRebate +
+        (taxReliefs.hasSpouseRelief
+          ? MY_RELIEFS_YA_2025.residentSpouseRebate
+          : 0)
+      : 0;
+  const rebateBeforeZakat = Math.min(taxResult.totalTax, residentIndividualRebate);
+  const taxAfterResidentRebate = Math.max(0, taxResult.totalTax - rebateBeforeZakat);
+  const zakatFitrahRebate = isResident
+    ? Math.min(Math.max(0, taxReliefs.zakatFitrah || 0), taxAfterResidentRebate)
+    : 0;
+  const taxAfterZakat = Math.max(0, taxAfterResidentRebate - zakatFitrahRebate);
+  const departureLevyRebate = isResident
+    ? Math.min(
+        Math.max(0, taxReliefs.departureLevyRebate || 0),
+        MY_RELIEFS_YA_2025.departureLevyRebate,
+        taxAfterZakat,
+      )
+    : 0;
+  const incomeTax = Math.max(0, taxAfterZakat - departureLevyRebate);
+  const taxRebates = {
+    residentIndividual: rebateBeforeZakat,
+    zakatFitrah: zakatFitrahRebate,
+    departureLevy: departureLevyRebate,
+    total: rebateBeforeZakat + zakatFitrahRebate + departureLevyRebate,
+  };
+
   const taxes: MYTaxBreakdown = {
-    totalIncomeTax: taxResult.totalTax,
-    incomeTax: taxResult.totalTax,
+    totalIncomeTax: incomeTax,
+    incomeTax,
     epfEmployee: statutoryContributions.epfEmployee,
     socsoEmployee: statutoryContributions.socsoEmployee,
     eisEmployee: statutoryContributions.eisEmployee,
@@ -222,6 +270,7 @@ export function calculateMY(inputs: MYCalculatorInputs): CalculationResult {
     chargeableIncome: taxableIncome,
     taxReliefs: reliefs,
     bracketTaxes: taxResult.bracketTaxes,
+    taxRebates,
     statutoryContributions,
     voluntaryContributions: {
       voluntaryEpf,
@@ -297,10 +346,29 @@ export const MYCalculator: CountryCalculator = {
       taxReliefs: {
         hasSpouseRelief: false,
         numberOfChildrenUnder18: 0,
+        numberOfChildren18PlusEducation: 0,
         numberOfChildrenTertiary: 0,
+        numberOfDisabledChildren: 0,
+        numberOfDisabledChildrenTertiary: 0,
         isDisabled: false,
+        hasDisabledSpouseRelief: false,
+        parentMedicalRelief: 0,
+        supportingEquipmentRelief: 0,
+        selfEducationFees: 0,
         lifestyleRelief: 0,
+        sportsLifestyleRelief: 0,
         medicalRelief: 0,
+        breastfeedingEquipmentRelief: 0,
+        childcareFees: 0,
+        sspnNetSavings: 0,
+        educationMedicalInsurance: 0,
+        lifeInsuranceRelief: 0,
+        evChargingRelief: 0,
+        firstHomeLoanInterest: 0,
+        firstHomePriceBand: "none",
+        approvedDonations: 0,
+        zakatFitrah: 0,
+        departureLevyRebate: 0,
       },
     };
   },

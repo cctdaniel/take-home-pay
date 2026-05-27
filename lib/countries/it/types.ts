@@ -10,8 +10,19 @@ export interface ITContributionInputs {
   pensionContribution: number;
 }
 
+export type ITChildCreditShare = "full" | "half";
+export type ITImpatriateRegime = "none" | "standard" | "minorChild";
+
 export interface ITCalculatorInputs extends BaseCalculatorInputs {
   country: "IT";
+  localAddOnRate: number;
+  taxableFringeBenefits: number;
+  impatriateRegime: ITImpatriateRegime;
+  dependentSpouse: boolean;
+  eligibleChildren: number;
+  childCreditShare: ITChildCreditShare;
+  cohabitingAscendants: number;
+  ascendantCreditSharePercent: number;
   contributions: ITContributionInputs;
 }
 
@@ -25,10 +36,28 @@ export interface ITTaxBreakdown extends BaseTaxBreakdown {
 export interface ITBreakdown {
   type: "IT";
   grossIncome: number;
+  taxableFringeBenefits: number;
+  taxableGrossIncome: number;
   taxableIncome: number;
   standardDeduction: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
   taxCredit: number;
+  employmentTaxCredit: number;
+  familyTaxCredit: number;
+  totalTaxCredits: number;
+  familyCreditIncomeBase: number;
+  impatriateRegime: ITImpatriateRegime;
+  impatriateIncomeExemption: number;
+  impatriateEligibleIncome: number;
+  familyCredits: {
+    dependentSpouse: number;
+    eligibleChildren: number;
+    cohabitingAscendants: number;
+    totalPotential: number;
+    applied: number;
+    childCreditShare: ITChildCreditShare;
+    ascendantCreditSharePercent: number;
+  };
   pensionContribution: number;
   pensionDeduction: number;
   disallowedPensionContribution: number;

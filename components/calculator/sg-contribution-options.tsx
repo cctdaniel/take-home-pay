@@ -19,33 +19,44 @@ export function SGContributionOptions({
   onSrsContributionChange,
   srsContributionLimit,
 }: SGContributionOptionsProps) {
+  const showVoluntaryCpfTopUp = voluntaryCpfTopUpLimit > 0;
+  const showSrsContribution = srsContributionLimit > 0;
+
   return (
     <div className="space-y-6">
       <h3 className="text-sm font-medium text-zinc-400 uppercase tracking-wider">
-        Voluntary Tax-Saving Contributions
+        Voluntary CPF and SRS Contributions
       </h3>
 
-      <ContributionSlider
-        label="Voluntary CPF Top-up"
-        description="Tax relief for cash top-ups to CPF SA/RA"
-        value={voluntaryCpfTopUp}
-        onChange={onVoluntaryCpfTopUpChange}
-        max={voluntaryCpfTopUpLimit}
-        currency="SGD"
-      />
+      {showVoluntaryCpfTopUp ? (
+        <ContributionSlider
+          label="Voluntary CPF Top-up"
+          description="Tax relief for cash top-ups to CPF SA/RA"
+          value={voluntaryCpfTopUp}
+          onChange={onVoluntaryCpfTopUpChange}
+          max={voluntaryCpfTopUpLimit}
+          currency="SGD"
+        />
+      ) : null}
 
-      <ContributionSlider
-        label="SRS Contribution"
-        description="100% tax deductible - significant savings for high earners"
-        value={srsContribution}
-        onChange={onSrsContributionChange}
-        max={srsContributionLimit}
-        currency="SGD"
-      />
+      {showSrsContribution ? (
+        <ContributionSlider
+          label="SRS Contribution"
+          description="100% tax deductible - significant savings for high earners"
+          value={srsContribution}
+          onChange={onSrsContributionChange}
+          max={srsContributionLimit}
+          currency="SGD"
+        />
+      ) : null}
 
-      <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
-        <span className="text-emerald-400">Tip:</span> At top marginal rate (24%), maxing SRS saves ~S$3,670/year in tax
-      </p>
+      {showSrsContribution ? (
+        <p className="text-xs text-zinc-500 bg-zinc-800/50 rounded p-2">
+          <span className="text-emerald-400">Tip:</span> At the 24% top
+          marginal rate, maxing SRS saves about S$
+          {Math.round(srsContributionLimit * 0.24).toLocaleString()} in tax.
+        </p>
+      ) : null}
     </div>
   );
 }

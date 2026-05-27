@@ -30,6 +30,8 @@ export interface ContributionInputs {
   traditional401k: number;
   rothIRA: number;
   hsa: number;
+  healthFsa?: number;
+  dependentCareFsa?: number;
   hsaCoverageType: "self" | "family";
 }
 
@@ -38,6 +40,8 @@ export interface CalculatorInputs {
   state: string;
   filingStatus: FilingStatus;
   payFrequency: PayFrequency;
+  numberOfQualifyingChildren?: number;
+  numberOfOtherDependents?: number;
   contributions: ContributionInputs;
 }
 

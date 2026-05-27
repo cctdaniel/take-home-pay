@@ -7,6 +7,20 @@
 
 import type { TaxBracket } from "../../types";
 
+export const AU_SOURCE_URLS = [
+  "https://www.ato.gov.au/tax-rates-and-codes/tax-rates-australian-residents",
+  "https://www.ato.gov.au/tax-rates-and-codes/tax-rates-foreign-residents",
+  "https://www.ato.gov.au/individuals-and-families/medicare-and-private-health-insurance/medicare-levy",
+  "https://www.ato.gov.au/individuals-and-families/medicare-and-private-health-insurance/medicare-levy-surcharge",
+  "https://www.ato.gov.au/individuals-and-families/medicare-and-private-health-insurance/medicare-levy/medicare-levy-reduction/medicare-levy-reduction-family-income",
+  "https://www.ato.gov.au/individuals-and-families/medicare-and-private-health-insurance/medicare-levy-surcharge/family-and-dependants-for-medicare-levy-surcharge-purposes",
+  "https://www.ato.gov.au/tax-rates-and-codes/key-superannuation-rates-and-thresholds/contributions-caps",
+  "https://www.ato.gov.au/tax-rates-and-codes/key-superannuation-rates-and-thresholds/super-guarantee",
+  "https://www.ato.gov.au/tax-rates-and-codes/key-superannuation-rates-and-thresholds/division-293-tax",
+  "https://www.ato.gov.au/individuals-and-families/income-deductions-offsets-and-records/deductions-you-can-claim",
+  "https://www.ato.gov.au/individuals-and-families/income-deductions-offsets-and-records/deductions-you-can-claim/gifts-and-donations",
+] as const;
+
 // ============================================================================
 // RESIDENT TAX BRACKETS 2025-26
 // Stage 3 tax cuts in effect since 2024-25
@@ -67,11 +81,18 @@ export const AU_NON_RESIDENT_TAX_BRACKETS_2026: TaxBracket[] = [
 // ============================================================================
 export const AU_MEDICARE_LEVY_2026 = {
   rate: 0.02, // 2% of taxable income
-  // Low-income reduction thresholds for singles
+  // ATO low-income reduction thresholds published for 2024-25 and used as
+  // the latest available Medicare levy reduction thresholds for this 2025-26
+  // salary projection until ATO publishes the 2026 return instructions.
   lowIncomeThresholds: {
     lowerThreshold: 27222, // No Medicare levy below this
     upperThreshold: 34027, // Full levy above this
     // Reduction rate: 10% of excess above lower threshold
+    reductionRate: 0.10,
+  },
+  familyIncomeThresholds: {
+    lowerThreshold: 45_907,
+    dependentChildIncrease: 4_216,
     reductionRate: 0.10,
   },
 };
@@ -126,6 +147,8 @@ export const AU_SUPERANNUATION_2026 = {
   maxContributionBase: 62500, // Per quarter ($250,000 per year)
 };
 
+export const AU_CONCESSIONAL_SUPER_CAP_2026 = 30000;
+
 // ============================================================================
 // DIVISION 293 TAX 2025-26
 // Source: https://www.ato.gov.au/individuals-and-families/super-for-individuals-and-families/super/growing-and-keeping-track-of-your-super/caps-limits-and-tax-on-super-contributions/division-293-tax-on-concessional-contributions-by-high-income-earners
@@ -173,21 +196,95 @@ export function calculateLITO(taxableIncome: number): number {
  * Calculate Medicare Levy for residents
  * Non-residents don't pay Medicare levy
  */
-export function calculateMedicareLevy(taxableIncome: number): number {
-  const { rate, lowIncomeThresholds } = AU_MEDICARE_LEVY_2026;
-  const { lowerThreshold, upperThreshold, reductionRate } = lowIncomeThresholds;
+export function getMedicareLevyThresholds({
+  familyStatus = "single",
+  numberOfDependentChildren = 0,
+}: {
+  familyStatus?: "single" | "family";
+  numberOfDependentChildren?: number;
+} = {}) {
+  const { rate, lowIncomeThresholds, familyIncomeThresholds } =
+    AU_MEDICARE_LEVY_2026;
 
-  if (taxableIncome <= lowerThreshold) {
+  if (familyStatus === "family") {
+    const lowerThreshold =
+      familyIncomeThresholds.lowerThreshold +
+      Math.max(0, Math.floor(numberOfDependentChildren)) *
+        familyIncomeThresholds.dependentChildIncrease;
+
+    return {
+      lowerThreshold,
+      upperThreshold: lowerThreshold / (1 - rate / familyIncomeThresholds.reductionRate),
+      reductionRate: familyIncomeThresholds.reductionRate,
+    };
+  }
+
+  return lowIncomeThresholds;
+}
+
+/**
+ * Calculate Medicare Levy for residents.
+ * Non-residents do not pay Medicare levy; callers gate this function.
+ */
+export function calculateMedicareLevy(
+  taxableIncome: number,
+  options: {
+    familyStatus?: "single" | "family";
+    spouseTaxableIncome?: number;
+    numberOfDependentChildren?: number;
+  } = {},
+): number {
+  const { rate } = AU_MEDICARE_LEVY_2026;
+  const { familyStatus = "single", spouseTaxableIncome = 0 } = options;
+  const lowIncomeThresholds = getMedicareLevyThresholds(options);
+  const { lowerThreshold, upperThreshold, reductionRate } = lowIncomeThresholds;
+  const familyIncome =
+    familyStatus === "family"
+      ? Math.max(0, taxableIncome) + Math.max(0, spouseTaxableIncome)
+      : Math.max(0, taxableIncome);
+  const fullLevy = Math.max(0, taxableIncome) * rate;
+
+  if (familyIncome <= lowerThreshold) {
     return 0;
   }
 
-  if (taxableIncome <= upperThreshold) {
-    // Shade-in: 10% of excess above lower threshold
-    return (taxableIncome - lowerThreshold) * reductionRate;
+  if (familyIncome <= upperThreshold) {
+    const familyReducedLevy = (familyIncome - lowerThreshold) * reductionRate;
+    const taxpayerShare =
+      familyStatus === "family" && familyIncome > 0
+        ? Math.max(0, taxableIncome) / familyIncome
+        : 1;
+
+    return Math.min(fullLevy, familyReducedLevy * taxpayerShare);
   }
 
   // Full levy: 2% of taxable income
-  return taxableIncome * rate;
+  return fullLevy;
+}
+
+export function getMedicareLevySurchargeThresholds({
+  familyStatus = "single",
+  numberOfDependentChildren = 0,
+}: {
+  familyStatus?: "single" | "family";
+  numberOfDependentChildren?: number;
+} = {}) {
+  const { singleThresholds, familyThresholds } =
+    AU_MEDICARE_LEVY_SURCHARGE_2026;
+
+  if (familyStatus === "family") {
+    const childIncrease =
+      Math.max(0, Math.floor(numberOfDependentChildren) - 1) *
+      familyThresholds.perChildIncrease;
+
+    return {
+      base: familyThresholds.base + childIncrease,
+      tier1: familyThresholds.tier1 + childIncrease,
+      tier2: familyThresholds.tier2 + childIncrease,
+    };
+  }
+
+  return singleThresholds;
 }
 
 /**
@@ -195,28 +292,42 @@ export function calculateMedicareLevy(taxableIncome: number): number {
  * Only applies to high income earners without private hospital insurance
  */
 export function calculateMedicareLevySurcharge(
-  taxableIncome: number,
+  mlsIncome: number,
   hasPrivateHealthInsurance: boolean,
+  options: {
+    familyStatus?: "single" | "family";
+    spouseIncomeForSurcharge?: number;
+    numberOfDependentChildren?: number;
+  } = {},
 ): number {
   if (hasPrivateHealthInsurance) {
     return 0;
   }
 
-  const { singleThresholds, rates } = AU_MEDICARE_LEVY_SURCHARGE_2026;
+  const { rates } = AU_MEDICARE_LEVY_SURCHARGE_2026;
+  const {
+    familyStatus = "single",
+    spouseIncomeForSurcharge = 0,
+  } = options;
+  const thresholds = getMedicareLevySurchargeThresholds(options);
+  const thresholdIncome =
+    familyStatus === "family"
+      ? Math.max(0, mlsIncome) + Math.max(0, spouseIncomeForSurcharge)
+      : Math.max(0, mlsIncome);
 
-  if (taxableIncome <= singleThresholds.base) {
+  if (thresholdIncome <= thresholds.base) {
     return 0;
   }
 
-  if (taxableIncome <= singleThresholds.tier1) {
-    return taxableIncome * rates.tier1;
+  if (thresholdIncome <= thresholds.tier1) {
+    return Math.max(0, mlsIncome) * rates.tier1;
   }
 
-  if (taxableIncome <= singleThresholds.tier2) {
-    return taxableIncome * rates.tier2;
+  if (thresholdIncome <= thresholds.tier2) {
+    return Math.max(0, mlsIncome) * rates.tier2;
   }
 
-  return taxableIncome * rates.tier3;
+  return Math.max(0, mlsIncome) * rates.tier3;
 }
 
 /**

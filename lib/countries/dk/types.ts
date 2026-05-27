@@ -6,10 +6,28 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type DKContributionInputs = Record<never, never>;
+export type DKTaxRegime = "ordinary" | "researcherScheme";
+export type DKStatePensionProximity =
+  | "more_than_15_years"
+  | "within_15_years"
+  | "one_or_two_years";
+
+export interface DKContributionInputs {
+  privateRatePension: number;
+  tradeUnionFees: number;
+  unemploymentInsuranceFees: number;
+  householdServices: number;
+  otherWorkExpenses: number;
+}
 
 export interface DKCalculatorInputs extends BaseCalculatorInputs {
   country: "DK";
+  taxableBenefitsInKind: number;
+  taxRegime: DKTaxRegime;
+  statePensionProximity: DKStatePensionProximity;
+  singleParentAllowanceEligible: boolean;
+  roundTripCommutingKm: number;
+  commutingWorkdays: number;
   contributions: DKContributionInputs;
 }
 
@@ -22,6 +40,8 @@ export interface DKTaxBreakdown extends BaseTaxBreakdown {
 export interface DKBreakdown {
   type: "DK";
   grossIncome: number;
+  taxableBenefitsInKind: number;
+  taxableGrossIncome: number;
   taxableIncome: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
   employeeSocialContribution: {
@@ -30,7 +50,40 @@ export interface DKBreakdown {
     rate: number;
     cap?: number;
   };
-  standardDeduction: number;
+  taxRegime: DKTaxRegime;
+  specialRegime?: {
+    name: string;
+    rate: number;
+    incomeTax: number;
+    employeeSocialContribution: number;
+  };
+  personalAllowance: number;
+  automaticAllowances: {
+    employmentAllowance: number;
+    jobAllowance: number;
+    singleParentEmploymentAllowance: number;
+    seniorEmploymentAllowance: number;
+  };
+  voluntaryDeductions: {
+    privateRatePension: number;
+    extraPensionDeduction: number;
+    tradeUnionFees: number;
+    unemploymentInsuranceFees: number;
+    commutingDeduction: number;
+    householdServices: number;
+    otherWorkExpensesDeduction: number;
+  };
+  stateTaxes?: {
+    bottomTax: number;
+    middleTax: number;
+    topTax: number;
+    topTopTax: number;
+    municipalTax: number;
+  };
+  pensionProximity: DKStatePensionProximity;
+  singleParentAllowanceEligible: boolean;
+  roundTripCommutingKm: number;
+  commutingWorkdays: number;
   assumptions: string[];
   sourceUrls: string[];
 }

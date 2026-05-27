@@ -3,10 +3,15 @@
 import {
   CalculatorFieldGrid,
   NumberField,
+  NumberStepperField,
   PayFrequencyField,
   SelectField,
 } from "@/components/calculator/calculator-fields";
-import type { PayFrequency, PTResidencyType } from "@/lib/countries/types";
+import type {
+  PayFrequency,
+  PTIrsJovemYear,
+  PTResidencyType,
+} from "@/lib/countries/types";
 
 interface PTTaxOptionsProps {
   payFrequency: PayFrequency;
@@ -19,6 +24,8 @@ interface PTTaxOptionsProps {
   onNumberOfDependentsChange: (value: number) => void;
   age: number;
   onAgeChange: (value: number) => void;
+  irsJovemYear: PTIrsJovemYear;
+  onIrsJovemYearChange: (value: PTIrsJovemYear) => void;
 }
 
 export function PTTaxOptions({
@@ -32,7 +39,11 @@ export function PTTaxOptions({
   onNumberOfDependentsChange,
   age,
   onAgeChange,
+  irsJovemYear,
+  onIrsJovemYearChange,
 }: PTTaxOptionsProps) {
+  const canUseIrsJovem = residencyType === "resident";
+
   return (
     <CalculatorFieldGrid columns={3}>
       <SelectField
@@ -61,6 +72,40 @@ export function PTTaxOptions({
         fallbackValue={30}
         description="PPR limits vary by age"
       />
+      <SelectField
+        id="pt-irs-jovem"
+        label="IRS Jovem"
+        value={irsJovemYear}
+        onChange={onIrsJovemYearChange}
+        options={[
+          { value: "none", label: "Not applying IRS Jovem" },
+          {
+            value: "year_1",
+            label: "Year 1 (100% exemption)",
+            disabled: !canUseIrsJovem,
+          },
+          {
+            value: "years_2_to_4",
+            label: "Years 2-4 (75% exemption)",
+            disabled: !canUseIrsJovem,
+          },
+          {
+            value: "years_5_to_7",
+            label: "Years 5-7 (50% exemption)",
+            disabled: !canUseIrsJovem,
+          },
+          {
+            value: "years_8_to_10",
+            label: "Years 8-10 (25% exemption)",
+            disabled: !canUseIrsJovem,
+          },
+        ]}
+        description={
+          canUseIrsJovem
+            ? "Portugal youth employment-income exemption, capped annually"
+            : "IRS Jovem is modeled only for ordinary Portuguese residents"
+        }
+      />
       <PayFrequencyField value={payFrequency} onChange={onPayFrequencyChange} />
       <SelectField
         id="filing-status"
@@ -78,22 +123,13 @@ export function PTTaxOptions({
             : undefined
         }
       />
-      <SelectField
+      <NumberStepperField
         id="dependents"
         label="Number of Dependents"
-        value={Math.min(numberOfDependents, 8).toString() as `${number}`}
-        onChange={(nextValue) => onNumberOfDependentsChange(parseInt(nextValue, 10))}
-        options={[
-          { value: "0", label: "None" },
-          { value: "1", label: "1" },
-          { value: "2", label: "2" },
-          { value: "3", label: "3" },
-          { value: "4", label: "4" },
-          { value: "5", label: "5" },
-          { value: "6", label: "6" },
-          { value: "7", label: "7" },
-          { value: "8", label: "8+" },
-        ]}
+        value={numberOfDependents}
+        onChange={onNumberOfDependentsChange}
+        min={0}
+        max={8}
         description="EUR 600 deduction per dependent (from tax assessed)"
       />
     </CalculatorFieldGrid>

@@ -8,10 +8,24 @@ import type {
 
 export interface BEContributionInputs {
   pensionSavings: number;
+  childcareExpenses: number;
+  charitableDonations: number;
 }
+
+export type BEExpatRegimeType =
+  | "none"
+  | "inboundTaxpayer"
+  | "inboundResearcher";
 
 export interface BECalculatorInputs extends BaseCalculatorInputs {
   country: "BE";
+  taxableBenefitsInKind: number;
+  numberOfDependentChildren: number;
+  numberOfChildrenUnderThreeNoChildcare: number;
+  childcareDays: number;
+  isSingleParentWithChildren: boolean;
+  expatRegimeType: BEExpatRegimeType;
+  expatRecurringAllowance: number;
   contributions: BEContributionInputs;
 }
 
@@ -25,12 +39,30 @@ export interface BETaxBreakdown extends BaseTaxBreakdown {
 export interface BEBreakdown {
   type: "BE";
   grossIncome: number;
+  grossCashCompensation: number;
+  taxableBenefitsInKind: number;
+  taxableEmploymentIncome: number;
   taxableIncome: number;
   standardDeduction: number;
+  personalTaxAllowance: number;
+  personalTaxAllowanceCredit: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
   taxCredit: number;
+  expatRegimeType: BEExpatRegimeType;
+  expatRecurringAllowance: number;
+  expatAllowanceLimit: number;
+  expatSocialSecurityExemptAllowance: number;
+  expatTaxpayerMinimumSalary: number;
+  expatTaxpayerMinimumMet: boolean;
   pensionSavingsContribution: number;
   pensionSavingsTaxCredit: number;
+  childcareDays: number;
+  childcareExpenseLimit: number;
+  childcareExpenses: number;
+  childcareTaxReduction: number;
+  charitableDonationLimit: number;
+  charitableDonations: number;
+  charitableDonationTaxReduction: number;
   employeeSocialContribution: {
     name: string;
     amount: number;

@@ -1,6 +1,8 @@
 import { Separator } from "@/components/ui/separator";
+import { CZECH_SOURCE_URLS } from "@/lib/countries/cz/constants/tax-parameters-2026";
 import { formatCurrency } from "@/lib/format";
 import { DeductionRow } from "../deduction-row";
+import { ResultNotes } from "./result-notes";
 import type { CountryResultBreakdownProps } from "./types";
 
 export function CZResultBreakdown({
@@ -29,6 +31,46 @@ export function CZResultBreakdown({
           {formatCurrency(result.taxableIncome, currency)}
         </span>
       </div>
+      {breakdown.taxableBenefits.total > 0 && (
+        <>
+          <div className="flex items-center justify-between py-1">
+            <span className="text-sm text-zinc-400">
+              Taxable Employment Income
+            </span>
+            <span className="text-sm tabular-nums text-zinc-300">
+              {formatCurrency(breakdown.taxableEmploymentIncome, currency)}
+            </span>
+          </div>
+          {breakdown.taxableBenefits.otherTaxableNonCashBenefits > 0 && (
+            <div className="flex items-center justify-between py-1 pl-4">
+              <span className="text-xs text-zinc-500">
+                Other taxable non-cash benefits
+              </span>
+              <span className="text-xs tabular-nums text-zinc-500">
+                +
+                {formatCurrency(
+                  breakdown.taxableBenefits.otherTaxableNonCashBenefits,
+                  currency,
+                )}
+              </span>
+            </div>
+          )}
+          {breakdown.taxableBenefits.companyCarBenefit > 0 && (
+            <div className="flex items-center justify-between py-1 pl-4">
+              <span className="text-xs text-zinc-500">
+                Company car private use
+              </span>
+              <span className="text-xs tabular-nums text-zinc-500">
+                +
+                {formatCurrency(
+                  breakdown.taxableBenefits.companyCarBenefit,
+                  currency,
+                )}
+              </span>
+            </div>
+          )}
+        </>
+      )}
 
       <Separator className="my-2" />
 
@@ -53,9 +95,29 @@ export function CZResultBreakdown({
       </div>
       {breakdown.taxCredits.spouseCredit > 0 && (
         <div className="flex items-center justify-between py-1">
-          <span className="text-sm text-zinc-400">Spouse Credit</span>
+          <span className="text-sm text-zinc-400">
+            {breakdown.taxReliefs.hasSpouseZtpP
+              ? "Spouse ZTP/P Credit"
+              : "Spouse Credit"}
+          </span>
           <span className="text-sm tabular-nums text-emerald-400">
             -{formatCurrency(breakdown.taxCredits.spouseCredit, currency)}
+          </span>
+        </div>
+      )}
+      {breakdown.taxCredits.disabilityCredit > 0 && (
+        <div className="flex items-center justify-between py-1">
+          <span className="text-sm text-zinc-400">Disability Credit</span>
+          <span className="text-sm tabular-nums text-emerald-400">
+            -{formatCurrency(breakdown.taxCredits.disabilityCredit, currency)}
+          </span>
+        </div>
+      )}
+      {breakdown.taxCredits.ztpPCardCredit > 0 && (
+        <div className="flex items-center justify-between py-1">
+          <span className="text-sm text-zinc-400">Taxpayer ZTP/P Card</span>
+          <span className="text-sm tabular-nums text-emerald-400">
+            -{formatCurrency(breakdown.taxCredits.ztpPCardCredit, currency)}
           </span>
         </div>
       )}
@@ -89,6 +151,16 @@ export function CZResultBreakdown({
         grossSalary={grossSalary}
         currency={currency}
       />
+      {breakdown.taxableBenefits.total > 0 && (
+        <div className="flex items-center justify-between py-1 pl-4">
+          <span className="text-xs text-zinc-500">
+            Social security assessment base
+          </span>
+          <span className="text-xs tabular-nums text-zinc-500">
+            {formatCurrency(breakdown.socialSecurity.assessmentBase, currency)}
+          </span>
+        </div>
+      )}
       <div className="flex items-center justify-between py-1 pl-4">
         <span className="text-xs text-zinc-500">Pension insurance</span>
         <span className="text-xs tabular-nums text-zinc-500">
@@ -109,6 +181,16 @@ export function CZResultBreakdown({
         grossSalary={grossSalary}
         currency={currency}
       />
+      {breakdown.taxableBenefits.total > 0 && (
+        <div className="flex items-center justify-between py-1 pl-4">
+          <span className="text-xs text-zinc-500">
+            Health insurance assessment base
+          </span>
+          <span className="text-xs tabular-nums text-zinc-500">
+            {formatCurrency(breakdown.healthInsurance.assessmentBase, currency)}
+          </span>
+        </div>
+      )}
 
       <div className="flex items-center justify-between py-2 opacity-60">
         <span className="text-sm text-zinc-400">Employer Social Security</span>
@@ -162,9 +244,22 @@ export function CZResultBreakdown({
           {formatCurrency(breakdown.incomeTax.taxBandThreshold, currency)} of
           annual taxable income. Social security is capped at{" "}
           {formatCurrency(breakdown.socialSecurity.annualCeiling, currency)} of
-          annual assessment base; public health insurance has no modeled ceiling.
+          annual assessment base. Taxable non-cash benefits and company-car
+          private-use value are included in the modeled tax and insurance bases
+          but not in cash take-home pay.
         </p>
       </div>
+      <ResultNotes
+        countryName="Czechia"
+        assumptions={[
+          "Ordinary employment salary is modeled using Czech payroll income tax, employee social security, employee health insurance, resident credits, and resident-only modeled deductions.",
+          "Taxable non-cash benefits and company-car private-use value increase the tax and insurance bases but not cash take-home pay.",
+        ]}
+        exclusions={[
+          "EU/EEA non-resident 90% tests, partial-year credit month counting, paušální daň, trade-license income, agreement thresholds, minimum health-insurance top-ups, working-pensioner discounts, and employer benefit exemptions require separate facts.",
+        ]}
+        sourceUrls={CZECH_SOURCE_URLS}
+      />
     </>
   );
 }

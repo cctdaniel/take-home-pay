@@ -10,8 +10,14 @@ export type CYResidencyType = "resident" | "non_resident";
 
 export type CYFamilyStatus = "single" | "married" | "single_parent";
 
+export type CYEmploymentExemption =
+  | "none"
+  | "article_8_21a_20"
+  | "article_8_23a_50";
+
 export interface CYContributionInputs {
   approvedPensionProvidentFund: number;
+  medicalFundContribution: number;
   homeInsurancePremium: number;
   primaryResidenceDeduction: number;
   greenTransitionExpense: number;
@@ -26,6 +32,7 @@ export interface CYTaxReliefInputs {
 export interface CYCalculatorInputs extends BaseCalculatorInputs {
   country: "CY";
   residencyType: CYResidencyType;
+  employmentExemption: CYEmploymentExemption;
   contributions: CYContributionInputs;
   taxReliefs: CYTaxReliefInputs;
 }
@@ -43,6 +50,17 @@ export interface CYBreakdown {
   grossIncome: number;
   residencyType: CYResidencyType;
   isResident: boolean;
+  employmentExemption: CYEmploymentExemption;
+  firstEmploymentExemption: {
+    selected: CYEmploymentExemption;
+    applies: boolean;
+    exemptionRate: number;
+    exemptIncome: number;
+    threshold: number | null;
+    annualMax: number | null;
+    maxYears: number;
+    thresholdMet: boolean;
+  };
   taxableIncome: number;
   chargeableIncome: number;
   familyStatus: CYFamilyStatus;
@@ -80,6 +98,7 @@ export interface CYBreakdown {
     contributionGroupCap: number;
     mandatoryContributionDeduction: number;
     approvedPensionProvidentFundDeduction: number;
+    medicalFundContributionDeduction: number;
     contributionGroupDeduction: number;
     disallowedContributionDeduction: number;
     childDeduction: number;
@@ -89,7 +108,9 @@ export interface CYBreakdown {
   };
   voluntaryContributions: {
     approvedPensionProvidentFund: number;
+    medicalFundContribution: number;
     pensionProvidentModeledLimit: number;
+    medicalFundModeledLimit: number;
     total: number;
   };
   assumptions: {

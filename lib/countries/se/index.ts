@@ -1,4 +1,25 @@
 export { SECalculator, calculateSE } from "./calculator";
 export { SE_CONFIG, SE_CURRENCY } from "./config";
-export { SE_SOURCE_URLS, SE_TAX_CONFIG, SE_TAX_YEAR } from "./constants/tax-year-2026";
-export type { SEBreakdown, SECalculatorInputs, SEContributionInputs, SETaxBreakdown } from "./types";
+export {
+  SE_AVERAGE_MUNICIPAL_TAX_RATE_2026,
+  SE_COMMUTING_DEDUCTION_THRESHOLD_2026,
+  SE_EXPERT_RELIEF_2026_MIN_MONTHLY,
+  SE_EXPERT_RELIEF_EXEMPT_RATE,
+  SE_EXPERT_RELIEF_TAXABLE_RATE,
+  SE_GENERAL_PENSION_CONTRIBUTION_MAX,
+  SE_GREEN_TECHNOLOGY_TAX_REDUCTION_LIMIT_2026,
+  SE_OTHER_WORK_EXPENSE_THRESHOLD_2026,
+  SE_PRIVATE_PENSION_DEDUCTION_2026,
+  SE_ROT_RUT_TAX_REDUCTION_LIMIT_2026,
+  SE_ROT_TAX_REDUCTION_SUB_LIMIT_2026,
+  SE_SOURCE_URLS,
+  SE_TAX_CONFIG,
+  SE_TAX_YEAR,
+} from "./constants/tax-year-2026";
+export type {
+  SEBreakdown,
+  SECalculatorInputs,
+  SEContributionInputs,
+  SETaxBreakdown,
+  SETaxRegime,
+} from "./types";

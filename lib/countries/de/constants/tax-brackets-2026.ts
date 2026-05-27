@@ -19,6 +19,16 @@
 
 import type { TaxBracket } from "../../types";
 
+export const DE_SOURCE_URLS = [
+  "https://www.buzer.de/32a_EStG.htm",
+  "https://www.bundesfinanzministerium.de/Content/DE/Standardartikel/Themen/Steuern/das-aendert-sich-2026.html",
+  "https://www.bundesregierung.de/breg-de/aktuelles/beitragsgemessungsgrenzen-2386514",
+  "https://www.deutsche-rentenversicherung.de/",
+  "https://www.vdek.com/vertragspartner/arbeitgeber/beitragssaetze.html",
+  "https://www.finanztip.de/solidaritaetszuschlag/",
+  "https://allaboutberlin.com/glossary/Kirchensteuer",
+] as const;
+
 // ============================================================================
 // INCOME TAX (Einkommensteuer) - §32a EStG
 // Progressive tax with formula-based calculation

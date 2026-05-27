@@ -1,8 +1,11 @@
 // ============================================================================
 // 2026 THAILAND PERSONAL INCOME TAX BRACKETS
-// Source: Thailand Revenue Department (www.rd.go.th)
-// Note: Thailand uses a progressive tax system
-// Non-residents are taxed at a flat 15% on employment income or progressive, whichever is higher
+// Official sources:
+// - Revenue Department PIT overview: https://www.rd.go.th/english/6045.html
+// - P.N.D.90 guide for tax year 2024: https://www.rd.go.th/fileadmin/download/english_form/2024/GUIDE_90_67_Complete.pdf
+// - 2025 e-forms index, last updated 2026-05-05: https://www.rd.go.th/english/67846.html
+// Note: Thailand employment salary uses the progressive PIT scale. Non-resident
+// status changes the income-sourcing scope, not a separate 15% flat salary tax.
 // ============================================================================
 
 import type { TaxBracket, THResidencyType, THTaxReliefInputs } from "../../types";
@@ -22,8 +25,11 @@ export const TH_TAX_BRACKETS: TaxBracket[] = [
   { min: 5000000, max: Infinity, rate: 0.35 }, // Above 5,000,000: 35%
 ];
 
-// Non-resident flat tax rate on employment income (or progressive, whichever is higher)
-export const TH_NON_RESIDENT_FLAT_RATE = 0.15;
+export const TH_SOURCE_URLS = [
+  "https://www.rd.go.th/english/6045.html",
+  "https://www.rd.go.th/fileadmin/download/english_form/2024/GUIDE_90_67_Complete.pdf",
+  "https://www.rd.go.th/english/67846.html",
+] as const;
 
 // ============================================================================
 // STANDARD DEDUCTIONS (2026)
@@ -408,17 +414,10 @@ export function calculateTHIncomeTax(
   // Calculate taxable income
   const taxableIncome = Math.max(0, netIncome - totalAllowances);
 
-  // Calculate tax
-  let incomeTax: number;
-  if (residencyType === "non_resident") {
-    // Non-residents: compare progressive vs flat rate (15% on employment income)
-    const progressiveTax = calculateProgressiveTax(taxableIncome);
-    const flatTax = Math.round(annualIncome * TH_NON_RESIDENT_FLAT_RATE);
-    incomeTax = Math.max(progressiveTax, flatTax);
-  } else {
-    // Residents: use progressive tax
-    incomeTax = calculateProgressiveTax(taxableIncome);
-  }
+  // Calculate tax. The Revenue Department's employment-salary materials apply
+  // the progressive PIT table; non-residence controls whether only Thai-source
+  // income is in scope rather than imposing a separate 15% flat salary tax.
+  const incomeTax = calculateProgressiveTax(taxableIncome);
 
   const effectiveTaxRate = annualIncome > 0 ? incomeTax / annualIncome : 0;
 

@@ -15,6 +15,7 @@ import {
 import { InfoPanel } from "@/components/calculator/info-panel";
 import { ContributionSlider } from "@/components/ui/contribution-slider";
 import { NZCalculator } from "@/lib/countries/nz";
+import { NZ_KIWISAVER_2026 } from "@/lib/countries/nz/constants/tax-year-2026";
 import type {
   NZCalculatorInputs,
   NZKiwiSaverRate,
@@ -71,12 +72,14 @@ function NZTaxOptions({
   onResidencyTypeChange,
   onStudentLoanChange,
   onIetcChange,
+  onKiwiSaverGovernmentContributionChange,
   onPayFrequencyChange,
 }: {
   inputs: NZCalculatorInputs;
   onResidencyTypeChange: (value: NZResidencyType) => void;
   onStudentLoanChange: (value: boolean) => void;
   onIetcChange: (value: boolean) => void;
+  onKiwiSaverGovernmentContributionChange: (value: boolean) => void;
   onPayFrequencyChange: (value: PayFrequency) => void;
 }) {
   const isTaxResident = inputs.residencyType === "tax_resident";
@@ -110,6 +113,24 @@ function NZTaxOptions({
           isTaxResident
             ? "For eligible independent earners from $24k to $70k"
             : "Only available to New Zealand tax residents"
+        }
+      />
+      <BooleanSelectField
+        id="nz-kiwisaver-government-contribution"
+        label="KiwiSaver Govt Contribution"
+        value={inputs.claimsKiwiSaverGovernmentContribution}
+        onChange={(value) =>
+          onKiwiSaverGovernmentContributionChange(isTaxResident && value)
+        }
+        trueLabel="Eligible"
+        falseLabel="No / ineligible"
+        description={
+          isTaxResident
+            ? `Government contribution is 25c per dollar up to ${formatCurrency(
+                NZ_KIWISAVER_2026.governmentContributionMax,
+                "NZD",
+              )} when annual income is within the modeled cap.`
+            : "Only modeled for New Zealand tax residents."
         }
       />
       <PayFrequencyField
@@ -187,7 +208,8 @@ function NZTaxInfo() {
           <li>
             <strong className="text-zinc-300">KiwiSaver</strong> – employee
             KiwiSaver deductions reduce take-home pay but do not reduce taxable
-            income; employer KiwiSaver is shown for context before ESCT.
+            income; employer KiwiSaver is shown for context before ESCT, and
+            the government contribution is shown when eligible.
           </li>
           <li>
             <strong className="text-zinc-300">Tax Credits</strong> – the
@@ -240,6 +262,10 @@ export default function NZCountryExtension({
                 residencyType === "tax_resident"
                   ? current.claimsIndependentEarnerTaxCredit
                   : false,
+              claimsKiwiSaverGovernmentContribution:
+                residencyType === "tax_resident"
+                  ? current.claimsKiwiSaverGovernmentContribution
+                  : false,
             }))
           }
           onStudentLoanChange={(hasStudentLoan) =>
@@ -252,6 +278,14 @@ export default function NZCountryExtension({
                 current.residencyType === "tax_resident"
                   ? claimsIndependentEarnerTaxCredit
                   : false,
+            }))
+          }
+          onKiwiSaverGovernmentContributionChange={(
+            claimsKiwiSaverGovernmentContribution,
+          ) =>
+            updateInputs((current) => ({
+              ...current,
+              claimsKiwiSaverGovernmentContribution,
             }))
           }
           onPayFrequencyChange={(payFrequency) =>
@@ -291,11 +325,11 @@ export default function NZCountryExtension({
           {formatCurrency(156_641, currency)} of liable earnings. KiwiSaver
           employee contributions affect take-home pay but do not reduce taxable
           income; employer KiwiSaver is shown before ESCT and is not part of net
-          salary.
+          salary. The government contribution is shown as a retirement-account
+          benefit when the eligibility toggle is on; it is not take-home salary.
         </InfoPanel>
       }
       seoInfo={<NZTaxInfo />}
-      hideDefaultSeoTaxInfo
     />
   );
 }

@@ -67,6 +67,7 @@ export function buildCountryComparison({
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
+    taxScenario: "ordinary_employment",
     residencyType,
     taxStatus,
     contributions: {
@@ -97,6 +98,12 @@ export function buildCountryComparison({
     residencyType === "resident"
       ? MALTA_TAX_STATUS_NAMES[taxStatus]
       : "Non-resident rates",
+  );
+  assumptions.push(
+    "Ordinary Malta employment; Nomad Residence Permit authorised-work scenarios are selectable on the Malta page",
+  );
+  assumptions.push(
+    "Highly Skilled Individuals 15% employment-income status is selectable on the Malta page but is not assumed in compare without a formal eligibility determination.",
   );
 
   return {

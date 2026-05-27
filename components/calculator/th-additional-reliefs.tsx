@@ -1,14 +1,19 @@
 "use client";
 
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import {
+  BooleanSelectField,
+  NumberStepperField,
+} from "@/components/calculator/calculator-fields";
 import { ContributionSlider } from "@/components/ui/contribution-slider";
-import { NumberStepper } from "@/components/ui/number-stepper";
 import type { THTaxReliefInputs } from "@/lib/countries/types";
 
 interface THAdditionalReliefsProps {
   reliefs: THTaxReliefInputs;
   onChange: (reliefs: THTaxReliefInputs) => void;
+}
+
+function clampCount(value: number, max: number) {
+  return Math.min(Math.max(0, Math.floor(value)), max);
 }
 
 export function THAdditionalReliefs({ reliefs, onChange }: THAdditionalReliefsProps) {
@@ -26,136 +31,123 @@ export function THAdditionalReliefs({ reliefs, onChange }: THAdditionalReliefsPr
       </h3>
 
       {/* Social Security */}
-      <div className="flex items-center justify-between">
-        <div>
-          <Label className="text-sm">Social Security Fund</Label>
-          <p className="text-xs text-zinc-500 mt-0.5">
-            Deduct actual contributions (5% up to ฿750/month)
-          </p>
-        </div>
-        <Switch
-          checked={reliefs.hasSocialSecurity}
-          onCheckedChange={(checked) => updateRelief("hasSocialSecurity", checked)}
-        />
-      </div>
+      <BooleanSelectField
+        id="th-social-security"
+        label="Social Security Fund"
+        value={reliefs.hasSocialSecurity}
+        onChange={(checked) => updateRelief("hasSocialSecurity", checked)}
+        description="Deduct actual contributions (5% up to THB 750/month)."
+      />
 
       {/* Personal Allowances */}
       <div className="space-y-3">
         <h4 className="text-xs font-medium text-zinc-500">Personal Allowances</h4>
         
         {/* Spouse Allowance */}
-        <div className="flex items-center justify-between pl-4 border-l-2 border-zinc-700">
-          <div>
-            <Label className="text-sm">Spouse Allowance</Label>
-            <p className="text-xs text-zinc-500 mt-0.5">
-              ฿60,000 if spouse has no income
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={reliefs.hasSpouse}
-              onCheckedChange={(checked) => {
-                updateRelief("hasSpouse", checked);
-                if (!checked) updateRelief("spouseHasNoIncome", false);
-              }}
+        <div className="space-y-3 pl-4 border-l-2 border-zinc-700">
+          <BooleanSelectField
+            id="th-spouse-allowance"
+            label="Spouse Allowance"
+            value={reliefs.hasSpouse}
+            onChange={(checked) => {
+              updateRelief("hasSpouse", checked);
+              if (!checked) updateRelief("spouseHasNoIncome", false);
+            }}
+            description="THB 60,000 if spouse has no income."
+          />
+          {reliefs.hasSpouse && (
+            <BooleanSelectField
+              id="th-spouse-no-income"
+              label="Spouse has no income"
+              value={reliefs.spouseHasNoIncome}
+              onChange={(checked) =>
+                updateRelief("spouseHasNoIncome", checked)
+              }
+              description="Required for the spouse allowance."
             />
-            {reliefs.hasSpouse && (
-              <div className="flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  id="spouse-no-income"
-                  checked={reliefs.spouseHasNoIncome}
-                  onChange={(e) => updateRelief("spouseHasNoIncome", e.target.checked)}
-                  className="rounded border-zinc-600 bg-zinc-800 text-emerald-500"
-                />
-                <Label htmlFor="spouse-no-income" className="text-xs text-zinc-400">
-                  No income
-                </Label>
-              </div>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Child Allowance */}
         <div className="pl-4 border-l-2 border-zinc-700 space-y-2">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label className="text-sm">Number of Children</Label>
-              <p className="text-xs text-zinc-500 mt-0.5">
-                ฿30,000 per child (฿60,000 if born 2018+)
-              </p>
-            </div>
-            <NumberStepper
-              value={reliefs.numberOfChildren}
-              onChange={(value) => updateRelief("numberOfChildren", value)}
-              min={0}
-              max={10}
-              label="Number of Children"
-            />
-          </div>
+          <NumberStepperField
+            id="th-children"
+            label="Number of Children"
+            value={reliefs.numberOfChildren}
+            onChange={(value) => {
+              const nextChildren = clampCount(value, 10);
+              onChange({
+                ...reliefs,
+                numberOfChildren: nextChildren,
+                numberOfChildrenBornAfter2018: Math.min(
+                  reliefs.numberOfChildrenBornAfter2018,
+                  nextChildren,
+                ),
+              });
+            }}
+            min={0}
+            max={10}
+            description="THB 30,000 per child, or THB 60,000 for children born from 2018 onward."
+          />
           {reliefs.numberOfChildren > 0 && (
-            <div className="flex items-center justify-between">
-              <Label className="text-xs text-zinc-400">
-                Children born 2018 or later
-              </Label>
-              <NumberStepper
-                value={reliefs.numberOfChildrenBornAfter2018}
-                onChange={(value) => updateRelief("numberOfChildrenBornAfter2018", value)}
-                min={0}
-                max={reliefs.numberOfChildren}
-                label="Children born 2018+"
-              />
-            </div>
+            <NumberStepperField
+              id="th-children-born-after-2018"
+              label="Children born 2018 or later"
+              value={reliefs.numberOfChildrenBornAfter2018}
+              onChange={(value) =>
+                updateRelief(
+                  "numberOfChildrenBornAfter2018",
+                  clampCount(value, reliefs.numberOfChildren),
+                )
+              }
+              min={0}
+              max={reliefs.numberOfChildren}
+              description="Cannot exceed the total number of children above."
+            />
           )}
         </div>
 
         {/* Parent Allowance */}
-        <div className="flex items-center justify-between pl-4 border-l-2 border-zinc-700">
-          <div>
-            <Label className="text-sm">Dependent Parents</Label>
-            <p className="text-xs text-zinc-500 mt-0.5">
-              ฿30,000 per parent (age 60+, income ≤฿30,000)
-            </p>
-          </div>
-          <NumberStepper
+        <div className="pl-4 border-l-2 border-zinc-700">
+          <NumberStepperField
+            id="th-dependent-parents"
+            label="Dependent Parents"
             value={reliefs.numberOfParents}
-            onChange={(value) => updateRelief("numberOfParents", value)}
+            onChange={(value) =>
+              updateRelief("numberOfParents", clampCount(value, 4))
+            }
             min={0}
             max={4}
-            label="Number of Parents"
+            description="THB 30,000 per parent age 60+ with income not above THB 30,000."
           />
         </div>
 
         {/* Disabled Dependents */}
-        <div className="flex items-center justify-between pl-4 border-l-2 border-zinc-700">
-          <div>
-            <Label className="text-sm">Disabled Dependents</Label>
-            <p className="text-xs text-zinc-500 mt-0.5">
-              ฿60,000 per disabled person
-            </p>
-          </div>
-          <NumberStepper
+        <div className="pl-4 border-l-2 border-zinc-700">
+          <NumberStepperField
+            id="th-disabled-dependents"
+            label="Disabled Dependents"
             value={reliefs.numberOfDisabledDependents}
-            onChange={(value) => updateRelief("numberOfDisabledDependents", value)}
+            onChange={(value) =>
+              updateRelief("numberOfDisabledDependents", clampCount(value, 4))
+            }
             min={0}
             max={4}
-            label="Disabled Dependents"
+            description="THB 60,000 per qualifying disabled dependent."
           />
         </div>
 
         {/* Elderly/Disabled Taxpayer */}
-        <div className="flex items-center justify-between pl-4 border-l-2 border-zinc-700">
-          <div>
-            <Label className="text-sm">Elderly or Disabled Taxpayer</Label>
-            <p className="text-xs text-zinc-500 mt-0.5">
-              ฿190,000 exemption (age 65+ or disabled)
-            </p>
-          </div>
-          <Switch
-            checked={reliefs.isElderlyOrDisabled}
-            onCheckedChange={(checked) => updateRelief("isElderlyOrDisabled", checked)}
-          />
-        </div>
+        <BooleanSelectField
+          id="th-elderly-or-disabled"
+          label="Elderly or Disabled Taxpayer"
+          value={reliefs.isElderlyOrDisabled}
+          onChange={(checked) =>
+            updateRelief("isElderlyOrDisabled", checked)
+          }
+          description="THB 190,000 exemption for age 65+ or disabled taxpayers."
+          className="pl-4 border-l-2 border-zinc-700"
+        />
       </div>
 
       {/* Insurance */}

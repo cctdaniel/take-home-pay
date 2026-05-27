@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -176,6 +176,258 @@ ${entries}
   );
 }
 
+const FIELD_LABEL_TAGS = [
+  "SelectField",
+  "BooleanSelectField",
+  "NumberField",
+  "NumberStepperField",
+  "CurrencyAmountField",
+  "ContributionSlider",
+];
+
+const MODELED_INPUT_LABEL_EXCLUSIONS = new Set(["Pay frequency"]);
+
+function normalizeLabel(value) {
+  return value
+    .replace(/\s+/g, " ")
+    .replace(/&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .trim();
+}
+
+function extractLiteralLabel(componentSource) {
+  const doubleQuoted = componentSource.match(/label="([^"]+)"/);
+
+  if (doubleQuoted) {
+    return doubleQuoted[1];
+  }
+
+  const singleQuoted = componentSource.match(/label='([^']+)'/);
+
+  if (singleQuoted) {
+    return singleQuoted[1];
+  }
+
+  const templateLiteral = componentSource.match(/label=\{`([^`$]+)`\}/);
+
+  return templateLiteral?.[1];
+}
+
+function extractFieldLabels(source) {
+  const labels = [];
+
+  for (const tag of FIELD_LABEL_TAGS) {
+    const pattern = new RegExp(
+      `<${tag}(?=[\\s<])(?:<[^>]+>)?[\\s\\S]*?/>`,
+      "g",
+    );
+
+    for (const match of source.matchAll(pattern)) {
+      const label = extractLiteralLabel(match[0]);
+
+      if (!label) {
+        continue;
+      }
+
+      const normalizedLabel = normalizeLabel(label);
+
+      if (
+        normalizedLabel &&
+        !MODELED_INPUT_LABEL_EXCLUSIONS.has(normalizedLabel)
+      ) {
+        labels.push(normalizedLabel);
+      }
+    }
+  }
+
+  return [...new Set(labels)];
+}
+
+function getCountryConstantsSource(countryDirectory) {
+  const constantsDir = path.join(
+    rootDir,
+    "lib/countries",
+    countryDirectory,
+    "constants",
+  );
+
+  if (!existsSync(constantsDir)) {
+    return "";
+  }
+
+  return getFiles(
+    `lib/countries/${countryDirectory}/constants`,
+    (file) => file.endsWith(".ts"),
+  )
+    .map((file) => readFileSync(path.join(constantsDir, file), "utf8"))
+    .join("\n");
+}
+
+function getCountryCalculatorSource(countryDirectory) {
+  return readFileSync(
+    path.join(rootDir, "lib/countries", countryDirectory, "calculator.ts"),
+    "utf8",
+  );
+}
+
+function extractContributionNameMap(constantsSource) {
+  const contributionNames = new Map();
+  const addContributionName = (key, name) => {
+    const normalizedName = normalizeLabel(name);
+
+    if (!normalizedName) {
+      return;
+    }
+
+    const names = contributionNames.get(key) ?? new Set();
+    names.add(normalizedName);
+    contributionNames.set(key, names);
+  };
+  const extractContributionNames = (block) => {
+    const nameStart = block.search(/\bname\s*:/);
+
+    if (nameStart === -1) {
+      return [];
+    }
+
+    const blockAfterName = block.slice(nameStart);
+    const nextPropertyOffset = blockAfterName
+      .slice(5)
+      .search(
+        /\n\s*(?:description|preTax|taxTreatment|creditRate|cashFlowTreatment|calculateLimit|limit):/,
+      );
+    const nameSource =
+      nextPropertyOffset === -1
+        ? blockAfterName
+        : blockAfterName.slice(0, nextPropertyOffset + 5);
+    const names = [];
+    const literalName = nameSource.match(/name:\s*"([^"]+)"/);
+
+    if (literalName) {
+      names.push(literalName[1]);
+    }
+
+    for (const conditionalName of nameSource.matchAll(
+      /name:\s*[\s\S]*?\?\s*"([^"]+)"\s*:\s*"([^"]+)"/g,
+    )) {
+      names.push(conditionalName[1], conditionalName[2]);
+    }
+
+    return names;
+  };
+
+  for (const match of constantsSource.matchAll(
+    /\{\s*key:\s*"([^"]+)"[\s\S]*?name:\s*"([^"]+)"/g,
+  )) {
+    addContributionName(match[1], match[2]);
+  }
+
+  for (const match of constantsSource.matchAll(
+    /contribution\.key\s*===\s*"([^"]+)"[\s\S]*?name:\s*"([^"]+)"/g,
+  )) {
+    addContributionName(match[1], match[2]);
+  }
+
+  for (const match of constantsSource.matchAll(
+    /([A-Za-z0-9_]+):\s*\{/g,
+  )) {
+    const key = match[1];
+    const blockStart = match.index + match[0].length - 1;
+    let depth = 0;
+    let blockEnd = blockStart;
+
+    for (let index = blockStart; index < constantsSource.length; index += 1) {
+      if (constantsSource[index] === "{") {
+        depth += 1;
+      } else if (constantsSource[index] === "}") {
+        depth -= 1;
+
+        if (depth === 0) {
+          blockEnd = index + 1;
+          break;
+        }
+      }
+    }
+
+    const block = constantsSource.slice(blockStart, blockEnd);
+    const names = extractContributionNames(block);
+
+    if (/\blimit\s*(?::|,)/.test(block) && names.length > 0) {
+      for (const name of names) {
+        addContributionName(key, name);
+      }
+    }
+  }
+
+  return contributionNames;
+}
+
+function extractReferencedContributionKeys(source) {
+  const keys = new Set();
+  const patterns = [
+    /(?:contributionLimits|deductionLimits|nextLimits|limits)\.([A-Za-z0-9_]+)\??\.(?:name|limit|description)/g,
+    /inputs\.contributions\.([A-Za-z0-9_]+)/g,
+    /current\.contributions\.([A-Za-z0-9_]+)/g,
+    /render[A-Za-z0-9_]*Slider\(\s*"([^"]+)"/g,
+    /setContribution\(\s*"([^"]+)"/g,
+    /"([A-Za-z0-9_]+)"(?=[^[]*\]\s+as\s+const\)\.map)/g,
+  ];
+
+  for (const pattern of patterns) {
+    for (const match of source.matchAll(pattern)) {
+      keys.add(match[1]);
+    }
+  }
+
+  for (const inlineArrayMap of source.matchAll(
+    /\(\s*\[([\s\S]*?)\]\s+as\s+const\s*\)\s*\.map/g,
+  )) {
+    for (const keyMatch of inlineArrayMap[1].matchAll(/"([A-Za-z0-9_]+)"/g)) {
+      keys.add(keyMatch[1]);
+    }
+  }
+
+  const arrayNamesUsedForMapping = new Set(
+    [...source.matchAll(/\b([A-Za-z_$][\w$]*)\.map\(/g)].map(
+      (match) => match[1],
+    ),
+  );
+
+  for (const arrayName of arrayNamesUsedForMapping) {
+    const arrayPattern = new RegExp(
+      `const\\s+${arrayName}(?:\\s*:[^=]+)?\\s*=\\s*\\[([\\s\\S]*?)\\]\\s*(?:as\\s+const|satisfies\\b[^;]*)?;`,
+      "m",
+    );
+    const arrayMatch = source.match(arrayPattern);
+
+    if (!arrayMatch) {
+      continue;
+    }
+
+    for (const keyMatch of arrayMatch[1].matchAll(/"([A-Za-z0-9_]+)"/g)) {
+      keys.add(keyMatch[1]);
+    }
+  }
+
+  return [...keys];
+}
+
+function extractDynamicContributionLabels(source, constantsSource) {
+  const contributionNameMap = extractContributionNameMap(constantsSource);
+
+  if (contributionNameMap.size === 0) {
+    return [];
+  }
+
+  if (/Object\.entries\(\s*contributionLimits\s*\)/.test(source)) {
+    return [...contributionNameMap.values()].flatMap((names) => [...names]);
+  }
+
+  return extractReferencedContributionKeys(source).flatMap((key) => [
+    ...(contributionNameMap.get(key) ?? []),
+  ]);
+}
+
 function generateCompareAdapters(countryDirectories) {
   const compareModules = countryDirectories.filter((directory) =>
     existsSync(path.join(rootDir, "lib/countries", directory, "compare.ts")),
@@ -212,9 +464,90 @@ ${entries}
   );
 }
 
+function getImportedCalculatorComponentSource(extensionSource) {
+  const importedSources = [];
+  const importPattern =
+    /from\s+["']@\/components\/calculator\/([^"']+)["']/g;
+  const ignoredPrefixes = [
+    "calculator-fields",
+    "country-extension",
+    "info-panel",
+    "results/",
+  ];
+
+  for (const match of extensionSource.matchAll(importPattern)) {
+    const importPath = match[1];
+
+    if (ignoredPrefixes.some((prefix) => importPath.startsWith(prefix))) {
+      continue;
+    }
+
+    const candidates = [
+      path.join(rootDir, "components/calculator", `${importPath}.tsx`),
+      path.join(rootDir, "components/calculator", importPath, "index.tsx"),
+    ];
+    const importedSource = candidates
+      .map((candidate) => (existsSync(candidate) ? readFileSync(candidate, "utf8") : ""))
+      .find(Boolean);
+
+    if (importedSource) {
+      importedSources.push(importedSource);
+    }
+  }
+
+  return importedSources.join("\n");
+}
+
+function generateCountryModeledInputs() {
+  const files = getFiles(
+    "components/calculator/country-extensions",
+    (file) => file.endsWith(".tsx") && !file.endsWith(".test.tsx"),
+  );
+  const entries = files
+    .map((file) => {
+      const countryCode = toCountryCode(file.replace(".tsx", ""));
+      const extensionSource = readFileSync(
+        path.join(rootDir, "components/calculator/country-extensions", file),
+        "utf8",
+      );
+      const visibleSource = [
+        extensionSource,
+        getImportedCalculatorComponentSource(extensionSource),
+      ].join("\n");
+      const labels = [
+        ...extractFieldLabels(visibleSource),
+        ...extractDynamicContributionLabels(
+          visibleSource,
+          [
+            getCountryConstantsSource(file.replace(".tsx", "")),
+            getCountryCalculatorSource(file.replace(".tsx", "")),
+          ].join("\n"),
+        ),
+      ];
+
+      return `  ${countryCode}: ${JSON.stringify([...new Set(labels)])},`;
+    })
+    .join("\n");
+
+  writeGenerated(
+    path.join(rootDir, "components/compare/country-modeled-inputs.generated.ts"),
+    `// This file is auto-generated by scripts/generate-country-registries.mjs.
+// Do not edit by hand.
+
+import type { CountryCode } from "@/lib/countries/types";
+
+export const COUNTRY_MODELED_INPUT_LABELS: Partial<
+  Record<CountryCode, readonly string[]>
+> = {
+${entries}
+};`,
+  );
+}
+
 const countryDirectories = getCountryDirectories();
 
 generateCalculatorRegistry(countryDirectories);
 generateResultBreakdowns();
 generateCountryExtensions();
 generateCompareAdapters(countryDirectories);
+generateCountryModeledInputs();

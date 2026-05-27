@@ -4,11 +4,13 @@
   "private": true,
   "scripts": {
     "generate:countries": "node scripts/generate-country-registries.mjs",
+    "audit:countries": "node scripts/audit-country-coverage.mjs",
     "predev": "node scripts/generate-country-registries.mjs",
     "dev": "node scripts/with-last-updated.mjs next dev",
     "prebuild": "node scripts/generate-country-registries.mjs",
     "build": "node scripts/with-last-updated.mjs next build",
     "start": "node scripts/with-last-updated.mjs next start",
+    "test": "vitest run",
     "prelint": "node scripts/generate-country-registries.mjs",
     "lint": "eslint"
   },
@@ -28,6 +30,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.5",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.7"
   }
 }

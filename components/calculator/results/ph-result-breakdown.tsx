@@ -1,6 +1,8 @@
 import { Separator } from "@/components/ui/separator";
+import { PH_SOURCE_URLS } from "@/lib/countries/ph/constants/tax-parameters-2026";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { DeductionRow } from "../deduction-row";
+import { ResultNotes } from "./result-notes";
 import type { CountryResultBreakdownProps } from "./types";
 
 export function PHResultBreakdown({
@@ -17,13 +19,95 @@ export function PHResultBreakdown({
   const hasSSS = taxes.sssEmployee > 0;
   const hasPhilHealth = taxes.philHealthEmployee > 0;
   const hasPagIbig = taxes.pagIbigEmployee > 0;
+  const has13thMonthExemption =
+    breakdown.thirteenthMonthAndOtherBenefitsExempt > 0;
+  const deMinimis = breakdown.deMinimisBenefitsExempt;
+  const deMinimisRows = [
+    {
+      label: "Medical cash allowance",
+      amount: deMinimis.medicalCashAllowance,
+    },
+    { label: "Rice subsidy", amount: deMinimis.riceSubsidy },
+    {
+      label: "Uniform / clothing allowance",
+      amount: deMinimis.uniformClothing,
+    },
+    {
+      label: "Actual medical assistance",
+      amount: deMinimis.actualMedicalAssistance,
+    },
+    { label: "Laundry allowance", amount: deMinimis.laundryAllowance },
+    { label: "Achievement awards", amount: deMinimis.achievementAwards },
+    {
+      label: "Christmas / anniversary gifts",
+      amount: deMinimis.christmasGifts,
+    },
+    {
+      label: "CBA productivity incentives",
+      amount: deMinimis.cbaProductivityIncentives,
+    },
+  ].filter((row) => row.amount > 0);
 
   return (
     <>
+      <div className="flex items-center justify-between py-2">
+        <span className="text-sm text-zinc-400">Taxpayer Type</span>
+        <span className="text-sm text-zinc-200 text-right">
+          {breakdown.taxpayerType === "nraNotEngaged"
+            ? "NRA not engaged in trade"
+            : "Graduated compensation income"}
+        </span>
+      </div>
+      {has13thMonthExemption && (
+        <div className="flex items-center justify-between py-1">
+          <span className="text-sm text-zinc-400">
+            13th month / other benefits excluded
+          </span>
+          <span className="text-sm text-emerald-400 tabular-nums">
+            -
+            {formatCurrency(
+              breakdown.thirteenthMonthAndOtherBenefitsExempt,
+              currency,
+            )}
+          </span>
+        </div>
+      )}
+      {deMinimisRows.length > 0 && (
+        <>
+          <p className="pb-1 pt-2 text-xs text-zinc-500">
+            De Minimis Benefits Excluded
+          </p>
+          {deMinimisRows.map(({ label, amount }) => (
+            <div className="flex items-center justify-between py-1" key={label}>
+              <span className="text-sm text-zinc-400">{label}</span>
+              <span className="text-sm text-emerald-400 tabular-nums">
+                -{formatCurrency(amount, currency)}
+              </span>
+            </div>
+          ))}
+          <div className="flex items-center justify-between py-1">
+            <span className="text-xs text-zinc-500">Total de minimis</span>
+            <span className="text-xs text-emerald-400 tabular-nums">
+              -{formatCurrency(breakdown.deMinimisBenefitsExempt.total, currency)}
+            </span>
+          </div>
+        </>
+      )}
+      <div className="flex items-center justify-between py-2">
+        <span className="text-sm text-zinc-400">Taxable Compensation</span>
+        <span className="text-sm text-zinc-200 tabular-nums">
+          {formatCurrency(result.taxableIncome, currency)}
+        </span>
+      </div>
+
       <Separator className="my-2" />
       <p className="pb-1 pt-2 text-xs text-zinc-500">Income Tax</p>
       <DeductionRow
-        label="Income Tax (TRAIN)"
+        label={
+          breakdown.taxpayerType === "nraNotEngaged"
+            ? "25% Gross Income Tax"
+            : "Income Tax (TRAIN)"
+        }
         amount={taxes.incomeTax}
         grossSalary={grossSalary}
         currency={currency}
@@ -85,15 +169,13 @@ export function PHResultBreakdown({
         </>
       )}
 
-      <Separator className="my-2" />
-      <div className="rounded-lg bg-zinc-800/50 p-3">
-        <p className="mb-1 text-xs font-medium text-zinc-400">Exclusions</p>
-        <p className="text-xs text-zinc-500">
-          13th month pay (up to 90,000 PHP tax-exempt), de minimis benefits,
-          employer SSS/PhilHealth/Pag-IBIG contributions, self-employment,
-          and mixed-income earner rules are not modeled.
-        </p>
-      </div>
+      <ResultNotes
+        countryName="Philippines"
+        exclusions={[
+          "Monetized leave-credit details, overtime/night differential exclusions, employer SSS/PhilHealth/Pag-IBIG contributions, substituted filing, self-employment, and mixed-income earner rules require payroll or filing facts beyond this salary model.",
+        ]}
+        sourceUrls={Object.values(PH_SOURCE_URLS)}
+      />
     </>
   );
 }

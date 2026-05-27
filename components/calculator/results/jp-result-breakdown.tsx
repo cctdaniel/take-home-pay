@@ -1,6 +1,8 @@
 import { Separator } from "@/components/ui/separator";
+import { JP_SOURCE_URLS } from "@/lib/countries/jp/constants/tax-parameters-2026";
 import { formatCurrency, formatPercentage } from "@/lib/format";
 import { DeductionRow } from "../deduction-row";
+import { ResultNotes } from "./result-notes";
 import type { CountryResultBreakdownProps } from "./types";
 
 export function JPResultBreakdown({
@@ -22,6 +24,99 @@ export function JPResultBreakdown({
           {formatCurrency(breakdown.employmentIncomeDeduction, currency)}
         </span>
       </div>
+      {breakdown.incomeAdjustmentDeduction > 0 && (
+        <div className="flex items-center justify-between py-2">
+          <span className="text-sm text-zinc-400">
+            Income adjustment deduction
+          </span>
+          <span className="rounded bg-zinc-700/50 px-2 py-1 text-xs font-medium text-zinc-300">
+            {formatCurrency(breakdown.incomeAdjustmentDeduction, currency)}
+          </span>
+        </div>
+      )}
+      <div className="flex items-center justify-between py-2">
+        <span className="text-sm text-zinc-400">Basic deduction</span>
+        <span className="rounded bg-zinc-700/50 px-2 py-1 text-xs font-medium text-zinc-300">
+          {formatCurrency(breakdown.basicDeduction, currency)}
+        </span>
+      </div>
+      {breakdown.spouseDeduction > 0 && (
+        <div className="flex items-center justify-between py-2">
+          <span className="text-sm text-zinc-400">Spouse deduction</span>
+          <span className="rounded bg-zinc-700/50 px-2 py-1 text-xs font-medium text-zinc-300">
+            {formatCurrency(breakdown.spouseDeduction, currency)}
+          </span>
+        </div>
+      )}
+      {breakdown.dependentDeduction > 0 && (
+        <div className="flex items-center justify-between py-2">
+          <span className="text-sm text-zinc-400">Dependent deductions</span>
+          <span className="rounded bg-zinc-700/50 px-2 py-1 text-xs font-medium text-zinc-300">
+            {formatCurrency(breakdown.dependentDeduction, currency)}
+          </span>
+        </div>
+      )}
+      {breakdown.idecoDeduction > 0 && (
+        <DeductionRow
+          label="iDeCo pension contribution"
+          amount={breakdown.idecoDeduction}
+          grossSalary={grossSalary}
+          currency={currency}
+        />
+      )}
+      {breakdown.lifeInsurancePremiumDeduction > 0 && (
+        <div className="flex items-center justify-between py-2">
+          <span className="text-sm text-zinc-400">
+            Life insurance premium deduction
+          </span>
+          <span className="rounded bg-zinc-700/50 px-2 py-1 text-xs font-medium text-zinc-300">
+            {formatCurrency(breakdown.lifeInsurancePremiumDeduction, currency)}
+          </span>
+        </div>
+      )}
+      {breakdown.earthquakeInsuranceDeduction > 0 && (
+        <div className="flex items-center justify-between py-2">
+          <span className="text-sm text-zinc-400">
+            Earthquake insurance deduction
+          </span>
+          <span className="rounded bg-zinc-700/50 px-2 py-1 text-xs font-medium text-zinc-300">
+            {formatCurrency(breakdown.earthquakeInsuranceDeduction, currency)}
+          </span>
+        </div>
+      )}
+      {breakdown.medicalExpenseDeduction > 0 && (
+        <div className="space-y-1 py-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-zinc-400">
+              Medical expense deduction
+            </span>
+            <span className="rounded bg-zinc-700/50 px-2 py-1 text-xs font-medium text-zinc-300">
+              {formatCurrency(breakdown.medicalExpenseDeduction, currency)}
+            </span>
+          </div>
+          <p className="text-xs italic text-zinc-500">
+            Net medical expenses{" "}
+            {formatCurrency(breakdown.medicalExpenseNetAmount, currency)} minus
+            threshold{" "}
+            {formatCurrency(breakdown.medicalExpenseThreshold, currency)}.
+          </p>
+        </div>
+      )}
+      {breakdown.qualifiedDonationAmount > 0 && (
+        <div className="space-y-1 py-2">
+          <DeductionRow
+            label="Qualified donations paid"
+            amount={breakdown.qualifiedDonationAmount}
+            grossSalary={grossSalary}
+            currency={currency}
+          />
+          <p className="text-xs italic text-zinc-500">
+            Income-tax donation deduction{" "}
+            {formatCurrency(breakdown.qualifiedDonationDeduction, currency)}
+            after the JPY 2,000 floor.
+          </p>
+        </div>
+      )}
 
       <Separator className="my-2" />
       <p className="pb-1 pt-2 text-xs text-zinc-500">National Income Tax</p>
@@ -47,7 +142,34 @@ export function JPResultBreakdown({
         currency={currency}
       />
       <p className="mt-1 text-xs italic text-zinc-500">
-        Flat 10% on taxable income after basic deduction of {formatCurrency(480000, currency)}.
+        Flat 10% proxy on resident-tax taxable income of{" "}
+        {formatCurrency(breakdown.residentTaxableIncome, currency)}, plus the
+        modeled per-capita amount when taxable. Resident-tax insurance
+        deductions used here: life{" "}
+        {formatCurrency(
+          breakdown.residentTaxLifeInsurancePremiumDeduction,
+          currency,
+        )}
+        , earthquake{" "}
+        {formatCurrency(
+          breakdown.residentTaxEarthquakeInsuranceDeduction,
+          currency,
+        )}
+        .
+        {breakdown.furusatoResidentBasicCredit +
+          breakdown.furusatoResidentSpecialCredit >
+          0
+          ? ` Furusato resident-tax credits applied: basic ${formatCurrency(
+              breakdown.furusatoResidentBasicCredit,
+              currency,
+            )}, special ${formatCurrency(
+              breakdown.furusatoResidentSpecialCredit,
+              currency,
+            )} (20% special-credit cap ${formatCurrency(
+              breakdown.furusatoResidentCreditLimit,
+              currency,
+            )}).`
+          : ""}
       </p>
 
       <Separator className="my-2" />
@@ -71,15 +193,13 @@ export function JPResultBreakdown({
         currency={currency}
       />
 
-      <Separator className="my-2" />
-      <div className="rounded-lg bg-zinc-800/50 p-3">
-        <p className="mb-1 text-xs font-medium text-zinc-400">Exclusions</p>
-        <p className="text-xs text-zinc-500">
-          Spousal deduction, dependent deductions, local inhabitant tax
-          variations, employer social insurance contributions, and employer
-          benefits are not modeled.
-        </p>
-      </div>
+      <ResultNotes
+        countryName="Japan"
+        exclusions={[
+          "Local inhabitant tax variations, age-40 care insurance, bonus insurance caps, NTA housing-loan credit worksheets/certificates, employer social insurance contributions, and employer benefits require separate facts.",
+        ]}
+        sourceUrls={JP_SOURCE_URLS}
+      />
     </>
   );
 }

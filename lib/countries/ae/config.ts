@@ -13,7 +13,7 @@ export const AE_CONFIG: CountryConfig = {
   region: "Middle East",
   currency: AE_CURRENCY,
   taxYear: 2026,
-  lastUpdated: "2026-05-16",
+  lastUpdated: "2026-05-26",
   defaultRegion: undefined,
   supportsFilingStatus: false,
   supportsRegions: false,

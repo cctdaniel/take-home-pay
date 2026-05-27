@@ -6,19 +6,20 @@ export interface MexicoIsrBracket extends TaxBracket {
   fixedFee: number;
 }
 
-// 2026 annual ISR tariff for resident salary income.
+// 2026 annualized ISR tariff for resident salary income, derived from the
+// official SAT/DOF monthly Article 96 payroll table in Anexo 8.
 export const MEXICO_ISR_BRACKETS_2026: MexicoIsrBracket[] = [
-  { min: 0, max: 9_363.07, fixedFee: 0, rate: 0.0192 },
-  { min: 9_363.07, max: 79_456.11, fixedFee: 179.78, rate: 0.064 },
-  { min: 79_456.11, max: 139_615.36, fixedFee: 4_665.73, rate: 0.1088 },
-  { min: 139_615.36, max: 162_286.70, fixedFee: 11_211.08, rate: 0.16 },
-  { min: 162_286.70, max: 194_070.91, fixedFee: 14_838.49, rate: 0.1792 },
-  { min: 194_070.91, max: 391_997.87, fixedFee: 20_534.22, rate: 0.2136 },
-  { min: 391_997.87, max: 617_853.46, fixedFee: 62_807.76, rate: 0.2352 },
-  { min: 617_853.46, max: 1_179_328.56, fixedFee: 115_927.39, rate: 0.30 },
-  { min: 1_179_328.56, max: 1_572_438.08, fixedFee: 284_369.92, rate: 0.32 },
-  { min: 1_572_438.08, max: 4_717_314.24, fixedFee: 410_165.09, rate: 0.34 },
-  { min: 4_717_314.24, max: Infinity, fixedFee: 1_479_422.98, rate: 0.35 },
+  { min: 0, max: 10_135.08, fixedFee: 0, rate: 0.0192 },
+  { min: 10_135.08, max: 86_022.12, fixedFee: 194.64, rate: 0.064 },
+  { min: 86_022.12, max: 151_176.24, fixedFee: 5_051.4, rate: 0.1088 },
+  { min: 151_176.24, max: 175_735.68, fixedFee: 12_140.16, rate: 0.16 },
+  { min: 175_735.68, max: 210_403.68, fixedFee: 16_069.68, rate: 0.1792 },
+  { min: 210_403.68, max: 424_353.96, fixedFee: 22_282.08, rate: 0.2136 },
+  { min: 424_353.96, max: 668_840.16, fixedFee: 67_981.92, rate: 0.2352 },
+  { min: 668_840.16, max: 1_276_926, fixedFee: 125_485.08, rate: 0.30 },
+  { min: 1_276_926, max: 1_702_567.92, fixedFee: 307_910.76, rate: 0.32 },
+  { min: 1_702_567.92, max: 5_107_703.88, fixedFee: 444_116.28, rate: 0.34 },
+  { min: 5_107_703.88, max: Infinity, fixedFee: 1_601_862.48, rate: 0.35 },
 ];
 
 export const MEXICO_STATES = [
@@ -60,17 +61,35 @@ export type MexicoStateCode = (typeof MEXICO_STATES)[number]["code"];
 
 export const MEXICO_VOLUNTARY_RETIREMENT_2026 = {
   deductionRateLimit: 0.10,
-  modeledAnnualCap: 206_367,
+  modeledAnnualCap: 213_973.2,
 };
 
 export const MEXICO_PERSONAL_DEDUCTIONS_2026 = {
   generalDeductionRateLimit: 0.15,
-  modeledGeneralDeductionCap: 206_367,
+  modeledGeneralDeductionCap: 213_973.2,
   educationDeductionCap: 24_500,
 };
 
+export const MEXICO_UMA_2026 = {
+  daily: 117.31,
+  monthly: 3_566.22,
+  annual: 42_794.64,
+};
+
+export const MEXICO_SALARY_EXEMPTIONS_2026 = {
+  statutoryAguinaldoDays: 15,
+  aguinaldoExemptUmaDays: 30,
+  vacationPremiumExemptUmaDays: 15,
+  ptuExemptUmaDays: 15,
+};
+
+export const MEXICO_EMPLOYMENT_SUBSIDY_2026 = {
+  monthlyIncomeThreshold: 11_492.66,
+  monthlyUmaRate: 0.1502,
+};
+
 export const MEXICO_IMSS_2026 = {
-  dailyUma: 113.14,
+  dailyUma: MEXICO_UMA_2026.daily,
   capDailySbcMultiplierOfUma: 25,
   excessOverThreeUmaRate: 0.004,
   pensionerMedicalRate: 0.00375,
@@ -80,8 +99,11 @@ export const MEXICO_IMSS_2026 = {
 };
 
 export const MEXICO_SOURCE_URLS = [
-  "https://portalsat.com.mx/tablas-isr-2026/",
-  "https://idconline.mx/fiscal-contable/2025/12/30/tablas-y-tarifas-isr-2026-nueva-actualizacion",
+  "https://www.sat.gob.mx/minisitio/NormatividadRMFyRGCE/documentos2026/rmf/anexos/Anexo-8-RMF-2026_DOF-28122025.pdf",
+  "https://www.sat.gob.mx/cs/Satellite?blobcol=urldata&blobkey=id&blobtable=MungoBlobs&blobwhere=1461176519730&ssbinary=true",
+  "https://www.sat.gob.mx/consultas/97722/comprobante-de-nomina",
+  "https://www.gob.mx/profedet/articulos/consulta-aqui-las-preguntas-frecuentes-sobre-el-aguinaldo",
+  "https://www.inegi.org.mx/contenidos/saladeprensa/boletines/2026/uma/uma2026.pdf",
   "https://www.diputados.gob.mx/LeyesBiblio/pdf/LSS.pdf",
   "https://idconline.mx/seguridad-social/2025/01/13/factores-para-cuotas-y-aportaciones-2025",
 ];

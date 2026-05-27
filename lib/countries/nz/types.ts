@@ -27,6 +27,7 @@ export interface NZCalculatorInputs extends BaseCalculatorInputs {
   residencyType: NZResidencyType;
   hasStudentLoan: boolean;
   claimsIndependentEarnerTaxCredit: boolean;
+  claimsKiwiSaverGovernmentContribution: boolean;
   contributions: NZContributionInputs;
 }
 
@@ -78,6 +79,10 @@ export interface NZBreakdown {
     employeeContribution: number;
     employerRate: number;
     employerContributionBeforeEsct: number;
+    governmentContribution: number;
+    governmentContributionEligible: boolean;
+    governmentContributionMax: number;
+    governmentContributionEmployeeContributionForMax: number;
     defaultEmployeeRate: number;
     minimumEmployerRate: number;
   };

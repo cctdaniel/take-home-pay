@@ -16,22 +16,40 @@
 //   https://www.mirovinsko.hr/UserDocsImages/listalice/mirovine/2025/Mirovinski-vodic-za-gradjane/files/assets/common/downloads/publication.pdf
 // - HZZO compulsory health insurance:
 //   https://hzzo.hr/poslovni-subjekti/obvezno-zdravstveno-osiguranje
+// - MUP digital nomad temporary stay definition:
+//   https://mup.gov.hr/aliens-281621/stay--work/temporary-stay-of-digital-nomads/286833
+// - Income Tax Act amendment adding the Article 9 digital-nomad exemption:
+//   https://narodne-novine.nn.hr/clanci/sluzbeni/2020_12_138_2625.html
+// - Consolidated Income Tax Act Article 46 youth relief:
+//   https://www.zakon.hr/z/85/Zakon-o-porezu-na-dohodak
+// - PwC Croatia deductions summary for youth and returnee relief:
+//   https://taxsummaries.pwc.com/croatia/individual/deductions
 //
 // Assumptions:
 // - Models ordinary Croatian employment salary ("bruto 1") for a full tax year.
 // - Employee pension contributions are deducted from gross salary before income
 //   tax. Employer health insurance is informational and not deducted from
 //   take-home pay.
-// - Digital-nomad temporary stay is excluded. The MUP definition applies to
-//   work for a foreign employer/company not registered in Croatia, which is not
-//   ordinary Croatian payroll:
-//   https://mup.gov.hr/aliens-281621/stay--work/temporary-stay-of-digital-nomads/286833
+// - The digital-nomad scenario is modeled separately for foreign-employer or
+//   foreign-company work that is exempt from Croatian income tax under the
+//   Article 9 exemption and is not ordinary Croatian payroll.
 // - Employee-paid third-pillar savings are not modeled as a payroll income-tax
-//   deduction. Employer-paid voluntary pension premiums and other benefits in
-//   kind are outside the employee salary inputs used here.
+//   deduction. Taxable benefits in kind are modeled when the user enters the
+//   annual taxable value; the official valuation worksheet remains outside the
+//   salary input model.
 // ============================================================================
 
 import type { TaxBracket } from "../../types";
+
+export const CROATIA_SOURCE_URLS = [
+  "https://porezna-uprava.gov.hr/hr/porezne-stope-godisnjeg-poreza-na-dohodak/4764",
+  "https://narodne-novine.nn.hr/clanci/sluzbeni/2024_12_152_2505.html",
+  "https://narodne-novine.nn.hr/clanci/sluzbeni/full/2025_12_150_2237.html",
+  "https://narodne-novine.nn.hr/clanci/sluzbeni/full/2008_07_84_2716.html",
+  "https://www.mirovinsko.hr/UserDocsImages/listalice/mirovine/2025/Mirovinski-vodic-za-gradjane/files/assets/common/downloads/publication.pdf",
+  "https://hzzo.hr/poslovni-subjekti/obvezno-zdravstveno-osiguranje",
+  "https://mup.gov.hr/aliens-281621/stay--work/temporary-stay-of-digital-nomads/286833",
+] as const;
 
 export const CROATIA_TAX_YEAR = 2026;
 
@@ -39,6 +57,9 @@ export const CROATIA_PERSONAL_ALLOWANCE_2026 = {
   monthlyBasic: 600,
   annualBasic: 7_200,
   dependentSpouseFactor: 0.5,
+  dependentFamilyMemberFactor: 0.5,
+  disabilityFactor: 0.3,
+  severeDisabilityFactor: 1.0,
   childFactors: [0.5, 0.7, 1.0, 1.4, 1.9, 2.5, 3.2, 4.0, 4.9],
 };
 
@@ -46,6 +67,12 @@ export const CROATIA_INCOME_TAX_2026 = {
   higherRateThreshold: 60_000,
   fallbackLowerRate: 0.2,
   fallbackHigherRate: 0.3,
+  youthFullReliefMaxAge: 25,
+  youthHalfReliefMinAge: 26,
+  youthHalfReliefMaxAge: 30,
+  youthFullReliefRate: 1,
+  youthHalfReliefRate: 0.5,
+  returneeReliefRate: 1,
 };
 
 export const CROATIA_CONTRIBUTIONS_2026 = {

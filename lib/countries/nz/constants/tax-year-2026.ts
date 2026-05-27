@@ -9,6 +9,8 @@ import type { TaxBracket } from "../../types";
 // - IRD KiwiSaver employee and employer contribution pages:
 //   https://www.ird.govt.nz/kiwisaver/kiwisaver-individuals/employee-contributions
 //   https://www.ird.govt.nz/kiwisaver/kiwisaver-for-employers/contributions-and-deductions/employer-contributions-to-kiwisaver-and-complying-funds
+// - IRD KiwiSaver benefits / government contribution:
+//   https://www.ird.govt.nz/kiwisaver/kiwisaver-individuals/kiwisaver-benefits
 // - IRD independent earner tax credit:
 //   https://www.ird.govt.nz/ietc
 // - IRD student loan salary and wage repayments:
@@ -56,6 +58,10 @@ export const NZ_KIWISAVER_2026 = {
   defaultEmployeeRate: 0.035,
   minimumEmployerRate: 0.035,
   temporaryReducedEmployerRate: 0.03,
+  governmentContributionRate: 0.25,
+  governmentContributionMax: 260.72,
+  governmentContributionEmployeeContributionForMax: 1_042.86,
+  governmentContributionIncomeCap: 180_000,
 } as const;
 
 export function calculateNzProgressiveTax(income: number) {

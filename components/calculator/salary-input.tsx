@@ -14,12 +14,14 @@ interface SalaryInputProps {
   value: number;
   onChange: (value: number) => void;
   currency?: CurrencyCode;
+  label?: string;
 }
 
 export function SalaryInput({
   value,
   onChange,
   currency = "USD",
+  label = "Annual Gross Salary",
 }: SalaryInputProps) {
   const [displayValue, setDisplayValue] = useState(
     formatNumber(value, currency),
@@ -93,7 +95,7 @@ export function SalaryInput({
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="salary">Annual Gross Salary</Label>
+      <Label htmlFor="salary">{label}</Label>
       <div className="relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-sm pr-2">
           {currencySymbol}

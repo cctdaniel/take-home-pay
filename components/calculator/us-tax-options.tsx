@@ -1,11 +1,11 @@
 "use client";
 
 import {
+  CalculatorFieldGrid,
+  NumberStepperField,
   PayFrequencyField,
   SelectField,
 } from "@/components/calculator/calculator-fields";
-import { Select } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import type { USFilingStatus, PayFrequency } from "@/lib/countries/types";
 import { getStateOptions } from "@/lib/countries/us/state-tax";
 
@@ -14,6 +14,10 @@ interface USTaxOptionsProps {
   onStateChange: (value: string) => void;
   filingStatus: USFilingStatus;
   onFilingStatusChange: (value: USFilingStatus) => void;
+  numberOfQualifyingChildren: number;
+  onNumberOfQualifyingChildrenChange: (value: number) => void;
+  numberOfOtherDependents: number;
+  onNumberOfOtherDependentsChange: (value: number) => void;
   payFrequency: PayFrequency;
   onPayFrequencyChange: (value: PayFrequency) => void;
 }
@@ -29,6 +33,10 @@ export function USTaxOptions({
   onStateChange,
   filingStatus,
   onFilingStatusChange,
+  numberOfQualifyingChildren,
+  onNumberOfQualifyingChildrenChange,
+  numberOfOtherDependents,
+  onNumberOfOtherDependentsChange,
   payFrequency,
   onPayFrequencyChange,
 }: USTaxOptionsProps) {
@@ -46,35 +54,17 @@ export function USTaxOptions({
   });
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div className="space-y-2">
-        <Label htmlFor="state">State</Label>
-        <Select
-          id="state"
-          value={state}
-          onChange={(e) => onStateChange(e.target.value)}
-        >
-          <optgroup label="Popular States">
-            {sortedStates
-              .filter(s => popularStates.includes(s.code))
-              .map((s) => (
-                <option key={s.code} value={s.code}>
-                  {s.name} {noTaxStates.includes(s.code) ? "(No State Tax)" : ""}
-                </option>
-              ))}
-          </optgroup>
-          <optgroup label="Other States">
-            {sortedStates
-              .filter(s => !popularStates.includes(s.code))
-              .map((s) => (
-                <option key={s.code} value={s.code}>
-                  {s.name} {noTaxStates.includes(s.code) ? "(No State Tax)" : ""}
-                </option>
-              ))}
-          </optgroup>
-        </Select>
-      </div>
-
+    <CalculatorFieldGrid columns={3}>
+      <SelectField
+        id="state"
+        label="State"
+        value={state}
+        onChange={onStateChange}
+        options={sortedStates.map((s) => ({
+          value: s.code,
+          label: `${s.name}${noTaxStates.includes(s.code) ? " (No State Tax)" : ""}`,
+        }))}
+      />
       <PayFrequencyField value={payFrequency} onChange={onPayFrequencyChange} />
 
       <SelectField
@@ -89,6 +79,30 @@ export function USTaxOptions({
           { value: "head_of_household", label: "Head of Household" },
         ]}
       />
-    </div>
+
+      <NumberStepperField
+        id="us-qualifying-children"
+        label="Qualifying Children"
+        value={numberOfQualifyingChildren}
+        onChange={(value) =>
+          onNumberOfQualifyingChildrenChange(Math.max(0, Math.floor(value)))
+        }
+        min={0}
+        max={10}
+        description="Children under 17 modeled for the federal Child Tax Credit."
+      />
+
+      <NumberStepperField
+        id="us-other-dependents"
+        label="Other Dependents"
+        value={numberOfOtherDependents}
+        onChange={(value) =>
+          onNumberOfOtherDependentsChange(Math.max(0, Math.floor(value)))
+        }
+        min={0}
+        max={10}
+        description="Modeled for the federal Credit for Other Dependents."
+      />
+    </CalculatorFieldGrid>
   );
 }

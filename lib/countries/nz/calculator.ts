@@ -131,6 +131,7 @@ export function calculateNZ(inputs: NZCalculatorInputs): CalculationResult {
     residencyType,
     hasStudentLoan,
     claimsIndependentEarnerTaxCredit,
+    claimsKiwiSaverGovernmentContribution,
   } = inputs;
   const normalizedContributions = normalizeContributions(inputs);
   const isTaxResident = residencyType === "tax_resident";
@@ -175,6 +176,20 @@ export function calculateNZ(inputs: NZCalculatorInputs): CalculationResult {
   const employerKiwiSaver = roundCurrency(
     Math.max(0, grossSalary) * kiwiSaverEmployerRate,
   );
+  const kiwiSaverGovernmentContributionEligible =
+    claimsKiwiSaverGovernmentContribution &&
+    isTaxResident &&
+    taxableIncome <= NZ_KIWISAVER_2026.governmentContributionIncomeCap &&
+    employeeKiwiSaver > 0;
+  const kiwiSaverGovernmentContribution =
+    kiwiSaverGovernmentContributionEligible
+      ? roundCurrency(
+          Math.min(
+            employeeKiwiSaver * NZ_KIWISAVER_2026.governmentContributionRate,
+            NZ_KIWISAVER_2026.governmentContributionMax,
+          ),
+        )
+      : 0;
 
   const taxes: NZTaxBreakdown = {
     type: "NZ",
@@ -187,12 +202,13 @@ export function calculateNZ(inputs: NZCalculatorInputs): CalculationResult {
     studentLoanRepayment,
   };
 
-  const totalTax =
-    taxes.incomeTax + taxes.accEarnersLevy + taxes.studentLoanRepayment;
+  const totalTax = roundCurrency(
+    taxes.incomeTax + taxes.accEarnersLevy + taxes.studentLoanRepayment,
+  );
   const voluntaryContributions =
     employeeKiwiSaver + normalizedContributions.payrollGivingDonations;
-  const totalDeductions = totalTax + voluntaryContributions;
-  const netSalary = grossSalary - totalDeductions;
+  const totalDeductions = roundCurrency(totalTax + voluntaryContributions);
+  const netSalary = roundCurrency(grossSalary - totalDeductions);
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(payFrequency);
   const bracketTaxesRounded = bracketTaxes.map((bracket) => ({
@@ -234,6 +250,11 @@ export function calculateNZ(inputs: NZCalculatorInputs): CalculationResult {
       employeeContribution: employeeKiwiSaver,
       employerRate: kiwiSaverEmployerRate,
       employerContributionBeforeEsct: employerKiwiSaver,
+      governmentContribution: kiwiSaverGovernmentContribution,
+      governmentContributionEligible: kiwiSaverGovernmentContributionEligible,
+      governmentContributionMax: NZ_KIWISAVER_2026.governmentContributionMax,
+      governmentContributionEmployeeContributionForMax:
+        NZ_KIWISAVER_2026.governmentContributionEmployeeContributionForMax,
       defaultEmployeeRate: NZ_KIWISAVER_2026.defaultEmployeeRate,
       minimumEmployerRate: NZ_KIWISAVER_2026.minimumEmployerRate,
     },
@@ -247,6 +268,7 @@ export function calculateNZ(inputs: NZCalculatorInputs): CalculationResult {
       "Ordinary New Zealand salary or wages for one PAYE job.",
       "ACC earners' levy uses the GST-inclusive employee levy rate.",
       "KiwiSaver employer contributions are shown before ESCT and are not included in take-home pay.",
+      "KiwiSaver government contribution is shown for context only and is not salary take-home.",
       "Working for Families, paid parental leave, benefits, secondary tax codes, tailored tax codes, and non-salary income are not modeled.",
     ],
     sourceUrls: [
@@ -318,6 +340,7 @@ export const NZCalculator: CountryCalculator = {
       residencyType: "tax_resident",
       hasStudentLoan: false,
       claimsIndependentEarnerTaxCredit: false,
+      claimsKiwiSaverGovernmentContribution: true,
       contributions: {
         kiwiSaverRate: "none",
         payrollGivingDonations: 0,

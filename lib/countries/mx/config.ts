@@ -13,7 +13,7 @@ export const MX_CONFIG: CountryConfig = {
   region: "North America",
   currency: MX_CURRENCY,
   taxYear: 2026,
-  lastUpdated: "2026-05-16",
+  lastUpdated: "2026-05-25",
   defaultRegion: "CMX",
   supportsFilingStatus: false,
   supportsRegions: true,

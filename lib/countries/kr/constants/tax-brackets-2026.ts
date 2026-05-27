@@ -1,9 +1,28 @@
 // ============================================================================
 // 2026 SOUTH KOREA INCOME TAX BRACKETS AND SOCIAL INSURANCE RATES
-// Source: National Tax Service of Korea (NTS)
+// Sources:
+// - National Tax Service of Korea (NTS) income-tax and year-end settlement guidance:
+//   https://www.nts.go.kr/
+// - NTS monthly rent tax-credit guidance:
+//   https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=239025&mi=40634
+// - NTS Year-End Tax Settlement Manual for Foreigners, flat-tax application:
+//   https://www.nts.go.kr/upload/english/sub/2020%20Year-End%20Tax%20Settlement%20Manual%20for%20Foreigners_English.pdf
+// - PwC Korea Tax Summaries, special tax concession for foreigners:
+//   https://taxsummaries.pwc.com/republic-of-korea/individual/income-determination
+// - National Pension Service contribution rates and monthly standard-income cap:
+//   https://www.nps.or.kr/eng/ntnlpnsplan/cntb/getOHAI0013M0.do
 // ============================================================================
 
 import type { TaxBracket } from "../../types";
+
+export const KR_SOURCE_URLS = [
+  "https://www.nts.go.kr/",
+  "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=239025&mi=40634",
+  "https://www.nts.go.kr/upload/english/sub/2020%20Year-End%20Tax%20Settlement%20Manual%20for%20Foreigners_English.pdf",
+  "https://www.nps.or.kr/eng/ntnlpnsplan/cntb/getOHAI0013M0.do",
+  "https://www.nhis.or.kr/english/wbheaa02500m01.do",
+  "https://taxsummaries.pwc.com/republic-of-korea/individual/income-determination",
+] as const;
 
 // ============================================================================
 // SOUTH KOREA INCOME TAX BRACKETS (2026)
@@ -22,6 +41,13 @@ export const KR_INCOME_TAX_BRACKETS: TaxBracket[] = [
 
 // Local Income Tax is 10% of National Income Tax
 export const KR_LOCAL_TAX_RATE = 0.10;
+
+// Foreign employee flat-tax election under RSTA Article 18-2.
+// The 19% rate is before the 10% local income tax add-on, so the all-in
+// income-tax rate is 20.9% when the election is applied.
+export const KR_FOREIGN_WORKER_FLAT_TAX_RATE = 0.19;
+export const KR_FOREIGN_WORKER_FLAT_TAX_END_YEAR = 2026;
+export const KR_FOREIGN_WORKER_FLAT_TAX_MAX_YEARS = 20;
 
 // ============================================================================
 // SOCIAL INSURANCE RATES (2026)
@@ -114,6 +140,21 @@ export const KR_TAX_CREDITS = {
     lowIncomeRate: 0.165, // 16.5% for income ≤ ₩55M
     highIncomeRate: 0.132, // 13.2% for income > ₩55M
     incomeThreshold: 55000000, // ₩55M threshold
+  },
+
+  // Insurance premium credit (보장성 보험료 세액공제)
+  insurancePremium: {
+    maxPremium: 1000000,
+    creditRate: 0.12,
+  },
+
+  // Monthly rent tax credit (월세액 세액공제)
+  rentCredit: {
+    annualRentCap: 10000000,
+    highCreditRate: 0.17,
+    lowCreditRate: 0.15,
+    highRateSalaryThreshold: 55000000,
+    eligibilitySalaryThreshold: 80000000,
   },
 } as const;
 
@@ -208,6 +249,8 @@ export function calculateProgressiveIncomeTax(taxableIncome: number): number {
  * Calculate National Pension contribution
  */
 export function calculateNationalPension(monthlyIncome: number): number {
+  if (monthlyIncome <= 0) return 0;
+
   const { employeeRate, monthlyCeiling, monthlyFloor } = KR_SOCIAL_INSURANCE.nationalPension;
 
   // Apply floor and ceiling to standard monthly income
@@ -220,6 +263,8 @@ export function calculateNationalPension(monthlyIncome: number): number {
  * Calculate National Health Insurance contribution
  */
 export function calculateHealthInsurance(monthlyIncome: number): number {
+  if (monthlyIncome <= 0) return 0;
+
   const { employeeRate } = KR_SOCIAL_INSURANCE.healthInsurance;
   return Math.round(monthlyIncome * employeeRate);
 }
@@ -229,6 +274,8 @@ export function calculateHealthInsurance(monthlyIncome: number): number {
  * Based on health insurance premium
  */
 export function calculateLongTermCare(healthInsurancePremium: number): number {
+  if (healthInsurancePremium <= 0) return 0;
+
   const { rate } = KR_SOCIAL_INSURANCE.longTermCare;
   return Math.round(healthInsurancePremium * rate);
 }
@@ -237,6 +284,8 @@ export function calculateLongTermCare(healthInsurancePremium: number): number {
  * Calculate Employment Insurance contribution
  */
 export function calculateEmploymentInsurance(monthlyIncome: number): number {
+  if (monthlyIncome <= 0) return 0;
+
   const { employeeRate } = KR_SOCIAL_INSURANCE.employmentInsurance;
   return Math.round(monthlyIncome * employeeRate);
 }
@@ -320,13 +369,14 @@ export function calculatePensionCredit(contribution: number, totalIncome: number
 export function calculateInsuranceCredit(insurancePremiums: number): number {
   if (insurancePremiums <= 0) return 0;
 
-  // 12% credit rate
-  const creditRate = 0.12;
-  // Maximum credit cap
-  const maxCredit = 1000000; // ₩1,000,000
+  const cappedPremium = Math.min(
+    Math.max(0, insurancePremiums),
+    KR_TAX_CREDITS.insurancePremium.maxPremium,
+  );
 
-  const credit = insurancePremiums * creditRate;
-  return Math.round(Math.min(credit, maxCredit));
+  return Math.round(
+    cappedPremium * KR_TAX_CREDITS.insurancePremium.creditRate,
+  );
 }
 
 /**
@@ -386,49 +436,29 @@ export function calculateDonationCredit(donations: number): number {
 
 /**
  * Calculate rent credit (월세 세액공제) - also known as rent tax credit
- * For renters with income below certain thresholds
- * 15% for lowest income bracket, 17% for higher bracket
- * 
- * Income thresholds (2026):
- * - Single: ₩35M or less (15%), ₩45M or less (17% reduced)
- * - Married/with dependents: ₩55M or less (15%), ₩70M or less (17% reduced)
- * 
- * Annual rent cap for credit calculation: ₩7,500,000
+ * For renters with total salary of ₩80M or less.
+ * 17% for total salary of ₩55M or less, 15% above ₩55M and up to ₩80M.
+ * Annual rent cap for credit calculation: ₩10,000,000.
+ * Source: NTS monthly rent tax-credit guidance.
  */
 export function calculateRentCredit(
-  monthlyRent: number,
-  grossIncome: number,
-  hasDependents: boolean
+  annualRentPaid: number,
+  grossIncome: number
 ): number {
-  if (monthlyRent <= 0) return 0;
+  if (annualRentPaid <= 0) return 0;
 
-  const annualRent = monthlyRent * 12;
-
-  // Determine credit rate based on income
-  let creditRate = 0;
-
-  if (hasDependents) {
-    // Married/with dependents thresholds
-    if (grossIncome <= 55000000) {
-      creditRate = 0.15; // 15% for income ≤ ₩55M
-    } else if (grossIncome <= 70000000) {
-      creditRate = 0.17; // 17% for income ₩55M-70M (but reduced)
-    } else {
-      return 0; // No credit for income > ₩70M
-    }
-  } else {
-    // Single thresholds
-    if (grossIncome <= 35000000) {
-      creditRate = 0.15; // 15% for income ≤ ₩35M
-    } else if (grossIncome <= 45000000) {
-      creditRate = 0.17; // 17% for income ₩35M-45M (but reduced)
-    } else {
-      return 0; // No credit for income > ₩45M
-    }
+  if (grossIncome > KR_TAX_CREDITS.rentCredit.eligibilitySalaryThreshold) {
+    return 0;
   }
 
-  // Cap annual rent for credit calculation at ₩7.5M
-  const cappedRent = Math.min(annualRent, 7500000);
+  const creditRate =
+    grossIncome <= KR_TAX_CREDITS.rentCredit.highRateSalaryThreshold
+      ? KR_TAX_CREDITS.rentCredit.highCreditRate
+      : KR_TAX_CREDITS.rentCredit.lowCreditRate;
+  const cappedRent = Math.min(
+    annualRentPaid,
+    KR_TAX_CREDITS.rentCredit.annualRentCap,
+  );
 
   return Math.round(cappedRent * creditRate);
 }

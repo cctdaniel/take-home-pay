@@ -5,6 +5,10 @@
 // Official tax sources:
 // - Cyprus Tax Department TD59A 2026 employee deduction declaration:
 //   https://www.mof.gov.cy/mof/TAX/taxdep.nsf/All/42FCDCE9F7D7487AC2258D7F0025AF9E/$file/TD59A%20_%202026_English.pdf?OpenElement
+// - Cyprus Tax Department explanatory table for Article 8 sections 21/21A:
+//   https://www.mof.gov.cy/mof/tax/taxdep.nsf/all/4978D64F24F1D22EC225881500411CE1/$file/implementation%20of%20sections%2021%20and%2021A%20of%20article%208%2024072023.pdf
+// - Cyprus Tax Department explanatory table for Article 8 sections 23/23A:
+//   https://www.mof.gov.cy/mof/tax/taxdep.nsf/all/4978D64F24F1D22EC225881500411CE1/$file/Table%20for%20the%20implementation%20of%20sections%2023_23A%20of%20article%208%20240723.pdf
 // - Cyprus Tax Department 2026 tax reform page:
 //   https://www.mof.gov.cy/mof/tax/taxdep.nsf/0/57e097d1492aec77c2258d79003d503a?OpenDocument
 // - Cyprus government business portal, 2026 individual income-tax bands:
@@ -25,19 +29,32 @@
 //   employee paid over 12 months.
 // - Social Insurance and GHS employee contributions are cash deductions from
 //   salary and are also deductible for income-tax purposes, subject to the TD59A
-//   one-fifth aggregate cap together with approved pension/provident, medical,
-//   and life-insurance deductions.
+//   one-fifth aggregate cap together with approved pension/provident, approved
+//   medical-fund, and life-insurance deductions.
+// - Article 8 first-employment exemptions are modeled as user-selected salary
+//   exemptions. Eligibility conditions such as prior residence/employment years,
+//   commencement date, and first-employment status are not inferred by the app;
+//   the user must select the regime only when eligible.
 // - The voluntary approved pension/provident input uses a conservative modeled
 //   cap of 10% of gross remuneration. Actual approved-fund rules can be
 //   employer-plan specific and are excluded.
-// - First-employment exemptions, life-insurance capital-sum tests, medical fund
-//   plan rules, overseas employment exemptions, non-salary income, Special
-//   Defence Contribution, capital gains, stock options, carried interest, and
+// - Life-insurance capital-sum tests, approved-fund/provider eligibility,
+//   overseas employment exemptions, non-salary income, Special Defence
+//   Contribution, capital gains, stock options, carried interest, and
 //   cryptocurrency rules are outside this salary calculator.
 // ============================================================================
 
 import type { TaxBracket } from "../../types";
 import type { CYFamilyStatus } from "../types";
+
+export const CY_SOURCE_URLS = [
+  "https://taxtools.mof.gov.cy/",
+  "https://www.mof.gov.cy/mof/TAX/taxdep.nsf/All/42FCDCE9F7D7487AC2258D7F0025AF9E/$file/TD59A%20_%202026_English.pdf?OpenElement",
+  "https://www.mof.gov.cy/mof/tax/taxdep.nsf/all/4978D64F24F1D22EC225881500411CE1/$file/implementation%20of%20sections%2021%20and%2021A%20of%20article%208%2024072023.pdf",
+  "https://www.mof.gov.cy/mof/tax/taxdep.nsf/all/4978D64F24F1D22EC225881500411CE1/$file/Table%20for%20the%20implementation%20of%20sections%2023_23A%20of%20article%208%20240723.pdf",
+  "https://sisweb.mlsi.gov.cy/anotato2025/",
+  "https://www.gesy.org.cy/sites/Sites?d=Desktop&locale=en_US&lookuphost=%2Fen-us%2F&lookuppage=hiofinancing",
+] as const;
 
 export const CYPRUS_INCOME_TAX_BRACKETS_2026: TaxBracket[] = [
   { min: 0, max: 22_000, rate: 0 },
@@ -65,6 +82,7 @@ export const CYPRUS_GHS_2026 = {
 export const CYPRUS_TD59_DEDUCTIONS_2026 = {
   aggregateContributionDeductionRate: 0.2,
   modeledApprovedPensionProvidentRate: 0.1,
+  medicalFundContributionRate: 0.02,
   homeInsuranceNaturalDisastersMax: 500,
   primaryResidenceRentOrInterestMax: 2_000,
   greenTransitionMax: 1_000,
@@ -73,6 +91,23 @@ export const CYPRUS_TD59_DEDUCTIONS_2026 = {
     secondChild: 1_250,
     thirdAndAdditionalChild: 1_500,
     singleParentMultiplier: 2,
+  },
+};
+
+export const CYPRUS_FIRST_EMPLOYMENT_EXEMPTIONS_2026 = {
+  article8_21a_20: {
+    exemptionRate: 0.2,
+    annualMax: 8_550,
+    maxYears: 7,
+    commencementStartDate: "2022-07-26",
+    commencementEndDate: "2027-12-31",
+    priorForeignEmploymentYears: 3,
+  },
+  article8_23a_50: {
+    exemptionRate: 0.5,
+    remunerationThreshold: 55_000,
+    maxYears: 17,
+    priorNonResidenceYears: 15,
   },
 };
 

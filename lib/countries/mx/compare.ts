@@ -1,6 +1,9 @@
 import { calculateNetSalary, getDefaultInputs } from "@/lib/countries/registry";
 import type { CountryComparisonAdapter } from "@/hooks/use-country-comparison";
-import { MEXICO_VOLUNTARY_RETIREMENT_2026 } from "./constants/tax-year-2026";
+import {
+  MEXICO_SALARY_EXEMPTIONS_2026,
+  MEXICO_VOLUNTARY_RETIREMENT_2026,
+} from "./constants/tax-year-2026";
 import type { MXCalculatorInputs } from "./types";
 
 export const buildCountryComparison: CountryComparisonAdapter = ({
@@ -19,11 +22,18 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
         MEXICO_VOLUNTARY_RETIREMENT_2026.modeledAnnualCap,
       )
     : 0;
+  const statutoryAguinaldoIncludedInGross =
+    (grossLocal * MEXICO_SALARY_EXEMPTIONS_2026.statutoryAguinaldoDays) /
+    (365 + MEXICO_SALARY_EXEMPTIONS_2026.statutoryAguinaldoDays);
   const mxInputs: MXCalculatorInputs = {
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
     state: defaultInputs.state,
+    aguinaldoTreatment: "includedInGross",
+    aguinaldoIncludedInGross: statutoryAguinaldoIncludedInGross,
+    vacationPremium: 0,
+    ptuProfitSharing: 0,
     contributions: {
       ...defaultInputs.contributions,
       voluntaryRetirementContribution,
@@ -35,9 +45,12 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     `${stateName} resident salary employee for Mexico compare`,
     "Federal ISR plus national employee IMSS modeled",
     "State payroll taxes are employer-side and do not reduce modeled employee take-home pay",
+    "Annual gross is treated as a cash package including the statutory 15-day aguinaldo exemption",
+    "No separate vacation premium or PTU amount entered in compare",
   ];
 
   if (voluntaryRetirementContribution > 0) {
+    assumptions.push("Retirement: max");
     assumptions.push("Voluntary retirement contribution set to modeled max");
   }
 

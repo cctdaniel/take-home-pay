@@ -31,7 +31,7 @@ export function KRTaxOptions({
           { value: "resident", label: "Resident" },
           { value: "non_resident", label: "Non-Resident" },
         ]}
-        description="Non-residents may be taxed at flat 19% rate"
+        description="Non-residents are modeled separately from the foreign-employee flat-tax election below."
       />
       <PayFrequencyField value={payFrequency} onChange={onPayFrequencyChange} />
     </CalculatorFieldGrid>

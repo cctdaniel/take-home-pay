@@ -110,7 +110,7 @@ export default async function CountryPage({ params }: PageProps) {
             <TaxYearBadge />
           </div>
           <p className="text-zinc-400 text-base md:text-lg">
-            {headerInfo.tagline} Uses {TAX_YEAR} tax brackets and rates.
+            {headerInfo.tagline} Uses {TAX_YEAR} tax rules and rates.
           </p>
           <p className="text-zinc-500 text-sm mt-2">{headerInfo.details}</p>
           <div className="mt-4">

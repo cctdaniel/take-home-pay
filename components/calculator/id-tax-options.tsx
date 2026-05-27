@@ -1,11 +1,12 @@
 "use client";
 
 import {
+  BooleanSelectField,
   CalculatorFieldGrid,
+  NumberStepperField,
   PayFrequencyField,
   SelectField,
 } from "@/components/calculator/calculator-fields";
-import { Switch } from "@/components/ui/switch";
 import type { PayFrequency } from "@/lib/countries/types";
 
 interface IDTaxOptionsProps {
@@ -56,33 +57,31 @@ export function IDTaxOptions({
         description="PTKP adds Rp4.500.000 for married taxpayers."
       />
 
-      <SelectField
+      <NumberStepperField
         id="id-dependents"
         label="Number of Dependents"
-        value={Math.min(numberOfDependents, 3).toString() as "0" | "1" | "2" | "3"}
-        onChange={(value) => onNumberOfDependentsChange(parseInt(value, 10))}
-        options={[
-          { value: "0", label: "None" },
-          { value: "1", label: "1" },
-          { value: "2", label: "2" },
-          { value: "3", label: "3" },
-        ]}
+        value={numberOfDependents}
+        onChange={onNumberOfDependentsChange}
+        min={0}
+        max={3}
         description="PTKP adds Rp4.500.000 per dependent (max 3)."
       />
 
-      <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/60 px-3 py-3 sm:col-span-2 lg:col-span-3">
-        <div>
-          <p className="text-sm text-zinc-200">Spouse income combined</p>
-          <p className="text-xs text-zinc-500">
-            Adds Rp54.000.000 PTKP when spouse income is combined.
-          </p>
-        </div>
-        <Switch
-          checked={isMarried && spouseIncomeCombined}
-          onCheckedChange={(value) => onSpouseIncomeCombinedChange(Boolean(value))}
-          disabled={!isMarried}
-        />
-      </div>
+      <BooleanSelectField
+        id="id-spouse-income-combined"
+        label="Spouse income combined"
+        value={isMarried && spouseIncomeCombined}
+        onChange={onSpouseIncomeCombinedChange}
+        trueLabel="Combined"
+        falseLabel="Not combined"
+        disabled={!isMarried}
+        description={
+          isMarried
+            ? "Adds Rp54.000.000 PTKP when spouse income is combined."
+            : "Available only when marital status is married."
+        }
+        className="sm:col-span-2 lg:col-span-3"
+      />
     </CalculatorFieldGrid>
   );
 }

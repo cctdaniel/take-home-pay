@@ -74,6 +74,97 @@ function getChurchTaxRate(stateCode: string): number {
   return state?.churchTaxRate ?? 0.09; // Default to 9% if state not found
 }
 
+function clampContributionAmount(value: number, limit: number): number {
+  return Math.min(Math.max(0, value), Math.max(0, limit));
+}
+
+function allocateVoluntaryContributions({
+  totalLimit,
+  occupationalPension,
+  riesterContribution,
+  ruerupContribution,
+}: {
+  totalLimit: number;
+  occupationalPension: number;
+  riesterContribution: number;
+  ruerupContribution: number;
+}) {
+  let remaining = Math.max(0, totalLimit);
+  const cappedOccupationalPension = Math.min(occupationalPension, remaining);
+  remaining -= cappedOccupationalPension;
+
+  const cappedRiesterContribution = Math.min(riesterContribution, remaining);
+  remaining -= cappedRiesterContribution;
+
+  const cappedRuerupContribution = Math.min(ruerupContribution, remaining);
+
+  return {
+    occupationalPension: cappedOccupationalPension,
+    riesterContribution: cappedRiesterContribution,
+    ruerupContribution: cappedRuerupContribution,
+  };
+}
+
+function calculateMaxPayrollSafeVoluntaryTotal({
+  requestedTotal,
+  grossSalary,
+  standardDeductions,
+  socialSecurityTotal,
+  isMarried,
+  isChurchMember,
+  churchTaxRate,
+}: {
+  requestedTotal: number;
+  grossSalary: number;
+  standardDeductions: number;
+  socialSecurityTotal: number;
+  isMarried: boolean;
+  isChurchMember: boolean;
+  churchTaxRate: number;
+}) {
+  const calculateNetForVoluntaryTotal = (voluntaryTotal: number) => {
+    const taxableIncome = Math.max(
+      0,
+      grossSalary - standardDeductions - voluntaryTotal,
+    );
+    const incomeTax = calculateGermanIncomeTax(taxableIncome);
+    const solidaritySurcharge = calculateSolidaritySurcharge(
+      incomeTax,
+      isMarried,
+    );
+    const churchTax = isChurchMember
+      ? Math.round(incomeTax * churchTaxRate)
+      : 0;
+
+    return (
+      grossSalary -
+      socialSecurityTotal -
+      voluntaryTotal -
+      incomeTax -
+      solidaritySurcharge -
+      churchTax
+    );
+  };
+
+  if (calculateNetForVoluntaryTotal(requestedTotal) >= 0) {
+    return requestedTotal;
+  }
+
+  let low = 0;
+  let high = requestedTotal;
+
+  for (let iteration = 0; iteration < 32; iteration += 1) {
+    const mid = (low + high) / 2;
+    if (calculateNetForVoluntaryTotal(mid) >= 0) {
+      low = mid;
+    } else {
+      high = mid;
+    }
+  }
+
+  return Math.floor(low);
+}
+
 // ============================================================================
 // GERMANY CALCULATOR
 // ============================================================================
@@ -93,29 +184,32 @@ export function calculateDE(inputs: DECalculatorInputs): CalculationResult {
     riesterContribution: 0,
     ruerupContribution: 0,
   };
+  const stateCode = state || "BE"; // Default to Berlin if not specified
+  const churchTaxRate = getChurchTaxRate(stateCode);
 
-  // Voluntary contributions (tax-deductible pension schemes)
-  const occupationalPension = Math.min(
+  // Step 1: Calculate Social Security Contributions
+  // These are deducted from gross salary before income tax calculation.
+  const socialSecurity = calculateSocialSecurity(grossSalary, isChildless ?? false);
+
+  // Voluntary contributions (tax-deductible pension schemes). The legal plan
+  // caps can exceed the remaining payroll cash salary, especially when bAV,
+  // Riester, and Ruerup are maxed together, so cap combined salary deductions
+  // to gross salary after mandatory employee social security.
+  const legalOccupationalPension = clampContributionAmount(
     contributionInputs.occupationalPension ?? 0,
     Math.min(DE_BAV_TAX_FREE_LIMIT_2026, grossSalary),
   );
-  const riesterContribution = Math.min(
+  const legalRiesterContribution = clampContributionAmount(
     contributionInputs.riesterContribution ?? 0,
     Math.min(DE_RIESTER_MAX_2026, grossSalary),
   );
   const ruerupMax = isMarried
     ? DE_RUERUP_MAX_MARRIED_2026
     : DE_RUERUP_MAX_SINGLE_2026;
-  const ruerupContribution = Math.min(
+  const legalRuerupContribution = clampContributionAmount(
     contributionInputs.ruerupContribution ?? 0,
     Math.min(ruerupMax, grossSalary),
   );
-  const voluntaryContributions =
-    occupationalPension + riesterContribution + ruerupContribution;
-
-  // Step 1: Calculate Social Security Contributions
-  // These are deducted from gross salary before income tax calculation
-  const socialSecurity = calculateSocialSecurity(grossSalary, isChildless ?? false);
 
   // Step 2: Calculate Taxable Income
   // In Germany, social security contributions reduce taxable income
@@ -135,6 +229,31 @@ export function calculateDE(inputs: DECalculatorInputs): CalculationResult {
 
   // Total standard deductions
   const standardDeductions = employeeLumpSum + specialExpensesLumpSum;
+  const requestedVoluntaryContributions =
+    legalOccupationalPension +
+    legalRiesterContribution +
+    legalRuerupContribution;
+  const payrollSafeVoluntaryTotal = calculateMaxPayrollSafeVoluntaryTotal({
+    requestedTotal: requestedVoluntaryContributions,
+    grossSalary,
+    standardDeductions,
+    socialSecurityTotal: socialSecurity.total,
+    isMarried: isMarried ?? false,
+    isChurchMember: isChurchMember ?? false,
+    churchTaxRate,
+  });
+  const {
+    occupationalPension,
+    riesterContribution,
+    ruerupContribution,
+  } = allocateVoluntaryContributions({
+    totalLimit: payrollSafeVoluntaryTotal,
+    occupationalPension: legalOccupationalPension,
+    riesterContribution: legalRiesterContribution,
+    ruerupContribution: legalRuerupContribution,
+  });
+  const voluntaryContributions =
+    occupationalPension + riesterContribution + ruerupContribution;
 
   // Taxable income calculation
   // Note: In Germany, social security contributions don't directly reduce taxable income
@@ -154,8 +273,6 @@ export function calculateDE(inputs: DECalculatorInputs): CalculationResult {
 
   // Step 5: Calculate Church Tax (Kirchensteuer)
   // Only if member of a recognized religious community
-  const stateCode = state || "BE"; // Default to Berlin if not specified
-  const churchTaxRate = getChurchTaxRate(stateCode);
   const churchTax = isChurchMember
     ? Math.round(incomeTax * churchTaxRate)
     : 0;
@@ -237,7 +354,7 @@ export function calculateDE(inputs: DECalculatorInputs): CalculationResult {
     grossSalary,
     taxableIncome,
     taxes,
-    totalTax: totalIncomeTax,
+    totalTax: totalIncomeTax + socialSecurity.total,
     totalDeductions,
     netSalary,
     effectiveTaxRate,

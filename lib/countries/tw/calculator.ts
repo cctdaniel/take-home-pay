@@ -15,9 +15,13 @@ import type {
 } from "../types";
 import { TW_CONFIG } from "./config";
 import {
+  TW_BASIC_LIVING_EXPENSE_2025,
   TW_EXEMPTIONS_2026,
+  TW_GOLD_CARD_2026,
+  TW_ITEMIZED_DEDUCTIONS_2026,
   TW_STANDARD_DEDUCTION_2026,
   TW_SPECIAL_DEDUCTIONS_2026,
+  TW_NON_RESIDENT_SALARY_TAX_RATE,
   calculateProgressiveTax,
   calculateSocialInsurance,
   TW_LABOR_INSURANCE_2026,
@@ -42,11 +46,25 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
   }
 }
 
+function clampAmount(value: number | undefined, max = Infinity): number {
+  return Math.min(Math.max(0, value ?? 0), Math.max(0, max));
+}
+
+function getHouseholdMemberCount(inputs: TWCalculatorInputs): number {
+  const { taxReliefs } = inputs;
+  return (
+    1 +
+    (taxReliefs.isMarried ? 1 : 0) +
+    Math.max(0, Math.floor(taxReliefs.numberOfDependents ?? 0)) +
+    Math.max(0, Math.floor(taxReliefs.numberOfElderlyLinealAscendants ?? 0))
+  );
+}
+
 // ============================================================================
 // TAIWAN TAX CALCULATION
 // ============================================================================
 function calculateTWIncomeTax(inputs: TWCalculatorInputs) {
-  const { grossSalary, taxReliefs, contributions } = inputs;
+  const { grossSalary, taxReliefs, contributions, taxResidency } = inputs;
   const monthlySalary = grossSalary / 12;
 
   // ==========================================================================
@@ -61,62 +79,233 @@ function calculateTWIncomeTax(inputs: TWCalculatorInputs) {
   };
 
   // Voluntary labor pension contribution (employee can contribute 0-6%)
-  const voluntaryPensionContribution = Math.min(
-    contributions.voluntaryPensionContribution || 0,
+  const voluntaryPensionLimit =
     Math.min(monthlySalary, TW_LABOR_PENSION_2026.monthlyWageCap) *
-      TW_LABOR_PENSION_2026.employeeVoluntaryMaxRate *
-      12
-  );
+    TW_LABOR_PENSION_2026.employeeVoluntaryMaxRate *
+    12;
+  const voluntaryPensionContribution =
+    taxResidency === "resident"
+      ? clampAmount(
+          contributions.voluntaryPensionContribution,
+          voluntaryPensionLimit,
+        )
+      : 0;
+
+  if (taxResidency === "non_resident") {
+    const incomeTax = Math.round(grossSalary * TW_NON_RESIDENT_SALARY_TAX_RATE);
+
+    return {
+      incomeTax,
+      taxableIncome: grossSalary,
+      taxableIncomeBeforeGoldCard: grossSalary,
+      goldCardExemption: 0,
+      goldCardThreshold: TW_GOLD_CARD_2026.salaryThreshold,
+      isGoldCardApplied: false,
+      bracketTaxes: [],
+      socialInsurance: annualSocialInsurance,
+      socialInsuranceMonthly: socialInsurance,
+      deductions: {
+        deductionMethod: taxReliefs.deductionMethod ?? "auto",
+        deductionMethodApplied: "standard" as const,
+        standardDeduction: 0,
+        itemizedDeduction: 0,
+        personalExemption: 0,
+        dependentExemption: 0,
+        elderlyLinealAscendantExemption: 0,
+        specialSalaryDeduction: 0,
+        disabilityDeduction: 0,
+        savingsAndInvestmentDeduction: 0,
+        collegeTuitionDeduction: 0,
+        preschoolChildrenDeduction: 0,
+        longTermCareDeduction: 0,
+        rentDeduction: 0,
+        basicLivingExpenseDifference: 0,
+        charitableDonations: 0,
+        insurancePremiums: 0,
+        medicalAndMaternityExpenses: 0,
+        mortgageInterest: 0,
+        calamityLosses: 0,
+        voluntaryPensionContribution,
+        conditionalDeductionsAllowed: false,
+        totalDeductionsAndExemptions: 0,
+      },
+      monthlySalary,
+    };
+  }
 
   // ==========================================================================
   // STEP 2: Calculate Deductions and Exemptions
   // ==========================================================================
   
-  // Standard deduction (choose itemized or standard - we use standard for simplicity)
+  const householdMembers = getHouseholdMemberCount(inputs);
+
   const standardDeduction = taxReliefs.isMarried
     ? TW_STANDARD_DEDUCTION_2026.married
     : TW_STANDARD_DEDUCTION_2026.single;
 
-  // Personal exemption
-  const personalExemption = TW_EXEMPTIONS_2026.personal;
-
-  // Special salary deduction
-  const specialSalaryDeduction = TW_SPECIAL_DEDUCTIONS_2026.salary;
-
-  // Disability deduction
-  const disabilityDeduction = taxReliefs.hasDisability
-    ? TW_SPECIAL_DEDUCTIONS_2026.disability
-    : 0;
-
-  // Total deductions and exemptions
-  const totalDeductionsAndExemptions =
-    standardDeduction +
-    personalExemption +
-    specialSalaryDeduction +
-    disabilityDeduction +
-    voluntaryPensionContribution;
-
-  // ==========================================================================
-  // STEP 3: Calculate Taxable Income
-  // ==========================================================================
-  // Formula: Gross Salary - (Social Insurance + Deductions + Exemptions)
-  const taxableIncomeBeforeGoldCard = Math.max(
+  const itemizedDeductions = {
+    charitableDonations: Math.min(
+      clampAmount(taxReliefs.charitableDonations),
+      grossSalary * TW_ITEMIZED_DEDUCTIONS_2026.charitableDonationGrossIncomeCapRate,
+    ),
+    insurancePremiums: Math.min(
+      clampAmount(taxReliefs.insurancePremiums),
+      householdMembers * TW_ITEMIZED_DEDUCTIONS_2026.insurancePremiumPerPersonCap,
+    ),
+    medicalAndMaternityExpenses: clampAmount(
+      taxReliefs.medicalAndMaternityExpenses,
+    ),
+    mortgageInterest: Math.min(
+      clampAmount(taxReliefs.mortgageInterest),
+      Math.max(
+        0,
+        TW_ITEMIZED_DEDUCTIONS_2026.mortgageInterestCap -
+          clampAmount(
+            taxReliefs.savingsAndInvestmentIncome,
+            TW_SPECIAL_DEDUCTIONS_2026.savingsAndInvestment,
+          ),
+      ),
+    ),
+    calamityLosses: clampAmount(taxReliefs.calamityLosses),
+  };
+  const itemizedDeduction = Object.values(itemizedDeductions).reduce(
+    (sum, amount) => sum + amount,
     0,
-    grossSalary - annualSocialInsurance.total - totalDeductionsAndExemptions
+  );
+  const requestedDeductionMethod = taxReliefs.deductionMethod ?? "auto";
+  const deductionMethodApplied: "standard" | "itemized" =
+    requestedDeductionMethod === "itemized" ||
+    (requestedDeductionMethod === "auto" && itemizedDeduction > standardDeduction)
+      ? "itemized"
+      : "standard";
+  const standardOrItemizedDeduction =
+    deductionMethodApplied === "itemized" ? itemizedDeduction : standardDeduction;
+
+  const personalExemption =
+    (1 + (taxReliefs.isMarried ? 1 : 0)) * TW_EXEMPTIONS_2026.personal;
+  const dependentExemption =
+    Math.max(0, Math.floor(taxReliefs.numberOfDependents ?? 0)) *
+    TW_EXEMPTIONS_2026.personal;
+  const elderlyLinealAscendantExemption =
+    Math.max(0, Math.floor(taxReliefs.numberOfElderlyLinealAscendants ?? 0)) *
+    TW_EXEMPTIONS_2026.personalElderly;
+  const totalExemptions =
+    personalExemption + dependentExemption + elderlyLinealAscendantExemption;
+
+  const specialSalaryDeduction = Math.min(
+    grossSalary,
+    TW_SPECIAL_DEDUCTIONS_2026.salary,
+  );
+  const disabilityPersons = Math.max(
+    taxReliefs.hasDisability ? 1 : 0,
+    Math.floor(taxReliefs.disabledPersons ?? 0),
+  );
+  const disabilityDeduction =
+    disabilityPersons * TW_SPECIAL_DEDUCTIONS_2026.disability;
+  const savingsAndInvestmentDeduction = clampAmount(
+    taxReliefs.savingsAndInvestmentIncome,
+    TW_SPECIAL_DEDUCTIONS_2026.savingsAndInvestment,
+  );
+  const collegeTuitionDeduction =
+    Math.max(0, Math.floor(taxReliefs.collegeTuitionChildren ?? 0)) *
+    TW_SPECIAL_DEDUCTIONS_2026.collegeTuition;
+  const preschoolChildren = Math.max(
+    0,
+    Math.floor(taxReliefs.preschoolChildren ?? 0),
+  );
+  const preschoolChildrenDeductionCandidate =
+    preschoolChildren > 0
+      ? TW_SPECIAL_DEDUCTIONS_2026.preschoolFirstChild +
+        Math.max(0, preschoolChildren - 1) *
+          TW_SPECIAL_DEDUCTIONS_2026.preschoolSecondAndLaterChild
+      : 0;
+  const longTermCareDeductionCandidate =
+    Math.max(0, Math.floor(taxReliefs.longTermCarePersons ?? 0)) *
+    TW_SPECIAL_DEDUCTIONS_2026.longTermCare;
+  const rentDeductionCandidate = clampAmount(
+    taxReliefs.rentPaid,
+    householdMembers >= 3
+      ? TW_SPECIAL_DEDUCTIONS_2026.rentExpandedHousehold
+      : TW_SPECIAL_DEDUCTIONS_2026.rent,
   );
 
-  // ==========================================================================
-  // STEP 4: Apply Employment Gold Card Tax Benefit (if applicable)
-  // ==========================================================================
-  // Gold Card holders: 50% of income above NT$3M is tax-exempt for first 5 years
-  const GOLD_CARD_THRESHOLD = 3_000_000;
-  let goldCardExemption = 0;
-  let taxableIncome = taxableIncomeBeforeGoldCard;
+  const grossAfterGoldCardExemption =
+    taxReliefs.isGoldCardHolder && grossSalary > TW_GOLD_CARD_2026.salaryThreshold
+      ? grossSalary -
+        (grossSalary - TW_GOLD_CARD_2026.salaryThreshold) *
+          TW_GOLD_CARD_2026.exemptionRate
+      : grossSalary;
+  const baseDeductionsBeforeConditional =
+    standardOrItemizedDeduction +
+    totalExemptions +
+    specialSalaryDeduction +
+    disabilityDeduction +
+    savingsAndInvestmentDeduction +
+    collegeTuitionDeduction +
+    voluntaryPensionContribution;
+  const conditionalDeductionCandidate =
+    preschoolChildrenDeductionCandidate +
+    longTermCareDeductionCandidate +
+    rentDeductionCandidate;
+  const taxableIncomeWithConditional = Math.max(
+    0,
+    grossAfterGoldCardExemption -
+      baseDeductionsBeforeConditional -
+      conditionalDeductionCandidate,
+  );
+  const conditionalDeductionsAllowed =
+    conditionalDeductionCandidate === 0 ||
+    (taxableIncomeWithConditional <=
+      TW_SPECIAL_DEDUCTIONS_2026.incomeTestThreshold &&
+      grossSalary <= TW_SPECIAL_DEDUCTIONS_2026.basicIncomeTestThreshold);
+  const preschoolChildrenDeduction = conditionalDeductionsAllowed
+    ? preschoolChildrenDeductionCandidate
+    : 0;
+  const longTermCareDeduction = conditionalDeductionsAllowed
+    ? longTermCareDeductionCandidate
+    : 0;
+  const rentDeduction = conditionalDeductionsAllowed
+    ? rentDeductionCandidate
+    : 0;
+  const specialDeductionsForBasicLivingComparison =
+    savingsAndInvestmentDeduction +
+    disabilityDeduction +
+    collegeTuitionDeduction +
+    preschoolChildrenDeduction +
+    longTermCareDeduction +
+    rentDeduction;
+  const basicLivingExpenseDifference = Math.max(
+    0,
+    householdMembers * TW_BASIC_LIVING_EXPENSE_2025 -
+      (totalExemptions +
+        standardOrItemizedDeduction +
+        specialDeductionsForBasicLivingComparison),
+  );
 
-  if (taxReliefs.isGoldCardHolder && taxableIncomeBeforeGoldCard > GOLD_CARD_THRESHOLD) {
-    goldCardExemption = (taxableIncomeBeforeGoldCard - GOLD_CARD_THRESHOLD) * 0.5;
-    taxableIncome = taxableIncomeBeforeGoldCard - goldCardExemption;
-  }
+  const totalDeductionsAndExemptions =
+    standardOrItemizedDeduction +
+    totalExemptions +
+    specialSalaryDeduction +
+    disabilityDeduction +
+    savingsAndInvestmentDeduction +
+    collegeTuitionDeduction +
+    preschoolChildrenDeduction +
+    longTermCareDeduction +
+    rentDeduction +
+    basicLivingExpenseDifference +
+    voluntaryPensionContribution;
+
+  const taxableIncomeBeforeGoldCard = Math.max(
+    0,
+    grossSalary - totalDeductionsAndExemptions
+  );
+
+  const goldCardExemption =
+    taxReliefs.isGoldCardHolder && grossSalary > TW_GOLD_CARD_2026.salaryThreshold
+      ? (grossSalary - TW_GOLD_CARD_2026.salaryThreshold) *
+        TW_GOLD_CARD_2026.exemptionRate
+      : 0;
+  const taxableIncome = Math.max(0, taxableIncomeBeforeGoldCard - goldCardExemption);
 
   // ==========================================================================
   // STEP 5: Calculate Income Tax
@@ -129,7 +318,7 @@ function calculateTWIncomeTax(inputs: TWCalculatorInputs) {
     taxableIncome,
     taxableIncomeBeforeGoldCard,
     goldCardExemption,
-    goldCardThreshold: GOLD_CARD_THRESHOLD,
+    goldCardThreshold: TW_GOLD_CARD_2026.salaryThreshold,
     isGoldCardApplied: taxReliefs.isGoldCardHolder && goldCardExemption > 0,
 
     // Bracket taxes based on final taxable income
@@ -141,11 +330,24 @@ function calculateTWIncomeTax(inputs: TWCalculatorInputs) {
 
     // Deductions breakdown
     deductions: {
+      deductionMethod: requestedDeductionMethod,
+      deductionMethodApplied,
       standardDeduction,
+      itemizedDeduction,
       personalExemption,
+      dependentExemption,
+      elderlyLinealAscendantExemption,
       specialSalaryDeduction,
       disabilityDeduction,
+      savingsAndInvestmentDeduction,
+      collegeTuitionDeduction,
+      preschoolChildrenDeduction,
+      longTermCareDeduction,
+      rentDeduction,
+      basicLivingExpenseDifference,
+      ...itemizedDeductions,
       voluntaryPensionContribution,
+      conditionalDeductionsAllowed,
       totalDeductionsAndExemptions,
     },
 
@@ -178,8 +380,10 @@ export function calculateTW(inputs: TWCalculatorInputs): CalculationResult {
     taxes.employmentInsurance +
     taxes.nhi;
 
-  // Total deductions from gross
-  const totalDeductions = totalTax;
+  // Total deductions from gross. Voluntary labor pension reduces taxable income
+  // and is also cash contributed by the employee, so it reduces take-home pay.
+  const totalDeductions =
+    totalTax + taxResult.deductions.voluntaryPensionContribution;
 
   // Net salary after all deductions
   const netSalary = grossSalary - totalDeductions;
@@ -225,11 +429,34 @@ export function calculateTW(inputs: TWCalculatorInputs): CalculationResult {
 
     // Deductions breakdown
     deductions: {
+      deductionMethod: taxResult.deductions.deductionMethod,
+      deductionMethodApplied: taxResult.deductions.deductionMethodApplied,
       standardDeduction: taxResult.deductions.standardDeduction,
+      itemizedDeduction: taxResult.deductions.itemizedDeduction,
       personalExemption: taxResult.deductions.personalExemption,
+      dependentExemption: taxResult.deductions.dependentExemption,
+      elderlyLinealAscendantExemption:
+        taxResult.deductions.elderlyLinealAscendantExemption,
       specialSalaryDeduction: taxResult.deductions.specialSalaryDeduction,
       disabilityDeduction: taxResult.deductions.disabilityDeduction,
+      savingsAndInvestmentDeduction:
+        taxResult.deductions.savingsAndInvestmentDeduction,
+      collegeTuitionDeduction: taxResult.deductions.collegeTuitionDeduction,
+      preschoolChildrenDeduction:
+        taxResult.deductions.preschoolChildrenDeduction,
+      longTermCareDeduction: taxResult.deductions.longTermCareDeduction,
+      rentDeduction: taxResult.deductions.rentDeduction,
+      basicLivingExpenseDifference:
+        taxResult.deductions.basicLivingExpenseDifference,
+      charitableDonations: taxResult.deductions.charitableDonations,
+      insurancePremiums: taxResult.deductions.insurancePremiums,
+      medicalAndMaternityExpenses:
+        taxResult.deductions.medicalAndMaternityExpenses,
+      mortgageInterest: taxResult.deductions.mortgageInterest,
+      calamityLosses: taxResult.deductions.calamityLosses,
       voluntaryPensionContribution: taxResult.deductions.voluntaryPensionContribution,
+      conditionalDeductionsAllowed:
+        taxResult.deductions.conditionalDeductionsAllowed,
       totalDeductionsAndExemptions: taxResult.deductions.totalDeductionsAndExemptions,
     },
 
@@ -282,12 +509,20 @@ export const TWCalculator: CountryCalculator = {
     return [];
   },
 
-  getContributionLimits(): ContributionLimits {
+  getContributionLimits(inputs?: Partial<CalculatorInputs>): ContributionLimits {
+    const twInputs = inputs as Partial<TWCalculatorInputs> | undefined;
+    const isResident = (twInputs?.taxResidency ?? "resident") === "resident";
+
     return {
       voluntaryPensionContribution: {
-        limit: TW_LABOR_PENSION_2026.monthlyWageCap * TW_LABOR_PENSION_2026.employeeVoluntaryMaxRate * 12,
+        limit: isResident
+          ? TW_LABOR_PENSION_2026.monthlyWageCap *
+            TW_LABOR_PENSION_2026.employeeVoluntaryMaxRate *
+            12
+          : 0,
         name: "Voluntary Labor Pension Contribution",
-        description: "Employee can voluntarily contribute 0-6% of monthly salary (capped at NT$150,000)",
+        description:
+          "Employee can voluntarily contribute 0-6% of monthly salary (capped at NT$150,000)",
         preTax: true,
       },
     };
@@ -298,12 +533,27 @@ export const TWCalculator: CountryCalculator = {
       country: "TW",
       grossSalary: 720_000, // NT$60,000 monthly (typical white-collar salary)
       payFrequency: "monthly",
+      taxResidency: "resident",
       contributions: {
         voluntaryPensionContribution: 0,
       },
       taxReliefs: {
         isMarried: false,
         hasDisability: false,
+        deductionMethod: "auto",
+        numberOfDependents: 0,
+        numberOfElderlyLinealAscendants: 0,
+        disabledPersons: 0,
+        savingsAndInvestmentIncome: 0,
+        collegeTuitionChildren: 0,
+        preschoolChildren: 0,
+        longTermCarePersons: 0,
+        rentPaid: 0,
+        charitableDonations: 0,
+        insurancePremiums: 0,
+        medicalAndMaternityExpenses: 0,
+        mortgageInterest: 0,
+        calamityLosses: 0,
         isGoldCardHolder: false,
       },
     };

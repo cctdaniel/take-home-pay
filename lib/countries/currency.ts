@@ -104,27 +104,50 @@ function getCurrencyConfig(currencyCode: CurrencyCode): CurrencyConfig {
   );
 }
 
+function formatStableNumber(
+  value: number,
+  options: {
+    minimumFractionDigits?: number;
+    maximumFractionDigits?: number;
+  } = {},
+): string {
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: options.minimumFractionDigits ?? 0,
+    maximumFractionDigits: options.maximumFractionDigits ?? 0,
+  }).format(value);
+}
+
+function getCurrencyPrefix(config: CurrencyConfig): string {
+  const symbol = config.symbol || config.code;
+  const shouldSeparate = /^[A-Za-z]{2,}$/.test(symbol) || symbol === config.code;
+
+  return shouldSeparate ? `${symbol} ` : symbol;
+}
+
+function formatStableCurrency(
+  amount: number,
+  currencyCode: CurrencyCode,
+  fractionDigits: number,
+): string {
+  const config = getCurrencyConfig(currencyCode);
+  const sign = amount < 0 ? "-" : "";
+  const value = formatStableNumber(Math.abs(amount), {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  });
+
+  return `${sign}${getCurrencyPrefix(config)}${value}`;
+}
+
 // ============================================================================
 // CURRENCY FORMATTING FUNCTIONS
 // ============================================================================
 export function formatCurrency(amount: number, currencyCode: CurrencyCode = "USD"): string {
-  const config = getCurrencyConfig(currencyCode);
-  return new Intl.NumberFormat(config.locale, {
-    style: "currency",
-    currency: config.code,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+  return formatStableCurrency(amount, currencyCode, 0);
 }
 
 export function formatCurrencyWithCents(amount: number, currencyCode: CurrencyCode = "USD"): string {
-  const config = getCurrencyConfig(currencyCode);
-  return new Intl.NumberFormat(config.locale, {
-    style: "currency",
-    currency: config.code,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
+  return formatStableCurrency(amount, currencyCode, 2);
 }
 
 export function formatCurrencyWithCode(amount: number, currencyCode: CurrencyCode = "USD"): string {
@@ -132,18 +155,17 @@ export function formatCurrencyWithCode(amount: number, currencyCode: CurrencyCod
 }
 
 export function formatCurrencyWithCodeAndCents(amount: number, currencyCode: CurrencyCode = "USD"): string {
-  const config = getCurrencyConfig(currencyCode);
-  const formattedAmount = new Intl.NumberFormat(config.locale, {
+  const formattedAmount = formatStableNumber(amount, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(amount);
+  });
 
   return `${currencyCode} ${formattedAmount}`;
 }
 
 export function formatNumber(value: number, currencyCode: CurrencyCode = "USD"): string {
-  const config = getCurrencyConfig(currencyCode);
-  return new Intl.NumberFormat(config.locale).format(value);
+  void currencyCode;
+  return formatStableNumber(value);
 }
 
 export function getCurrencySymbol(currencyCode: CurrencyCode): string {

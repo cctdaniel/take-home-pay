@@ -13,7 +13,7 @@ export const CN_CONFIG: CountryConfig = {
   region: "Asia-Pacific",
   currency: CN_CURRENCY,
   taxYear: 2026,
-  lastUpdated: "2026-05-16",
+  lastUpdated: "2026-05-25",
   defaultRegion: undefined,
   supportsFilingStatus: false,
   supportsRegions: false,

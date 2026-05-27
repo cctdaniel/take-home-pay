@@ -6,10 +6,14 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type ISContributionInputs = Record<never, never>;
+export interface ISContributionInputs {
+  privatePensionContribution: number;
+  charitableDonations: number;
+}
 
 export interface ISCalculatorInputs extends BaseCalculatorInputs {
   country: "IS";
+  foreignExpertRelief: boolean;
   contributions: ISContributionInputs;
 }
 
@@ -30,6 +34,20 @@ export interface ISBreakdown {
     rate: number;
     cap?: number;
   };
+  foreignExpertRelief: {
+    applies: boolean;
+    exemptAmount: number;
+    rate: number;
+    years: number;
+  };
+  voluntaryContributions: Array<{
+    key: keyof ISContributionInputs;
+    name: string;
+    amount: number;
+    limit: number;
+    preTax: boolean;
+    cashFlowTreatment: "deductFromNet" | "taxOnly";
+  }>;
   standardDeduction: number;
   assumptions: string[];
   sourceUrls: string[];

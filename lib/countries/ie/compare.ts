@@ -26,7 +26,21 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
+    age: 35,
     taxStatus,
+    retirementScheme:
+      inputs.assumptions.retirementContributions === "max"
+        ? "private_pension"
+        : "none",
+    hasSinglePersonChildCarerCredit:
+      inputs.maritalStatus === "single" && inputs.numberOfChildren > 0,
+    hasHomeCarerTaxCredit:
+      inputs.maritalStatus === "married" && inputs.assumptions.spouseHasNoIncome,
+    homeCarerIncome: inputs.assumptions.spouseHasNoIncome ? 0 : 11_100,
+    numberOfDependentRelatives: 0,
+    hasReducedUSC: false,
+    sarpRegime: "none",
+    taxableBenefitsInKind: 0,
   };
   const pensionLimit =
     getCountryCalculator(country).getContributionLimits(calculatorInputs)
@@ -35,6 +49,9 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     inputs.assumptions.retirementContributions === "max";
   calculatorInputs.contributions = {
     pensionContribution: retirementApplied ? pensionLimit : 0,
+    qualifyingRentPaid: 0,
+    healthExpenses: 0,
+    flatRateExpenses: 0,
   };
   const result = calculateNetSalary(calculatorInputs);
   return {
@@ -55,8 +72,13 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
         ? "Married/civil partners, one income band"
         : "Single PAYE band",
       retirementApplied
-        ? "Max modeled Irish pension contribution"
+        ? "Max age-35 Irish pension contribution"
         : "No modeled pension contribution",
+      "No taxable benefit-in-kind value entered in compare",
+      inputs.numberOfChildren > 0 && inputs.maritalStatus === "single"
+        ? "Single Person Child Carer Credit modeled"
+        : "No child-carer credit modeled",
+      "No rent, health expense, flat-rate expense, MyFutureFund, or SARP claim in compare",
     ],
     calculation: result,
   };

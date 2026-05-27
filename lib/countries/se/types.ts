@@ -6,10 +6,20 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type SEContributionInputs = Record<never, never>;
+export interface SEContributionInputs {
+  privatePensionSavings: number;
+  commutingExpenses: number;
+  otherWorkExpenses: number;
+  rotRutTaxReduction: number;
+  greenTechnologyTaxReduction: number;
+}
+export type SETaxRegime = "ordinary" | "expertRelief";
 
 export interface SECalculatorInputs extends BaseCalculatorInputs {
   country: "SE";
+  taxRegime: SETaxRegime;
+  municipalTaxRate: number;
+  noOccupationalPension: boolean;
   contributions: SEContributionInputs;
 }
 
@@ -32,7 +42,25 @@ export interface SEBreakdown {
     cap?: number;
   };
   employeeSocialTaxCredit: number;
+  taxRegime: SETaxRegime;
+  expertRelief?: {
+    exemptIncome: number;
+    taxableSalaryBase: number;
+    exemptRate: number;
+  };
   standardDeduction: number;
+  municipalTaxRate: number;
+  noOccupationalPension: boolean;
+  voluntaryDeductions: {
+    privatePensionSavings: number;
+    commutingExpenses: number;
+    commutingDeduction: number;
+    otherWorkExpenses: number;
+    otherWorkExpenseDeduction: number;
+    rotRutTaxReduction: number;
+    greenTechnologyTaxReduction: number;
+    appliedTaxReductions: number;
+  };
   assumptions: string[];
   sourceUrls: string[];
 }

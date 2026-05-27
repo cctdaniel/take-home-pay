@@ -7,6 +7,11 @@ import type {
 } from "../types";
 import type { MexicoIsrBracket, MexicoStateCode } from "./constants/tax-year-2026";
 
+export type MXAguinaldoTreatment =
+  | "excluded"
+  | "statutoryOnTop"
+  | "includedInGross";
+
 export interface MXContributionInputs {
   voluntaryRetirementContribution: number;
   medicalDentalExpenses: number;
@@ -18,6 +23,10 @@ export interface MXContributionInputs {
 export interface MXCalculatorInputs extends BaseCalculatorInputs {
   country: "MX";
   state: MexicoStateCode;
+  aguinaldoTreatment: MXAguinaldoTreatment;
+  aguinaldoIncludedInGross: number;
+  vacationPremium: number;
+  ptuProfitSharing: number;
   contributions: MXContributionInputs;
 }
 
@@ -25,17 +34,32 @@ export interface MXTaxBreakdown extends BaseTaxBreakdown {
   type: "MX";
   incomeTax: number;
   socialSecurity: number;
+  employmentSubsidy: number;
 }
 
 export interface MXBreakdown {
   type: "MX";
   grossIncome: number;
   taxableIncome: number;
+  ordinaryCashSalary: number;
+  cashGrossIncome: number;
   state: MexicoStateCode;
   stateName: string;
   isrBracket: MexicoIsrBracket;
   fixedFee: number;
   marginalTax: number;
+  salaryPerceptions: {
+    aguinaldoTreatment: MXAguinaldoTreatment;
+    aguinaldoAmount: number;
+    aguinaldoExempt: number;
+    vacationPremium: number;
+    vacationPremiumExempt: number;
+    ptuProfitSharing: number;
+    ptuExempt: number;
+    totalExempt: number;
+    taxableAdditionalIncome: number;
+  };
+  employmentSubsidy: number;
   imss: {
     dailySbc: number;
     cappedDailySbc: number;

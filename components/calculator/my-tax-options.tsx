@@ -4,10 +4,15 @@ import {
   BooleanSelectField,
   CalculatorFieldGrid,
   NumberField,
+  NumberStepperField,
   PayFrequencyField,
   SelectField,
 } from "@/components/calculator/calculator-fields";
-import type { MYEpfCategory, MYResidencyType, PayFrequency } from "@/lib/countries/types";
+import type {
+  MYEpfCategory,
+  MYResidencyType,
+  PayFrequency,
+} from "@/lib/countries/types";
 
 interface MYTaxOptionsProps {
   payFrequency: PayFrequency;
@@ -20,10 +25,18 @@ interface MYTaxOptionsProps {
   onEpfCategoryChange: (value: MYEpfCategory) => void;
   hasSpouseRelief: boolean;
   onSpouseReliefChange: (value: boolean) => void;
+  hasDisabledSpouseRelief?: boolean;
+  onDisabledSpouseReliefChange?: (value: boolean) => void;
   numberOfChildrenUnder18: number;
   onNumberOfChildrenUnder18Change: (value: number) => void;
+  numberOfChildren18PlusEducation?: number;
+  onNumberOfChildren18PlusEducationChange?: (value: number) => void;
   numberOfChildrenTertiary: number;
   onNumberOfChildrenTertiaryChange: (value: number) => void;
+  numberOfDisabledChildren?: number;
+  onNumberOfDisabledChildrenChange?: (value: number) => void;
+  numberOfDisabledChildrenTertiary?: number;
+  onNumberOfDisabledChildrenTertiaryChange?: (value: number) => void;
   isDisabled: boolean;
   onDisabledChange: (value: boolean) => void;
 }
@@ -39,10 +52,18 @@ export function MYTaxOptions({
   onEpfCategoryChange,
   hasSpouseRelief,
   onSpouseReliefChange,
+  hasDisabledSpouseRelief = false,
+  onDisabledSpouseReliefChange = () => {},
   numberOfChildrenUnder18,
   onNumberOfChildrenUnder18Change,
+  numberOfChildren18PlusEducation = 0,
+  onNumberOfChildren18PlusEducationChange = () => {},
   numberOfChildrenTertiary,
   onNumberOfChildrenTertiaryChange,
+  numberOfDisabledChildren = 0,
+  onNumberOfDisabledChildrenChange = () => {},
+  numberOfDisabledChildrenTertiary = 0,
+  onNumberOfDisabledChildrenTertiaryChange = () => {},
   isDisabled,
   onDisabledChange,
 }: MYTaxOptionsProps) {
@@ -101,6 +122,16 @@ export function MYTaxOptions({
       />
 
       <BooleanSelectField
+        id="my-disabled-spouse-relief"
+        label="Disabled Spouse Relief"
+        value={hasDisabledSpouseRelief}
+        onChange={onDisabledSpouseReliefChange}
+        trueLabel="Claim RM6,000"
+        falseLabel="No"
+        description="Additional resident disabled husband or wife relief."
+      />
+
+      <BooleanSelectField
         id="my-disabled"
         label="Disabled Individual Relief"
         value={isDisabled}
@@ -109,26 +140,54 @@ export function MYTaxOptions({
         falseLabel="No"
       />
 
-      <NumberField
+      <NumberStepperField
         id="my-children-under-18"
         label="Children Under 18"
         value={numberOfChildrenUnder18}
         onChange={onNumberOfChildrenUnder18Change}
         min={0}
         max={10}
-        fallbackValue={0}
         description="RM2,000 relief per qualifying child."
       />
 
-      <NumberField
+      <NumberStepperField
+        id="my-children-18-plus-education"
+        label="Children 18+ in Education"
+        value={numberOfChildren18PlusEducation}
+        onChange={onNumberOfChildren18PlusEducationChange}
+        min={0}
+        max={10}
+        description="RM2,000 relief for full-time A-level, certificate, matriculation, or preparatory study."
+      />
+
+      <NumberStepperField
         id="my-children-tertiary"
         label="Tertiary Children"
         value={numberOfChildrenTertiary}
         onChange={onNumberOfChildrenTertiaryChange}
         min={0}
         max={10}
-        fallbackValue={0}
         description="RM8,000 relief per qualifying child in higher education."
+      />
+
+      <NumberStepperField
+        id="my-disabled-children"
+        label="Disabled Children"
+        value={numberOfDisabledChildren}
+        onChange={onNumberOfDisabledChildrenChange}
+        min={0}
+        max={10}
+        description="RM8,000 relief per qualifying disabled child."
+      />
+
+      <NumberStepperField
+        id="my-disabled-children-tertiary"
+        label="Disabled Tertiary Children"
+        value={numberOfDisabledChildrenTertiary}
+        onChange={onNumberOfDisabledChildrenTertiaryChange}
+        min={0}
+        max={10}
+        description="Additional RM8,000 for disabled children in qualifying higher education."
       />
     </CalculatorFieldGrid>
   );

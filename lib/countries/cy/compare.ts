@@ -58,8 +58,10 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     grossSalary: grossLocal,
     payFrequency,
     residencyType,
+    employmentExemption: "none",
     contributions: {
       approvedPensionProvidentFund,
+      medicalFundContribution: 0,
       homeInsurancePremium: 0,
       primaryResidenceDeduction: 0,
       greenTransitionExpense: 0,
@@ -80,6 +82,8 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
 
   assumptions.push(
     inputs.assumptions.isResident ? "Cyprus resident" : "Non-resident",
+    "First-employment exemptions left off; use the Cyprus page when eligible",
+    "Medical-fund, home-insurance, primary-residence, and green-transition TD59 deductions are left at zero in compare unless explicitly modeled on the Cyprus page",
   );
 
   if (inputs.numberOfChildren > 0) {

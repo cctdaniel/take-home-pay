@@ -22,10 +22,14 @@ export function calculateNetSalary(inputs: CalculatorInputs): CalculationResult 
     state: inputs.state,
     filingStatus: inputs.filingStatus,
     payFrequency: inputs.payFrequency,
+    numberOfQualifyingChildren: inputs.numberOfQualifyingChildren ?? 0,
+    numberOfOtherDependents: inputs.numberOfOtherDependents ?? 0,
     contributions: {
       traditional401k: inputs.contributions.traditional401k,
       rothIRA: inputs.contributions.rothIRA,
       hsa: inputs.contributions.hsa,
+      healthFsa: inputs.contributions.healthFsa ?? 0,
+      dependentCareFsa: inputs.contributions.dependentCareFsa ?? 0,
       hsaCoverageType: inputs.contributions.hsaCoverageType,
     },
   };
@@ -60,7 +64,9 @@ export function calculateNetSalary(inputs: CalculatorInputs): CalculationResult 
     totalContributions:
       inputs.contributions.traditional401k +
       inputs.contributions.rothIRA +
-      inputs.contributions.hsa,
+      inputs.contributions.hsa +
+      (inputs.contributions.healthFsa ?? 0) +
+      (inputs.contributions.dependentCareFsa ?? 0),
     netSalary: result.netSalary,
     effectiveTaxRate: result.effectiveTaxRate,
     perPeriod: result.perPeriod,

@@ -11,7 +11,7 @@ export const AT_CONFIG: CountryConfig = {
     locale: "en-IE",
   },
   taxYear: 2026,
-  lastUpdated: "2026-05-17",
+  lastUpdated: "2026-05-25",
   supportsFilingStatus: false,
   supportsRegions: false,
 };

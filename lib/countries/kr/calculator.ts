@@ -18,7 +18,9 @@ import { KR_CONFIG } from "./config";
 import {
   KR_SOCIAL_INSURANCE,
   KR_LOCAL_TAX_RATE,
+  KR_FOREIGN_WORKER_FLAT_TAX_RATE,
   KR_TAX_DEDUCTIONS,
+  KR_TAX_CREDITS,
   calculateEmploymentIncomeDeduction,
   calculateProgressiveIncomeTax,
   calculateNationalPension,
@@ -38,6 +40,7 @@ import {
 
 // Default tax reliefs (no dependents)
 const DEFAULT_KR_TAX_RELIEFS: KRTaxReliefInputs = {
+  foreignWorkerFlatTax: false,
   numberOfDependents: 0,
   numberOfChildrenUnder20: 0,
   numberOfChildrenUnder7: 0,
@@ -47,6 +50,7 @@ const DEFAULT_KR_TAX_RELIEFS: KRTaxReliefInputs = {
   educationExpenses: 0,
   donations: 0,
   monthlyRent: 0,
+  annualRentPaid: 0,
   isHomeowner: false,
   hasMealAllowance: false,
   hasChildcareAllowance: false,
@@ -72,7 +76,17 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
 // SOUTH KOREA CALCULATOR
 // ============================================================================
 export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
-  const { grossSalary, payFrequency, residencyType, taxReliefs = DEFAULT_KR_TAX_RELIEFS } = inputs;
+  const {
+    grossSalary,
+    payFrequency,
+    residencyType,
+    taxReliefs: inputTaxReliefs = DEFAULT_KR_TAX_RELIEFS,
+  } = inputs;
+  const taxReliefs: KRTaxReliefInputs = {
+    ...DEFAULT_KR_TAX_RELIEFS,
+    ...inputTaxReliefs,
+  };
+  const usesForeignWorkerFlatTax = taxReliefs.foreignWorkerFlatTax === true;
 
   // ============================================================================
   // STEP 0: Calculate Non-Taxable Allowances (비과세 소득)
@@ -184,13 +198,13 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
 
   // Rent credit (월세 세액공제) - 15% or 17% depending on income
   // Only applies if not a homeowner
+  const annualRentPaid = Math.max(
+    0,
+    taxReliefs.annualRentPaid ?? (taxReliefs.monthlyRent ?? 0) * 12,
+  );
   const rentCredit = taxReliefs.isHomeowner
     ? 0
-    : calculateRentCredit(
-        taxReliefs.monthlyRent,
-        grossSalary,
-        taxReliefs.numberOfDependents > 0 || taxReliefs.numberOfChildrenUnder20 > 0
-      );
+    : calculateRentCredit(annualRentPaid, grossSalary);
 
   // Total tax credits
   const totalTaxCredits =
@@ -213,29 +227,48 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
   // Total income tax (national + local)
   const totalIncomeTax = finalIncomeTax + localIncomeTax;
 
+  const foreignWorkerFlatTaxBase = grossSalary;
+  const foreignWorkerFlatNationalTax = Math.round(
+    foreignWorkerFlatTaxBase * KR_FOREIGN_WORKER_FLAT_TAX_RATE,
+  );
+  const foreignWorkerFlatLocalTax = Math.round(
+    foreignWorkerFlatNationalTax * KR_LOCAL_TAX_RATE,
+  );
+  const foreignWorkerFlatTotalTax =
+    foreignWorkerFlatNationalTax + foreignWorkerFlatLocalTax;
+
   // ============================================================================
-  // STEP 3: Handle Non-Residents
-  // Non-residents are typically taxed at a flat rate or withholding rate
+  // STEP 3B: Apply foreign-worker flat tax or non-resident flat withholding proxy
   // ============================================================================
-  let adjustedIncomeTax = totalIncomeTax;
-  if (residencyType === "non_resident") {
-    // Non-residents are typically taxed at a flat 19% withholding rate
-    // or progressive rate, whichever is higher
-    const flatTaxRate = 0.19;
-    const flatTax = Math.round(grossSalary * flatTaxRate);
-    adjustedIncomeTax = Math.max(totalIncomeTax, flatTax);
+  let appliedNationalIncomeTax = finalIncomeTax;
+  let appliedLocalIncomeTax = localIncomeTax;
+  let appliedTotalIncomeTax = totalIncomeTax;
+  let foreignWorkerFlatTaxApplied = false;
+  let nonResidentFlatTaxApplied = false;
+
+  if (usesForeignWorkerFlatTax) {
+    appliedNationalIncomeTax = foreignWorkerFlatNationalTax;
+    appliedLocalIncomeTax = foreignWorkerFlatLocalTax;
+    appliedTotalIncomeTax = foreignWorkerFlatTotalTax;
+    foreignWorkerFlatTaxApplied = true;
+  } else if (
+    residencyType === "non_resident" &&
+    foreignWorkerFlatTotalTax > totalIncomeTax
+  ) {
+    appliedNationalIncomeTax = foreignWorkerFlatNationalTax;
+    appliedLocalIncomeTax = foreignWorkerFlatLocalTax;
+    appliedTotalIncomeTax = foreignWorkerFlatTotalTax;
+    nonResidentFlatTaxApplied = true;
   }
 
   // ============================================================================
   // STEP 4: Build Results
   // ============================================================================
 
-  // Tax breakdown
-  // Note: For non-residents, incomeTax equals adjustedIncomeTax since there's no separate local tax
   const taxes: KRTaxBreakdown = {
-    totalIncomeTax: adjustedIncomeTax,
-    incomeTax: residencyType === "non_resident" ? adjustedIncomeTax : finalIncomeTax,
-    localIncomeTax: residencyType === "non_resident" ? 0 : localIncomeTax,
+    totalIncomeTax: appliedTotalIncomeTax,
+    incomeTax: appliedNationalIncomeTax,
+    localIncomeTax: appliedLocalIncomeTax,
     nationalPension: annualNationalPension,
     nationalHealthInsurance: annualHealthInsurance,
     longTermCareInsurance: annualLongTermCare,
@@ -243,10 +276,16 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
   };
 
   // Total tax = income tax + social insurance
-  const totalTax = adjustedIncomeTax + totalSocialInsurance;
+  const totalTax = appliedTotalIncomeTax + totalSocialInsurance;
 
-  // No voluntary deductions for KR currently
-  const totalDeductions = totalTax;
+  const voluntaryPersonalPensionContribution = usesForeignWorkerFlatTax
+    ? 0
+    : Math.min(
+        Math.max(0, taxReliefs.personalPensionContribution),
+        KR_TAX_CREDITS.pensionCredit.maxContribution,
+      );
+  const totalVoluntaryContributions = voluntaryPersonalPensionContribution;
+  const totalDeductions = totalTax + totalVoluntaryContributions;
 
   // Net salary
   const netSalary = grossSalary - totalDeductions;
@@ -255,16 +294,25 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
 
   const periodsPerYear = getPeriodsPerYear(payFrequency);
+  const reportedTaxableIncome = usesForeignWorkerFlatTax
+    ? foreignWorkerFlatTaxBase
+    : taxableIncome;
 
   // Detailed breakdown
   const breakdown: KRBreakdown = {
     type: "KR",
-    taxableIncome,
-    nonTaxableIncome: {
-      mealAllowance: nonTaxableAllowances.mealAllowance,
-      childcareAllowance: nonTaxableAllowances.childcareAllowance,
-      total: nonTaxableAllowances.total,
-    },
+    taxableIncome: reportedTaxableIncome,
+    nonTaxableIncome: usesForeignWorkerFlatTax
+      ? {
+          mealAllowance: 0,
+          childcareAllowance: 0,
+          total: 0,
+        }
+      : {
+          mealAllowance: nonTaxableAllowances.mealAllowance,
+          childcareAllowance: nonTaxableAllowances.childcareAllowance,
+          total: nonTaxableAllowances.total,
+        },
     socialInsurance: {
       nationalPension: annualNationalPension,
       nationalPensionRate: KR_SOCIAL_INSURANCE.nationalPension.employeeRate,
@@ -277,32 +325,76 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
       employmentInsuranceRate: KR_SOCIAL_INSURANCE.employmentInsurance.employeeRate,
       totalSocialInsurance,
     },
-    incomeDeductions: {
-      employmentIncomeDeduction,
-      basicDeduction,
-      dependentDeduction,
-      childDeduction,
-      childUnder7Deduction,
-      socialInsuranceDeduction: totalSocialInsurance, // Social insurance is deductible
-      totalDeductions: totalPersonalDeductions + employmentIncomeDeduction + totalSocialInsurance,
-    },
-    taxCredits: {
-      wageEarnerCredit: wageEarnerTaxCredit,
-      standardCredit: standardTaxCredit,
-      childTaxCredit,
-      pensionCredit, // Personal pension credit (연금저축/IRP)
-      insuranceCredit, // 보험료 세액공제
-      medicalCredit, // 의료비 세액공제
-      educationCredit, // 교육비 세액공제
-      donationCredit, // 기부금 세액공제
-      rentCredit, // 월세 세액공제
-      totalCredits: totalTaxCredits,
+    incomeDeductions: usesForeignWorkerFlatTax
+      ? {
+          employmentIncomeDeduction: 0,
+          basicDeduction: 0,
+          dependentDeduction: 0,
+          childDeduction: 0,
+          childUnder7Deduction: 0,
+          socialInsuranceDeduction: 0,
+          totalDeductions: 0,
+        }
+      : {
+          employmentIncomeDeduction,
+          basicDeduction,
+          dependentDeduction,
+          childDeduction,
+          childUnder7Deduction,
+          socialInsuranceDeduction: totalSocialInsurance, // Social insurance is deductible
+          totalDeductions:
+            totalPersonalDeductions + employmentIncomeDeduction + totalSocialInsurance,
+        },
+    taxCredits: usesForeignWorkerFlatTax
+      ? {
+          wageEarnerCredit: 0,
+          standardCredit: 0,
+          childTaxCredit: 0,
+          pensionCredit: 0,
+          insuranceCredit: 0,
+          medicalCredit: 0,
+          educationCredit: 0,
+          donationCredit: 0,
+          rentCredit: 0,
+          totalCredits: 0,
+        }
+      : {
+          wageEarnerCredit: wageEarnerTaxCredit,
+          standardCredit: standardTaxCredit,
+          childTaxCredit,
+          pensionCredit, // Personal pension credit (연금저축/IRP)
+          insuranceCredit, // 보험료 세액공제
+          medicalCredit, // 의료비 세액공제
+          educationCredit, // 교육비 세액공제
+          donationCredit, // 기부금 세액공제
+          rentCredit, // 월세 세액공제
+          totalCredits: totalTaxCredits,
+        },
+    voluntaryContributions: {
+      personalPensionContribution: voluntaryPersonalPensionContribution,
+      total: totalVoluntaryContributions,
     },
     taxDetails: {
-      grossIncomeTax,
-      finalIncomeTax,
-      localIncomeTax,
-      totalIncomeTax: adjustedIncomeTax,
+      grossIncomeTax: usesForeignWorkerFlatTax
+        ? foreignWorkerFlatNationalTax
+        : grossIncomeTax,
+      finalIncomeTax: appliedNationalIncomeTax,
+      localIncomeTax: appliedLocalIncomeTax,
+      totalIncomeTax: appliedTotalIncomeTax,
+      foreignWorkerFlatTaxApplied,
+      foreignWorkerFlatTaxBase: usesForeignWorkerFlatTax
+        ? foreignWorkerFlatTaxBase
+        : undefined,
+      foreignWorkerFlatNationalTax: usesForeignWorkerFlatTax
+        ? foreignWorkerFlatNationalTax
+        : undefined,
+      foreignWorkerFlatLocalTax: usesForeignWorkerFlatTax
+        ? foreignWorkerFlatLocalTax
+        : undefined,
+      ordinaryTotalIncomeTax: usesForeignWorkerFlatTax
+        ? totalIncomeTax
+        : undefined,
+      nonResidentFlatTaxApplied,
     },
   };
 
@@ -310,7 +402,7 @@ export function calculateKR(inputs: KRCalculatorInputs): CalculationResult {
     country: "KR",
     currency: "KRW",
     grossSalary,
-    taxableIncome,
+    taxableIncome: reportedTaxableIncome,
     taxes,
     totalTax,
     totalDeductions,
@@ -345,15 +437,9 @@ export const KRCalculator: CountryCalculator = {
   },
 
   getContributionLimits(): ContributionLimits {
-    // All social insurance is mandatory - no optional contribution limits
-    return {
-      nationalPension: {
-        limit: KR_SOCIAL_INSURANCE.nationalPension.monthlyCeiling * 12,
-        name: "National Pension",
-        description: "Mandatory pension contribution (4.75% employee share)",
-        preTax: true,
-      },
-    };
+    // Mandatory social insurance is automatic payroll logic, not an optional
+    // contribution slider.
+    return {};
   },
 
   getDefaultInputs(): KRCalculatorInputs {

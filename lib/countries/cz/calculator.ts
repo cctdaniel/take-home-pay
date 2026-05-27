@@ -9,6 +9,7 @@ import type {
 import { CZ_CONFIG } from "./config";
 import {
   calculateCzechChildCredit,
+  calculateCzechCompanyCarBenefit,
   calculateCzechDeductibleCharitableDonations,
   calculateCzechHealthInsurance,
   calculateCzechProgressiveIncomeTax,
@@ -17,7 +18,13 @@ import {
   clampCzechAmount,
   CZECH_TAX_PARAMETERS_2026,
 } from "./constants/tax-parameters-2026";
-import type { CZBreakdown, CZCalculatorInputs, CZTaxBreakdown } from "./types";
+import type {
+  CZBreakdown,
+  CZCalculatorInputs,
+  CZCompanyCarEmissionType,
+  CZDisabilityCreditType,
+  CZTaxBreakdown,
+} from "./types";
 
 function getPeriodsPerYear(frequency: PayFrequency): number {
   switch (frequency) {
@@ -32,16 +39,72 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
   }
 }
 
+function normalizeDisabilityCreditType(
+  value?: CZDisabilityCreditType,
+): CZDisabilityCreditType {
+  return value === "basic" || value === "extended" ? value : "none";
+}
+
+function calculateDisabilityCredit(
+  isResident: boolean,
+  value?: CZDisabilityCreditType,
+): number {
+  if (!isResident) {
+    return 0;
+  }
+
+  switch (normalizeDisabilityCreditType(value)) {
+    case "basic":
+      return CZECH_TAX_PARAMETERS_2026.credits.disabilityBasic;
+    case "extended":
+      return CZECH_TAX_PARAMETERS_2026.credits.disabilityExtended;
+    default:
+      return 0;
+  }
+}
+
+function normalizeCompanyCarEmissionType(
+  value?: CZCompanyCarEmissionType,
+): CZCompanyCarEmissionType {
+  return value === "lowEmission" || value === "zeroEmission"
+    ? value
+    : "standard";
+}
+
 export function calculateCZ(inputs: CZCalculatorInputs): CalculationResult {
   const {
     grossSalary,
     payFrequency,
     residencyType,
+    benefits,
     contributions,
     taxReliefs,
   } = inputs;
 
-  const grossIncome = Math.max(0, grossSalary);
+  const cashGrossIncome = Math.max(0, grossSalary);
+  const otherTaxableNonCashBenefits = Math.max(
+    0,
+    benefits?.otherTaxableNonCashBenefits || 0,
+  );
+  const companyCarEntryPrice = Math.max(
+    0,
+    benefits?.companyCarEntryPrice || 0,
+  );
+  const companyCarMonths = Math.min(
+    Math.max(0, Math.floor(benefits?.companyCarMonths || 0)),
+    12,
+  );
+  const companyCarEmissionType = normalizeCompanyCarEmissionType(
+    benefits?.companyCarEmissionType,
+  );
+  const companyCarBenefit = calculateCzechCompanyCarBenefit({
+    entryPrice: companyCarEntryPrice,
+    emissionType: companyCarEmissionType,
+    months: companyCarMonths,
+  });
+  const totalTaxableBenefits =
+    otherTaxableNonCashBenefits + companyCarBenefit;
+  const taxableEmploymentIncome = cashGrossIncome + totalTaxableBenefits;
   const isResident = residencyType === "resident";
   const normalizedChildren = Math.max(
     0,
@@ -56,7 +119,7 @@ export function calculateCZ(inputs: CZCalculatorInputs): CalculationResult {
     : 0;
   const charitableDonations = isResident
     ? calculateCzechDeductibleCharitableDonations(
-        grossIncome,
+        taxableEmploymentIncome,
         contributions.charitableDonations,
       )
     : 0;
@@ -65,7 +128,7 @@ export function calculateCZ(inputs: CZCalculatorInputs): CalculationResult {
 
   const { taxableIncomeBeforeRounding, taxableIncome } =
     calculateCzechTaxableIncome(
-      grossIncome,
+      taxableEmploymentIncome,
       retirementSavingsContribution,
       charitableDonations,
     );
@@ -76,11 +139,23 @@ export function calculateCZ(inputs: CZCalculatorInputs): CalculationResult {
     CZECH_TAX_PARAMETERS_2026.credits.basicTaxpayer;
   const spouseCredit =
     isResident && taxReliefs.hasSpouseCredit
-      ? CZECH_TAX_PARAMETERS_2026.credits.spouse
+      ? taxReliefs.hasSpouseZtpP
+        ? CZECH_TAX_PARAMETERS_2026.credits.spouseZtpP
+        : CZECH_TAX_PARAMETERS_2026.credits.spouse
       : 0;
+  const disabilityCredit = calculateDisabilityCredit(
+    isResident,
+    taxReliefs.disabilityCreditType,
+  );
+  const ztpPCardCredit =
+    isResident && taxReliefs.hasZtpPCard
+      ? CZECH_TAX_PARAMETERS_2026.credits.ztpPCard
+      : 0;
+  const nonRefundablePersonalCredits =
+    basicTaxpayerCredit + spouseCredit + disabilityCredit + ztpPCardCredit;
   const taxAfterNonRefundableCredits = Math.max(
     0,
-    grossIncomeTax - basicTaxpayerCredit - spouseCredit,
+    grossIncomeTax - nonRefundablePersonalCredits,
   );
   const childCredit = isResident
     ? calculateCzechChildCredit(normalizedChildren)
@@ -91,7 +166,7 @@ export function calculateCZ(inputs: CZCalculatorInputs): CalculationResult {
   );
   const potentialChildTaxBonus = childCredit - childCreditAgainstTax;
   const childTaxBonus =
-    grossIncome >=
+    taxableEmploymentIncome >=
       CZECH_TAX_PARAMETERS_2026.minimumAnnualIncomeForChildBonus &&
     potentialChildTaxBonus >=
       CZECH_TAX_PARAMETERS_2026.minimumAnnualChildBonus
@@ -99,8 +174,8 @@ export function calculateCZ(inputs: CZCalculatorInputs): CalculationResult {
       : 0;
   const incomeTax = taxAfterNonRefundableCredits - childCreditAgainstTax;
 
-  const socialSecurity = calculateCzechSocialSecurity(grossIncome);
-  const healthInsurance = calculateCzechHealthInsurance(grossIncome);
+  const socialSecurity = calculateCzechSocialSecurity(taxableEmploymentIncome);
+  const healthInsurance = calculateCzechHealthInsurance(taxableEmploymentIncome);
 
   const taxes: CZTaxBreakdown = {
     type: "CZ",
@@ -117,8 +192,9 @@ export function calculateCZ(inputs: CZCalculatorInputs): CalculationResult {
     healthInsurance.employee -
     childTaxBonus;
   const totalDeductions = totalTax + totalModeledDeductions;
-  const netSalary = grossIncome - totalDeductions;
-  const effectiveTaxRate = grossIncome > 0 ? totalTax / grossIncome : 0;
+  const netSalary = cashGrossIncome - totalDeductions;
+  const effectiveTaxRate =
+    cashGrossIncome > 0 ? totalTax / cashGrossIncome : 0;
   const periodsPerYear = getPeriodsPerYear(payFrequency);
   const higherRateTaxableIncome = Math.max(
     0,
@@ -127,7 +203,17 @@ export function calculateCZ(inputs: CZCalculatorInputs): CalculationResult {
 
   const breakdown: CZBreakdown = {
     type: "CZ",
-    grossIncome,
+    grossIncome: cashGrossIncome,
+    cashGrossIncome,
+    taxableEmploymentIncome,
+    taxableBenefits: {
+      otherTaxableNonCashBenefits,
+      companyCarBenefit,
+      companyCarEntryPrice,
+      companyCarEmissionType,
+      companyCarMonths,
+      total: totalTaxableBenefits,
+    },
     isResident,
     taxableIncomeBeforeRounding,
     taxableIncome,
@@ -144,11 +230,13 @@ export function calculateCZ(inputs: CZCalculatorInputs): CalculationResult {
     taxCredits: {
       basicTaxpayerCredit,
       spouseCredit,
+      disabilityCredit,
+      ztpPCardCredit,
       childCredit,
       childCreditAgainstTax,
       childTaxBonus,
       totalNonRefundableCredits:
-        Math.min(grossIncomeTax, basicTaxpayerCredit + spouseCredit) +
+        Math.min(grossIncomeTax, nonRefundablePersonalCredits) +
         childCreditAgainstTax,
     },
     incomeTax: {
@@ -177,13 +265,18 @@ export function calculateCZ(inputs: CZCalculatorInputs): CalculationResult {
     taxReliefs: {
       numberOfChildren: normalizedChildren,
       hasSpouseCredit: taxReliefs.hasSpouseCredit,
+      hasSpouseZtpP: taxReliefs.hasSpouseZtpP,
+      disabilityCreditType: normalizeDisabilityCreditType(
+        taxReliefs.disabilityCreditType,
+      ),
+      hasZtpPCard: Boolean(taxReliefs.hasZtpPCard),
     },
   };
 
   return {
     country: "CZ",
     currency: "CZK",
-    grossSalary: grossIncome,
+    grossSalary: cashGrossIncome,
     taxableIncome,
     taxes,
     totalTax,
@@ -191,7 +284,7 @@ export function calculateCZ(inputs: CZCalculatorInputs): CalculationResult {
     netSalary,
     effectiveTaxRate,
     perPeriod: {
-      gross: grossIncome / periodsPerYear,
+      gross: cashGrossIncome / periodsPerYear,
       net: netSalary / periodsPerYear,
       frequency: payFrequency,
     },
@@ -218,6 +311,22 @@ export const CZCalculator: CountryCalculator = {
   getContributionLimits(inputs?: Partial<CalculatorInputs>): ContributionLimits {
     const czInputs = inputs as Partial<CZCalculatorInputs> | undefined;
     const grossSalary = Math.max(0, czInputs?.grossSalary ?? 720_000);
+    const otherTaxableNonCashBenefits = Math.max(
+      0,
+      czInputs?.benefits?.otherTaxableNonCashBenefits ?? 0,
+    );
+    const companyCarBenefit = calculateCzechCompanyCarBenefit({
+      entryPrice: Math.max(0, czInputs?.benefits?.companyCarEntryPrice ?? 0),
+      emissionType: normalizeCompanyCarEmissionType(
+        czInputs?.benefits?.companyCarEmissionType,
+      ),
+      months: Math.min(
+        Math.max(0, Math.floor(czInputs?.benefits?.companyCarMonths ?? 0)),
+        12,
+      ),
+    });
+    const taxableEmploymentIncome =
+      grossSalary + otherTaxableNonCashBenefits + companyCarBenefit;
     const isResident = (czInputs?.residencyType ?? "resident") === "resident";
 
     return {
@@ -232,7 +341,7 @@ export const CZCalculator: CountryCalculator = {
       },
       charitableDonations: {
         limit: isResident
-          ? grossSalary *
+          ? taxableEmploymentIncome *
             CZECH_TAX_PARAMETERS_2026.deductions.charitableDonationMaxRate
           : 0,
         name: "Charitable Gifts",
@@ -249,6 +358,12 @@ export const CZCalculator: CountryCalculator = {
       grossSalary: 720_000,
       payFrequency: "monthly",
       residencyType: "resident",
+      benefits: {
+        otherTaxableNonCashBenefits: 0,
+        companyCarEntryPrice: 0,
+        companyCarEmissionType: "standard",
+        companyCarMonths: 0,
+      },
       contributions: {
         retirementSavingsContribution: 0,
         charitableDonations: 0,
@@ -256,6 +371,9 @@ export const CZCalculator: CountryCalculator = {
       taxReliefs: {
         numberOfChildren: 0,
         hasSpouseCredit: false,
+        hasSpouseZtpP: false,
+        disabilityCreditType: "none",
+        hasZtpPCard: false,
       },
     };
   },

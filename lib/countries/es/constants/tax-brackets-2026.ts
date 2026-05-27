@@ -19,9 +19,24 @@
 //   https://sede.agenciatributaria.gob.es/Sede/no-residentes/irnr-sin-establecimiento-permanente/tipos-gravamen-irnr-sin-establecimiento-permanente.html
 // - AEAT pension and social welfare contribution reduction limits:
 //   https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-ayuda-presentacion/irpf-2025/8-cumplimentacion-irpf/8_2-base-liquidable-general-base-ahorro/8_2_2-reducciones-aportaciones-prevision-social/8_2_2_6-aportaciones-anuales-maximas-limite-reduccion.html
+// - AEAT special regime for displaced workers / Article 93:
+//   https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025/c02-irpf-cuestiones-generales/sujecion-irpf-aspectos-personales/regimen-fiscal-especial-aplicable-trabajadores-desplazados.html
+// - AEAT special regime rates:
+//   https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2023/c15-calculo-impuesto-determinacion-cuotas-integras/regimen-fiscal-especial-aplicable-trabajadores.html
 // ============================================================================
 
 import type { TaxBracket } from "../../types";
+
+export const SPAIN_SOURCE_URLS = [
+  "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025/c15-calculo-impuesto-determinacion-cuotas-integras/gravamen-base-liquidable-general/gravamen-estatal.html",
+  "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025/c15-calculo-impuesto-determinacion-cuotas-integras/gravamen-base-liquidable-general/gravamen-autonomico.html",
+  "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025/c14-adecuacion-impuesto-circunstancias-personales/cuadro-resumen-minimo-personal-familiar.html",
+  "https://www.boe.es/buscar/doc.php?id=BOE-A-2026-7296",
+  "https://www.seg-social.es/wps/portal/wss/internet/Trabajadores/CotizacionRecaudacionTrabajadores/36537",
+  "https://sede.agenciatributaria.gob.es/Sede/no-residentes/irnr-sin-establecimiento-permanente/tipos-gravamen-irnr-sin-establecimiento-permanente.html",
+  "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-ayuda-presentacion/irpf-2025/8-cumplimentacion-irpf/8_2-base-liquidable-general-base-ahorro/8_2_2-reducciones-aportaciones-prevision-social/8_2_2_6-aportaciones-anuales-maximas-limite-reduccion.html",
+  "https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/irpf-2025/c02-irpf-cuestiones-generales/sujecion-irpf-aspectos-personales/regimen-fiscal-especial-aplicable-trabajadores-desplazados.html",
+] as const;
 
 export type ESRegionCode =
   | "general"
@@ -159,6 +174,12 @@ export const SPAIN_IRNR_RATES_2026 = {
   euEea: 0.19,
   other: 0.24,
 };
+
+export const SPAIN_BECKHAM_LAW_RATES_2026 = {
+  threshold: 600_000,
+  firstRate: 0.24,
+  excessRate: 0.47,
+} as const;
 
 export const SPAIN_SOCIAL_SECURITY_2026 = {
   monthlyBaseMax: 5_101.2,

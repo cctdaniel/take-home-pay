@@ -26,18 +26,33 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
           grossLocal,
         )
       : 0;
+  const spouseCreditApplied =
+    isResident &&
+    inputs.maritalStatus === "married" &&
+    inputs.assumptions.spouseHasNoIncome &&
+    inputs.numberOfChildren > 0 &&
+    inputs.assumptions.hasChildUnder3;
   const czInputs: CZCalculatorInputs = {
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
     residencyType: isResident ? "resident" : "non_resident",
+    benefits: {
+      otherTaxableNonCashBenefits: 0,
+      companyCarEntryPrice: 0,
+      companyCarEmissionType: "standard",
+      companyCarMonths: 0,
+    },
     contributions: {
       retirementSavingsContribution,
       charitableDonations: 0,
     },
     taxReliefs: {
       numberOfChildren: isResident ? inputs.numberOfChildren : 0,
-      hasSpouseCredit: false,
+      hasSpouseCredit: spouseCreditApplied,
+      hasSpouseZtpP: false,
+      disabilityCreditType: "none",
+      hasZtpPCard: false,
     },
   };
   const result = calculateNetSalary(czInputs);
@@ -49,9 +64,18 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
   );
 
   assumptions.push(isResident ? "Czech tax resident" : "Non-resident");
+  assumptions.push(
+    "Disability, ZTP/P, and spouse ZTP/P credits left off in compare; use the Czechia page when eligible",
+  );
+  assumptions.push(
+    "Taxable non-cash benefits and company-car private-use value set to zero in compare",
+  );
 
   if (isResident && inputs.numberOfChildren > 0) {
     assumptions.push("CZ child tax credit");
+    if (inputs.assumptions.hasChildUnder3) {
+      assumptions.push("Child under 3");
+    }
   }
 
   if (
@@ -59,7 +83,11 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     inputs.maritalStatus === "married" &&
     inputs.assumptions.spouseHasNoIncome
   ) {
-    assumptions.push("Spouse credit excluded");
+    assumptions.push(
+      spouseCreditApplied
+        ? "CZ spouse credit included"
+        : "No CZ spouse credit without child under 3",
+    );
   }
 
   return {

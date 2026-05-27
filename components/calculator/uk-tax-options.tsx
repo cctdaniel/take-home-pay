@@ -1,11 +1,17 @@
 "use client";
 
 import {
+  BooleanSelectField,
   CalculatorFieldGrid,
   PayFrequencyField,
   SelectField,
 } from "@/components/calculator/calculator-fields";
-import type { PayFrequency, UKResidencyType } from "@/lib/countries/types";
+import type {
+  PayFrequency,
+  UKMarriageAllowanceTreatment,
+  UKResidencyType,
+  UKStudentLoanPlan,
+} from "@/lib/countries/types";
 
 type UKRegion = "rest_of_uk" | "scotland";
 
@@ -16,6 +22,12 @@ interface UKTaxOptionsProps {
   onResidencyTypeChange: (value: UKResidencyType) => void;
   region: UKRegion;
   onRegionChange: (value: UKRegion) => void;
+  studentLoanPlan: UKStudentLoanPlan;
+  onStudentLoanPlanChange: (value: UKStudentLoanPlan) => void;
+  hasPostgraduateLoan: boolean;
+  onPostgraduateLoanChange: (value: boolean) => void;
+  marriageAllowance: UKMarriageAllowanceTreatment;
+  onMarriageAllowanceChange: (value: UKMarriageAllowanceTreatment) => void;
 }
 
 export function UKTaxOptions({
@@ -25,6 +37,12 @@ export function UKTaxOptions({
   onResidencyTypeChange,
   region,
   onRegionChange,
+  studentLoanPlan,
+  onStudentLoanPlanChange,
+  hasPostgraduateLoan,
+  onPostgraduateLoanChange,
+  marriageAllowance,
+  onMarriageAllowanceChange,
 }: UKTaxOptionsProps) {
   return (
     <CalculatorFieldGrid columns={2}>
@@ -54,6 +72,41 @@ export function UKTaxOptions({
         id="uk-pay-frequency"
         value={payFrequency}
         onChange={onPayFrequencyChange}
+      />
+      <SelectField
+        id="uk-student-loan-plan"
+        label="Student Loan Plan"
+        value={studentLoanPlan}
+        onChange={onStudentLoanPlanChange}
+        options={[
+          { value: "none", label: "No student loan" },
+          { value: "plan1", label: "Plan 1" },
+          { value: "plan2", label: "Plan 2" },
+          { value: "plan4", label: "Plan 4" },
+          { value: "plan5", label: "Plan 5" },
+        ]}
+        description="Uses 2026/27 HMRC annual repayment thresholds and the 9% deduction rate."
+      />
+      <BooleanSelectField
+        id="uk-postgraduate-loan"
+        label="Postgraduate Loan"
+        value={hasPostgraduateLoan}
+        onChange={onPostgraduateLoanChange}
+        trueLabel="Yes"
+        falseLabel="No"
+        description="Adds the 6% postgraduate loan deduction above the 2026/27 threshold."
+      />
+      <SelectField
+        id="uk-marriage-allowance"
+        label="Marriage Allowance"
+        value={marriageAllowance}
+        onChange={onMarriageAllowanceChange}
+        options={[
+          { value: "none", label: "Not claimed" },
+          { value: "receiving", label: "Receiving from spouse" },
+          { value: "transferring", label: "Transferring to spouse" },
+        ]}
+        description="Models the transferable personal allowance for eligible married couples or civil partners."
       />
     </CalculatorFieldGrid>
   );

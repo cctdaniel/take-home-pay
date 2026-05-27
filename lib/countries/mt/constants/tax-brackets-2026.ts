@@ -24,16 +24,27 @@
 // MTCA RA23 Voluntary Occupational Pension Scheme form:
 // https://mtca.gov.mt/docs/default-source/documents/personal-tax/individual/return-attachments/mtca-ra23-mlt-eng.pdf?sfvrsn=e90d4e6d_1
 //
-// Official nomad guidance considered but excluded from ordinary employment:
+// Official nomad guidance:
 // https://mtca.gov.mt/docs/default-source/documents/personal-tax/legal-and-technical/guidelines/nomad-guidelines---12-03-2026.pdf?sfvrsn=f0cc9971_6
+//
+// Official highly skilled individuals guidance:
+// Legal Notice 20 of 2026, Tax Treatment of Highly Skilled Individuals Rules:
+// https://legislation.mt/getpdf/69806d18a1e8c11f0469dfad
+// MTCA guidelines:
+// https://mtca.gov.mt/docs/default-source/documents/personal-tax/legal-and-technical/guidelines/hqpr-new-amalgamated-rules---guidelines---branded-06-04-(002).pdf?sfvrsn=b605473e_1
 //
 // Assumptions:
 // - Models ordinary adult employment salary in Malta.
 // - Social Security Class 1 Category B/C/D is modeled for adult employees.
 // - Category A under-18 employees, apprenticeship students, part-time jobs
 //   under 8 hours, special final taxes, pension income exemptions, permanent
-//   resident/returned migrant/special tax status programmes, and nomad
-//   authorised work are outside this calculator.
+//   resident and returned migrant programmes are outside this calculator.
+// - Nomad Residence Permit authorised work is modeled as a separate income-tax
+//   scenario for the eligible main applicant's authorised work. Maltese Class 1
+//   payroll SSC is not applied to that foreign-employer/foreign-client scenario.
+// - Highly Skilled Individuals status is modeled as a separate 15% employment
+//   income scenario when the 2026 EUR 65,000 minimum is met. Ordinary deductions
+//   and tax credits do not apply to the 15% option.
 // - Employee Class 1 SSC is treated as a payroll deduction, not an income-tax
 //   deduction. Employer SSC and the Maternity Leave Fund are informational.
 // ============================================================================
@@ -43,6 +54,18 @@ import type {
   MTSSCBirthCohort,
   MTTaxStatus,
 } from "../types";
+
+export const MALTA_SOURCE_URLS = [
+  "https://mtca.gov.mt/personal-tax",
+  "https://mtca.gov.mt/docs/default-source/documents/2026-tax-rates.pdf?sfvrsn=37563fb2_4",
+  "https://mtca.gov.mt/personal-tax/tax-rates/taxratesfornonresident",
+  "https://socialsecurity.gov.mt/en/information-and-applications-for-benefits-and-services/social-security-contributions/social-security-contributions-class-1-2026/",
+  "https://socialsecurity.gov.mt/en/information-and-applications-for-benefits-and-services/social-security-contributions/social-security-contributions/",
+  "https://legislation.mt/getpdf/6943d31cf42ba74214289ca8",
+  "https://mtca.gov.mt/docs/default-source/documents/personal-tax/individual/return-attachments/mtca-ra23-mlt-eng.pdf?sfvrsn=e90d4e6d_1",
+  "https://mtca.gov.mt/docs/default-source/documents/personal-tax/legal-and-technical/guidelines/nomad-guidelines---12-03-2026.pdf?sfvrsn=f0cc9971_6",
+  "https://legislation.mt/getpdf/69806d18a1e8c11f0469dfad",
+] as const;
 
 export interface MaltaTaxScheduleBand {
   min: number;
@@ -194,6 +217,19 @@ export const MALTA_QUALIFYING_FEE_DEDUCTIONS_2026 = {
   childcareFees: 2_000,
   sportsFees: 300,
   culturalFees: 300,
+};
+
+export const MALTA_NOMAD_RESIDENCE_PERMIT_2026 = {
+  taxExemptFirstTwelveMonthsRate: 0,
+  authorisedWorkTaxRate: 0.1,
+};
+
+export const MALTA_HIGHLY_SKILLED_INDIVIDUALS_2026 = {
+  taxRate: 0.15,
+  minimumIncome: 65_000,
+  maximumFlatRateIncome: 7_000_000,
+  firstYearOfAssessment: 2027,
+  finalIncomeDate: "2040-12-31",
 };
 
 export function getMaltaTaxSchedule(

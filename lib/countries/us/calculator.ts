@@ -14,8 +14,15 @@ import type {
   PayFrequency,
 } from "../types";
 import { US_CONFIG } from "./config";
-import { calculateFederalIncomeTax, getFederalTaxableIncome } from "./federal-tax";
-import { calculatePayrollTaxes } from "./payroll-tax";
+import {
+  calculateFederalIncomeTax,
+  calculateUSDependentCredits,
+  getFederalTaxableIncome,
+} from "./federal-tax";
+import {
+  PAYROLL_TAX_INFO,
+  calculatePayrollTaxes,
+} from "./payroll-tax";
 import { getStateCalculator, getSupportedStates } from "./state-tax";
 import { getUSContributionLimits } from "./constants/contribution-limits";
 
@@ -35,14 +42,66 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
   }
 }
 
+function clampContributionAmount(value: number, limit: number): number {
+  return Math.min(Math.max(0, value), Math.max(0, limit));
+}
+
 // ============================================================================
 // US CALCULATOR
 // ============================================================================
 export function calculateUS(inputs: USCalculatorInputs): CalculationResult {
-  const { grossSalary, state, filingStatus, payFrequency, contributions } = inputs;
+  const {
+    grossSalary,
+    state,
+    filingStatus,
+    payFrequency,
+    contributions: rawContributions,
+    numberOfQualifyingChildren,
+    numberOfOtherDependents,
+  } = inputs;
+
+  const contributionLimits = getUSContributionLimits(
+    rawContributions.hsaCoverageType,
+    filingStatus,
+  );
+  const contributions = {
+    ...rawContributions,
+    traditional401k: clampContributionAmount(
+      rawContributions.traditional401k,
+      contributionLimits.traditional401k?.limit ?? 0,
+    ),
+    rothIRA: clampContributionAmount(
+      rawContributions.rothIRA,
+      contributionLimits.rothIRA?.limit ?? 0,
+    ),
+    hsa: clampContributionAmount(
+      rawContributions.hsa,
+      contributionLimits.hsa?.limit ?? 0,
+    ),
+    healthFsa: clampContributionAmount(
+      rawContributions.healthFsa,
+      contributionLimits.healthFsa?.limit ?? 0,
+    ),
+    dependentCareFsa: clampContributionAmount(
+      rawContributions.dependentCareFsa,
+      contributionLimits.dependentCareFsa?.limit ?? 0,
+    ),
+  };
 
   // Pre-tax deductions (reduce taxable income)
-  const preTaxDeductions = contributions.traditional401k + contributions.hsa;
+  const preTaxDeductions =
+    contributions.traditional401k +
+    contributions.hsa +
+    contributions.healthFsa +
+    contributions.dependentCareFsa;
+  const section125Deductions =
+    contributions.hsa +
+    contributions.healthFsa +
+    contributions.dependentCareFsa;
+  const federalAdjustedGrossIncome = Math.max(
+    0,
+    grossSalary - preTaxDeductions,
+  );
 
   // Calculate federal taxable income
   const taxableIncomeForFederal = getFederalTaxableIncome(grossSalary, filingStatus, preTaxDeductions);
@@ -51,7 +110,22 @@ export function calculateUS(inputs: USCalculatorInputs): CalculationResult {
   const taxableIncomeForState = Math.max(0, grossSalary - preTaxDeductions);
 
   // Calculate federal taxes
-  const federalIncomeTax = calculateFederalIncomeTax(grossSalary, filingStatus, preTaxDeductions);
+  const federalIncomeTaxBeforeCredits = calculateFederalIncomeTax(
+    grossSalary,
+    filingStatus,
+    preTaxDeductions,
+  );
+  const federalCredits = calculateUSDependentCredits({
+    adjustedGrossIncome: federalAdjustedGrossIncome,
+    filingStatus,
+    numberOfQualifyingChildren,
+    numberOfOtherDependents,
+    federalTaxBeforeCredits: federalIncomeTaxBeforeCredits,
+  });
+  const federalIncomeTax = Math.max(
+    0,
+    federalIncomeTaxBeforeCredits - federalCredits.totalCreditsApplied,
+  );
 
   // Calculate state taxes
   const stateCalculator = getStateCalculator(state);
@@ -65,11 +139,15 @@ export function calculateUS(inputs: USCalculatorInputs): CalculationResult {
     stateName = stateCalculator.getStateName();
   }
 
-  // Payroll taxes (on gross income)
-  const payrollTaxes = calculatePayrollTaxes(grossSalary, filingStatus);
+  // Payroll taxes. Traditional 401(k) reduces federal taxable income but remains
+  // FICA wages; Section 125/HSA-style payroll deductions reduce FICA wages.
+  const payrollTaxableWages = Math.max(0, grossSalary - section125Deductions);
+  const payrollTaxes = calculatePayrollTaxes(payrollTaxableWages, filingStatus);
 
   const taxes: USTaxBreakdown = {
     totalIncomeTax: federalIncomeTax + stateIncomeTax,
+    federalIncomeTaxBeforeCredits,
+    federalTaxCredits: federalCredits.totalCreditsApplied,
     federalIncomeTax,
     stateIncomeTax,
     socialSecurity: payrollTaxes.socialSecurity,
@@ -89,6 +167,8 @@ export function calculateUS(inputs: USCalculatorInputs): CalculationResult {
   const totalContributions =
     contributions.traditional401k +
     contributions.hsa +
+    contributions.healthFsa +
+    contributions.dependentCareFsa +
     contributions.rothIRA;
 
   const netSalary = grossSalary - totalTax - totalContributions;
@@ -105,6 +185,19 @@ export function calculateUS(inputs: USCalculatorInputs): CalculationResult {
       traditional401k: contributions.traditional401k,
       rothIRA: contributions.rothIRA,
       hsa: contributions.hsa,
+      healthFsa: contributions.healthFsa,
+      dependentCareFsa: contributions.dependentCareFsa,
+      total: totalContributions,
+    },
+    taxCredits: {
+      ...federalCredits,
+    },
+    payrollTaxableWages: {
+      socialSecurity: Math.min(
+        payrollTaxableWages,
+        PAYROLL_TAX_INFO.socialSecurityWageBase,
+      ),
+      medicare: payrollTaxableWages,
     },
   };
 
@@ -146,8 +239,10 @@ export const USCalculator: CountryCalculator = {
   },
 
   getContributionLimits(inputs?: Partial<CalculatorInputs>): ContributionLimits {
-    const hsaCoverageType = (inputs as Partial<USCalculatorInputs>)?.contributions?.hsaCoverageType ?? "self";
-    return getUSContributionLimits(hsaCoverageType);
+    const usInputs = inputs as Partial<USCalculatorInputs> | undefined;
+    const hsaCoverageType = usInputs?.contributions?.hsaCoverageType ?? "self";
+    const filingStatus = usInputs?.filingStatus ?? "single";
+    return getUSContributionLimits(hsaCoverageType, filingStatus);
   },
 
   getDefaultInputs(): USCalculatorInputs {
@@ -156,11 +251,15 @@ export const USCalculator: CountryCalculator = {
       grossSalary: 100000,
       state: "CA",
       filingStatus: "single",
+      numberOfQualifyingChildren: 0,
+      numberOfOtherDependents: 0,
       payFrequency: "monthly",
       contributions: {
         traditional401k: 0,
         rothIRA: 0,
         hsa: 0,
+        healthFsa: 0,
+        dependentCareFsa: 0,
         hsaCoverageType: "self",
       },
     };

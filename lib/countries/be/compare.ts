@@ -21,6 +21,13 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
+    taxableBenefitsInKind: 0,
+    numberOfDependentChildren: Math.min(inputs.numberOfChildren, 10),
+    numberOfChildrenUnderThreeNoChildcare: 0,
+    childcareDays: 0,
+    isSingleParentWithChildren: false,
+    expatRegimeType: "none",
+    expatRecurringAllowance: 0,
   };
   const pensionLimit =
     getCountryCalculator(country).getContributionLimits(calculatorInputs)
@@ -29,6 +36,8 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     inputs.assumptions.retirementContributions === "max";
   calculatorInputs.contributions = {
     pensionSavings: retirementApplied ? pensionLimit : 0,
+    childcareExpenses: 0,
+    charitableDonations: 0,
   };
   const result = calculateNetSalary(calculatorInputs);
   return {
@@ -49,6 +58,13 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
       retirementApplied
         ? "Max modeled Belgian pension savings"
         : "No modeled pension savings contribution",
+      inputs.numberOfChildren > 0
+        ? "Dependent-child tax-free allowance mapped from compare children"
+        : "No dependent-child allowance",
+      "No taxable benefits in kind entered in compare",
+      "Young-child and single-parent allowance increases left at zero in compare",
+      "No childcare expenses or qualifying gifts entered in compare",
+      "Special inpatriate regime left off in compare because it depends on employer application approval and a separate paid allowance",
     ],
     calculation: result,
   };

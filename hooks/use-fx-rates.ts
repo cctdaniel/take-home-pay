@@ -34,7 +34,8 @@ export function useFxRates(base: CurrencyCode): FxRatesState {
       setError(null);
 
       try {
-        const response = await fetch(`/api/fx?base=${base}`, {
+        const refreshParam = refreshIndex > 0 ? "&refresh=1" : "";
+        const response = await fetch(`/api/fx?base=${base}${refreshParam}`, {
           signal: controller.signal,
         });
 

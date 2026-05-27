@@ -16,16 +16,33 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     ...defaultInputs,
     grossSalary: grossLocal,
     payFrequency,
+    taxpayerType: "residentOrNraEtb",
+    sssCovered: true,
+    philHealthCovered: true,
+    pagIbigCovered: true,
+    contributions: {
+      thirteenthMonthAndOtherBenefits: 0,
+      deMinimisMedicalCashAllowance: 0,
+      deMinimisRiceSubsidy: 0,
+      deMinimisUniformClothing: 0,
+      deMinimisActualMedicalAssistance: 0,
+      deMinimisLaundryAllowance: 0,
+      deMinimisAchievementAwards: 0,
+      deMinimisChristmasGifts: 0,
+      deMinimisCbaProductivityIncentives: 0,
+    },
   };
   const result = calculateNetSalary(inputs);
   const assumptions: string[] = [
-    "TRAIN law income tax brackets (0–35%)",
-    "SSS, PhilHealth (2.5%), and Pag-IBIG (2%) contributions included",
-    "13th month pay and de minimis benefits not modeled",
+    "Post-TRAIN compensation income tax brackets (0–35%)",
+    "SSS, PhilHealth, and Pag-IBIG employee contributions included by default",
+    "13th month, other benefits, and de minimis benefit exclusions are left at zero in compare because gross salary may or may not include those payroll items",
   ];
 
   if (isMaxRetirement) {
-    assumptions.push("No additional retirement contributions modeled");
+    assumptions.push(
+      "Max-retirement mode does not add MP2 or extra Pag-IBIG because those are voluntary savings rather than compensation-income deductions in this model.",
+    );
   }
 
   return {

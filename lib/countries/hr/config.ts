@@ -17,7 +17,7 @@ export const HR_CONFIG: CountryConfig = {
   region: "Europe",
   currency: HR_CURRENCY,
   taxYear: 2026,
-  lastUpdated: "2026-05-16",
+  lastUpdated: "2026-05-25",
   defaultRegion: "zagreb",
   supportsFilingStatus: false,
   supportsRegions: true,

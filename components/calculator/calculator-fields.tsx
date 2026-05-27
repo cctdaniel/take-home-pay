@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NumberStepper } from "@/components/ui/number-stepper";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { CurrencyCode } from "@/lib/format";
@@ -66,6 +67,7 @@ export function SelectField<T extends string>({
   options,
   description,
   className,
+  disabled = false,
 }: {
   id: string;
   label: string;
@@ -74,11 +76,17 @@ export function SelectField<T extends string>({
   options: SelectOption<T>[];
   description?: ReactNode;
   className?: string;
+  disabled?: boolean;
 }) {
   return (
     <div className={cn("space-y-2", className)}>
       <Label htmlFor={id}>{label}</Label>
-      <Select id={id} value={value} onChange={(event) => onChange(event.target.value as T)}>
+      <Select
+        id={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value as T)}
+        disabled={disabled}
+      >
         {options.map((option) => (
           <option key={option.value} value={option.value} disabled={option.disabled}>
             {option.label}
@@ -123,6 +131,7 @@ export function BooleanSelectField({
   trueFirst = false,
   description,
   className,
+  disabled = false,
 }: {
   id: string;
   label: string;
@@ -133,6 +142,7 @@ export function BooleanSelectField({
   trueFirst?: boolean;
   description?: ReactNode;
   className?: string;
+  disabled?: boolean;
 }) {
   const options: SelectOption<"yes" | "no">[] = trueFirst
     ? [
@@ -153,6 +163,7 @@ export function BooleanSelectField({
       options={options}
       description={description}
       className={className}
+      disabled={disabled}
     />
   );
 }
@@ -223,6 +234,47 @@ export function NumberField({
         className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
       {description ? <p className="text-xs text-zinc-500">{description}</p> : null}
+    </div>
+  );
+}
+
+export function NumberStepperField({
+  id,
+  label,
+  value,
+  onChange,
+  min = 0,
+  max = 10,
+  description,
+  className,
+}: {
+  id: string;
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+  min?: number;
+  max?: number;
+  description?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("space-y-2", className)}>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <Label>{label}</Label>
+          {description ? (
+            <p className="mt-1 text-xs text-zinc-500">{description}</p>
+          ) : null}
+        </div>
+        <NumberStepper
+          id={id}
+          value={Math.min(Math.max(value, min), max)}
+          onChange={onChange}
+          min={min}
+          max={max}
+          label={label}
+        />
+      </div>
     </div>
   );
 }

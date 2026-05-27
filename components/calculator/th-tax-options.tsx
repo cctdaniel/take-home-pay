@@ -31,7 +31,7 @@ export function THTaxOptions({
           { value: "resident", label: "Resident" },
           { value: "non_resident", label: "Non-Resident" },
         ]}
-        description="Residents pay tax on worldwide income; non-residents only on Thai-sourced income"
+        description="Residents include Thai-source and taxable remitted foreign-source income; non-residents include Thai-source income only."
       />
       <PayFrequencyField value={payFrequency} onChange={onPayFrequencyChange} />
     </CalculatorFieldGrid>

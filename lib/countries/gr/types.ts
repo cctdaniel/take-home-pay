@@ -8,12 +8,16 @@ import type {
 
 export type GRResidencyType = "resident" | "non_resident";
 
+export type GRTaxRegime = "ordinary" | "article_5c_new_resident";
+
 export interface GRContributionInputs {
   occupationalPensionContribution: number;
 }
 
 export interface GRCalculatorInputs extends BaseCalculatorInputs {
   country: "GR";
+  taxableBenefitsInKind: number;
+  taxRegime: GRTaxRegime;
   residencyType: GRResidencyType;
   age: number;
   numberOfDependents: number;
@@ -29,8 +33,11 @@ export interface GRTaxBreakdown extends BaseTaxBreakdown {
 export interface GRBreakdown {
   type: "GR";
   grossIncome: number;
+  taxableBenefitsInKind: number;
+  taxableGrossIncome: number;
   taxableIncome: number;
   isResident: boolean;
+  taxRegime: GRTaxRegime;
   age: number;
   numberOfDependents: number;
   effectiveDependentsForScale: number;
@@ -48,6 +55,13 @@ export interface GRBreakdown {
     availableTaxReduction: number;
     appliedTaxReduction: number;
     finalIncomeTax: number;
+  };
+  article5CRelief: {
+    applies: boolean;
+    exemptionRate: number;
+    exemptIncome: number;
+    eligibleIncome: number;
+    maxYears: number;
   };
   socialInsurance: {
     employee: number;

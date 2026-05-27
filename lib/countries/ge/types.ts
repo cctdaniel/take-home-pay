@@ -8,16 +8,27 @@ import type {
 
 export type GEResidencyType = "resident" | "non_resident";
 
+export type GEIncomeRegime =
+  | "employment"
+  | "small_business"
+  | "micro_business";
+
 export type GEPensionParticipation =
   | "mandatory_or_enrolled"
   | "not_participating";
+
+export type GESmallBusinessThresholdTreatment =
+  | "even_monthly"
+  | "three_percent_full_year";
 
 export type GEContributionInputs = Record<never, never>;
 
 export interface GECalculatorInputs extends BaseCalculatorInputs {
   country: "GE";
+  incomeRegime: GEIncomeRegime;
   residencyType: GEResidencyType;
   pensionParticipation: GEPensionParticipation;
+  smallBusinessThresholdTreatment: GESmallBusinessThresholdTreatment;
   contributions: GEContributionInputs;
 }
 
@@ -31,6 +42,7 @@ export interface GEBreakdown {
   type: "GE";
   grossIncome: number;
   taxableIncome: number;
+  incomeRegime: GEIncomeRegime;
   residencyType: GEResidencyType;
   pensionParticipation: GEPensionParticipation;
   isPensionParticipant: boolean;
@@ -38,6 +50,17 @@ export interface GEBreakdown {
     rate: number;
     taxableIncome: number;
     total: number;
+  };
+  businessRegime: {
+    microBusinessIncomeLimit: number;
+    microBusinessLimitExceeded: boolean;
+    smallBusinessIncomeLimit: number;
+    smallBusinessThresholdTreatment: GESmallBusinessThresholdTreatment;
+    standardRateIncome: number;
+    overLimitRateIncome: number;
+    standardRate: number;
+    overLimitRate: number;
+    effectiveRate: number;
   };
   pension: {
     employee: number;
@@ -53,11 +76,12 @@ export interface GEBreakdown {
     stateAboveSecondBandRate: number;
     stateContributionSalary: number;
     stateRate: number;
+    stateFirstBandContributionSalary: number;
+    stateSecondBandContributionSalary: number;
   };
   assumptions: {
     ordinaryEmploymentSalaryOnly: boolean;
-    excludesSmallBusinessRegimes: boolean;
-    excludesIndividualEntrepreneurRegimes: boolean;
+    includesIndividualEntrepreneurRegimes: boolean;
   };
 }
 

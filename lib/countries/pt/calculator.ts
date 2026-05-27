@@ -15,6 +15,7 @@ import type {
   PayFrequency,
   PTBreakdown,
   PTCalculatorInputs,
+  PTIrsJovemYear,
   PTTaxBreakdown,
   RegionInfo,
 } from "../types";
@@ -24,6 +25,7 @@ import {
   calculateSocialSecurity,
   calculateSolidaritySurcharge,
   calculateSpecificDeduction,
+  PORTUGAL_IRS_JOVEM_2026,
   PORTUGAL_SOCIAL_SECURITY_2026,
 } from "./constants/tax-brackets-2026";
 
@@ -75,6 +77,63 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
 // NHR 2.0 flat tax rate (20% for eligible employment income)
 const NHR2_FLAT_RATE = 0.20;
 
+function normalizeIrsJovemYear(value?: PTIrsJovemYear): PTIrsJovemYear {
+  switch (value) {
+    case "year_1":
+    case "years_2_to_4":
+    case "years_5_to_7":
+    case "years_8_to_10":
+      return value;
+    default:
+      return "none";
+  }
+}
+
+function getIrsJovemRate(value: PTIrsJovemYear): number {
+  switch (value) {
+    case "year_1":
+      return PORTUGAL_IRS_JOVEM_2026.rates.year1;
+    case "years_2_to_4":
+      return PORTUGAL_IRS_JOVEM_2026.rates.years2To4;
+    case "years_5_to_7":
+      return PORTUGAL_IRS_JOVEM_2026.rates.years5To7;
+    case "years_8_to_10":
+      return PORTUGAL_IRS_JOVEM_2026.rates.years8To10;
+    default:
+      return 0;
+  }
+}
+
+function calculateIrsJovemRelief({
+  grossSalary,
+  residencyType,
+  selectedYear,
+}: {
+  grossSalary: number;
+  residencyType: PTCalculatorInputs["residencyType"];
+  selectedYear?: PTIrsJovemYear;
+}) {
+  const normalizedYear = normalizeIrsJovemYear(selectedYear);
+  const exemptionRate = getIrsJovemRate(normalizedYear);
+  const applies = residencyType === "resident" && exemptionRate > 0;
+  const exemptIncome = applies
+    ? Math.min(
+        Math.max(0, grossSalary) * exemptionRate,
+        PORTUGAL_IRS_JOVEM_2026.annualCap,
+      )
+    : 0;
+
+  return {
+    selectedYear: normalizedYear,
+    applies,
+    exemptionRate,
+    exemptIncome,
+    annualCap: PORTUGAL_IRS_JOVEM_2026.annualCap,
+    maxYears: PORTUGAL_IRS_JOVEM_2026.maxYears,
+    maxAge: PORTUGAL_IRS_JOVEM_2026.maxAge,
+  };
+}
+
 // ============================================================================
 // PORTUGAL CALCULATOR
 // ============================================================================
@@ -86,11 +145,17 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
     filingStatus,
     numberOfDependents,
     age,
+    irsJovemYear,
     contributions,
   } = inputs;
 
   const isResident = residencyType === "resident" || residencyType === "nhr_2";
   const isNhr2 = residencyType === "nhr_2";
+  const irsJovem = calculateIrsJovemRelief({
+    grossSalary,
+    residencyType,
+    selectedYear: irsJovemYear,
+  });
 
   // Step 1: Calculate Social Security contribution (applies to residents and NHR 2.0)
   const socialSecurity = isResident ? calculateSocialSecurity(grossSalary) : 0;
@@ -107,11 +172,11 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
     : 0;
 
   // Step 3: Calculate taxable income
-  // For standard residents: gross - specific deduction
+  // For standard residents: gross - specific deduction - IRS Jovem exemption
   // For non-residents: full gross income (flat 25% rate applies)
   // For NHR 2.0: full gross income (20% flat rate applies to gross, no deduction)
   const taxableIncome = isResident && !isNhr2
-    ? Math.max(0, grossSalary - specificDeduction)
+    ? Math.max(0, grossSalary - specificDeduction - irsJovem.exemptIncome)
     : grossSalary;
 
   // Step 4: Calculate IRS tax
@@ -238,7 +303,8 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
 
   // Step 10: Calculate totals
   // Total deductions include: Final IRS tax + Social Security + PPR contribution
-  const totalDeductions = finalTax + socialSecurity + pprContribution;
+  const totalTax = finalTax + socialSecurity;
+  const totalDeductions = totalTax + pprContribution;
   const netSalary = grossSalary - totalDeductions;
   // Effective tax rate includes income tax + social security (mandatory contributions)
   // PPR contribution is voluntary savings, not a tax, so excluded from this rate
@@ -262,6 +328,7 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
     specificDeduction,
     isResident,
     isNhr2,
+    irsJovem,
     filingStatus,
     numberOfDependents,
     employerSocialSecurity,
@@ -288,7 +355,7 @@ export function calculatePT(inputs: PTCalculatorInputs): CalculationResult {
     grossSalary,
     taxableIncome,
     taxes,
-    totalTax: finalTax,
+    totalTax,
     totalDeductions,
     netSalary,
     effectiveTaxRate,
@@ -344,6 +411,7 @@ export const PTCalculator: CountryCalculator = {
       filingStatus: "single",
       numberOfDependents: 0,
       age: 30,
+      irsJovemYear: "none",
       contributions: {
         pprContribution: 0,
       },
