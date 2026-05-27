@@ -32,7 +32,7 @@ import type {
   PEPensionSystem,
   PESalaryPackageMode,
 } from "@/lib/countries/pe/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const PE_SALARY_PACKAGE_OPTIONS: SelectOption<PESalaryPackageMode>[] = [
   {

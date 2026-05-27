@@ -32,7 +32,7 @@ import type {
   JPIdecoCategory,
   JPSpouseDeductionType,
 } from "@/lib/countries/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const MAX_DEPENDENTS = 10;
 

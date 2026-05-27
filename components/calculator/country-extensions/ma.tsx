@@ -22,7 +22,7 @@ import {
   MA_MORTGAGE_INTEREST_LIMIT_RATE,
 } from "@/lib/countries/ma/constants/tax-year-2026";
 import type { MACalculatorInputs } from "@/lib/countries/ma/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function MACountryExtension({
   country,

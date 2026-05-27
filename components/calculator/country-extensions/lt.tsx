@@ -28,7 +28,7 @@ import type {
   LTDisabilityNpdType,
   LTSecondPillarRate,
 } from "@/lib/countries/lt/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const SECOND_PILLAR_OPTIONS: Array<{
   value: LTSecondPillarRate;

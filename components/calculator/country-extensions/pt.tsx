@@ -10,7 +10,7 @@ import { InfoPanel } from "@/components/calculator/info-panel";
 import { ContributionSlider } from "@/components/ui/contribution-slider";
 import { PTCalculator } from "@/lib/countries/pt";
 import type { PTCalculatorInputs } from "@/lib/countries/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function PTCountryExtension({
   country,

@@ -33,7 +33,7 @@ import type {
   BZContributionInputs,
   BZSocialSecurityStatus,
 } from "@/lib/countries/bz/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const SOCIAL_SECURITY_OPTIONS: Array<{
   value: BZSocialSecurityStatus;

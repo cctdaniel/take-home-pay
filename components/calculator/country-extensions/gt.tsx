@@ -23,7 +23,7 @@ import type {
   GTCalculatorInputs,
   GTContributionInputs,
 } from "@/lib/countries/gt/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function GTCountryExtension({
   country,

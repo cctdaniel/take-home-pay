@@ -28,7 +28,7 @@ import type {
   CNSpecialDeductions,
   CNYearEndBonusTaxTreatment,
 } from "@/lib/countries/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 import type { CountryCalculatorExtensionProps } from "../country-extension";
 
 const HOUSING_FUND_RATE_OPTIONS = [

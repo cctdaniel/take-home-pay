@@ -23,7 +23,7 @@ import type {
   EGCalculatorInputs,
   EGContributionInputs,
 } from "@/lib/countries/eg/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function EGCountryExtension({
   country,

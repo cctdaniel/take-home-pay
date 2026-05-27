@@ -30,7 +30,7 @@ import type {
   PLPitZeroRelief,
   PLPpkRate,
 } from "@/lib/countries/pl/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const PPK_OPTIONS: Array<{ value: PLPpkRate; label: string }> = [
   { value: "0", label: "No PPK employee contribution" },

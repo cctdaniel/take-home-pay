@@ -26,7 +26,7 @@ import type {
   MUCalculatorInputs,
   MUContributionInputs,
 } from "@/lib/countries/mu/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function MUCountryExtension({
   country,

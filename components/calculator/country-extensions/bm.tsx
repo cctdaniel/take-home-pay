@@ -25,7 +25,7 @@ import type {
   BMContributionInputs,
   BMOccupationalPensionTreatment,
 } from "@/lib/countries/bm/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function BermudaCalculatorExtension({
   country,

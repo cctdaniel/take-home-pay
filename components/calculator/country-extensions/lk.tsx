@@ -30,7 +30,7 @@ import type {
   LKEmploymentType,
   LKTerminalBenefitTreatment,
 } from "@/lib/countries/lk/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const EMPLOYMENT_TYPE_OPTIONS: Array<{
   value: LKEmploymentType;

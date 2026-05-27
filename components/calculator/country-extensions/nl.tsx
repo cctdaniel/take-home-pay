@@ -22,7 +22,7 @@ import type {
   NLCalculatorInputs,
   NLContributionInputs,
 } from "@/lib/countries/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function NLCountryExtension({
   country,

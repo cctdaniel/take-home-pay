@@ -33,7 +33,7 @@ import type {
   BBContributionInputs,
   BBResidencyStatus,
 } from "@/lib/countries/bb/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const RESIDENCY_OPTIONS: Array<{
   value: BBResidencyStatus;

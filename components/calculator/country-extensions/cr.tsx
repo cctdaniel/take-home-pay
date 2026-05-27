@@ -27,7 +27,7 @@ import type {
   CRAguinaldoMode,
   CRCalculatorInputs,
 } from "@/lib/countries/cr/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const CR_AGUINALDO_OPTIONS: SelectOption<CRAguinaldoMode>[] = [
   {

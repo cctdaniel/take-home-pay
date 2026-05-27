@@ -29,7 +29,7 @@ import type {
   CWContributionInputs,
   CWTaxResidencyType,
 } from "@/lib/countries/cw/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function CWCountryExtension({
   country,

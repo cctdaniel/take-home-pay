@@ -22,7 +22,7 @@ import type {
   AUMedicareFamilyStatus,
   AUResidencyType,
 } from "@/lib/countries/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const RESIDENCY_OPTIONS: Array<{ value: AUResidencyType; label: string }> = [
   { value: "resident", label: "Australian Resident" },

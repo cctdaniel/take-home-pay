@@ -7,7 +7,8 @@ export function cn(...inputs: ClassValue[]) {
 
 // Two-argument form: clampAmount(value, max) — clamp to [0, max]
 // Three-argument form: clampAmount(value, min, max) — clamp to [min, max]
-// Accepts undefined value (treats as 0)
+// Accepts undefined value (treats as 0). Negative max/min are guarded
+// by Math.max(0, max) so callers can safely pass computed limits.
 export function clampAmount(
   value: number | undefined,
   maxOrMin: number,

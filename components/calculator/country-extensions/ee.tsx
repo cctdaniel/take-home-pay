@@ -27,7 +27,7 @@ import type {
   EESecondPillarRate,
 } from "@/lib/countries/ee/types";
 import { formatCurrency } from "@/lib/format";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const SECOND_PILLAR_OPTIONS: Array<{
   value: EESecondPillarRate;

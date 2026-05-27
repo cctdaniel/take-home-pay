@@ -24,7 +24,7 @@ import {
   AL_VOLUNTARY_PENSION_DEDUCTION_LIMIT,
 } from "@/lib/countries/al/constants/tax-year-2026";
 import type { ALCalculatorInputs } from "@/lib/countries/al/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function ALCountryExtension(props: CountryCalculatorExtensionProps) {
   const { country } = props;

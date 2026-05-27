@@ -32,7 +32,7 @@ import type {
   HUContributionInputs,
   HUPitBaseAllowance,
 } from "@/lib/countries/hu/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const PIT_BASE_ALLOWANCE_OPTIONS: Array<{
   value: HUPitBaseAllowance;

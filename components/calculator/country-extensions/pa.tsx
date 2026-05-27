@@ -27,7 +27,7 @@ import type {
   PACalculatorInputs,
   PAContributionInputs,
 } from "@/lib/countries/pa/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function PACountryExtension({
   country,

@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { ContributionSlider } from "@/components/ui/contribution-slider";
 import { TWCalculator } from "@/lib/countries/tw";
 import type { TWCalculatorInputs } from "@/lib/countries/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function TWCountryExtension({
   country,

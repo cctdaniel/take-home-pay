@@ -25,7 +25,7 @@ import type {
   COCalculatorInputs,
   COContributionInputs,
 } from "@/lib/countries/co/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function COCountryExtension({
   country,

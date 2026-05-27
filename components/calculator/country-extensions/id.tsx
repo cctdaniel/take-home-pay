@@ -13,7 +13,7 @@ import type {
   IDCalculatorInputs,
   IDTaxReliefInputs,
 } from "@/lib/countries/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function IDCountryExtension({
   country,

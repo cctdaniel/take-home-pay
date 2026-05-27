@@ -24,7 +24,7 @@ import type {
   CZDisabilityCreditType,
   CZResidencyType,
 } from "@/lib/countries/cz/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const RESIDENCY_OPTIONS: Array<{
   value: CZResidencyType;

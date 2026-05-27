@@ -27,7 +27,7 @@ import type {
   LVContributionInputs,
 } from "@/lib/countries/lv/types";
 import { formatCurrency } from "@/lib/format";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function LVCountryExtension({
   country,

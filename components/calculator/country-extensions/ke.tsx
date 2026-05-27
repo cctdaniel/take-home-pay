@@ -25,7 +25,7 @@ import type {
   KECalculatorInputs,
   KEContributionInputs,
 } from "@/lib/countries/ke/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function KECountryExtension({
   country,

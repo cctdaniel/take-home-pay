@@ -12,7 +12,7 @@ import { InfoPanel } from "@/components/calculator/info-panel";
 import { Separator } from "@/components/ui/separator";
 import { SGCalculator } from "@/lib/countries/sg";
 import type { SGCalculatorInputs } from "@/lib/countries/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function SGCountryExtension({
   country,

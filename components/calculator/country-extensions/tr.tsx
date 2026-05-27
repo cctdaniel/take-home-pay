@@ -28,7 +28,7 @@ import type {
   TRDisabilityDegree,
   TRDonationReliefCategory,
 } from "@/lib/countries/tr/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const DISABILITY_OPTIONS: Array<{
   value: TRDisabilityDegree;

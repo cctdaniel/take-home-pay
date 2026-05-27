@@ -23,7 +23,7 @@ import type {
   LUContributionInputs,
   LUTaxClass,
 } from "@/lib/countries/lu/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const MAX_CHILDREN = 10;
 

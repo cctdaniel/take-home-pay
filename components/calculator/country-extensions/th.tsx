@@ -12,7 +12,7 @@ import { InfoPanel } from "@/components/calculator/info-panel";
 import { Separator } from "@/components/ui/separator";
 import { THCalculator } from "@/lib/countries/th";
 import type { THCalculatorInputs } from "@/lib/countries/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 function getThaiLimits(inputs: THCalculatorInputs) {
   const limits = THCalculator.getContributionLimits(inputs);

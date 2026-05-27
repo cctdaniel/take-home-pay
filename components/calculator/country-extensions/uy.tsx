@@ -33,7 +33,7 @@ import type {
   UYContributionInputs,
   UYHousingCreditType,
 } from "@/lib/countries/uy/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const HOUSING_OPTIONS: Array<{
   value: UYHousingCreditType;

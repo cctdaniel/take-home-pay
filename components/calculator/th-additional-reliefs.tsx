@@ -6,7 +6,7 @@ import {
 } from "@/components/calculator/calculator-fields";
 import { ContributionSlider } from "@/components/ui/contribution-slider";
 import type { THTaxReliefInputs } from "@/lib/countries/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampCount } from "@/lib/utils";
 
 interface THAdditionalReliefsProps {
   reliefs: THTaxReliefInputs;

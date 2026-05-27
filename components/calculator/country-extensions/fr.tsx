@@ -23,7 +23,7 @@ import type {
   FRProfessionalExpenseMethod,
 } from "@/lib/countries/fr/types";
 import { formatCurrency } from "@/lib/format";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 function calculateFrenchHouseholdParts(
   householdStatus: FRHouseholdStatus,

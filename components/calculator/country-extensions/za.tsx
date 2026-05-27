@@ -28,7 +28,7 @@ import type {
   ZACalculatorInputs,
   ZAContributionInputs,
 } from "@/lib/countries/za/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const AGE_BAND_OPTIONS: Array<{ value: ZAAgeBand; label: string }> = [
   { value: "under65", label: "Under 65" },

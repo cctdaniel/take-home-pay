@@ -25,7 +25,7 @@ import type {
   SVCalculatorInputs,
   SVContributionInputs,
 } from "@/lib/countries/sv/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function SVCountryExtension({
   country,

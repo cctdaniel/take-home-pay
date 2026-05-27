@@ -19,7 +19,7 @@ import type {
   VNInsuranceCoverage,
   VNResidencyStatus,
 } from "@/lib/countries/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 import type { CountryCalculatorExtensionProps } from "../country-extension";
 
 export default function VNCountryExtension({

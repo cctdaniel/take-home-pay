@@ -16,7 +16,7 @@ import type {
   TWDeductionMethod,
   TWTaxReliefInputs,
 } from "@/lib/countries/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const DEDUCTION_METHOD_OPTIONS: Array<{
   value: TWDeductionMethod;

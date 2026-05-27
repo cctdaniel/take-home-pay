@@ -24,7 +24,7 @@ import type {
   PYCalculatorInputs,
   PYContributionInputs,
 } from "@/lib/countries/py/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const PY_AGUINALDO_OPTIONS = [
   {

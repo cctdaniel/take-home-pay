@@ -28,7 +28,7 @@ import type {
   CAFederalFamilyCreditType,
 } from "@/lib/countries/ca/types";
 import type { CanadaProvinceCode } from "@/lib/countries/ca/constants/tax-year-2026";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampCount } from "@/lib/utils";
 
 
 function getRrspLimit(grossSalary: number): number {

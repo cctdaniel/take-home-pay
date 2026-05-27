@@ -16,7 +16,7 @@ import type {
   HKCalculatorInputs,
   HKTaxReliefInputs,
 } from "@/lib/countries/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function HKCountryExtension({
   country,

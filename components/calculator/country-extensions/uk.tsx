@@ -12,7 +12,7 @@ import { ContributionSlider } from "@/components/ui/contribution-slider";
 import { UKCalculator } from "@/lib/countries/uk";
 import type { UKCalculatorInputs } from "@/lib/countries/types";
 import { formatCurrency } from "@/lib/format";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 function getPensionLimit(inputs: UKCalculatorInputs) {
   const limit =

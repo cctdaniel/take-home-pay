@@ -21,7 +21,7 @@ import type {
   CHCalculatorInputs,
   CHContributionInputs,
 } from "@/lib/countries/ch/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const CH_CONTRIBUTION_KEYS: Array<keyof CHContributionInputs> = [
   "retirementContribution",

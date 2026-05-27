@@ -26,7 +26,7 @@ import type {
   CLCalculatorInputs,
   CLContractType,
 } from "@/lib/countries/cl/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const CONTRACT_OPTIONS: Array<{
   value: CLContractType;

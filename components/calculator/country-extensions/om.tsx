@@ -26,7 +26,7 @@ import type {
   OMContributionInputs,
   OMWorkerType,
 } from "@/lib/countries/om/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const WORKER_TYPE_OPTIONS: SelectOption<OMWorkerType>[] = [
   { value: "expatriate", label: "Expatriate employee" },

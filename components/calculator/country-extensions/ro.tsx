@@ -30,7 +30,7 @@ import type {
   ROCalculatorInputs,
   ROContributionInputs,
 } from "@/lib/countries/ro/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function ROCountryExtension({
   country,

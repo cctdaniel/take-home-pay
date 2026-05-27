@@ -29,7 +29,7 @@ import type {
   DOCalculatorInputs,
   DOChristmasSalaryMode,
 } from "@/lib/countries/do/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 function getOrdinaryMonthlySalary(inputs: DOCalculatorInputs) {
   if (inputs.christmasSalaryMode === "includedInGross") {

@@ -26,7 +26,7 @@ import type {
   ECCalculatorInputs,
   ECIncomeExemptionType,
 } from "@/lib/countries/ec/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const INCOME_EXEMPTION_OPTIONS: Array<{
   value: ECIncomeExemptionType;

@@ -13,7 +13,7 @@ import type {
   GRCalculatorInputs,
   GRTaxRegime,
 } from "@/lib/countries/gr/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 export default function GRCountryExtension({
   country,

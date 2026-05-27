@@ -15,7 +15,7 @@ import type {
   SGTaxResidencyType,
   SGTaxReliefInputs,
 } from "@/lib/countries/types";
-import { clampAmount, clampCount } from "@/lib/utils";
+import { clampAmount } from "@/lib/utils";
 
 const PARENT_RELIEF_OPTIONS: Array<{
   value: SGParentReliefType;
