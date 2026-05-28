@@ -1,5 +1,4 @@
-import { describe, it } from "node:test";
-import * as assert from "node:assert/strict";
+import { describe, expect, it } from "vitest";
 import { calculateCA } from "./calculator";
 import type { CACalculatorInputs, CATaxBreakdown } from "./types";
 
@@ -22,13 +21,27 @@ function createInputs(overrides: Partial<CACalculatorInputs> = {}): CACalculator
 
 describe("Canada calculator", () => {
   it("supports all provinces and territories", () => {
-    const expected: CACalculatorInputs["province"][] = ["AB", "BC", "MB", "NB", "NL", "NS", "NT", "NU", "ON", "PE", "QC", "SK", "YT"];
+    const expected: CACalculatorInputs["province"][] = [
+      "AB",
+      "BC",
+      "MB",
+      "NB",
+      "NL",
+      "NS",
+      "NT",
+      "NU",
+      "ON",
+      "PE",
+      "QC",
+      "SK",
+      "YT",
+    ];
     for (const province of expected) {
       const result = calculateCA(createInputs({ province }));
-      assert.equal(result.breakdown.type, "CA");
+      expect(result.breakdown.type).toBe("CA");
       if (result.breakdown.type === "CA") {
-        assert.equal(result.breakdown.province, province);
-        assert.ok(result.breakdown.provinceName.length > 0);
+        expect(result.breakdown.province).toBe(province);
+        expect(result.breakdown.provinceName.length).toBeGreaterThan(0);
       }
     }
   });
@@ -36,9 +49,9 @@ describe("Canada calculator", () => {
   it("uses Quebec payroll contributions instead of CPP/EI defaults", () => {
     const result = calculateCA(createInputs({ province: "QC" }));
     const taxes = result.taxes as CATaxBreakdown;
-    assert.equal(taxes.type, "CA");
-    assert.ok(taxes.qpp > 0);
-    assert.ok(taxes.qpip > 0);
-    assert.equal(taxes.cpp, 0);
+    expect(taxes.type).toBe("CA");
+    expect(taxes.qpp).toBeGreaterThan(0);
+    expect(taxes.qpip).toBeGreaterThan(0);
+    expect(taxes.cpp).toBe(0);
   });
 });

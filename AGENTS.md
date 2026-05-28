@@ -63,6 +63,8 @@ Each supported country has its own route for SEO:
 ```bash
 npm run generate:countries # Generate country registries from convention-based files
 npm run dev      # Start development server (localhost:3000)
+npm test         # Run Vitest calculator tests
+npm run test:watch
 npm run build    # Production build
 npm run start    # Start production server
 npm run lint     # Run ESLint
@@ -96,10 +98,17 @@ Country option UIs should compose shared controls instead of duplicating labels,
 - Use `PayFrequencyField` for pay frequency.
 - Use `SelectField` for string enums such as residency, filing status, state/region, and regimes.
 - Use `BooleanSelectField` for yes/no choices.
-- Use `NumberField` for bounded numeric inputs such as age. It keeps an editable string draft, allows temporarily empty values, and clamps min/max on blur.
+- Use `CountStepperField` for discrete counts (dependents, children, parents, disabled dependents, etc.). Layout matches SG reliefs: label + hint on the left, `NumberStepper` on the right. Inside `CalculatorFieldGrid`, pass `spanColumns` so each stepper is a full-width row. Do not use `NumberField` or a small `SelectField` enum for counts.
+- Use `NumberField` for bounded non-count scalars such as age or monthly insurance bases. It keeps an editable string draft, allows temporarily empty values, and clamps min/max on blur.
 - Use `CurrencyAmountField` for free-form annual currency amounts.
 - Use `ContributionSlider` from `components/ui/contribution-slider.tsx` for bounded contribution/deduction amounts with max toggles.
-- Use `InfoPanel` for repeated note/tip callouts.
+- Use `InfoPanel` for repeated note/tip callouts (short “Modeled scope” notes only — not a substitute for the Contributions card).
+
+Every country page should expose a **Contributions** card via `CountryCalculatorExtensionShell` when the country has any modeled voluntary inputs or when the checklist below requires explaining why none exist (e.g. 0% PIT countries use `NoPitContributionsNote` from `components/calculator/no-pit-contributions-note.tsx`):
+
+- `contributionsTitle="Retirement & Savings Contributions"` (or country-appropriate title)
+- `contributionsDescription="Adjust voluntary contributions that reduce your tax base"` (adapt copy for credits-only or no-PIT cases)
+- `contributions={...}` — one or more `ContributionSlider` rows in a `space-y-6` wrapper, matching US/SG/IE/CZ patterns
 
 For annual currency inputs, decide the control from the modeled legal or calculator limit:
 
@@ -111,6 +120,52 @@ For annual currency inputs, decide the control from the modeled legal or calcula
 Do not introduce a country-specific version of these controls unless the shared primitive cannot model the interaction. If a new country needs the same concept (for example health insurance, pension, CPF-style savings, or retirement contributions), use the same shared control type and visual language as existing countries.
 
 Mobile note: `Input` and `Select` intentionally render at 16px on mobile (`text-base sm:text-sm`) to avoid iOS Safari focus zoom. Do not override calculator inputs below 16px on mobile.
+
+### Input Control Standards
+
+Use this matrix for every new or updated country UI. The US calculator is the reference for voluntary pre-tax deductions and family inputs.
+
+| Input type | Control | Notes |
+| --- | --- | --- |
+| Dependents, children, parents, disabled dependents | `CountStepperField` (+ `spanColumns` in grids) | Country-specific `max`; clamp in hook and calculator |
+| Age, monthly bases, non-count scalars | `NumberField` | Editable draft; clamp on blur |
+| State, region, residency, regime, contract type | `SelectField` | Group with `<optgroup>` only when 30+ options |
+| Married / yes-no (2 outcomes) | `BooleanSelectField` | Not raw `Switch` except inside dense relief grids |
+| Filing status (3+ outcomes) | `SelectField` | e.g. US MFJ/MFS/HOH; ES/PT joint variants |
+| Boolean married when tax has only 2 outcomes | `BooleanSelectField` or mapped `SelectField` | DE, TW |
+| Capped annual contributions (401k, HSA, FSA, pension) | `ContributionSlider` | Same max in UI, hook setter, and calculator |
+| Uncapped annual amounts | `CurrencyAmountField` | Migrate to slider when an official cap is modeled |
+
+**Official sources (required):**
+
+- Rates, brackets, caps, and relief rules must come from **official government** sites (tax authority, social insurance agency, central bank payroll guidance) — not blogs, aggregators, or outdated PDFs unless cross-checked against the current official page.
+- Put the source URL next to every rate constant in `lib/countries/{code}/constants/` (comment or `SOURCE_URLS` export).
+- Confirm the **tax year / assessment year** matches what the calculator claims (see `lib/constants/tax-year.ts` and page copy).
+- Golden tests must cite the official calculator or table URL in `calculator.test.ts`.
+- After implementation, cross-check net pay against a **second** public calculator (PaycheckCity, SalaryAfterTax, Talent.com, etc.); target ≤1% difference on net salary.
+
+**Implementing a new country (accuracy workflow):**
+
+1. Research official sources (step above); document gaps in constants comments if something is intentionally excluded.
+2. Implement `lib/countries/{code}/` calculator, types, config, compare adapter.
+3. Complete the **Voluntary Contribution Checklist** (below); add sliders + calculator logic, or `NoPitContributionsNote` with a source-backed explanation.
+4. Add `calculator.test.ts` with 5+ golden numbers from the official source (low/mid/high salary; with/without dependents; max retirement if modeled).
+5. Compose UI from shared primitives per the matrix above; include the Contributions card on the country extension.
+6. Add SEO block titled **How Your Take Home Pay Is Calculated** (inline in `country-extensions/{code}.tsx` is preferred).
+7. Run `npm run generate:countries && npm test && npm run lint && npm run build`.
+8. **Local UI check** (required for any calculator/constants/UI change) — see **Local verification** below.
+
+**Local verification (required after changes):**
+
+After any change to country calculators, constants, extensions, or shared calculator UI:
+
+1. Run `npm run dev` and open the affected route(s), e.g. `http://localhost:3000/{country-code}`.
+2. Confirm layout: Income Details → **Retirement & Savings Contributions** (when applicable) → results column; no cramped steppers, overlapping labels, or broken grids.
+3. Capture a **desktop** screenshot (full calculator + contributions card visible).
+4. Capture a **mobile** screenshot (narrow viewport ~390px width, or device toolbar in browser DevTools) — check stepper rows, slider max toggles, and that inputs stay ≥16px (no iOS zoom).
+5. Fix formatting issues before considering the task done (use `spanColumns` on `CountStepperField` in grids, `space-y-6` between multiple sliders, full-width contribution rows like SG reliefs).
+
+Agents should perform this check themselves when possible; attach or reference screenshots in the PR when UI was touched.
 
 ### Tax Calculation Flow
 
@@ -190,7 +245,7 @@ Mobile note: `Input` and `Select` intentionally render at 16px on mobile (`text-
 4. Export via `config.ts` and `index.ts`
 5. Add country-specific input, contribution, tax, and breakdown types near the country implementation. Prefer `lib/countries/{country-code}/types.ts` with TypeScript module augmentation for `CountryCodeMap`, `CurrencyCodeMap`, `ContributionInputMap`, `CalculatorInputMap`, `TaxBreakdownMap`, and `CountrySpecificBreakdownMap`. Edit `lib/countries/types.ts` only for genuinely shared primitives.
 6. Do not edit `lib/countries/registry.ts`. The registry is generated from country directories by `npm run generate:countries`.
-7. For new country UI, prefer adding `components/calculator/country-extensions/{country-code}.tsx` as a default export. This extension owns the country-specific form state and should use `useCountryCalculatorExtension` and `CountryCalculatorExtensionShell` from `components/calculator/country-extension.tsx`. Compose shared fields from `calculator-fields.tsx`. Do not add new country branches to `components/calculator/multi-country-calculator.tsx` or `hooks/use-multi-country-calculator.ts`.
+7. For new country UI, prefer adding `components/calculator/country-extensions/{country-code}.tsx` as a default export. This extension owns the country-specific form state and should use `useCountryCalculatorExtension` and `CountryCalculatorExtensionShell` from `components/calculator/country-extension.tsx`. Compose shared fields from `calculator-fields.tsx`. Wire `contributions` / `contributionsTitle` / `contributionsDescription` on the shell for every country (see **Input Control Standards**). Do not add new country branches to `components/calculator/multi-country-calculator.tsx` or `hooks/use-multi-country-calculator.ts`.
 8. Add country-specific result display in `components/calculator/results/{country-code}-result-breakdown.tsx`. The result breakdown registry is generated from this filename; do not edit `components/calculator/results/country-result-breakdown.tsx`.
 9. Add country metadata overrides in `lib/countries/country-page-content.ts` only when the generic metadata from country config is not good enough:
    - `COUNTRY_DESCRIPTIONS`
@@ -200,37 +255,52 @@ Mobile note: `Input` and `Select` intentionally render at 16px on mobile (`text-
 11. Update compare flow:
     - Add `lib/countries/{country-code}/compare.ts` exporting `buildCountryComparison` for country-specific assumptions, input mapping, and retirement max rules. The compare adapter registry is generated from this file; do not edit `hooks/use-country-comparison.ts` for routine country additions.
     - Add simple breakdown mapping in `components/compare/compare-breakdown.tsx` if needed
-12. Run `npm run generate:countries`, `npm run lint`, and `npm run build`.
-13. **Update documentation:** Do not add country lists or country-specific sections to README. Keep country source URLs and notes near the country constants/calculator, and update AGENTS.md only when the architecture or workflow changes.
+12. Run `npm run generate:countries`, `npm test`, `npm run lint`, and `npm run build`.
+13. Run **local verification** (desktop + mobile screenshots) for the new or changed country UI.
+14. **Update documentation:** Do not add country lists or country-specific sections to README. Keep country source URLs and notes near the country constants/calculator, and update AGENTS.md only when the architecture or workflow changes.
 
 **Note:** Any time you add a new country, also update `/compare` assumptions and documentation to keep the experience consistent.
 
 ### Voluntary Contribution Checklist
 
-Before deciding a country has no optional tax-saving inputs, explicitly check for resident tax-reducing contributions and reliefs, including:
+**Do not ship a country with only a “Modeled scope” info panel.** Every country extension must either (a) implement local voluntary contribution sliders, or (b) show a Contributions card that explains why none apply (0% PIT / mandatory-only), with official sources cited.
 
-- Pension, retirement, provident, occupational pension, and social welfare schemes
-- Voluntary top-ups to mandatory retirement or savings systems
-- Life/medical insurance premiums when they are user-controlled and tax-relevant
+Before deciding a country has no optional tax-saving inputs, check **official government** guidance for resident tax-reducing contributions and reliefs, including:
+
+- Pension, retirement, provident, occupational pension, and social welfare schemes (PGBL/VGBL, Pillar 3a, IKZE, RA, BES, etc.)
+- Voluntary top-ups to mandatory retirement or savings systems (PPK, III pillar, supplemental pension)
+- Life/medical insurance premiums when user-controlled and tax-relevant
 - Charitable/religious payments, education, lifestyle, or qualifying expense reliefs that are common enough to model
 
-If a user-entered amount has an official or modeled cap, use `ContributionSlider`, expose the cap from `getContributionLimits()`, clamp the hook setter, and clamp again in the calculator. Mandatory payroll/social-insurance contributions should remain automatic calculator logic, not voluntary UI controls.
+**When applicable (most countries with income tax):**
+
+1. Add fields to `{code}ContributionInputs` in `lib/countries/{code}/types.ts`.
+2. Add caps in `constants/` with official source URLs.
+3. Apply pre-tax / credit logic in `calculator.ts`; include amounts in `totalDeductions` and breakdown `voluntaryContributions` where useful.
+4. Implement `getContributionLimits(inputs?)` returning each slider’s legal max.
+5. Add `contributions` UI on `country-extensions/{code}.tsx` (US/SG-style card title and description).
+6. Wire `isMaxRetirement` in `lib/countries/{code}/compare.ts` for each tax-reducing contribution.
+
+If a user-entered amount has an official or modeled cap, use `ContributionSlider`, expose the cap from `getContributionLimits()`, clamp the hook setter, and clamp again in the calculator. Mandatory payroll/social-insurance contributions stay automatic — not voluntary sliders.
 
 When a scheme has multiple caps, keep them separate in constants and UI copy. Use the legal contribution/payment cap as the slider max, then apply any lower tax-relief cap in the calculator and breakdown. If a complex employer-plan or plan-specific extra limit is intentionally excluded, state that exclusion near the constants and in visible assumptions copy.
 
-For `/compare`, the "max retirement" assumption must include each modeled tax-reducing retirement contribution where the user's assumptions make them eligible. If no voluntary contribution is modeled, leave a short source-backed comment or visible assumption explaining why.
+For `/compare`, the "max retirement" assumption must include each modeled tax-reducing retirement contribution where the user's assumptions make them eligible. If no voluntary contribution is modeled, the Contributions card must still explain why (e.g. `NoPitContributionsNote`) with a source-backed link.
 
 ### Updating Tax Data
 
-- Use official government sources whenever possible and verify that the tax year/assessment year matches the calculator constants.
-- Preserve source URLs in constants comments when useful.
+- Re-verify rates against **official government** calculators or published tables for the correct tax year before merging.
+- Preserve source URLs in constants comments (required, not optional).
 - Update visible explanatory copy when rates change:
   - `components/calculator/seo-tax-info.tsx`
   - `components/calculator/multi-country-calculator.tsx`
   - `components/calculator/results/{country-code}-result-breakdown.tsx`
   - `lib/countries/country-page-content.ts`
+  - inline SEO blocks in `components/calculator/country-extensions/{code}.tsx`
+- Re-run golden tests; add or adjust cases if brackets/caps changed.
+- Run `npm run generate:countries && npm test && npm run lint && npm run build` after calculation or shared UI changes.
+- Run **local verification** (desktop + mobile screenshots) when UI or contribution controls change.
 - Update this file only when the architecture or agent workflow changes, not for routine country additions.
-- Run `npm run lint` and `npm run build` after calculation or shared UI changes.
 
 ### Parallel Agent Guidance
 
@@ -251,11 +321,20 @@ For `/compare`, the "max retirement" assumption must include each modeled tax-re
 
 ## Testing
 
-No test framework is currently configured. When adding tests:
+The project uses **Vitest** for unit tests on country calculators.
 
-- Consider Jest or Vitest for unit tests
-- Focus on tax calculation accuracy
-- Test edge cases for contribution limits and tax brackets
+```bash
+npm test          # Run all calculator tests once
+npm run test:watch  # Watch mode during development
+```
+
+- Place tests at `lib/countries/{code}/calculator.test.ts`.
+- Use `describe` / `it` / `expect` from `vitest` (not `node:test`).
+- **Golden-number policy:** cite the official calculator URL in a file comment; assert low/mid/high salary and with/without dependents or max retirement where modeled.
+- Cross-check net pay against a second public calculator when possible; target ≤1% difference on net salary.
+- Run `npm test` after any change to `lib/countries/{code}/calculator.ts` or `constants/`.
+- Focus on tax calculation accuracy and contribution-limit edge cases.
+- After UI changes, run `npm run dev` and visually verify desktop and mobile layouts (see **Local verification** under Input Control Standards).
 
 ## Build Pipeline
 
@@ -275,11 +354,13 @@ These are displayed in the UI footer.
 
 ### Add New Contribution Type
 
-1. Update types in `lib/countries/types.ts`
-2. Add calculation logic in country calculator
-3. Add constants for contribution/payment caps and tax-relief caps, keeping separate caps separate in naming and calculation.
-4. Add UI controls in relevant component. Use `ContributionSlider` for capped annual currency amounts and `CurrencyAmountField` only for genuinely uncapped/free-form amounts.
-5. Update hook state management, clamping setters to the same max used by the UI.
+1. Confirm cap and rules on an **official government** source; add URL to country constants.
+2. Update `{code}ContributionInputs` in `lib/countries/{code}/types.ts` (prefer country-local types + module augmentation).
+3. Add calculation logic in country calculator; update breakdown and compare `isMaxRetirement` if tax-reducing.
+4. Add constants for contribution/payment caps and tax-relief caps, keeping separate caps separate in naming and calculation.
+5. Add `ContributionSlider` on `country-extensions/{code}.tsx` inside the Contributions card (`space-y-6` if multiple sliders).
+6. Implement `getContributionLimits(inputs?)` with the same max as the UI.
+7. Run `npm test`, `npm run lint`, `npm run build`, and **local verification** (desktop + mobile screenshots).
 
 ### Fix Tax Calculation Bug
 

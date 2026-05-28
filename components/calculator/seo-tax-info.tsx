@@ -384,9 +384,27 @@ function USTaxInfo() {
         </li>
         <li>
           <strong className="text-zinc-300">Pre-tax Deductions</strong> – 401(k)
-          and HSA contributions reduce taxable income
+          pre-tax, traditional IRA, HSA, health FSA, dependent care FSA, commuter
+          benefits, and student loan interest (up to $2,500) reduce taxable income
+        </li>
+        <li>
+          <strong className="text-zinc-300">Roth 401(k) / Roth IRA</strong> – Post-tax
+          contributions; Roth 401(k) shares the elective deferral limit with pre-tax 401(k)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Child Tax Credit</strong> – $2,000 per
+          qualifying child and $500 per other dependent (simplified phase-out above
+          $200k single / $400k married filing jointly)
+        </li>
+        <li>
+          <strong className="text-zinc-300">Age</strong> – Catch-up limits for 401(k),
+          IRA, and HSA apply at modeled IRS thresholds
         </li>
       </ul>
+      <p className="text-zinc-400 text-sm mt-3">
+        Sources: IRS Rev. Proc. 2025-25 (2026 limits), IRS Publication 15-T. Cross-check
+        with your state withholding and official IRS tools for filing.
+      </p>
     </div>
   );
 }

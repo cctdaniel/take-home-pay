@@ -79,12 +79,28 @@ function LegacyMultiCountryCalculator({
     setFilingStatus,
     traditional401k,
     setTraditional401k,
+    roth401k,
+    setRoth401k,
+    traditionalIRA,
+    setTraditionalIRA,
     rothIRA,
     setRothIRA,
     hsa,
     setHsa,
     hsaCoverageType,
     setHsaCoverageType,
+    fsa,
+    setFsa,
+    dependentCareFSA,
+    setDependentCareFSA,
+    commuterBenefits,
+    setCommuterBenefits,
+    studentLoanInterest,
+    setStudentLoanInterest,
+    usQualifyingChildren,
+    setUsQualifyingChildren,
+    usOtherDependents,
+    setUsOtherDependents,
     usLimits,
 
     // SG-specific
@@ -278,6 +294,12 @@ function LegacyMultiCountryCalculator({
                 onFilingStatusChange={setFilingStatus}
                 payFrequency={payFrequency}
                 onPayFrequencyChange={setPayFrequency}
+                age={age}
+                onAgeChange={setAge}
+                numberOfQualifyingChildren={usQualifyingChildren}
+                onNumberOfQualifyingChildrenChange={setUsQualifyingChildren}
+                numberOfOtherDependents={usOtherDependents}
+                onNumberOfOtherDependentsChange={setUsOtherDependents}
               />
             )}
 
@@ -533,17 +555,27 @@ function LegacyMultiCountryCalculator({
             <CardContent>
               {country === "US" && (
                 <ContributionOptions
+                  limits={usLimits}
                   traditional401k={traditional401k}
                   onTraditional401kChange={setTraditional401k}
-                  traditional401kLimit={usLimits.traditional401k}
+                  roth401k={roth401k}
+                  onRoth401kChange={setRoth401k}
+                  traditionalIRA={traditionalIRA}
+                  onTraditionalIRAChange={setTraditionalIRA}
                   rothIRA={rothIRA}
                   onRothIRAChange={setRothIRA}
-                  rothIRALimit={usLimits.rothIRA}
                   hsa={hsa}
                   onHsaChange={setHsa}
-                  hsaLimit={usLimits.hsa}
                   hsaCoverageType={hsaCoverageType}
                   onHsaCoverageTypeChange={setHsaCoverageType}
+                  fsa={fsa}
+                  onFsaChange={setFsa}
+                  dependentCareFSA={dependentCareFSA}
+                  onDependentCareFSAChange={setDependentCareFSA}
+                  commuterBenefits={commuterBenefits}
+                  onCommuterBenefitsChange={setCommuterBenefits}
+                  studentLoanInterest={studentLoanInterest}
+                  onStudentLoanInterestChange={setStudentLoanInterest}
                 />
               )}
 

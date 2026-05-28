@@ -2,6 +2,7 @@
 
 import {
   CalculatorFieldGrid,
+  CountStepperField,
   NumberField,
   PayFrequencyField,
   SelectField,
@@ -57,24 +58,13 @@ export function GRTaxOptions({
         fallbackValue={31}
         description="Youth rates apply up to age 30"
       />
-      <SelectField
+      <CountStepperField
+        spanColumns={3}
         id="gr-dependents"
         label="Dependent Children"
-        value={Math.min(numberOfDependents, 8).toString() as `${number}`}
-        onChange={(nextValue) =>
-          onNumberOfDependentsChange(parseInt(nextValue, 10))
-        }
-        options={[
-          { value: "0", label: "None" },
-          { value: "1", label: "1" },
-          { value: "2", label: "2" },
-          { value: "3", label: "3" },
-          { value: "4", label: "4" },
-          { value: "5", label: "5" },
-          { value: "6", label: "6" },
-          { value: "7", label: "7" },
-          { value: "8", label: "8+" },
-        ]}
+        value={numberOfDependents}
+        onChange={onNumberOfDependentsChange}
+        max={8}
         description="Adjusts 2026 tax rates and employment tax reduction"
       />
       <PayFrequencyField

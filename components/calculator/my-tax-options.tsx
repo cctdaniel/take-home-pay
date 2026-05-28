@@ -3,6 +3,7 @@
 import {
   BooleanSelectField,
   CalculatorFieldGrid,
+  CountStepperField,
   NumberField,
   PayFrequencyField,
   SelectField,
@@ -109,25 +110,23 @@ export function MYTaxOptions({
         falseLabel="No"
       />
 
-      <NumberField
+      <CountStepperField
+        spanColumns={3}
         id="my-children-under-18"
         label="Children Under 18"
         value={numberOfChildrenUnder18}
         onChange={onNumberOfChildrenUnder18Change}
-        min={0}
         max={10}
-        fallbackValue={0}
         description="RM2,000 relief per qualifying child."
       />
 
-      <NumberField
+      <CountStepperField
+        spanColumns={3}
         id="my-children-tertiary"
         label="Tertiary Children"
         value={numberOfChildrenTertiary}
         onChange={onNumberOfChildrenTertiaryChange}
-        min={0}
         max={10}
-        fallbackValue={0}
         description="RM8,000 relief per qualifying child in higher education."
       />
     </CalculatorFieldGrid>

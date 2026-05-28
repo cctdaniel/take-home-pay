@@ -2,8 +2,8 @@
 
 import {
   CalculatorFieldGrid,
+  CountStepperField,
   PayFrequencyField,
-  SelectField,
 } from "@/components/calculator/calculator-fields";
 import {
   CountryCalculatorExtensionShell,
@@ -47,23 +47,21 @@ export default function ATCountryExtension({
             value={inputs.payFrequency}
             onChange={setPayFrequency}
           />
-          <SelectField
+          <CountStepperField
+            spanColumns={2}
             id="at-family-bonus-children"
             label="Family Bonus Plus children"
-            value={inputs.familyBonusChildren.toString()}
-            onChange={(value) =>
+            value={inputs.familyBonusChildren}
+            onChange={(familyBonusChildren) =>
               setInputs((current) => ({
                 ...current,
-                familyBonusChildren: Number(value) as ATFamilyBonusChildren,
+                familyBonusChildren: Math.min(
+                  4,
+                  Math.max(0, familyBonusChildren),
+                ) as ATFamilyBonusChildren,
               }))
             }
-            options={[
-              { value: "0", label: "No modeled children" },
-              { value: "1", label: "1 child" },
-              { value: "2", label: "2 children" },
-              { value: "3", label: "3 children" },
-              { value: "4", label: "4 children" },
-            ]}
+            max={4}
             description="Simplified Family Bonus Plus credit for children under the modeled annual amount."
           />
         </CalculatorFieldGrid>

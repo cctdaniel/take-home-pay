@@ -2,6 +2,7 @@
 
 import {
   CalculatorFieldGrid,
+  CountStepperField,
   PayFrequencyField,
   SelectField,
 } from "@/components/calculator/calculator-fields";
@@ -56,17 +57,13 @@ export function IDTaxOptions({
         description="PTKP adds Rp4.500.000 for married taxpayers."
       />
 
-      <SelectField
+      <CountStepperField
+        spanColumns={3}
         id="id-dependents"
         label="Number of Dependents"
-        value={Math.min(numberOfDependents, 3).toString() as "0" | "1" | "2" | "3"}
-        onChange={(value) => onNumberOfDependentsChange(parseInt(value, 10))}
-        options={[
-          { value: "0", label: "None" },
-          { value: "1", label: "1" },
-          { value: "2", label: "2" },
-          { value: "3", label: "3" },
-        ]}
+        value={numberOfDependents}
+        onChange={onNumberOfDependentsChange}
+        max={3}
         description="PTKP adds Rp4.500.000 per dependent (max 3)."
       />
 

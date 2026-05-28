@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NumberStepper } from "@/components/ui/number-stepper";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { CurrencyCode } from "@/lib/format";
@@ -27,6 +28,18 @@ const GRID_COLUMNS = {
   3: "sm:grid-cols-2 lg:grid-cols-3",
   4: "sm:grid-cols-2 lg:grid-cols-4",
 } as const;
+
+/** Full-width row inside CalculatorFieldGrid — matches SG relief stepper rows. */
+export function countStepperGridSpan(columns: keyof typeof GRID_COLUMNS): string {
+  switch (columns) {
+    case 2:
+      return "col-span-full sm:col-span-2";
+    case 4:
+      return "col-span-full sm:col-span-2 lg:col-span-4";
+    default:
+      return "col-span-full sm:col-span-2 lg:col-span-3";
+  }
+}
 
 function parseNumberInput(value: string, fallbackValue: number): number {
   if (value.trim() === "") {
@@ -154,6 +167,62 @@ export function BooleanSelectField({
       description={description}
       className={className}
     />
+  );
+}
+
+/**
+ * Discrete counts (dependents, children, etc.).
+ * Row layout matches SG Additional Tax Reliefs: label + hint left, stepper right.
+ */
+export function CountStepperField({
+  id,
+  label,
+  value,
+  onChange,
+  min = 0,
+  max = 10,
+  description,
+  className,
+  spanColumns,
+}: {
+  id: string;
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+  min?: number;
+  max?: number;
+  description?: ReactNode;
+  className?: string;
+  /** When inside CalculatorFieldGrid, span full width like SG relief rows. */
+  spanColumns?: keyof typeof GRID_COLUMNS;
+}) {
+  const clamped = clamp(value, min, max);
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-between gap-4",
+        spanColumns ? countStepperGridSpan(spanColumns) : null,
+        className,
+      )}
+    >
+      <div className="min-w-0 flex-1">
+        <Label htmlFor={id} className="text-sm">
+          {label}
+        </Label>
+        {description ? (
+          <p className="mt-0.5 text-xs text-zinc-500">{description}</p>
+        ) : null}
+      </div>
+      <NumberStepper
+        id={id}
+        value={clamped}
+        onChange={(next) => onChange(clamp(next, min, max))}
+        min={min}
+        max={max}
+        label={label}
+        className="shrink-0"
+      />
+    </div>
   );
 }
 

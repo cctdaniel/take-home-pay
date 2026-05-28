@@ -30,19 +30,19 @@ export function NumberStepper({
   };
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div className={cn("flex items-center gap-2", className)} role="group">
       <button
         type="button"
         onClick={handleDecrement}
         disabled={value <= min}
         aria-label={label ? `Decrease ${label}` : "Decrease value"}
         id={id ? `${id}-decrement` : undefined}
-        className="w-8 h-8 rounded bg-zinc-700 hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-300 flex items-center justify-center transition-colors"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-zinc-700 text-base leading-none text-zinc-300 transition-colors hover:bg-zinc-600 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        -
+        −
       </button>
       <span
-        className="w-8 text-center text-zinc-300 tabular-nums"
+        className="min-w-[2ch] text-center text-sm tabular-nums text-zinc-300"
         aria-live="polite"
         aria-label={label ? `${label}: ${value}` : `Value: ${value}`}
       >
@@ -54,7 +54,7 @@ export function NumberStepper({
         disabled={value >= max}
         aria-label={label ? `Increase ${label}` : "Increase value"}
         id={id ? `${id}-increment` : undefined}
-        className="w-8 h-8 rounded bg-zinc-700 hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-300 flex items-center justify-center transition-colors"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-zinc-700 text-base leading-none text-zinc-300 transition-colors hover:bg-zinc-600 disabled:cursor-not-allowed disabled:opacity-50"
       >
         +
       </button>

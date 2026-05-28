@@ -2,15 +2,19 @@
 // Do not edit by hand.
 
 import { AECalculator } from "./ae";
+import { ARCalculator } from "./ar";
 import { ATCalculator } from "./at";
 import { AUCalculator } from "./au";
 import { BECalculator } from "./be";
+import { BRCalculator } from "./br";
 import { CACalculator } from "./ca";
+import { CHCalculator } from "./ch";
 import { CNCalculator } from "./cn";
 import { CYCalculator } from "./cy";
 import { CZCalculator } from "./cz";
 import { DECalculator } from "./de";
 import { DKCalculator } from "./dk";
+import { EECalculator } from "./ee";
 import { ESCalculator } from "./es";
 import { FICalculator } from "./fi";
 import { FRCalculator } from "./fr";
@@ -18,8 +22,10 @@ import { GECalculator } from "./ge";
 import { GRCalculator } from "./gr";
 import { HKCalculator } from "./hk";
 import { HRCalculator } from "./hr";
+import { HUCalculator } from "./hu";
 import { IDCalculator } from "./id";
 import { IECalculator } from "./ie";
+import { ILCalculator } from "./il";
 import { INCalculator } from "./in";
 import { ISCalculator } from "./is";
 import { ITCalculator } from "./it";
@@ -32,14 +38,19 @@ import { NLCalculator } from "./nl";
 import { NOCalculator } from "./no";
 import { NZCalculator } from "./nz";
 import { PHCalculator } from "./ph";
+import { PLCalculator } from "./pl";
 import { PTCalculator } from "./pt";
+import { QACalculator } from "./qa";
+import { SACalculator } from "./sa";
 import { SECalculator } from "./se";
 import { SGCalculator } from "./sg";
 import { THCalculator } from "./th";
+import { TRCalculator } from "./tr";
 import { TWCalculator } from "./tw";
 import { UKCalculator } from "./uk";
 import { USCalculator } from "./us";
 import { VNCalculator } from "./vn";
+import { ZACalculator } from "./za";
 import type { CountryCalculator, CountryCode } from "./types";
 
 export interface CountryRegistryEntry {
@@ -49,15 +60,19 @@ export interface CountryRegistryEntry {
 
 export const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
   { code: AECalculator.countryCode, calculator: AECalculator },
+  { code: ARCalculator.countryCode, calculator: ARCalculator },
   { code: ATCalculator.countryCode, calculator: ATCalculator },
   { code: AUCalculator.countryCode, calculator: AUCalculator },
   { code: BECalculator.countryCode, calculator: BECalculator },
+  { code: BRCalculator.countryCode, calculator: BRCalculator },
   { code: CACalculator.countryCode, calculator: CACalculator },
+  { code: CHCalculator.countryCode, calculator: CHCalculator },
   { code: CNCalculator.countryCode, calculator: CNCalculator },
   { code: CYCalculator.countryCode, calculator: CYCalculator },
   { code: CZCalculator.countryCode, calculator: CZCalculator },
   { code: DECalculator.countryCode, calculator: DECalculator },
   { code: DKCalculator.countryCode, calculator: DKCalculator },
+  { code: EECalculator.countryCode, calculator: EECalculator },
   { code: ESCalculator.countryCode, calculator: ESCalculator },
   { code: FICalculator.countryCode, calculator: FICalculator },
   { code: FRCalculator.countryCode, calculator: FRCalculator },
@@ -65,8 +80,10 @@ export const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
   { code: GRCalculator.countryCode, calculator: GRCalculator },
   { code: HKCalculator.countryCode, calculator: HKCalculator },
   { code: HRCalculator.countryCode, calculator: HRCalculator },
+  { code: HUCalculator.countryCode, calculator: HUCalculator },
   { code: IDCalculator.countryCode, calculator: IDCalculator },
   { code: IECalculator.countryCode, calculator: IECalculator },
+  { code: ILCalculator.countryCode, calculator: ILCalculator },
   { code: INCalculator.countryCode, calculator: INCalculator },
   { code: ISCalculator.countryCode, calculator: ISCalculator },
   { code: ITCalculator.countryCode, calculator: ITCalculator },
@@ -79,12 +96,17 @@ export const COUNTRY_REGISTRY: CountryRegistryEntry[] = [
   { code: NOCalculator.countryCode, calculator: NOCalculator },
   { code: NZCalculator.countryCode, calculator: NZCalculator },
   { code: PHCalculator.countryCode, calculator: PHCalculator },
+  { code: PLCalculator.countryCode, calculator: PLCalculator },
   { code: PTCalculator.countryCode, calculator: PTCalculator },
+  { code: QACalculator.countryCode, calculator: QACalculator },
+  { code: SACalculator.countryCode, calculator: SACalculator },
   { code: SECalculator.countryCode, calculator: SECalculator },
   { code: SGCalculator.countryCode, calculator: SGCalculator },
   { code: THCalculator.countryCode, calculator: THCalculator },
+  { code: TRCalculator.countryCode, calculator: TRCalculator },
   { code: TWCalculator.countryCode, calculator: TWCalculator },
   { code: UKCalculator.countryCode, calculator: UKCalculator },
   { code: USCalculator.countryCode, calculator: USCalculator },
   { code: VNCalculator.countryCode, calculator: VNCalculator },
+  { code: ZACalculator.countryCode, calculator: ZACalculator },
 ].sort((a, b) => a.calculator.config.name.localeCompare(b.calculator.config.name));

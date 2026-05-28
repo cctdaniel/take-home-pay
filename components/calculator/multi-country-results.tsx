@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { CalculationResult, PayFrequency } from "@/lib/countries/types";
-import { isDETaxBreakdown } from "@/lib/countries/types";
+import { isDETaxBreakdown, isUSTaxBreakdown } from "@/lib/countries/types";
 import {
   getStateCalculator,
   hasNoIncomeTax,
@@ -193,7 +193,7 @@ export function MultiCountryResults({
           {hasPreTotalBreakdown && <Separator className="my-2" />}
 
           {/* US Tax Breakdown */}
-          {isUS && "federalIncomeTax" in taxes && (
+          {isUS && isUSTaxBreakdown(taxes) && (
             <>
               <p className="text-xs text-zinc-500 pt-2 pb-1">Federal Taxes</p>
               <DeductionRow

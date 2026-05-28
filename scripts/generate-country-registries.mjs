@@ -1,4 +1,11 @@
-import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -212,8 +219,44 @@ ${entries}
   );
 }
 
+function validateSeoCoverage(countryDirectories) {
+  const seoTaxInfoPath = path.join(rootDir, "components/calculator/seo-tax-info.tsx");
+  const seoTaxInfo = readFileSync(seoTaxInfoPath, "utf8");
+  const missing = [];
+
+  for (const directory of countryDirectories) {
+    const countryCode = toCountryCode(directory);
+    const extensionPath = path.join(
+      rootDir,
+      "components/calculator/country-extensions",
+      `${directory}.tsx`,
+    );
+
+    const inCentralSeo =
+      seoTaxInfo.includes(`country === "${countryCode}"`) ||
+      seoTaxInfo.includes(`country === '${countryCode}'`);
+
+    const extensionHasSeo =
+      existsSync(extensionPath) &&
+      readFileSync(extensionPath, "utf8").includes(
+        "How Your Take Home Pay Is Calculated",
+      );
+
+    if (!inCentralSeo && !extensionHasSeo) {
+      missing.push(countryCode);
+    }
+  }
+
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing SEO section "How Your Take Home Pay Is Calculated" for: ${missing.join(", ")}. Add to components/calculator/seo-tax-info.tsx or country-extensions/{code}.tsx`,
+    );
+  }
+}
+
 const countryDirectories = getCountryDirectories();
 
+validateSeoCoverage(countryDirectories);
 generateCalculatorRegistry(countryDirectories);
 generateResultBreakdowns();
 generateCountryExtensions();

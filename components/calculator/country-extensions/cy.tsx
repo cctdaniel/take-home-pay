@@ -3,7 +3,7 @@
 import {
   BooleanSelectField,
   CalculatorFieldGrid,
-  NumberField,
+  CountStepperField,
   PayFrequencyField,
   SelectField,
 } from "@/components/calculator/calculator-fields";
@@ -106,14 +106,13 @@ function CYTaxOptions({
         value={inputs.payFrequency}
         onChange={onPayFrequencyChange}
       />
-      <NumberField
+      <CountStepperField
+        spanColumns={3}
         id="cy-dependent-children"
         label="Dependent Children"
         value={inputs.taxReliefs.numberOfDependentChildren}
         onChange={onDependentChildrenChange}
-        min={0}
         max={8}
-        fallbackValue={0}
         description="TD59 child deduction uses official child order amounts"
       />
       <BooleanSelectField

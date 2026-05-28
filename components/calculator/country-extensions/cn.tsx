@@ -4,6 +4,7 @@ import {
   CalculatorFieldGrid,
   PayFrequencyField,
   SelectField,
+  CountStepperField,
   NumberField,
   BooleanSelectField,
 } from "@/components/calculator/calculator-fields";
@@ -84,7 +85,8 @@ export default function CNCountryExtension({
 
           <p className="text-xs font-medium text-zinc-400">Special Additional Deductions (专项附加扣除)</p>
           <CalculatorFieldGrid columns={2}>
-            <NumberField
+            <CountStepperField
+              spanColumns={2}
               id="cn-children"
               label="Children (age 3+)"
               value={sd.numberOfChildren}
@@ -94,11 +96,11 @@ export default function CNCountryExtension({
                   specialDeductions: { ...current.specialDeductions, numberOfChildren },
                 }))
               }
-              min={0}
               max={10}
               description="2,000 CNY/month per child"
             />
-            <NumberField
+            <CountStepperField
+              spanColumns={2}
               id="cn-children-under3"
               label="Children under 3"
               value={sd.numberOfChildrenUnder3}
@@ -111,11 +113,11 @@ export default function CNCountryExtension({
                   },
                 }))
               }
-              min={0}
               max={10}
               description="2,000 CNY/month per child"
             />
-            <NumberField
+            <CountStepperField
+              spanColumns={2}
               id="cn-elderly-care"
               label="Elderly dependents"
               value={sd.numberOfElderlyCare}
@@ -128,7 +130,6 @@ export default function CNCountryExtension({
                   },
                 }))
               }
-              min={0}
               max={4}
               description="3,000/mo (only child) or 1,500/mo (shared)"
             />

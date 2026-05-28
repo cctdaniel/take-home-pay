@@ -2,7 +2,7 @@
 
 import {
   CalculatorFieldGrid,
-  NumberField,
+  CountStepperField,
   PayFrequencyField,
 } from "@/components/calculator/calculator-fields";
 import {
@@ -29,14 +29,14 @@ export default function VNCountryExtension({
       taxOptions={
         <div className="space-y-4">
           <CalculatorFieldGrid columns={2}>
-            <NumberField
+            <CountStepperField
+              spanColumns={2}
               id="vn-dependents"
               label="Tax Dependents"
               value={inputs.numberOfDependents}
               onChange={(numberOfDependents) =>
                 setInputs((current) => ({ ...current, numberOfDependents }))
               }
-              min={0}
               max={10}
               description="Deduction of 52.8M VND/year per dependent"
             />
