@@ -10,7 +10,9 @@
     "build": "node scripts/with-last-updated.mjs next build",
     "start": "node scripts/with-last-updated.mjs next start",
     "prelint": "node scripts/generate-country-registries.mjs",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -28,6 +30,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.5",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.4"
   }
 }

@@ -67,6 +67,7 @@ export type CountryCode = Extract<keyof CountryCodeMap, string>;
 
 export type CountryRegion =
   | "North America"
+  | "South America"
   | "Europe"
   | "Asia-Pacific"
   | "Middle East";
@@ -122,9 +123,15 @@ export type AUResidencyType = "resident" | "non_resident";
 // US-specific contributions
 export interface USContributionInputs {
   traditional401k: number;
+  roth401k: number;
   rothIRA: number;
+  traditionalIRA: number;
   hsa: number;
   hsaCoverageType: "self" | "family";
+  fsa: number;
+  dependentCareFSA: number;
+  commuterBenefits: number;
+  studentLoanInterest: number;
 }
 
 // Singapore-specific contributions (CPF is mandatory, not voluntary)
@@ -440,6 +447,9 @@ export interface USCalculatorInputs extends BaseCalculatorInputs {
   country: "US";
   state: string;
   filingStatus: USFilingStatus;
+  age: number;
+  numberOfQualifyingChildren: number;
+  numberOfOtherDependents: number;
   contributions: USContributionInputs;
 }
 
@@ -785,12 +795,16 @@ export interface USBreakdown {
   type: "US";
   taxableIncomeForFederal: number;
   taxableIncomeForState: number;
+  modifiedAGI: number;
   stateName: string;
-  contributions: {
-    traditional401k: number;
-    rothIRA: number;
-    hsa: number;
+  preTaxDeductions: number;
+  taxCredits: {
+    childTaxCredit: number;
+    otherDependentCredit: number;
+    totalCredits: number;
+    phaseOutReduction: number;
   };
+  contributions: USContributionInputs;
 }
 
 export interface SGBreakdown {
@@ -1555,7 +1569,7 @@ export function isNLInputs(
 }
 
 export function isUSTaxBreakdown(taxes: TaxBreakdown): taxes is USTaxBreakdown {
-  return "federalIncomeTax" in taxes;
+  return "socialSecurity" in taxes && "medicare" in taxes;
 }
 
 export function isSGTaxBreakdown(taxes: TaxBreakdown): taxes is SGTaxBreakdown {

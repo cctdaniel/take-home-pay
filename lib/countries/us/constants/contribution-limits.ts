@@ -1,57 +1,27 @@
-// ============================================================================
-// 2026 US CONTRIBUTION LIMITS
-// Source: IRS announcements (released late 2025)
-// ============================================================================
+// Re-exports for backwards compatibility
+export {
+  US_LIMITS_2026,
+  getElectiveDeferralLimit,
+  getIraLimit,
+  getHSALimit,
+  getDependentCareFsaLimit,
+  getCommuterBenefitsLimit,
+  getUSContributionLimits,
+  type HSACoverageType,
+} from "../contribution-limits";
 
-import type { ContributionLimits } from "../../types";
+import { US_LIMITS_2026 } from "../contribution-limits";
 
+/** @deprecated Use getElectiveDeferralLimit(age) or getUSContributionLimits */
 export const CONTRIBUTION_LIMITS = {
-  // 401(k) limits
-  traditional401k: 24500,
-  traditional401kCatchUp: 8000,
-  traditional401kSuperCatchUp: 11250, // For ages 60-63 (new SECURE 2.0 provision)
-
-  // IRA limits
-  rothIRA: 7500,
-  rothIRACatchUp: 1100,
-
-  // HSA limits
-  hsaSelf: 4400,
-  hsaFamily: 8750,
-  hsaCatchUp: 1000,
+  traditional401k: US_LIMITS_2026.electiveDeferralBase,
+  traditional401kCatchUp: US_LIMITS_2026.electiveDeferralCatchUp,
+  traditional401kSuperCatchUp: US_LIMITS_2026.electiveDeferralSuperCatchUp,
+  rothIRA: US_LIMITS_2026.rothIRA,
+  rothIRACatchUp: US_LIMITS_2026.rothIRACatchUp,
+  hsaSelf: US_LIMITS_2026.hsaSelf,
+  hsaFamily: US_LIMITS_2026.hsaFamily,
+  hsaCatchUp: US_LIMITS_2026.hsaCatchUp,
 } as const;
 
-export type HSACoverageType = "self" | "family";
-
-export function getHSALimit(coverageType: HSACoverageType): number {
-  return coverageType === "self"
-    ? CONTRIBUTION_LIMITS.hsaSelf
-    : CONTRIBUTION_LIMITS.hsaFamily;
-}
-
-// Get contribution limits as a ContributionLimits interface
-export function getUSContributionLimits(hsaCoverageType: HSACoverageType = "self"): ContributionLimits {
-  return {
-    traditional401k: {
-      limit: CONTRIBUTION_LIMITS.traditional401k,
-      name: "401(k)",
-      description: "Pre-tax retirement contribution",
-      preTax: true,
-    },
-    rothIRA: {
-      limit: CONTRIBUTION_LIMITS.rothIRA,
-      name: "Roth IRA",
-      description: "Post-tax retirement contribution",
-      preTax: false,
-    },
-    hsa: {
-      limit: getHSALimit(hsaCoverageType),
-      name: "HSA",
-      description: "Health Savings Account (pre-tax)",
-      preTax: true,
-    },
-  };
-}
-
-// For backwards compatibility
 export const CONTRIBUTION_LIMITS_2025 = CONTRIBUTION_LIMITS;

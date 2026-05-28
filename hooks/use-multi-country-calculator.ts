@@ -6,6 +6,8 @@ import {
   getDefaultInputs,
 } from "@/lib/countries/registry";
 import { DECalculator } from "@/lib/countries/de/calculator";
+import { USCalculator } from "@/lib/countries/us/calculator";
+import { getElectiveDeferralLimit } from "@/lib/countries/us/contribution-limits";
 import { ESCalculator } from "@/lib/countries/es/calculator";
 import type {
   ESCalculatorInputs,
@@ -64,7 +66,6 @@ import type {
   USFilingStatus,
 } from "@/lib/countries/types";
 import {
-  CONTRIBUTION_LIMITS,
   getHSALimit,
   type HSACoverageType,
 } from "@/lib/countries/us/constants/contribution-limits";
@@ -182,12 +183,28 @@ export interface UseMultiCountryCalculatorReturn {
   setFilingStatus: (value: USFilingStatus) => void;
   traditional401k: number;
   setTraditional401k: (value: number) => void;
+  roth401k: number;
+  setRoth401k: (value: number) => void;
+  traditionalIRA: number;
+  setTraditionalIRA: (value: number) => void;
   rothIRA: number;
   setRothIRA: (value: number) => void;
   hsa: number;
   setHsa: (value: number) => void;
   hsaCoverageType: HSACoverageType;
   setHsaCoverageType: (value: HSACoverageType) => void;
+  fsa: number;
+  setFsa: (value: number) => void;
+  dependentCareFSA: number;
+  setDependentCareFSA: (value: number) => void;
+  commuterBenefits: number;
+  setCommuterBenefits: (value: number) => void;
+  studentLoanInterest: number;
+  setStudentLoanInterest: (value: number) => void;
+  usQualifyingChildren: number;
+  setUsQualifyingChildren: (value: number) => void;
+  usOtherDependents: number;
+  setUsOtherDependents: (value: number) => void;
 
   // SG-specific
   residencyType: SGResidencyType;
@@ -370,8 +387,14 @@ export interface UseMultiCountryCalculatorReturn {
   // Limits
   usLimits: {
     traditional401k: number;
+    roth401k: number;
+    traditionalIRA: number;
     rothIRA: number;
     hsa: number;
+    fsa: number;
+    dependentCareFSA: number;
+    commuterBenefits: number;
+    studentLoanInterest: number;
   };
   sgLimits: {
     voluntaryCpfTopUp: number;
@@ -406,6 +429,14 @@ export function useMultiCountryCalculator(
   const [hsa, setHsaState] = useState(0);
   const [hsaCoverageType, setHsaCoverageTypeState] =
     useState<HSACoverageType>("self");
+  const [roth401k, setRoth401kState] = useState(0);
+  const [traditionalIRA, setTraditionalIRAState] = useState(0);
+  const [fsa, setFsaState] = useState(0);
+  const [dependentCareFSA, setDependentCareFSAState] = useState(0);
+  const [commuterBenefits, setCommuterBenefitsState] = useState(0);
+  const [studentLoanInterest, setStudentLoanInterestState] = useState(0);
+  const [usQualifyingChildren, setUsQualifyingChildren] = useState(0);
+  const [usOtherDependents, setUsOtherDependents] = useState(0);
 
   // SG-specific state
   const [residencyType, setResidencyType] =
@@ -539,8 +570,17 @@ export function useMultiCountryCalculator(
       setUsState("CA");
       setFilingStatus("single");
       setTraditional401kState(0);
+      setRoth401kState(0);
       setRothIRAState(0);
+      setTraditionalIRAState(0);
       setHsaState(0);
+      setFsaState(0);
+      setDependentCareFSAState(0);
+      setCommuterBenefitsState(0);
+      setStudentLoanInterestState(0);
+      setUsQualifyingChildren(0);
+      setUsOtherDependents(0);
+      setAge(30);
     } else if (country === "SG") {
       setResidencyType("citizen_pr");
       setAge(30);
@@ -624,14 +664,27 @@ export function useMultiCountryCalculator(
   );
 
   // Get limits
-  const usLimits = useMemo(
-    () => ({
-      traditional401k: CONTRIBUTION_LIMITS.traditional401k,
-      rothIRA: CONTRIBUTION_LIMITS.rothIRA,
-      hsa: getHSALimit(hsaCoverageType),
-    }),
-    [hsaCoverageType],
-  );
+  const usLimits = useMemo(() => {
+    const raw = USCalculator.getContributionLimits({
+      country: "US",
+      age,
+      filingStatus,
+      contributions: { hsaCoverageType },
+    } as Partial<USCalculatorInputs>);
+    const deferral = raw.traditional401k?.limit ?? getElectiveDeferralLimit(age);
+    const remainingDeferral = Math.max(0, deferral - traditional401k);
+    return {
+      traditional401k: deferral,
+      roth401k: remainingDeferral,
+      traditionalIRA: raw.traditionalIRA?.limit ?? 7_500,
+      rothIRA: raw.rothIRA?.limit ?? 7_500,
+      hsa: raw.hsa?.limit ?? getHSALimit(hsaCoverageType, age),
+      fsa: raw.fsa?.limit ?? 3_400,
+      dependentCareFSA: raw.dependentCareFSA?.limit ?? 5_000,
+      commuterBenefits: raw.commuterBenefits?.limit ?? 8_160,
+      studentLoanInterest: raw.studentLoanInterest?.limit ?? 2_500,
+    };
+  }, [age, filingStatus, hsaCoverageType, traditional401k]);
 
   const sgLimits = useMemo(
     () => ({
@@ -746,34 +799,73 @@ export function useMultiCountryCalculator(
   }, [grossSalary, esResidencyType, esEmploymentContractType]);
 
   // US contribution handlers with validation
-  const setTraditional401k = useCallback((value: number) => {
-    setTraditional401kState(
-      Math.min(value, CONTRIBUTION_LIMITS.traditional401k),
-    );
-  }, []);
+  const setTraditional401k = useCallback(
+    (value: number) => {
+      setTraditional401kState(Math.min(value, usLimits.traditional401k));
+    },
+    [usLimits.traditional401k],
+  );
 
-  const setRothIRA = useCallback((value: number) => {
-    setRothIRAState(Math.min(value, CONTRIBUTION_LIMITS.rothIRA));
-  }, []);
+  const setRoth401k = useCallback(
+    (value: number) => {
+      setRoth401kState(Math.min(value, usLimits.roth401k));
+    },
+    [usLimits.roth401k],
+  );
+
+  const setTraditionalIRA = useCallback(
+    (value: number) => {
+      setTraditionalIRAState(Math.min(value, usLimits.traditionalIRA));
+    },
+    [usLimits.traditionalIRA],
+  );
+
+  const setRothIRA = useCallback(
+    (value: number) => {
+      setRothIRAState(Math.min(value, usLimits.rothIRA));
+    },
+    [usLimits.rothIRA],
+  );
 
   const setHsa = useCallback(
     (value: number) => {
-      const limit = getHSALimit(hsaCoverageType);
-      setHsaState(Math.min(value, limit));
+      setHsaState(Math.min(value, usLimits.hsa));
     },
-    [hsaCoverageType],
+    [usLimits.hsa],
   );
 
   const setHsaCoverageType = useCallback(
     (value: HSACoverageType) => {
       setHsaCoverageTypeState(value);
-      // Adjust HSA if new limit is lower
-      const newLimit = getHSALimit(value);
+      const newLimit = getHSALimit(value, age);
       if (hsa > newLimit) {
         setHsaState(newLimit);
       }
     },
-    [hsa],
+    [hsa, age],
+  );
+
+  const setFsa = useCallback(
+    (value: number) => setFsaState(Math.min(value, usLimits.fsa)),
+    [usLimits.fsa],
+  );
+
+  const setDependentCareFSA = useCallback(
+    (value: number) =>
+      setDependentCareFSAState(Math.min(value, usLimits.dependentCareFSA)),
+    [usLimits.dependentCareFSA],
+  );
+
+  const setCommuterBenefits = useCallback(
+    (value: number) =>
+      setCommuterBenefitsState(Math.min(value, usLimits.commuterBenefits)),
+    [usLimits.commuterBenefits],
+  );
+
+  const setStudentLoanInterest = useCallback(
+    (value: number) =>
+      setStudentLoanInterestState(Math.min(value, usLimits.studentLoanInterest)),
+    [usLimits.studentLoanInterest],
   );
 
   // SG contribution handlers with validation
@@ -908,11 +1000,23 @@ export function useMultiCountryCalculator(
         state: usState,
         filingStatus,
         payFrequency,
+        age,
+        numberOfQualifyingChildren: usQualifyingChildren,
+        numberOfOtherDependents: usOtherDependents,
         contributions: {
           traditional401k: Math.min(traditional401k, usLimits.traditional401k),
+          roth401k: Math.min(roth401k, usLimits.roth401k),
           rothIRA: Math.min(rothIRA, usLimits.rothIRA),
+          traditionalIRA: Math.min(traditionalIRA, usLimits.traditionalIRA),
           hsa: Math.min(hsa, usLimits.hsa),
           hsaCoverageType,
+          fsa: Math.min(fsa, usLimits.fsa),
+          dependentCareFSA: Math.min(dependentCareFSA, usLimits.dependentCareFSA),
+          commuterBenefits: Math.min(commuterBenefits, usLimits.commuterBenefits),
+          studentLoanInterest: Math.min(
+            studentLoanInterest,
+            usLimits.studentLoanInterest,
+          ),
         },
       };
       return usInputs;
@@ -1138,9 +1242,17 @@ export function useMultiCountryCalculator(
     usState,
     filingStatus,
     traditional401k,
+    roth401k,
+    traditionalIRA,
     rothIRA,
     hsa,
     hsaCoverageType,
+    fsa,
+    dependentCareFSA,
+    commuterBenefits,
+    studentLoanInterest,
+    usQualifyingChildren,
+    usOtherDependents,
     residencyType,
     age,
     voluntaryCpfTopUp,
@@ -1233,12 +1345,28 @@ export function useMultiCountryCalculator(
     setFilingStatus,
     traditional401k,
     setTraditional401k,
+    roth401k,
+    setRoth401k,
+    traditionalIRA,
+    setTraditionalIRA,
     rothIRA,
     setRothIRA,
     hsa,
     setHsa,
     hsaCoverageType,
     setHsaCoverageType,
+    fsa,
+    setFsa,
+    dependentCareFSA,
+    setDependentCareFSA,
+    commuterBenefits,
+    setCommuterBenefits,
+    studentLoanInterest,
+    setStudentLoanInterest,
+    usQualifyingChildren,
+    setUsQualifyingChildren,
+    usOtherDependents,
+    setUsOtherDependents,
 
     // SG-specific
     residencyType,

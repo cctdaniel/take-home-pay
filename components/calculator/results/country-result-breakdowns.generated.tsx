@@ -4,17 +4,23 @@
 import type { CountryCode } from "@/lib/countries/types";
 import type { ReactNode } from "react";
 import { AEResultBreakdown } from "./ae-result-breakdown";
+import { ARResultBreakdown } from "./ar-result-breakdown";
 import { ATResultBreakdown } from "./at-result-breakdown";
 import { BEResultBreakdown } from "./be-result-breakdown";
+import { BRResultBreakdown } from "./br-result-breakdown";
+import { CHResultBreakdown } from "./ch-result-breakdown";
 import { CNResultBreakdown } from "./cn-result-breakdown";
 import { CYResultBreakdown } from "./cy-result-breakdown";
 import { CZResultBreakdown } from "./cz-result-breakdown";
+import { EEResultBreakdown } from "./ee-result-breakdown";
 import { ESResultBreakdown } from "./es-result-breakdown";
 import { FRResultBreakdown } from "./fr-result-breakdown";
 import { GEResultBreakdown } from "./ge-result-breakdown";
 import { GRResultBreakdown } from "./gr-result-breakdown";
 import { HRResultBreakdown } from "./hr-result-breakdown";
+import { HUResultBreakdown } from "./hu-result-breakdown";
 import { IEResultBreakdown } from "./ie-result-breakdown";
+import { ILResultBreakdown } from "./il-result-breakdown";
 import { INResultBreakdown } from "./in-result-breakdown";
 import { ITResultBreakdown } from "./it-result-breakdown";
 import { JPResultBreakdown } from "./jp-result-breakdown";
@@ -22,7 +28,12 @@ import { MTResultBreakdown } from "./mt-result-breakdown";
 import { MYResultBreakdown } from "./my-result-breakdown";
 import { NZResultBreakdown } from "./nz-result-breakdown";
 import { PHResultBreakdown } from "./ph-result-breakdown";
+import { PLResultBreakdown } from "./pl-result-breakdown";
+import { QAResultBreakdown } from "./qa-result-breakdown";
+import { SAResultBreakdown } from "./sa-result-breakdown";
+import { TRResultBreakdown } from "./tr-result-breakdown";
 import { VNResultBreakdown } from "./vn-result-breakdown";
+import { ZAResultBreakdown } from "./za-result-breakdown";
 import type { CountryResultBreakdownProps } from "./types";
 
 export type CountryResultBreakdownComponent = (
@@ -33,17 +44,23 @@ export const COUNTRY_RESULT_BREAKDOWNS: Partial<
   Record<CountryCode, CountryResultBreakdownComponent>
 > = {
   AE: AEResultBreakdown,
+  AR: ARResultBreakdown,
   AT: ATResultBreakdown,
   BE: BEResultBreakdown,
+  BR: BRResultBreakdown,
+  CH: CHResultBreakdown,
   CN: CNResultBreakdown,
   CY: CYResultBreakdown,
   CZ: CZResultBreakdown,
+  EE: EEResultBreakdown,
   ES: ESResultBreakdown,
   FR: FRResultBreakdown,
   GE: GEResultBreakdown,
   GR: GRResultBreakdown,
   HR: HRResultBreakdown,
+  HU: HUResultBreakdown,
   IE: IEResultBreakdown,
+  IL: ILResultBreakdown,
   IN: INResultBreakdown,
   IT: ITResultBreakdown,
   JP: JPResultBreakdown,
@@ -51,5 +68,10 @@ export const COUNTRY_RESULT_BREAKDOWNS: Partial<
   MY: MYResultBreakdown,
   NZ: NZResultBreakdown,
   PH: PHResultBreakdown,
+  PL: PLResultBreakdown,
+  QA: QAResultBreakdown,
+  SA: SAResultBreakdown,
+  TR: TRResultBreakdown,
   VN: VNResultBreakdown,
+  ZA: ZAResultBreakdown,
 };

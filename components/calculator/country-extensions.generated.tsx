@@ -3,18 +3,24 @@
 
 import type { CountryCode } from "@/lib/countries/types";
 import AECountryExtension from "./country-extensions/ae";
+import ARCountryExtension from "./country-extensions/ar";
 import ATCountryExtension from "./country-extensions/at";
 import BECountryExtension from "./country-extensions/be";
+import BRCountryExtension from "./country-extensions/br";
 import CACountryExtension from "./country-extensions/ca";
+import CHCountryExtension from "./country-extensions/ch";
 import CNCountryExtension from "./country-extensions/cn";
 import CYCountryExtension from "./country-extensions/cy";
 import CZCountryExtension from "./country-extensions/cz";
 import DKCountryExtension from "./country-extensions/dk";
+import EECountryExtension from "./country-extensions/ee";
 import FICountryExtension from "./country-extensions/fi";
 import FRCountryExtension from "./country-extensions/fr";
 import GECountryExtension from "./country-extensions/ge";
 import HRCountryExtension from "./country-extensions/hr";
+import HUCountryExtension from "./country-extensions/hu";
 import IECountryExtension from "./country-extensions/ie";
+import ILCountryExtension from "./country-extensions/il";
 import INCountryExtension from "./country-extensions/in";
 import ISCountryExtension from "./country-extensions/is";
 import ITCountryExtension from "./country-extensions/it";
@@ -24,26 +30,37 @@ import MXCountryExtension from "./country-extensions/mx";
 import NOCountryExtension from "./country-extensions/no";
 import NZCountryExtension from "./country-extensions/nz";
 import PHCountryExtension from "./country-extensions/ph";
+import PLCountryExtension from "./country-extensions/pl";
+import QACountryExtension from "./country-extensions/qa";
+import SACountryExtension from "./country-extensions/sa";
 import SECountryExtension from "./country-extensions/se";
+import TRCountryExtension from "./country-extensions/tr";
 import VNCountryExtension from "./country-extensions/vn";
+import ZACountryExtension from "./country-extensions/za";
 import type { CountryCalculatorExtensionComponent } from "./country-extension";
 
 export const COUNTRY_CALCULATOR_EXTENSIONS: Partial<
   Record<CountryCode, CountryCalculatorExtensionComponent>
 > = {
   AE: AECountryExtension,
+  AR: ARCountryExtension,
   AT: ATCountryExtension,
   BE: BECountryExtension,
+  BR: BRCountryExtension,
   CA: CACountryExtension,
+  CH: CHCountryExtension,
   CN: CNCountryExtension,
   CY: CYCountryExtension,
   CZ: CZCountryExtension,
   DK: DKCountryExtension,
+  EE: EECountryExtension,
   FI: FICountryExtension,
   FR: FRCountryExtension,
   GE: GECountryExtension,
   HR: HRCountryExtension,
+  HU: HUCountryExtension,
   IE: IECountryExtension,
+  IL: ILCountryExtension,
   IN: INCountryExtension,
   IS: ISCountryExtension,
   IT: ITCountryExtension,
@@ -53,6 +70,11 @@ export const COUNTRY_CALCULATOR_EXTENSIONS: Partial<
   NO: NOCountryExtension,
   NZ: NZCountryExtension,
   PH: PHCountryExtension,
+  PL: PLCountryExtension,
+  QA: QACountryExtension,
+  SA: SACountryExtension,
   SE: SECountryExtension,
+  TR: TRCountryExtension,
   VN: VNCountryExtension,
+  ZA: ZACountryExtension,
 };

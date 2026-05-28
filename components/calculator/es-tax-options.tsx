@@ -2,6 +2,7 @@
 
 import {
   CalculatorFieldGrid,
+  CountStepperField,
   NumberField,
   PayFrequencyField,
   SelectField,
@@ -121,7 +122,8 @@ export function ESTaxOptions({
       </CalculatorFieldGrid>
 
       <CalculatorFieldGrid columns={2}>
-        <NumberField
+        <CountStepperField
+          spanColumns={2}
           id="es-children"
           label="Children / Descendants"
           value={numberOfChildren}
@@ -131,21 +133,16 @@ export function ESTaxOptions({
               onNumberOfChildrenUnderThreeChange(value);
             }
           }}
-          min={0}
           max={8}
-          fallbackValue={0}
           description="Uses the national descendant minimums."
         />
-        <NumberField
+        <CountStepperField
+          spanColumns={2}
           id="es-children-under-three"
           label="Children Under 3"
           value={numberOfChildrenUnderThree}
-          onChange={(value) =>
-            onNumberOfChildrenUnderThreeChange(value)
-          }
-          min={0}
+          onChange={onNumberOfChildrenUnderThreeChange}
           max={numberOfChildren}
-          fallbackValue={0}
           description="Adds EUR 2,800 to the descendant minimum per child."
         />
       </CalculatorFieldGrid>

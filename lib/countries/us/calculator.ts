@@ -17,11 +17,13 @@ import { US_CONFIG } from "./config";
 import { calculateFederalIncomeTax, getFederalTaxableIncome } from "./federal-tax";
 import { calculatePayrollTaxes } from "./payroll-tax";
 import { getStateCalculator, getSupportedStates } from "./state-tax";
-import { getUSContributionLimits } from "./constants/contribution-limits";
+import {
+  getUSContributionLimits,
+  getElectiveDeferralLimit,
+} from "./contribution-limits";
+import type { HSACoverageType } from "./contribution-limits";
+import { calculateUSFamilyTaxCredits } from "./tax-credits";
 
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
 function getPeriodsPerYear(frequency: PayFrequency): number {
   switch (frequency) {
     case "annual":
@@ -35,37 +37,81 @@ function getPeriodsPerYear(frequency: PayFrequency): number {
   }
 }
 
-// ============================================================================
-// US CALCULATOR
-// ============================================================================
+function sumPreTaxDeductions(contributions: USCalculatorInputs["contributions"]): number {
+  return (
+    contributions.traditional401k +
+    contributions.traditionalIRA +
+    contributions.hsa +
+    contributions.fsa +
+    contributions.dependentCareFSA +
+    contributions.commuterBenefits +
+    contributions.studentLoanInterest
+  );
+}
+
 export function calculateUS(inputs: USCalculatorInputs): CalculationResult {
-  const { grossSalary, state, filingStatus, payFrequency, contributions } = inputs;
+  const {
+    grossSalary,
+    state,
+    filingStatus,
+    payFrequency,
+    contributions,
+    age,
+    numberOfQualifyingChildren,
+    numberOfOtherDependents,
+  } = inputs;
 
-  // Pre-tax deductions (reduce taxable income)
-  const preTaxDeductions = contributions.traditional401k + contributions.hsa;
+  const deferralCap = getElectiveDeferralLimit(age);
+  const traditional401k = Math.min(contributions.traditional401k, deferralCap);
+  const roth401k = Math.min(
+    contributions.roth401k,
+    Math.max(0, deferralCap - traditional401k),
+  );
 
-  // Calculate federal taxable income
-  const taxableIncomeForFederal = getFederalTaxableIncome(grossSalary, filingStatus, preTaxDeductions);
+  const clampedContributions: USCalculatorInputs["contributions"] = {
+    ...contributions,
+    traditional401k,
+    roth401k,
+  };
 
-  // Calculate state taxable income (state calculators apply their own deductions internally)
+  const preTaxDeductions = sumPreTaxDeductions(clampedContributions);
+
+  const modifiedAGI = Math.max(0, grossSalary - preTaxDeductions);
+  const taxableIncomeForFederal = getFederalTaxableIncome(
+    grossSalary,
+    filingStatus,
+    preTaxDeductions,
+  );
   const taxableIncomeForState = Math.max(0, grossSalary - preTaxDeductions);
 
-  // Calculate federal taxes
-  const federalIncomeTax = calculateFederalIncomeTax(grossSalary, filingStatus, preTaxDeductions);
+  let federalIncomeTax = calculateFederalIncomeTax(
+    grossSalary,
+    filingStatus,
+    preTaxDeductions,
+  );
 
-  // Calculate state taxes
+  const familyCredits = calculateUSFamilyTaxCredits({
+    filingStatus,
+    modifiedAGI,
+    numberOfQualifyingChildren,
+    numberOfOtherDependents,
+  });
+  federalIncomeTax = Math.max(0, federalIncomeTax - familyCredits.totalCredits);
+
   const stateCalculator = getStateCalculator(state);
   let stateIncomeTax = 0;
   let stateDisabilityInsurance = 0;
   let stateName = state;
 
   if (stateCalculator) {
-    stateIncomeTax = stateCalculator.calculateStateTax(taxableIncomeForState, filingStatus);
+    stateIncomeTax = stateCalculator.calculateStateTax(
+      taxableIncomeForState,
+      filingStatus,
+    );
     stateDisabilityInsurance = stateCalculator.calculateSDI(grossSalary);
     stateName = stateCalculator.getStateName();
   }
 
-  // Payroll taxes (on gross income)
   const payrollTaxes = calculatePayrollTaxes(grossSalary, filingStatus);
 
   const taxes: USTaxBreakdown = {
@@ -86,26 +132,27 @@ export function calculateUS(inputs: USCalculatorInputs): CalculationResult {
     taxes.additionalMedicare +
     taxes.stateDisabilityInsurance;
 
-  const totalContributions =
-    contributions.traditional401k +
-    contributions.hsa +
-    contributions.rothIRA;
+  const postTaxContributions =
+    clampedContributions.rothIRA + clampedContributions.roth401k;
 
-  const netSalary = grossSalary - totalTax - totalContributions;
+  const netSalary = grossSalary - totalTax - postTaxContributions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
-
   const periodsPerYear = getPeriodsPerYear(payFrequency);
 
   const breakdown: USBreakdown = {
     type: "US",
     taxableIncomeForFederal,
     taxableIncomeForState,
+    modifiedAGI,
     stateName,
-    contributions: {
-      traditional401k: contributions.traditional401k,
-      rothIRA: contributions.rothIRA,
-      hsa: contributions.hsa,
+    preTaxDeductions,
+    taxCredits: {
+      childTaxCredit: familyCredits.childTaxCredit,
+      otherDependentCredit: familyCredits.otherDependentCredit,
+      totalCredits: familyCredits.totalCredits,
+      phaseOutReduction: familyCredits.phaseOutReduction,
     },
+    contributions: clampedContributions,
   };
 
   return {
@@ -115,7 +162,7 @@ export function calculateUS(inputs: USCalculatorInputs): CalculationResult {
     taxableIncome: taxableIncomeForFederal,
     taxes,
     totalTax,
-    totalDeductions: totalTax + totalContributions,
+    totalDeductions: totalTax + postTaxContributions + preTaxDeductions,
     netSalary,
     effectiveTaxRate,
     perPeriod: {
@@ -127,9 +174,6 @@ export function calculateUS(inputs: USCalculatorInputs): CalculationResult {
   };
 }
 
-// ============================================================================
-// COUNTRY CALCULATOR IMPLEMENTATION
-// ============================================================================
 export const USCalculator: CountryCalculator = {
   countryCode: "US",
   config: US_CONFIG,
@@ -146,22 +190,35 @@ export const USCalculator: CountryCalculator = {
   },
 
   getContributionLimits(inputs?: Partial<CalculatorInputs>): ContributionLimits {
-    const hsaCoverageType = (inputs as Partial<USCalculatorInputs>)?.contributions?.hsaCoverageType ?? "self";
-    return getUSContributionLimits(hsaCoverageType);
+    const us = inputs as Partial<USCalculatorInputs> | undefined;
+    const age = us?.age ?? 30;
+    const hsaCoverageType =
+      (us?.contributions?.hsaCoverageType as HSACoverageType | undefined) ?? "self";
+    const filingStatus = us?.filingStatus ?? "single";
+    return getUSContributionLimits(age, hsaCoverageType, filingStatus);
   },
 
   getDefaultInputs(): USCalculatorInputs {
     return {
       country: "US",
-      grossSalary: 100000,
+      grossSalary: 100_000,
       state: "CA",
       filingStatus: "single",
       payFrequency: "monthly",
+      age: 30,
+      numberOfQualifyingChildren: 0,
+      numberOfOtherDependents: 0,
       contributions: {
         traditional401k: 0,
+        roth401k: 0,
         rothIRA: 0,
+        traditionalIRA: 0,
         hsa: 0,
         hsaCoverageType: "self",
+        fsa: 0,
+        dependentCareFSA: 0,
+        commuterBenefits: 0,
+        studentLoanInterest: 0,
       },
     };
   },

@@ -8,6 +8,7 @@ import {
   formatPercentage,
 } from "@/lib/format";
 import type { CurrencyCode } from "@/lib/countries/types";
+import { isUSTaxBreakdown } from "@/lib/countries/types";
 import { cn } from "@/lib/utils";
 import type { CountryComparison, MaritalStatus } from "@/hooks/use-country-comparison";
 import Link from "next/link";
@@ -164,13 +165,18 @@ export function CompareBreakdown({
     }
   };
 
-  if ("federalIncomeTax" in taxes) {
+  if (isUSTaxBreakdown(taxes)) {
     pushLine(incomeTaxBreakdown, "Federal income tax", taxes.federalIncomeTax);
     pushLine(incomeTaxBreakdown, "State income tax", taxes.stateIncomeTax);
     pushLine(mandatoryBreakdown, "Social Security", taxes.socialSecurity);
     pushLine(mandatoryBreakdown, "Medicare", taxes.medicare);
     pushLine(mandatoryBreakdown, "Additional Medicare", taxes.additionalMedicare);
     pushLine(mandatoryBreakdown, "State disability", taxes.stateDisabilityInsurance);
+  } else if ("type" in taxes && taxes.type === "CH") {
+    pushLine(incomeTaxBreakdown, "Federal income tax", taxes.federalIncomeTax);
+    pushLine(incomeTaxBreakdown, "Canton income tax", taxes.cantonIncomeTax);
+    pushLine(mandatoryBreakdown, "AHV/IV/EO", taxes.ahvIvEo);
+    pushLine(mandatoryBreakdown, "ALV", taxes.alv);
   } else if ("cpfEmployee" in taxes) {
     pushLine(mandatoryBreakdown, "CPF (employee)", taxes.cpfEmployee);
   } else if ("localIncomeTax" in taxes) {

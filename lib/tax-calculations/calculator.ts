@@ -4,8 +4,8 @@
 // ============================================================================
 
 import type { CalculatorInputs, CalculationResult } from "./types";
-import { calculateUS } from "../countries/us";
-import type { USCalculatorInputs } from "../countries/types";
+import { calculateUS, USCalculator } from "../countries/us";
+import { isUSTaxBreakdown, type USCalculatorInputs } from "../countries/types";
 
 // Re-export the new multi-country calculator
 export { calculateNetSalary as calculateNetSalaryMultiCountry } from "../countries/registry";
@@ -16,13 +16,15 @@ export { calculateNetSalary as calculateNetSalaryMultiCountry } from "../countri
  */
 export function calculateNetSalary(inputs: CalculatorInputs): CalculationResult {
   // Convert legacy inputs to US-specific inputs
+  const defaults = USCalculator.getDefaultInputs() as USCalculatorInputs;
   const usInputs: USCalculatorInputs = {
-    country: "US",
+    ...defaults,
     grossSalary: inputs.grossSalary,
     state: inputs.state,
     filingStatus: inputs.filingStatus,
     payFrequency: inputs.payFrequency,
     contributions: {
+      ...defaults.contributions,
       traditional401k: inputs.contributions.traditional401k,
       rothIRA: inputs.contributions.rothIRA,
       hsa: inputs.contributions.hsa,
@@ -40,7 +42,7 @@ export function calculateNetSalary(inputs: CalculatorInputs): CalculationResult 
   }
 
   const usTaxes = result.taxes;
-  if (!("federalIncomeTax" in usTaxes)) {
+  if (!isUSTaxBreakdown(usTaxes)) {
     throw new Error("Expected US taxes");
   }
 

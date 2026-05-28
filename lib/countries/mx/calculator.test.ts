@@ -1,5 +1,4 @@
-import { describe, it } from "node:test";
-import * as assert from "node:assert/strict";
+import { describe, expect, it } from "vitest";
 import { calculateMX } from "./calculator";
 import type { MXCalculatorInputs, MXTaxBreakdown } from "./types";
 
@@ -30,24 +29,24 @@ describe("Mexico calculator", () => {
     ];
     for (const state of expected) {
       const result = calculateMX(createInputs({ state }));
-      assert.equal(result.breakdown.type, "MX");
+      expect(result.breakdown.type).toBe("MX");
       if (result.breakdown.type === "MX") {
-        assert.equal(result.breakdown.state, state);
-        assert.ok(result.breakdown.stateName.length > 0);
+        expect(result.breakdown.state).toBe(state);
+        expect(result.breakdown.stateName.length).toBeGreaterThan(0);
       }
     }
   });
 
   it("models employee IMSS branches instead of a flat placeholder rate", () => {
     const result = calculateMX(createInputs());
-    assert.equal(result.breakdown.type, "MX");
+    expect(result.breakdown.type).toBe("MX");
     if (result.breakdown.type === "MX") {
-      assert.ok(result.breakdown.imss.excessOverThreeUma > 0);
-      assert.ok(result.breakdown.imss.pensionerMedical > 0);
-      assert.ok(result.breakdown.imss.disabilityLife > 0);
+      expect(result.breakdown.imss.excessOverThreeUma).toBeGreaterThan(0);
+      expect(result.breakdown.imss.pensionerMedical).toBeGreaterThan(0);
+      expect(result.breakdown.imss.disabilityLife).toBeGreaterThan(0);
       const taxes = result.taxes as MXTaxBreakdown;
-      assert.equal(taxes.type, "MX");
-      assert.equal(taxes.socialSecurity, result.breakdown.imss.total);
+      expect(taxes.type).toBe("MX");
+      expect(taxes.socialSecurity).toBe(result.breakdown.imss.total);
     }
   });
 });

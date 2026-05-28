@@ -3,7 +3,7 @@
 import {
   BooleanSelectField,
   CalculatorFieldGrid,
-  NumberField,
+  CountStepperField,
   PayFrequencyField,
   SelectField,
   type SelectOption,
@@ -112,22 +112,18 @@ export default function HRCountryExtension({
             falseLabel="No"
             description="Resident personal allowance addition"
           />
-          <NumberField
+          <CountStepperField
+            spanColumns={3}
             id="hr-number-of-children"
             label="Dependent Children"
             value={inputs.numberOfChildren}
             onChange={(numberOfChildren) =>
               setInputs((current) => ({
                 ...current,
-                numberOfChildren: Math.min(
-                  8,
-                  Math.max(0, Math.floor(numberOfChildren)),
-                ),
+                numberOfChildren: Math.min(8, Math.max(0, numberOfChildren)),
               }))
             }
-            min={0}
             max={8}
-            fallbackValue={0}
             description="Resident child allowance additions"
           />
           <PayFrequencyField

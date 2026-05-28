@@ -3,7 +3,7 @@
 import {
   BooleanSelectField,
   CalculatorFieldGrid,
-  NumberField,
+  CountStepperField,
   PayFrequencyField,
   SelectField,
 } from "@/components/calculator/calculator-fields";
@@ -115,16 +115,13 @@ export default function CZCountryExtension({
             value={inputs.payFrequency}
             onChange={setPayFrequency}
           />
-          <NumberField
+          <CountStepperField
+            spanColumns={2}
             id="cz-children"
             label="Children for Tax Credit"
             value={inputs.taxReliefs.numberOfChildren}
-            onChange={(value) =>
-              setTaxRelief("numberOfChildren", value)
-            }
-            min={0}
+            onChange={(value) => setTaxRelief("numberOfChildren", value)}
             max={10}
-            fallbackValue={0}
             description="Applies resident child tax credit rates by child order."
           />
           <BooleanSelectField
