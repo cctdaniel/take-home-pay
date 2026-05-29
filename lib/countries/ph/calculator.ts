@@ -18,8 +18,8 @@ import {
   PH_PERA_MAX_TAX_CREDIT_2026,
   PH_PERA_TAX_CREDIT_RATE,
 } from "./constants/tax-parameters-2026";
-import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
 import { clampAmount } from "@/lib/utils";
+import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
 
 function calculateSSS(monthlySalary: number) {
   const msc = Math.max(

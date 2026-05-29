@@ -19,8 +19,8 @@ import {
   JP_IDECO_ANNUAL_CAP_WITH_EMPLOYER_PENSION_2026,
   JP_SOCIAL_INSURANCE_2026,
 } from "./constants/tax-parameters-2026";
-import { getPeriodsPerYear } from "../calculator-utils";
 import { clampAmount } from "@/lib/utils";
+import { getPeriodsPerYear } from "../calculator-utils";
 
 function roundCurrency(value: number): number {
   return Math.round(value);

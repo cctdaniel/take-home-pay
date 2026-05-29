@@ -123,7 +123,8 @@ export function calculateUS(inputs: USCalculatorInputs): CalculationResult {
   const postTaxContributions =
     clampedContributions.rothIRA + clampedContributions.roth401k;
 
-  const netSalary = grossSalary - totalTax - postTaxContributions;
+  const netSalary =
+    grossSalary - totalTax - postTaxContributions - preTaxDeductions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(payFrequency);
 

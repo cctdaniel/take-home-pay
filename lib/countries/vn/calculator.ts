@@ -16,8 +16,8 @@ import {
   VN_VOLUNTARY_PENSION_ANNUAL_CAP_2026,
   VN_SOCIAL_INSURANCE_2026,
 } from "./constants/tax-parameters-2026";
-import { getPeriodsPerYear } from "../calculator-utils";
 import { clampAmount } from "@/lib/utils";
+import { getPeriodsPerYear } from "../calculator-utils";
 
 function roundCurrency(value: number): number {
   return Math.round(value);
