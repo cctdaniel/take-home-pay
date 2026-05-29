@@ -14,6 +14,9 @@ export const CO_SOURCE_URLS = {
 
 /** UVT value for 2026 (DIAN). */
 export const CO_UVT_2026 = 49_799;
+/** Combined AFC + voluntary pension exempt cap (30% labor income, max 3,800 UVT). */
+export const CO_VOLUNTARY_COMBINED_UVT_CAP = 3_800;
+export const CO_VOLUNTARY_INCOME_RATE_CAP = 0.3;
 
 export const CO_PENSION_EMPLOYEE_RATE = 0.04;
 export const CO_HEALTH_EMPLOYEE_RATE = 0.04;

@@ -1,30 +1,19 @@
 import { calculateNetSalary, getDefaultInputs } from "@/lib/countries/registry";
 import type { CountryComparisonAdapter } from "@/hooks/use-country-comparison";
+import { UA_NPF_ANNUAL_CAP_2026 } from "./constants/tax-year-2026";
 import type { UACalculatorInputs } from "./types";
 
-export const buildCountryComparison: CountryComparisonAdapter = ({
-  country,
-  config,
-  currency,
-  rate,
-  grossLocal,
-  payFrequency,
-  inputs,
-  isMaxRetirement,
-  buildAssumptionsSummary,
-}) => {
-  const calculatorInputs: UACalculatorInputs = {
+export const buildCountryComparison: CountryComparisonAdapter = (ctx) => {
+  const { country, config, currency, rate, grossLocal, payFrequency, inputs, isMaxRetirement, buildAssumptionsSummary } = ctx;
+  const npfContribution = isMaxRetirement ? Math.min(UA_NPF_ANNUAL_CAP_2026, grossLocal) : 0;
+  const result = calculateNetSalary({
     ...(getDefaultInputs(country) as UACalculatorInputs),
     grossSalary: grossLocal,
     payFrequency,
-  };
-  const result = calculateNetSalary(calculatorInputs);
+    contributions: { npfContribution },
+  });
   const assumptions = buildAssumptionsSummary(country, inputs, isMaxRetirement);
-
-  if (isMaxRetirement) {
-    assumptions.push("No voluntary payroll retirement deduction modeled");
-  }
-
+  if (npfContribution > 0) assumptions.push("NPF contributions at annual cap with 18% tax discount");
   return {
     country,
     name: config.name,

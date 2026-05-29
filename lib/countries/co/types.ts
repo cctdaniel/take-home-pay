@@ -1,12 +1,12 @@
 import type {
   BaseCalculatorInputs,
-  BaseTaxBreakdown,
   CalculatorInputs,
-  CountrySpecificBreakdown,
-  TaxBreakdown,
 } from "../types";
 
-export type COContributionInputs = Record<never, never>;
+export interface COContributionInputs {
+  afcSavings: number;
+  voluntaryPension: number;
+}
 
 export interface COCalculatorInputs extends BaseCalculatorInputs {
   country: "CO";
@@ -32,7 +32,11 @@ export interface COBreakdown {
   };
   taxableIncome: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
-  incomeTax: {
+  incomeTax: { total: number };
+  voluntaryContributions: {
+    afcSavings: number;
+    voluntaryPension: number;
+    combinedLimit: number;
     total: number;
   };
   assumptions: string[];
@@ -40,43 +44,14 @@ export interface COBreakdown {
 }
 
 declare module "../types" {
-  interface CountryCodeMap {
-    CO: true;
-  }
-
-  interface CurrencyCodeMap {
-    COP: true;
-  }
-
-  interface CalculatorInputMap {
-    CO: COCalculatorInputs;
-  }
-
-  interface TaxBreakdownMap {
-    CO: COTaxBreakdown;
-  }
-
-  interface CountrySpecificBreakdownMap {
-    CO: COBreakdown;
-  }
-
-  interface ContributionInputMap {
-    CO: COContributionInputs;
-  }
+  interface CountryCodeMap { CO: true; }
+  interface CurrencyCodeMap { COP: true; }
+  interface ContributionInputMap { CO: COContributionInputs; }
+  interface CalculatorInputMap { CO: COCalculatorInputs; }
+  interface TaxBreakdownMap { CO: COTaxBreakdown; }
+  interface CountrySpecificBreakdownMap { CO: COBreakdown; }
 }
 
-export function isCOInputs(
-  inputs: CalculatorInputs,
-): inputs is COCalculatorInputs {
+export function isCOInputs(inputs: CalculatorInputs): inputs is COCalculatorInputs {
   return inputs.country === "CO";
-}
-
-export function isCOTaxBreakdown(taxes: TaxBreakdown): taxes is COTaxBreakdown {
-  return "type" in taxes && taxes.type === "CO";
-}
-
-export function isCOBreakdown(
-  breakdown: CountrySpecificBreakdown,
-): breakdown is COBreakdown {
-  return breakdown.type === "CO";
 }

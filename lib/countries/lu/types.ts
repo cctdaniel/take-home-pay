@@ -33,7 +33,10 @@ export interface LUBreakdown {
   };
   taxableIncome: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
-  incomeTax: {
+  incomeTax: { total: number };
+  voluntaryContributions: {
+    privatePension: number;
+    privatePensionLimit: number;
     total: number;
   };
   assumptions: string[];

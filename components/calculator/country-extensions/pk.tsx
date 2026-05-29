@@ -9,16 +9,20 @@ import {
   useCountryCalculatorExtension,
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
-import { MandatoryOnlyContributionsNote } from "@/components/calculator/mandatory-only-contributions-note";
 import { InfoPanel } from "@/components/calculator/info-panel";
-import { PK_SOURCE_URLS } from "@/lib/countries/pk/constants/tax-year-2026";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
 import type { PKCalculatorInputs } from "@/lib/countries/pk/types";
+import { clampAmount } from "@/lib/utils";
 
 export default function PKCountryExtension({
   country,
 }: CountryCalculatorExtensionProps) {
-  const { inputs, currency, result, setGrossSalary, setPayFrequency } =
+  const { inputs, setInputs, currency, result, setGrossSalary, setPayFrequency } =
     useCountryCalculatorExtension<PKCalculatorInputs>(country);
+  const limit =
+    getCountryCalculator(country).getContributionLimits(inputs).vpsContribution
+      ?.limit ?? 0;
 
   return (
     <CountryCalculatorExtensionShell
@@ -38,17 +42,30 @@ export default function PKCountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <MandatoryOnlyContributionsNote
-          mandatoryLabel="No employee social security withheld from salary in this model."
-          sourceUrl={PK_SOURCE_URLS.incomeTax}
-          sourceLabel="FBR Pakistan"
-          unmodeledVoluntary={['Voluntary Pension Scheme (VPS) contributions', 'Provident fund (where applicable)']}
+        <ContributionSlider
+          label="Voluntary Pension Scheme (VPS)"
+          description="Tax credit on contributions up to 20% of annual taxable income (Section 63)."
+          value={inputs.contributions.vpsContribution}
+          onChange={(vpsContribution) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                vpsContribution: clampAmount(vpsContribution, limit),
+              },
+            }))
+          }
+          max={limit}
+          step={10_000}
+          currency={currency}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="Mandatory items are in your results; optional schemes listed below"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
       infoCard={
-        <InfoPanel title="Modeled scope">FY2026 salary slabs only; excludes EOBI employee share.</InfoPanel>
+        <InfoPanel title="Modeled scope">
+          FY2026 salary slabs; VPS reduces taxable income up to 20% of gross.
+        </InfoPanel>
       }
       seoInfo={<PakistanTaxInfo />}
     />
@@ -64,7 +81,14 @@ function PakistanTaxInfo() {
       <div className="prose prose-invert prose-zinc prose-sm">
         <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Pakistan</h3>
         <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
-          <li><strong className="text-zinc-300">Income tax</strong> – progressive FY2026 slabs.</li>
+          <li>
+            <strong className="text-zinc-300">Income tax</strong> – progressive
+            FY2026 slabs on taxable salary.
+          </li>
+          <li>
+            <strong className="text-zinc-300">VPS</strong> – contributions up to
+            20% of taxable income reduce the tax base.
+          </li>
         </ul>
       </div>
     </section>

@@ -1,30 +1,19 @@
 import { calculateNetSalary, getDefaultInputs } from "@/lib/countries/registry";
 import type { CountryComparisonAdapter } from "@/hooks/use-country-comparison";
+import { getColombiaVoluntaryCombinedLimit } from "./calculator";
 import type { COCalculatorInputs } from "./types";
 
-export const buildCountryComparison: CountryComparisonAdapter = ({
-  country,
-  config,
-  currency,
-  rate,
-  grossLocal,
-  payFrequency,
-  inputs,
-  isMaxRetirement,
-  buildAssumptionsSummary,
-}) => {
-  const calculatorInputs: COCalculatorInputs = {
+export const buildCountryComparison: CountryComparisonAdapter = (ctx) => {
+  const { country, config, currency, rate, grossLocal, payFrequency, inputs, isMaxRetirement, buildAssumptionsSummary } = ctx;
+  const cap = isMaxRetirement ? getColombiaVoluntaryCombinedLimit(grossLocal) : 0;
+  const result = calculateNetSalary({
     ...(getDefaultInputs(country) as COCalculatorInputs),
     grossSalary: grossLocal,
     payFrequency,
-  };
-  const result = calculateNetSalary(calculatorInputs);
+    contributions: { afcSavings: cap / 2, voluntaryPension: cap - cap / 2 },
+  });
   const assumptions = buildAssumptionsSummary(country, inputs, isMaxRetirement);
-
-  if (isMaxRetirement) {
-    assumptions.push("No voluntary AFC pension deduction modeled");
-  }
-
+  if (cap > 0) assumptions.push("AFC + voluntary pension at combined cap");
   return {
     country,
     name: config.name,

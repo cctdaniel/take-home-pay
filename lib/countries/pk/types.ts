@@ -1,12 +1,11 @@
 import type {
   BaseCalculatorInputs,
-  BaseTaxBreakdown,
   CalculatorInputs,
-  CountrySpecificBreakdown,
-  TaxBreakdown,
 } from "../types";
 
-export type PKContributionInputs = Record<never, never>;
+export interface PKContributionInputs {
+  vpsContribution: number;
+}
 
 export interface PKCalculatorInputs extends BaseCalculatorInputs {
   country: "PK";
@@ -23,7 +22,10 @@ export interface PKBreakdown {
   grossIncome: number;
   taxableIncome: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
-  incomeTax: {
+  incomeTax: { total: number };
+  voluntaryContributions: {
+    vpsContribution: number;
+    vpsLimit: number;
     total: number;
   };
   assumptions: string[];
@@ -31,43 +33,14 @@ export interface PKBreakdown {
 }
 
 declare module "../types" {
-  interface CountryCodeMap {
-    PK: true;
-  }
-
-  interface CurrencyCodeMap {
-    PKR: true;
-  }
-
-  interface CalculatorInputMap {
-    PK: PKCalculatorInputs;
-  }
-
-  interface TaxBreakdownMap {
-    PK: PKTaxBreakdown;
-  }
-
-  interface CountrySpecificBreakdownMap {
-    PK: PKBreakdown;
-  }
-
-  interface ContributionInputMap {
-    PK: PKContributionInputs;
-  }
+  interface CountryCodeMap { PK: true; }
+  interface CurrencyCodeMap { PKR: true; }
+  interface ContributionInputMap { PK: PKContributionInputs; }
+  interface CalculatorInputMap { PK: PKCalculatorInputs; }
+  interface TaxBreakdownMap { PK: PKTaxBreakdown; }
+  interface CountrySpecificBreakdownMap { PK: PKBreakdown; }
 }
 
-export function isPKInputs(
-  inputs: CalculatorInputs,
-): inputs is PKCalculatorInputs {
+export function isPKInputs(inputs: CalculatorInputs): inputs is PKCalculatorInputs {
   return inputs.country === "PK";
-}
-
-export function isPKTaxBreakdown(taxes: TaxBreakdown): taxes is PKTaxBreakdown {
-  return "type" in taxes && taxes.type === "PK";
-}
-
-export function isPKBreakdown(
-  breakdown: CountrySpecificBreakdown,
-): breakdown is PKBreakdown {
-  return breakdown.type === "PK";
 }

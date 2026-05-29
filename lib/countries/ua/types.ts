@@ -1,12 +1,11 @@
 import type {
   BaseCalculatorInputs,
-  BaseTaxBreakdown,
   CalculatorInputs,
-  CountrySpecificBreakdown,
-  TaxBreakdown,
 } from "../types";
 
-export type UAContributionInputs = Record<never, never>;
+export interface UAContributionInputs {
+  npfContribution: number;
+}
 
 export interface UACalculatorInputs extends BaseCalculatorInputs {
   country: "UA";
@@ -17,22 +16,19 @@ export interface UATaxBreakdown extends BaseTaxBreakdown {
   type: "UA";
   incomeTax: number;
   militaryTax: number;
+  npfTaxDiscount: number;
 }
 
 export interface UABreakdown {
   type: "UA";
   grossIncome: number;
-  incomeTax: {
-    rate: number;
-    total: number;
-  };
-  militaryTax: {
-    rate: number;
-    total: number;
-  };
-  employerUsc: {
-    rate: number;
-    base: number;
+  incomeTax: { rate: number; total: number };
+  militaryTax: { rate: number; total: number };
+  employerUsc: { rate: number; base: number; total: number };
+  voluntaryContributions: {
+    npfContribution: number;
+    npfLimit: number;
+    npfTaxDiscount: number;
     total: number;
   };
   assumptions: string[];
@@ -40,43 +36,14 @@ export interface UABreakdown {
 }
 
 declare module "../types" {
-  interface CountryCodeMap {
-    UA: true;
-  }
-
-  interface CurrencyCodeMap {
-    UAH: true;
-  }
-
-  interface CalculatorInputMap {
-    UA: UACalculatorInputs;
-  }
-
-  interface TaxBreakdownMap {
-    UA: UATaxBreakdown;
-  }
-
-  interface CountrySpecificBreakdownMap {
-    UA: UABreakdown;
-  }
-
-  interface ContributionInputMap {
-    UA: UAContributionInputs;
-  }
+  interface CountryCodeMap { UA: true; }
+  interface CurrencyCodeMap { UAH: true; }
+  interface ContributionInputMap { UA: UAContributionInputs; }
+  interface CalculatorInputMap { UA: UACalculatorInputs; }
+  interface TaxBreakdownMap { UA: UATaxBreakdown; }
+  interface CountrySpecificBreakdownMap { UA: UABreakdown; }
 }
 
-export function isUAInputs(
-  inputs: CalculatorInputs,
-): inputs is UACalculatorInputs {
+export function isUAInputs(inputs: CalculatorInputs): inputs is UACalculatorInputs {
   return inputs.country === "UA";
-}
-
-export function isUATaxBreakdown(taxes: TaxBreakdown): taxes is UATaxBreakdown {
-  return "type" in taxes && taxes.type === "UA";
-}
-
-export function isUABreakdown(
-  breakdown: CountrySpecificBreakdown,
-): breakdown is UABreakdown {
-  return breakdown.type === "UA";
 }

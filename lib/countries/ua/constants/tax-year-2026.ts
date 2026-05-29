@@ -23,3 +23,8 @@ export const UA_EMPLOYER_USC_RATE = 0.22;
 
 /** Monthly USC assessment cap (20 × minimum wage 2026). */
 export const UA_USC_MONTHLY_CAP_2026 = 172_940;
+
+/** Own NPF contributions eligible for 18% tax discount (monthly cap 2026). */
+export const UA_NPF_MONTHLY_CAP_2026 = 4_660;
+export const UA_NPF_ANNUAL_CAP_2026 = UA_NPF_MONTHLY_CAP_2026 * 12;
+export const UA_NPF_TAX_DISCOUNT_RATE = 0.18;

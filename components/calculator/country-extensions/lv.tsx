@@ -9,16 +9,20 @@ import {
   useCountryCalculatorExtension,
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
-import { MandatoryOnlyContributionsNote } from "@/components/calculator/mandatory-only-contributions-note";
 import { InfoPanel } from "@/components/calculator/info-panel";
-import { LV_SOURCE_URLS } from "@/lib/countries/lv/constants/tax-year-2026";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
 import type { LVCalculatorInputs } from "@/lib/countries/lv/types";
+import { clampAmount } from "@/lib/utils";
 
 export default function LVCountryExtension({
   country,
 }: CountryCalculatorExtensionProps) {
-  const { inputs, currency, result, setGrossSalary, setPayFrequency } =
+  const { inputs, setInputs, currency, result, setGrossSalary, setPayFrequency } =
     useCountryCalculatorExtension<LVCalculatorInputs>(country);
+  const limit =
+    getCountryCalculator(country).getContributionLimits(inputs).privatePension
+      ?.limit ?? 0;
 
   return (
     <CountryCalculatorExtensionShell
@@ -38,17 +42,31 @@ export default function LVCountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <MandatoryOnlyContributionsNote
-          mandatoryLabel="Employee social 10.5% (capped) and PIT 25.5%/33% after EUR 550/month non-taxable minimum."
-          sourceUrl={LV_SOURCE_URLS.personalIncomeTax}
-          sourceLabel="State Revenue Service (VID)"
-          unmodeledVoluntary={['Private pension fund (3rd level) contributions', 'Dependent allowance']}
+        <ContributionSlider
+          label="Private pension fund"
+          description="Payments reduce taxable income up to EUR 4,000 and 10% of gross per year."
+          value={inputs.contributions.privatePension}
+          onChange={(privatePension) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                privatePension: clampAmount(privatePension, limit),
+              },
+            }))
+          }
+          max={limit}
+          step={100}
+          currency={currency}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="Mandatory items are in your results; optional schemes listed below"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
       infoCard={
-        <InfoPanel title="Modeled scope">SS capped; fixed NTA; progressive PIT.</InfoPanel>
+        <InfoPanel title="Modeled scope">
+          10.5% social capped; EUR 550/month NTA; private pension deduction; PIT
+          25.5%/33%.
+        </InfoPanel>
       }
       seoInfo={<LatviaTaxInfo />}
     />
@@ -64,8 +82,18 @@ function LatviaTaxInfo() {
       <div className="prose prose-invert prose-zinc prose-sm">
         <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Latvia</h3>
         <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
-          <li><strong className="text-zinc-300">Social insurance</strong> – 10.5% capped.</li>
-          <li><strong className="text-zinc-300">PIT</strong> – 25.5% / 33% after NTA.</li>
+          <li>
+            <strong className="text-zinc-300">Social insurance</strong> – 10.5%
+            employee (capped).
+          </li>
+          <li>
+            <strong className="text-zinc-300">Private pension</strong> – deductible
+            up to EUR 4,000 and 10% of gross.
+          </li>
+          <li>
+            <strong className="text-zinc-300">Income tax</strong> – 25.5% / 33%
+            after NTA.
+          </li>
         </ul>
       </div>
     </section>

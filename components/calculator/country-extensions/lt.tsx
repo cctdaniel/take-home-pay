@@ -9,16 +9,20 @@ import {
   useCountryCalculatorExtension,
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
-import { MandatoryOnlyContributionsNote } from "@/components/calculator/mandatory-only-contributions-note";
 import { InfoPanel } from "@/components/calculator/info-panel";
-import { LT_SOURCE_URLS } from "@/lib/countries/lt/constants/tax-year-2026";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
 import type { LTCalculatorInputs } from "@/lib/countries/lt/types";
+import { clampAmount } from "@/lib/utils";
 
 export default function LTCountryExtension({
   country,
 }: CountryCalculatorExtensionProps) {
-  const { inputs, currency, result, setGrossSalary, setPayFrequency } =
+  const { inputs, setInputs, currency, result, setGrossSalary, setPayFrequency } =
     useCountryCalculatorExtension<LTCalculatorInputs>(country);
+  const limit =
+    getCountryCalculator(country).getContributionLimits(inputs).pensionDeduction
+      ?.limit ?? 0;
 
   return (
     <CountryCalculatorExtensionShell
@@ -38,17 +42,31 @@ export default function LTCountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <MandatoryOnlyContributionsNote
-          mandatoryLabel="VSD 19.5% on gross (capped) and progressive GPM 20/25/32% on taxable salary."
-          sourceUrl={LT_SOURCE_URLS.personalIncomeTax}
-          sourceLabel="VMI Lithuania"
-          unmodeledVoluntary={['III-pillar pension tax credit (pre-2025 contracts only)', 'Life insurance premium deductions']}
+        <ContributionSlider
+          label="Pension / life insurance deduction"
+          description="Qualifying III-pillar payments reduce GPM base up to EUR 1,500 and 25% of income after VSD."
+          value={inputs.contributions.pensionDeduction}
+          onChange={(pensionDeduction) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                pensionDeduction: clampAmount(pensionDeduction, limit),
+              },
+            }))
+          }
+          max={limit}
+          step={100}
+          currency={currency}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="Mandatory items are in your results; optional schemes listed below"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
       infoCard={
-        <InfoPanel title="Modeled scope">VSD capped at 60 VDU; progressive GPM on salary after VSD.</InfoPanel>
+        <InfoPanel title="Modeled scope">
+          VSD 19.5% capped; progressive GPM; optional pension/life deduction for
+          qualifying contracts.
+        </InfoPanel>
       }
       seoInfo={<LithuaniaTaxInfo />}
     />
@@ -64,8 +82,17 @@ function LithuaniaTaxInfo() {
       <div className="prose prose-invert prose-zinc prose-sm">
         <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Lithuania</h3>
         <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
-          <li><strong className="text-zinc-300">VSD</strong> – 19.5% employee, capped.</li>
-          <li><strong className="text-zinc-300">GPM</strong> – 20% / 25% / 32% progressive.</li>
+          <li>
+            <strong className="text-zinc-300">VSD</strong> – 19.5% employee, capped.
+          </li>
+          <li>
+            <strong className="text-zinc-300">Pension deduction</strong> – up to
+            EUR 1,500 and 25% of income after VSD.
+          </li>
+          <li>
+            <strong className="text-zinc-300">GPM</strong> – 20% / 25% / 32%
+            progressive.
+          </li>
         </ul>
       </div>
     </section>

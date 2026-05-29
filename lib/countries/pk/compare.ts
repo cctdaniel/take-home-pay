@@ -1,30 +1,19 @@
 import { calculateNetSalary, getDefaultInputs } from "@/lib/countries/registry";
 import type { CountryComparisonAdapter } from "@/hooks/use-country-comparison";
+import { PK_VPS_INCOME_RATE_CAP } from "./constants/tax-year-2026";
 import type { PKCalculatorInputs } from "./types";
 
-export const buildCountryComparison: CountryComparisonAdapter = ({
-  country,
-  config,
-  currency,
-  rate,
-  grossLocal,
-  payFrequency,
-  inputs,
-  isMaxRetirement,
-  buildAssumptionsSummary,
-}) => {
-  const calculatorInputs: PKCalculatorInputs = {
+export const buildCountryComparison: CountryComparisonAdapter = (ctx) => {
+  const { country, config, currency, rate, grossLocal, payFrequency, inputs, isMaxRetirement, buildAssumptionsSummary } = ctx;
+  const vpsContribution = isMaxRetirement ? grossLocal * PK_VPS_INCOME_RATE_CAP : 0;
+  const result = calculateNetSalary({
     ...(getDefaultInputs(country) as PKCalculatorInputs),
     grossSalary: grossLocal,
     payFrequency,
-  };
-  const result = calculateNetSalary(calculatorInputs);
+    contributions: { vpsContribution },
+  });
   const assumptions = buildAssumptionsSummary(country, inputs, isMaxRetirement);
-
-  if (isMaxRetirement) {
-    assumptions.push("No voluntary retirement deduction modeled");
-  }
-
+  if (vpsContribution > 0) assumptions.push("VPS at 20% of taxable income cap");
   return {
     country,
     name: config.name,

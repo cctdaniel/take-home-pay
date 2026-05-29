@@ -13,6 +13,11 @@ export const SI_SOURCE_URLS = {
 
 /** Employee social contributions — 22.1% on gross. */
 export const SI_SOCIAL_EMPLOYEE_RATE = 0.221;
+/** Pension portion of employee social (for supplementary premium cap). */
+export const SI_PENSION_EMPLOYEE_RATE = 0.155;
+export const SI_SUPPLEMENTARY_PENSION_ANNUAL_CAP_2026 = 3_224.18;
+export const SI_SUPPLEMENTARY_PENSION_RATE_OF_GROSS = 0.05844;
+export const SI_SUPPLEMENTARY_PENSION_RATE_OF_PENSION = 0.24;
 
 export const SI_PIT_BRACKETS_2026: TaxBracket[] = [
   { min: 0, max: 17_533, rate: 0.16 },

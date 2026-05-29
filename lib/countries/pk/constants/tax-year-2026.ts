@@ -11,6 +11,9 @@ export const PK_SOURCE_URLS = {
 } as const;
 
 /** FY2026 annual salary PIT slabs (PKR). */
+/** VPS investment eligible for tax credit up to 20% of taxable income. */
+export const PK_VPS_INCOME_RATE_CAP = 0.2;
+
 export const PK_PIT_BRACKETS_FY2026: TaxBracket[] = [
   { min: 0, max: 600_000, rate: 0 },
   { min: 600_000, max: 1_200_000, rate: 0.025 },

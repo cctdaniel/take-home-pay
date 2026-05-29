@@ -1,3 +1,4 @@
+import { clampAmount } from "@/lib/utils";
 import type {
   CalculationResult,
   CalculatorInputs,
@@ -7,12 +8,14 @@ import type {
 } from "../types";
 import { calculateProgressiveTax, getPeriodsPerYear } from "../nordic-shared";
 import { PK_CONFIG } from "./config";
-import { PK_PIT_BRACKETS_FY2026, PK_SOURCE_URLS } from "./constants/tax-year-2026";
+import { PK_PIT_BRACKETS_FY2026, PK_SOURCE_URLS, PK_VPS_INCOME_RATE_CAP } from "./constants/tax-year-2026";
 import type { PKBreakdown, PKCalculatorInputs, PKTaxBreakdown } from "./types";
 
 export function calculatePK(inputs: PKCalculatorInputs): CalculationResult {
   const grossIncome = Math.max(0, inputs.grossSalary);
-  const taxableIncome = grossIncome;
+  const vpsLimit = grossIncome * PK_VPS_INCOME_RATE_CAP;
+  const vpsContribution = clampAmount(inputs.contributions?.vpsContribution, vpsLimit);
+  const taxableIncome = Math.max(0, grossIncome - vpsContribution);
   const progressive = calculateProgressiveTax(taxableIncome, PK_PIT_BRACKETS_FY2026);
   const incomeTax = progressive.tax;
 
@@ -30,6 +33,11 @@ export function calculatePK(inputs: PKCalculatorInputs): CalculationResult {
     grossIncome,
     taxableIncome,
     bracketTaxes: progressive.details,
+    voluntaryContributions: {
+      vpsContribution,
+      vpsLimit,
+      total: vpsContribution,
+    },
     incomeTax: { total: incomeTax },
     assumptions: [
       "FY2026 progressive salary tax slabs on gross employment income.",
@@ -73,8 +81,16 @@ export const PKCalculator: CountryCalculator = {
     return [];
   },
 
-  getContributionLimits(): ContributionLimits {
-    return {};
+  getContributionLimits(inputs?: Partial<CalculatorInputs>): ContributionLimits {
+    const gross = Math.max(0, (inputs as PKCalculatorInputs | undefined)?.grossSalary ?? 3_000_000);
+    return {
+      vpsContribution: {
+        limit: gross * PK_VPS_INCOME_RATE_CAP,
+        name: "Voluntary Pension Scheme (VPS)",
+        description: "Tax credit on contributions up to 20% of annual taxable income (Section 63).",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): PKCalculatorInputs {
@@ -82,7 +98,7 @@ export const PKCalculator: CountryCalculator = {
       country: "PK",
       grossSalary: 3_000_000,
       payFrequency: "monthly",
-      contributions: {},
+      contributions: { vpsContribution: 0 },
     };
   },
 };

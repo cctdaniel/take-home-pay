@@ -1,12 +1,11 @@
 import type {
   BaseCalculatorInputs,
-  BaseTaxBreakdown,
   CalculatorInputs,
-  CountrySpecificBreakdown,
-  TaxBreakdown,
 } from "../types";
 
-export type LVContributionInputs = Record<never, never>;
+export interface LVContributionInputs {
+  privatePension: number;
+}
 
 export interface LVCalculatorInputs extends BaseCalculatorInputs {
   country: "LV";
@@ -31,7 +30,10 @@ export interface LVBreakdown {
   nonTaxableMinimum: number;
   taxableIncome: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
-  incomeTax: {
+  incomeTax: { total: number };
+  voluntaryContributions: {
+    privatePension: number;
+    privatePensionLimit: number;
     total: number;
   };
   assumptions: string[];
@@ -42,36 +44,20 @@ declare module "../types" {
   interface CountryCodeMap {
     LV: true;
   }
-
   interface ContributionInputMap {
     LV: LVContributionInputs;
   }
-
   interface CalculatorInputMap {
     LV: LVCalculatorInputs;
   }
-
   interface TaxBreakdownMap {
     LV: LVTaxBreakdown;
   }
-
   interface CountrySpecificBreakdownMap {
     LV: LVBreakdown;
   }
 }
 
-export function isLVInputs(
-  inputs: CalculatorInputs,
-): inputs is LVCalculatorInputs {
+export function isLVInputs(inputs: CalculatorInputs): inputs is LVCalculatorInputs {
   return inputs.country === "LV";
-}
-
-export function isLVTaxBreakdown(taxes: TaxBreakdown): taxes is LVTaxBreakdown {
-  return "type" in taxes && taxes.type === "LV";
-}
-
-export function isLVBreakdown(
-  breakdown: CountrySpecificBreakdown,
-): breakdown is LVBreakdown {
-  return breakdown.type === "LV";
 }

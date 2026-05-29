@@ -5,6 +5,10 @@ import type { TaxBracket } from "../../types";
 
 export const LT_TAX_YEAR = 2026;
 
+/** Pension + life insurance deductions (combined cap for qualifying III-pillar contracts). */
+export const LT_PENSION_DEDUCTION_ANNUAL_CAP_2026 = 1_500;
+export const LT_PENSION_DEDUCTION_RATE_OF_INCOME = 0.25;
+
 export const LT_SOURCE_URLS = {
   personalIncomeTax: "https://www.vmi.lt/cms/en/income-tax",
   socialInsurance:

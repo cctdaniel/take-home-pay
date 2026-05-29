@@ -1,12 +1,12 @@
 import type {
   BaseCalculatorInputs,
-  BaseTaxBreakdown,
   CalculatorInputs,
-  CountrySpecificBreakdown,
-  TaxBreakdown,
 } from "../types";
 
-export type LTContributionInputs = Record<never, never>;
+export interface LTContributionInputs {
+  /** Qualifying III-pillar pension / life insurance — reduces GPM base. */
+  pensionDeduction: number;
+}
 
 export interface LTCalculatorInputs extends BaseCalculatorInputs {
   country: "LT";
@@ -30,7 +30,10 @@ export interface LTBreakdown {
   };
   taxableIncome: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
-  incomeTax: {
+  incomeTax: { total: number };
+  voluntaryContributions: {
+    pensionDeduction: number;
+    pensionDeductionLimit: number;
     total: number;
   };
   assumptions: string[];
@@ -41,36 +44,20 @@ declare module "../types" {
   interface CountryCodeMap {
     LT: true;
   }
-
   interface ContributionInputMap {
     LT: LTContributionInputs;
   }
-
   interface CalculatorInputMap {
     LT: LTCalculatorInputs;
   }
-
   interface TaxBreakdownMap {
     LT: LTTaxBreakdown;
   }
-
   interface CountrySpecificBreakdownMap {
     LT: LTBreakdown;
   }
 }
 
-export function isLTInputs(
-  inputs: CalculatorInputs,
-): inputs is LTCalculatorInputs {
+export function isLTInputs(inputs: CalculatorInputs): inputs is LTCalculatorInputs {
   return inputs.country === "LT";
-}
-
-export function isLTTaxBreakdown(taxes: TaxBreakdown): taxes is LTTaxBreakdown {
-  return "type" in taxes && taxes.type === "LT";
-}
-
-export function isLTBreakdown(
-  breakdown: CountrySpecificBreakdown,
-): breakdown is LTBreakdown {
-  return breakdown.type === "LT";
 }

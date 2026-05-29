@@ -5,6 +5,10 @@ import type { TaxBracket } from "../../types";
 
 export const LV_TAX_YEAR = 2026;
 
+/** Private pension fund payments — deductible up to EUR 4,000 and 10% of gross. */
+export const LV_PRIVATE_PENSION_ANNUAL_CAP_2026 = 4_000;
+export const LV_PRIVATE_PENSION_RATE_OF_GROSS = 0.1;
+
 export const LV_SOURCE_URLS = {
   personalIncomeTax: "https://www.vid.gov.lv/en/personal-income-tax",
   socialInsurance:
