@@ -5,14 +5,18 @@ import {
   CountryCalculatorExtensionShell,
   useCountryCalculatorExtension,
 } from "@/components/calculator/country-extension";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
+import { clampAmount } from "@/lib/utils";
 import { InfoPanel } from "@/components/calculator/info-panel";
+import { PH_PERA_ANNUAL_CONTRIBUTION_CAP_2026 } from "@/lib/countries/ph/constants/tax-parameters-2026";
 import type { PHCalculatorInputs } from "@/lib/countries/types";
 import type { CountryCalculatorExtensionProps } from "../country-extension";
 
 export default function PHCountryExtension({
   country,
 }: CountryCalculatorExtensionProps) {
-  const { inputs, currency, result, setGrossSalary, setPayFrequency } =
+  const { inputs, setInputs, currency, result, setGrossSalary, setPayFrequency } =
     useCountryCalculatorExtension<PHCalculatorInputs>(country);
 
   return (
@@ -37,6 +41,27 @@ export default function PHCountryExtension({
           </InfoPanel>
         </div>
       }
+      contributions={
+        <ContributionSlider
+          label="PERA contribution"
+          description="5% income tax credit on contributions (max PHP 10,000 credit per year)."
+          value={inputs.contributions.peraContribution}
+          onChange={(peraContribution) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                peraContribution: clampAmount(peraContribution, PH_PERA_ANNUAL_CONTRIBUTION_CAP_2026),
+              },
+            }))
+          }
+          max={PH_PERA_ANNUAL_CONTRIBUTION_CAP_2026}
+          step={5000}
+          currency={currency}
+        />
+      }
+      contributionsTitle="Retirement & Savings Contributions"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
     />
   );
 }

@@ -68,3 +68,8 @@ export function calculateVNProgressiveTax(
     bracketTaxes,
   };
 }
+
+export const VN_VOLUNTARY_PENSION_ANNUAL_CAP_2026 = 12_000_000;
+export const VN_SOURCE_URLS = {
+  voluntaryPension: "https://thuvienphapluat.vn/van-ban/Thuong-mai/Thong-tu-111-2013-TT-BTC-cua-Bo-Tai-chinh-huong-dan-thi-hanh-Luat-thue-TNDN-218/201170/tu-van.aspx",
+} as const;

@@ -69,3 +69,10 @@ export function calculatePHProgressiveTax(
     bracketTaxes,
   };
 }
+
+export const PH_PERA_ANNUAL_CONTRIBUTION_CAP_2026 = 200_000;
+export const PH_PERA_TAX_CREDIT_RATE = 0.05;
+export const PH_PERA_MAX_TAX_CREDIT_2026 = 10_000;
+export const PH_SOURCE_URLS = {
+  pera: "https://www.bsp.gov.ph/Pages/InclusiveFinance/PERA_FAQs_TaxCredit.aspx",
+} as const;

@@ -125,3 +125,8 @@ export function calculateINRebate(
   }
   return 0;
 }
+
+export const IN_NPS_80CCD1B_ANNUAL_CAP_2026 = 50_000;
+export const IN_SOURCE_URLS = {
+  nps80ccd1b: "https://www.incometax.gov.in/",
+} as const;

@@ -31,3 +31,6 @@ export const FI_TAX_CONFIG: NordicTaxConfig = {
   ],
   sourceUrls: [FI_SOURCE_URLS.oecdTaxingWages, FI_SOURCE_URLS.telaPensionContributions],
 };
+
+export const FI_VOLUNTARY_PENSION_ANNUAL_CAP_2026 = 5_000;
+export const FI_VOLUNTARY_PENSION_CAP_WITH_EMPLOYER_2026 = 2_500;

@@ -25,7 +25,9 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
   ];
 
   if (isMaxRetirement) {
-    assumptions.push("No voluntary retirement contributions modeled");
+    assumptions.push(
+      "No employee voluntary income-tax relief on payroll salary in this calculator",
+    );
   }
 
   return {

@@ -6,7 +6,9 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type FIContributionInputs = Record<never, never>;
+export interface FIContributionInputs {
+  voluntaryPension: number;
+}
 
 export interface FICalculatorInputs extends BaseCalculatorInputs {
   country: "FI";
@@ -33,9 +35,18 @@ export interface FIBreakdown {
   standardDeduction: number;
   assumptions: string[];
   sourceUrls: string[];
+  voluntaryContributions?: {
+    voluntaryPension: number;
+    voluntaryPensionLimit: number;
+    total: number;
+  };
 }
 
 declare module "../types" {
+  interface CurrencyCodeMap {
+    EUR: true;
+  }
+
   interface CountryCodeMap {
     FI: true;
   }
@@ -59,12 +70,4 @@ declare module "../types" {
 
 export function isFIInputs(inputs: CalculatorInputs): inputs is FICalculatorInputs {
   return inputs.country === "FI";
-}
-
-export function isFITaxBreakdown(taxes: TaxBreakdown): taxes is FITaxBreakdown {
-  return "type" in taxes && taxes.type === "FI";
-}
-
-export function isFIBreakdown(breakdown: CountrySpecificBreakdown): breakdown is FIBreakdown {
-  return breakdown.type === "FI";
 }

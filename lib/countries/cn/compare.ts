@@ -25,7 +25,9 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
   ];
 
   if (isMaxRetirement) {
-    assumptions.push("No voluntary retirement contribution modeled");
+    assumptions.push(
+      "Private pension account (个人养老金) tax relief is outside monthly payroll withholding in this calculator",
+    );
   }
 
   return {

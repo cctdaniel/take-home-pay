@@ -16,8 +16,10 @@ import {
   JP_RECONSTRUCTION_SURTAX_RATE,
   JP_RESIDENT_TAX_PER_CAPITA,
   JP_RESIDENT_TAX_RATE,
+  JP_IDECO_ANNUAL_CAP_WITH_EMPLOYER_PENSION_2026,
   JP_SOCIAL_INSURANCE_2026,
 } from "./constants/tax-parameters-2026";
+import { clampAmount } from "@/lib/utils";
 import { getPeriodsPerYear } from "../calculator-utils";
 
 function roundCurrency(value: number): number {
@@ -64,6 +66,10 @@ export function calculateJP(inputs: JPCalculatorInputs): CalculationResult {
   const employmentDeduction =
     calculateJPEmploymentIncomeDeduction(grossSalary);
   const socialInsurance = calculateJPSocialInsurance(monthlySalary);
+  const idecoContribution = clampAmount(
+    inputs.contributions?.idecoContribution,
+    JP_IDECO_ANNUAL_CAP_WITH_EMPLOYER_PENSION_2026,
+  );
 
   // Taxable income for national tax: gross - employment deduction - social insurance - basic deduction
   const taxableIncome = Math.max(
@@ -72,7 +78,8 @@ export function calculateJP(inputs: JPCalculatorInputs): CalculationResult {
       grossSalary -
         employmentDeduction -
         socialInsurance.total -
-        JP_BASIC_DEDUCTION
+        JP_BASIC_DEDUCTION -
+        idecoContribution
     )
   );
 
@@ -108,7 +115,7 @@ export function calculateJP(inputs: JPCalculatorInputs): CalculationResult {
     taxes.pensionInsurance +
     taxes.healthInsurance +
     taxes.employmentInsurance;
-  const netSalary = grossSalary - totalTax;
+  const netSalary = grossSalary - totalTax - idecoContribution;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(payFrequency);
 
@@ -124,6 +131,11 @@ export function calculateJP(inputs: JPCalculatorInputs): CalculationResult {
     residentTax,
     socialInsurance,
     bracketTaxes: taxResult.bracketTaxes,
+    voluntaryContributions: {
+      idecoContribution,
+      idecoLimit: JP_IDECO_ANNUAL_CAP_WITH_EMPLOYER_PENSION_2026,
+      total: idecoContribution,
+    },
   };
 
   return {
@@ -133,7 +145,7 @@ export function calculateJP(inputs: JPCalculatorInputs): CalculationResult {
     taxableIncome,
     taxes,
     totalTax,
-    totalDeductions: totalTax,
+    totalDeductions: totalTax + idecoContribution,
     netSalary,
     effectiveTaxRate,
     perPeriod: {
@@ -161,7 +173,14 @@ export const JPCalculator: CountryCalculator = {
   },
 
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      idecoContribution: {
+        limit: JP_IDECO_ANNUAL_CAP_WITH_EMPLOYER_PENSION_2026,
+        name: "iDeCo contribution",
+        description: "Small mutual aid / iDeCo deduction (employee with employer pension)",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): JPCalculatorInputs {
@@ -169,6 +188,7 @@ export const JPCalculator: CountryCalculator = {
       country: "JP",
       grossSalary: 6_000_000,
       payFrequency: "monthly",
+      contributions: { idecoContribution: 0 },
     };
   },
 };

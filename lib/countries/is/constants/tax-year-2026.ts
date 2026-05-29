@@ -24,8 +24,11 @@ export const IS_TAX_CONFIG: NordicTaxConfig = {
   ],
   assumptions: [
     "Models Icelandic salary withholding brackets for a full-year resident using the annualized 2026 monthly tax brackets and personal tax credit.",
-    "Includes a 4% mandatory employee pension contribution as an employee deduction from pay and taxable wage base, but does not model optional private pension savings.",
+    "Includes a 4% mandatory employee pension contribution as an employee deduction from pay and taxable wage base. Supplementary private pension savings are not part of payroll withholding in this calculator.",
     "Union dues, per-municipality differences beyond the published withholding brackets, foreign expert relief, transferable spouse bracket amounts, and child benefits are outside scope.",
   ],
   sourceUrls: [IS_SOURCE_URLS.skatturinnBrackets, IS_SOURCE_URLS.skatturinnKeyRates, IS_SOURCE_URLS.pwcOtherTaxes],
 };
+
+export const IS_PRIVATE_PENSION_MAX_GROSS_RATE = 0.04;
+export const IS_PRIVATE_PENSION_TOTAL_DEDUCTION_RATE = 0.08;

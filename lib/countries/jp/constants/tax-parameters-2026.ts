@@ -113,3 +113,8 @@ export function calculateJPProgressiveTax(
     bracketTaxes,
   };
 }
+
+export const JP_IDECO_ANNUAL_CAP_WITH_EMPLOYER_PENSION_2026 = 240_000;
+export const JP_SOURCE_URLS = {
+  ideco: "https://www.keisan.nta.go.jp/r7yokuaru_sp/scat2/scat22/scat223/scid112.html",
+} as const;

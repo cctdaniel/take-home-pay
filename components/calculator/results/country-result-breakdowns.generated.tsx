@@ -9,7 +9,9 @@ import { ATResultBreakdown } from "./at-result-breakdown";
 import { BEResultBreakdown } from "./be-result-breakdown";
 import { BRResultBreakdown } from "./br-result-breakdown";
 import { CHResultBreakdown } from "./ch-result-breakdown";
+import { CLResultBreakdown } from "./cl-result-breakdown";
 import { CNResultBreakdown } from "./cn-result-breakdown";
+import { COResultBreakdown } from "./co-result-breakdown";
 import { CYResultBreakdown } from "./cy-result-breakdown";
 import { CZResultBreakdown } from "./cz-result-breakdown";
 import { EEResultBreakdown } from "./ee-result-breakdown";
@@ -24,14 +26,22 @@ import { ILResultBreakdown } from "./il-result-breakdown";
 import { INResultBreakdown } from "./in-result-breakdown";
 import { ITResultBreakdown } from "./it-result-breakdown";
 import { JPResultBreakdown } from "./jp-result-breakdown";
+import { LTResultBreakdown } from "./lt-result-breakdown";
+import { LUResultBreakdown } from "./lu-result-breakdown";
+import { LVResultBreakdown } from "./lv-result-breakdown";
 import { MTResultBreakdown } from "./mt-result-breakdown";
 import { MYResultBreakdown } from "./my-result-breakdown";
 import { NZResultBreakdown } from "./nz-result-breakdown";
 import { PHResultBreakdown } from "./ph-result-breakdown";
+import { PKResultBreakdown } from "./pk-result-breakdown";
 import { PLResultBreakdown } from "./pl-result-breakdown";
 import { QAResultBreakdown } from "./qa-result-breakdown";
+import { ROResultBreakdown } from "./ro-result-breakdown";
 import { SAResultBreakdown } from "./sa-result-breakdown";
+import { SIResultBreakdown } from "./si-result-breakdown";
+import { SKResultBreakdown } from "./sk-result-breakdown";
 import { TRResultBreakdown } from "./tr-result-breakdown";
+import { UAResultBreakdown } from "./ua-result-breakdown";
 import { VNResultBreakdown } from "./vn-result-breakdown";
 import { ZAResultBreakdown } from "./za-result-breakdown";
 import type { CountryResultBreakdownProps } from "./types";
@@ -49,7 +59,9 @@ export const COUNTRY_RESULT_BREAKDOWNS: Partial<
   BE: BEResultBreakdown,
   BR: BRResultBreakdown,
   CH: CHResultBreakdown,
+  CL: CLResultBreakdown,
   CN: CNResultBreakdown,
+  CO: COResultBreakdown,
   CY: CYResultBreakdown,
   CZ: CZResultBreakdown,
   EE: EEResultBreakdown,
@@ -64,14 +76,22 @@ export const COUNTRY_RESULT_BREAKDOWNS: Partial<
   IN: INResultBreakdown,
   IT: ITResultBreakdown,
   JP: JPResultBreakdown,
+  LT: LTResultBreakdown,
+  LU: LUResultBreakdown,
+  LV: LVResultBreakdown,
   MT: MTResultBreakdown,
   MY: MYResultBreakdown,
   NZ: NZResultBreakdown,
   PH: PHResultBreakdown,
+  PK: PKResultBreakdown,
   PL: PLResultBreakdown,
   QA: QAResultBreakdown,
+  RO: ROResultBreakdown,
   SA: SAResultBreakdown,
+  SI: SIResultBreakdown,
+  SK: SKResultBreakdown,
   TR: TRResultBreakdown,
+  UA: UAResultBreakdown,
   VN: VNResultBreakdown,
   ZA: ZAResultBreakdown,
 };

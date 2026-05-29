@@ -39,11 +39,10 @@ export function buildCountryComparison({
   );
   assumptions.push("Zagreb rates");
 
-  // No employee-controlled retirement contribution is modeled for Croatian
-  // payroll. Ordinary pension is mandatory; employer-paid voluntary pension
-  // premiums are outside this employee salary calculator.
   if (isMaxRetirement) {
-    assumptions.push("No voluntary payroll retirement deduction modeled");
+    assumptions.push(
+      "Croatian payroll income tax does not allow employee voluntary third-pillar deductions on salary",
+    );
   }
 
   return {

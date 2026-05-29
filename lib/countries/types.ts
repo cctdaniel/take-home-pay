@@ -201,7 +201,7 @@ export type INRegime = "new" | "old";
 // ============================================================================
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface PHContributionInputs {
-  // All contributions are mandatory and calculated automatically
+  peraContribution: number;
 }
 
 // ============================================================================
@@ -209,7 +209,8 @@ export interface PHContributionInputs {
 // ============================================================================
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface VNContributionInputs {
-  // All contributions are mandatory and calculated automatically
+  /** Voluntary pension insurance — reduces PIT taxable income. */
+  voluntaryPension: number;
 }
 
 // Thailand-specific contributions (voluntary retirement savings)
@@ -263,7 +264,8 @@ export interface DEContributionInputs {
 // China-specific contribution inputs
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface CNContributionInputs {
-  // All social insurance and housing fund contributions are mandatory
+  /** Personal pension account (个人养老金) — reduces comprehensive income tax base. */
+  privatePensionAccount: number;
 }
 
 // China-specific special deductions (专项附加扣除)
@@ -280,13 +282,13 @@ export interface CNSpecialDeductions {
 // Japan-specific contribution inputs
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface JPContributionInputs {
-  // All social insurance is mandatory and calculated automatically
+  idecoContribution: number;
 }
 
 // India-specific contribution inputs
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface INContributionInputs {
-  // EPF is mandatory (12%) for organized sector
+  nps80ccd1b: number;
 }
 
 // Thailand additional tax reliefs/allowances
@@ -534,25 +536,30 @@ export interface CNCalculatorInputs extends BaseCalculatorInputs {
   socialInsuranceBase: number; // Monthly base for social insurance (capped)
   housingFundRate: number; // 5-12% of monthly salary
   specialDeductions: CNSpecialDeductions;
+  contributions: CNContributionInputs;
 }
 
 export interface JPCalculatorInputs extends BaseCalculatorInputs {
   country: "JP";
+  contributions: JPContributionInputs;
 }
 
 export interface INCalculatorInputs extends BaseCalculatorInputs {
   country: "IN";
   regime: INRegime; // "new" (default, 2026) or "old"
   isEpfApplicable: boolean; // Whether EPF (12% employee) applies
+  contributions: INContributionInputs;
 }
 
 export interface PHCalculatorInputs extends BaseCalculatorInputs {
   country: "PH";
+  contributions: PHContributionInputs;
 }
 
 export interface VNCalculatorInputs extends BaseCalculatorInputs {
   country: "VN";
   numberOfDependents: number; // Number of tax dependents
+  contributions: VNContributionInputs;
 }
 
 // ============================================================================
@@ -1367,6 +1374,11 @@ export interface CNBreakdown {
     tax: number;
     quickDeduction: number;
   }>;
+  voluntaryContributions?: {
+    privatePensionAccount: number;
+    privatePensionLimit: number;
+    total: number;
+  };
 }
 
 export interface JPBreakdown {
@@ -1392,6 +1404,11 @@ export interface JPBreakdown {
     tax: number;
     deduction: number;
   }>;
+  voluntaryContributions?: {
+    idecoContribution: number;
+    idecoLimit: number;
+    total: number;
+  };
 }
 
 export interface INBreakdown {
@@ -1416,6 +1433,11 @@ export interface INBreakdown {
     rate: number;
     tax: number;
   }>;
+  voluntaryContributions?: {
+    nps80ccd1b: number;
+    nps80ccd1bLimit: number;
+    total: number;
+  };
 }
 
 export interface PHBreakdown {
@@ -1448,6 +1470,11 @@ export interface PHBreakdown {
     rate: number;
     tax: number;
   }>;
+  voluntaryContributions?: {
+    peraContribution: number;
+    peraTaxCredit: number;
+    total: number;
+  };
 }
 
 export interface VNBreakdown {
@@ -1479,6 +1506,11 @@ export interface VNBreakdown {
     rate: number;
     tax: number;
   }>;
+  voluntaryContributions?: {
+    voluntaryPension: number;
+    voluntaryPensionLimit: number;
+    total: number;
+  };
 }
 
 export interface CountrySpecificBreakdownMap {

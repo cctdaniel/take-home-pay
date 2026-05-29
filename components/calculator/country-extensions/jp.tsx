@@ -5,14 +5,18 @@ import {
   CountryCalculatorExtensionShell,
   useCountryCalculatorExtension,
 } from "@/components/calculator/country-extension";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
+import { clampAmount } from "@/lib/utils";
 import { InfoPanel } from "@/components/calculator/info-panel";
+import { JP_IDECO_ANNUAL_CAP_WITH_EMPLOYER_PENSION_2026 } from "@/lib/countries/jp/constants/tax-parameters-2026";
 import type { JPCalculatorInputs } from "@/lib/countries/types";
 import type { CountryCalculatorExtensionProps } from "../country-extension";
 
 export default function JPCountryExtension({
   country,
 }: CountryCalculatorExtensionProps) {
-  const { inputs, currency, result, setGrossSalary, setPayFrequency } =
+  const { inputs, setInputs, currency, result, setGrossSalary, setPayFrequency } =
     useCountryCalculatorExtension<JPCalculatorInputs>(country);
 
   return (
@@ -36,6 +40,27 @@ export default function JPCountryExtension({
           </InfoPanel>
         </div>
       }
+      contributions={
+        <ContributionSlider
+          label="iDeCo contribution"
+          description="Deductible small mutual aid / iDeCo (employee with employer pension)."
+          value={inputs.contributions.idecoContribution}
+          onChange={(idecoContribution) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                idecoContribution: clampAmount(idecoContribution, JP_IDECO_ANNUAL_CAP_WITH_EMPLOYER_PENSION_2026),
+              },
+            }))
+          }
+          max={JP_IDECO_ANNUAL_CAP_WITH_EMPLOYER_PENSION_2026}
+          step={10000}
+          currency={currency}
+        />
+      }
+      contributionsTitle="Retirement & Savings Contributions"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
     />
   );
 }
