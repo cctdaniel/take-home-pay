@@ -14,8 +14,10 @@ import {
   CN_HOUSING_FUND_2026,
   CN_SOCIAL_INSURANCE_2026,
   CN_SPECIAL_DEDUCTIONS_2026,
+  CN_PRIVATE_PENSION_ANNUAL_CAP_2026,
   CN_STANDARD_DEDUCTION,
 } from "./constants/tax-parameters-2026";
+import { clampAmount } from "@/lib/utils";
 import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
 
 function calculateCNSocialInsurance(monthlyBase: number) {
@@ -127,12 +129,17 @@ export function calculateCN(inputs: CNCalculatorInputs): CalculationResult {
   const socialInsurance = calculateCNSocialInsurance(monthlySocialBase);
   const housingFund = calculateHousingFund(monthlySocialBase, housingFundRate);
   const specialDeductions = calculateCNSpecialDeductions(inputs);
+  const privatePensionAccount = clampAmount(
+    inputs.contributions?.privatePensionAccount,
+    CN_PRIVATE_PENSION_ANNUAL_CAP_2026,
+  );
 
   const totalDeductions =
     CN_STANDARD_DEDUCTION +
     specialDeductions.total +
     socialInsurance.total +
-    housingFund.employee;
+    housingFund.employee +
+    privatePensionAccount;
 
   const taxableIncome = Math.max(0, grossSalary - totalDeductions);
   const taxResult = calculateCNProgressiveTax(taxableIncome);
@@ -154,7 +161,7 @@ export function calculateCN(inputs: CNCalculatorInputs): CalculationResult {
     taxes.unemploymentInsurance +
     taxes.housingFund;
   const totalDeductionsAll = totalTax;
-  const netSalary = grossSalary - totalDeductionsAll;
+  const netSalary = grossSalary - totalDeductionsAll - privatePensionAccount;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(payFrequency);
 
@@ -167,6 +174,11 @@ export function calculateCN(inputs: CNCalculatorInputs): CalculationResult {
     socialInsurance,
     housingFund,
     bracketTaxes: taxResult.bracketTaxes,
+    voluntaryContributions: {
+      privatePensionAccount,
+      privatePensionLimit: CN_PRIVATE_PENSION_ANNUAL_CAP_2026,
+      total: privatePensionAccount,
+    },
   };
 
   return {
@@ -176,7 +188,7 @@ export function calculateCN(inputs: CNCalculatorInputs): CalculationResult {
     taxableIncome,
     taxes,
     totalTax,
-    totalDeductions: totalDeductionsAll,
+    totalDeductions: totalDeductionsAll + privatePensionAccount,
     netSalary,
     effectiveTaxRate,
     perPeriod: {
@@ -204,7 +216,14 @@ export const CNCalculator: CountryCalculator = {
   },
 
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      privatePensionAccount: {
+        limit: CN_PRIVATE_PENSION_ANNUAL_CAP_2026,
+        name: "Personal pension account (个人养老金)",
+        description: "Annual deduction cap for eligible personal pension contributions",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): CNCalculatorInputs {
@@ -214,6 +233,7 @@ export const CNCalculator: CountryCalculator = {
       payFrequency: "monthly",
       socialInsuranceBase: 20_000,
       housingFundRate: 0.12,
+      contributions: { privatePensionAccount: 0 },
       specialDeductions: {
         numberOfChildren: 0,
         numberOfChildrenUnder3: 0,

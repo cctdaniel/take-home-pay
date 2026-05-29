@@ -1,4 +1,4 @@
-/** Shown when a country has no employee voluntary PIT-reducing salary contributions to model. */
+/** Shown when employment salary has no personal income tax (0% PIT countries). */
 export function NoPitContributionsNote({
   mandatoryLabel,
   sourceUrl,
@@ -11,9 +11,9 @@ export function NoPitContributionsNote({
   return (
     <div className="space-y-3 text-sm text-zinc-400">
       <p>
-        There is no personal income tax on employment salary in this model, so
-        voluntary contributions do not reduce income tax. Mandatory payroll
-        deductions are calculated automatically from your inputs above.
+        Employment salary is not subject to personal income tax here, so there
+        are no voluntary wage contributions that reduce income tax. Mandatory
+        payroll items are calculated automatically from your inputs above.
       </p>
       <p>
         <strong className="text-zinc-300">Mandatory:</strong> {mandatoryLabel}

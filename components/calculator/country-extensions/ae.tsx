@@ -10,9 +10,11 @@ import {
   useCountryCalculatorExtension,
 } from "@/components/calculator/country-extension";
 import { InfoPanel } from "@/components/calculator/info-panel";
+import { NoPitContributionsNote } from "@/components/calculator/no-pit-contributions-note";
 import {
   UAE_EMPLOYEE_CATEGORY_OPTIONS,
   UAE_EMPLOYEE_CATEGORY_SETTINGS,
+  UAE_SOURCE_URLS,
 } from "@/lib/countries/ae/constants/tax-year-2026";
 import type {
   AECalculatorInputs,
@@ -70,6 +72,15 @@ export default function AECountryExtension({
           </InfoPanel>
         </div>
       }
+      contributions={
+        <NoPitContributionsNote
+          mandatoryLabel="GPSSA employee pension for UAE nationals and GCC insurance extension rates where applicable."
+          sourceUrl={UAE_SOURCE_URLS.personalIncomeTax}
+          sourceLabel="UAE Federal Tax Authority"
+        />
+      }
+      contributionsTitle="Retirement & Savings Contributions"
+      contributionsDescription="Employment salary is not subject to UAE personal income tax"
     />
   );
 }

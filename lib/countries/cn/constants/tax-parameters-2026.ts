@@ -103,3 +103,10 @@ export function calculateCNProgressiveTax(
     bracketTaxes,
   };
 }
+
+// Personal pension account (个人养老金)
+// https://www.gov.cn/zhengce/zhengceku/202412/content_6992498.htm
+export const CN_PRIVATE_PENSION_ANNUAL_CAP_2026 = 12_000;
+export const CN_SOURCE_URLS = {
+  privatePension: "https://www.gov.cn/zhengce/zhengceku/202412/content_6992498.htm",
+} as const;

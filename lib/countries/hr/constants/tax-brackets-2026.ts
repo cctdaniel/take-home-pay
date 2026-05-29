@@ -26,9 +26,9 @@
 //   work for a foreign employer/company not registered in Croatia, which is not
 //   ordinary Croatian payroll:
 //   https://mup.gov.hr/aliens-281621/stay--work/temporary-stay-of-digital-nomads/286833
-// - Employee-paid third-pillar savings are not modeled as a payroll income-tax
-//   deduction. Employer-paid voluntary pension premiums and other benefits in
-//   kind are outside the employee salary inputs used here.
+// - Employee-paid third-pillar savings do not reduce Croatian payroll income tax.
+//   Employer-paid voluntary pension premiums and other benefits in kind are
+//   outside the employee salary inputs used here.
 // ============================================================================
 
 import type { TaxBracket } from "../../types";

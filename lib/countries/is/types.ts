@@ -6,7 +6,9 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type ISContributionInputs = Record<never, never>;
+export interface ISContributionInputs {
+  privatePensionSavings: number;
+}
 
 export interface ISCalculatorInputs extends BaseCalculatorInputs {
   country: "IS";
@@ -33,6 +35,11 @@ export interface ISBreakdown {
   standardDeduction: number;
   assumptions: string[];
   sourceUrls: string[];
+  voluntaryContributions?: {
+    privatePensionSavings: number;
+    privatePensionLimit: number;
+    total: number;
+  };
 }
 
 declare module "../types" {

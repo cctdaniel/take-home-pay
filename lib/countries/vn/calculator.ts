@@ -13,9 +13,11 @@ import {
   calculateVNProgressiveTax,
   VN_DEPENDENT_DEDUCTION_ANNUAL,
   VN_PERSONAL_DEDUCTION_ANNUAL,
+  VN_VOLUNTARY_PENSION_ANNUAL_CAP_2026,
   VN_SOCIAL_INSURANCE_2026,
 } from "./constants/tax-parameters-2026";
 import { getPeriodsPerYear } from "../calculator-utils";
+import { clampAmount } from "@/lib/utils";
 
 function roundCurrency(value: number): number {
   return Math.round(value);
@@ -67,7 +69,11 @@ export function calculateVN(inputs: VNCalculatorInputs): CalculationResult {
   const personalDeduction = VN_PERSONAL_DEDUCTION_ANNUAL;
   const dependentDeduction =
     Math.max(0, numberOfDependents) * VN_DEPENDENT_DEDUCTION_ANNUAL;
-  const totalDeductions = personalDeduction + dependentDeduction;
+  const voluntaryPension = clampAmount(
+    inputs.contributions?.voluntaryPension,
+    VN_VOLUNTARY_PENSION_ANNUAL_CAP_2026,
+  );
+  const totalDeductions = personalDeduction + dependentDeduction + voluntaryPension;
 
   // Taxable income = gross salary - social insurance - personal deductions
   const taxableIncome = Math.max(
@@ -87,7 +93,7 @@ export function calculateVN(inputs: VNCalculatorInputs): CalculationResult {
   };
 
   const totalTax = taxResult.totalTax + totalSocialInsurance;
-  const netSalary = grossSalary - totalTax;
+  const netSalary = grossSalary - totalTax - voluntaryPension;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(payFrequency);
 
@@ -112,7 +118,7 @@ export function calculateVN(inputs: VNCalculatorInputs): CalculationResult {
     taxableIncome,
     taxes,
     totalTax,
-    totalDeductions: totalTax,
+    totalDeductions: totalTax + voluntaryPension,
     netSalary,
     effectiveTaxRate,
     perPeriod: {
@@ -140,7 +146,14 @@ export const VNCalculator: CountryCalculator = {
   },
 
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      voluntaryPension: {
+        limit: VN_VOLUNTARY_PENSION_ANNUAL_CAP_2026,
+        name: "Voluntary pension insurance",
+        description: "Reduces taxable employment income (annual cap)",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): VNCalculatorInputs {
@@ -149,6 +162,7 @@ export const VNCalculator: CountryCalculator = {
       grossSalary: 240_000_000,
       payFrequency: "monthly",
       numberOfDependents: 0,
+      contributions: { voluntaryPension: 0 },
     };
   },
 };

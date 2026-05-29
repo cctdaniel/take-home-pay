@@ -5,15 +5,25 @@ import type {
   CountryCalculator,
   RegionInfo,
 } from "../types";
+import { clampAmount } from "@/lib/utils";
 import { calculateNordicTax, getPeriodsPerYear, roundCurrency } from "../nordic-shared";
 import { DK_CONFIG } from "./config";
-import { DK_TAX_CONFIG } from "./constants/tax-year-2026";
+import { DK_RATEPENSION_ANNUAL_CAP_2026, DK_TAX_CONFIG } from "./constants/tax-year-2026";
 import type { DKBreakdown, DKCalculatorInputs, DKTaxBreakdown } from "./types";
 
 export function calculateDK(inputs: DKCalculatorInputs): CalculationResult {
-  const computation = calculateNordicTax(inputs.grossSalary, DK_TAX_CONFIG);
+  const ratepension = clampAmount(
+    inputs.contributions?.ratepension,
+    DK_RATEPENSION_ANNUAL_CAP_2026,
+  );
+  const computation = calculateNordicTax(inputs.grossSalary, {
+    ...DK_TAX_CONFIG,
+    standardDeduction: DK_TAX_CONFIG.standardDeduction + ratepension,
+  });
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
-  const netSalary = roundCurrency(inputs.grossSalary - computation.totalTax);
+  const netSalary = roundCurrency(
+    inputs.grossSalary - computation.totalTax - ratepension,
+  );
 
   const taxes: DKTaxBreakdown = {
     type: "DK",
@@ -36,6 +46,11 @@ export function calculateDK(inputs: DKCalculatorInputs): CalculationResult {
     standardDeduction: DK_TAX_CONFIG.standardDeduction,
     assumptions: DK_TAX_CONFIG.assumptions,
     sourceUrls: DK_TAX_CONFIG.sourceUrls,
+    voluntaryContributions: {
+      ratepension,
+      ratepensionLimit: DK_RATEPENSION_ANNUAL_CAP_2026,
+      total: ratepension,
+    },
   };
 
   return {
@@ -45,7 +60,7 @@ export function calculateDK(inputs: DKCalculatorInputs): CalculationResult {
     taxableIncome: computation.taxableIncome,
     taxes,
     totalTax: computation.totalTax,
-    totalDeductions: computation.totalTax,
+    totalDeductions: computation.totalTax + ratepension,
     netSalary,
     effectiveTaxRate: inputs.grossSalary > 0 ? computation.totalTax / inputs.grossSalary : 0,
     perPeriod: {
@@ -74,7 +89,14 @@ export const DKCalculator: CountryCalculator = {
   },
 
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      ratepension: {
+        limit: DK_RATEPENSION_ANNUAL_CAP_2026,
+        name: "Ratepension",
+        description: "Combined rate/term annuity cap",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): DKCalculatorInputs {
@@ -82,7 +104,7 @@ export const DKCalculator: CountryCalculator = {
       country: "DK",
       grossSalary: 600_000,
       payFrequency: "monthly",
-      contributions: {},
+      contributions: { ratepension: 0 },
     };
   },
 };
