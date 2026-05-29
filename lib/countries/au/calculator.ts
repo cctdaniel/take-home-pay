@@ -12,7 +12,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
   TaxBracket,
 } from "../types";
@@ -26,23 +25,11 @@ import {
   calculateMedicareLevySurcharge,
   calculateSuperannuation,
 } from "./constants/tax-brackets-2026";
+import { getPeriodsPerYear } from "../calculator-utils";
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
-
 /**
  * Calculate progressive tax using tax brackets
  */

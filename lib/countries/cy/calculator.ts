@@ -8,7 +8,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { CY_CONFIG } from "./config";
@@ -26,23 +25,7 @@ import type {
   CYTaxBreakdown,
 } from "./types";
 import { clampAmount } from "@/lib/utils";
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
-
-function roundCurrency(value: number): number {
-  return Math.round(value * 100) / 100;
-}
+import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
 
 function getPensionProvidentModeledLimit(grossSalary: number): number {
   return Math.max(

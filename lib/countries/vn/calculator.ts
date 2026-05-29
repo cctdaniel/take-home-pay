@@ -3,7 +3,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
   VNBreakdown,
   VNCalculatorInputs,
@@ -16,19 +15,7 @@ import {
   VN_PERSONAL_DEDUCTION_ANNUAL,
   VN_SOCIAL_INSURANCE_2026,
 } from "./constants/tax-parameters-2026";
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
+import { getPeriodsPerYear } from "../calculator-utils";
 
 function roundCurrency(value: number): number {
   return Math.round(value);

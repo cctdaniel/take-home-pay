@@ -8,7 +8,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { GR_CONFIG } from "./config";
@@ -21,19 +20,8 @@ import {
   GREECE_SOCIAL_INSURANCE_2026,
 } from "./constants/tax-brackets-2026";
 import type { GRBreakdown, GRCalculatorInputs, GRTaxBreakdown } from "./types";
+import { getPeriodsPerYear } from "../calculator-utils";
 
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
 
 export function calculateGR(inputs: GRCalculatorInputs): CalculationResult {
   const {

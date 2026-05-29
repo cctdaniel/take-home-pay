@@ -6,7 +6,6 @@ import type {
   MYBreakdown,
   MYCalculatorInputs,
   MYTaxBreakdown,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { MY_CONFIG } from "./config";
@@ -19,23 +18,7 @@ import {
   MY_PRS_RELIEF_LIMIT,
   MY_VOLUNTARY_EPF_ANNUAL_LIMIT,
 } from "./constants/tax-brackets-2025";
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
-
-function roundCurrency(value: number): number {
-  return Math.round(value * 100) / 100;
-}
+import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
 
 function roundUpRinggit(value: number): number {
   return Math.ceil(value);

@@ -10,7 +10,7 @@ export const ZA_CURRENCY: CurrencyConfig = {
 export const ZA_CONFIG: CountryConfig = {
   code: "ZA",
   name: "South Africa",
-  region: "Europe",
+  region: "Africa",
   currency: ZA_CURRENCY,
   taxYear: 2026,
   lastUpdated: "2026-05-27",

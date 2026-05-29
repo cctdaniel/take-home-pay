@@ -3,7 +3,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { clampAmount } from "@/lib/utils";
@@ -23,19 +22,8 @@ import type {
   CHTaxBreakdown,
 } from "./types";
 import type { SwitzerlandCantonCode } from "./constants/tax-year-2026";
+import { getPeriodsPerYear } from "../calculator-utils";
 
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
 
 function getCanton(code: SwitzerlandCantonCode) {
   return CH_CANTONS.find((canton) => canton.code === code) ?? CH_CANTONS[0];

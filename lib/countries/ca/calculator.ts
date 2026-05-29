@@ -3,7 +3,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
   TaxBracket,
 } from "../types";
@@ -29,19 +28,7 @@ import type {
   CATaxBreakdown,
 } from "./types";
 import type { CanadaProvinceCode } from "./constants/tax-year-2026";
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual": return 1;
-    case "monthly": return 12;
-    case "biweekly": return 26;
-    case "weekly": return 52;
-  }
-}
-
-function roundCurrency(value: number): number {
-  return Math.round(value * 100) / 100;
-}
+import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
 
 function calculateProgressiveTax(income: number, brackets: TaxBracket[]) {
   let totalTax = 0;

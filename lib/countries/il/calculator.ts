@@ -3,7 +3,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { clampAmount } from "@/lib/utils";
@@ -18,23 +17,7 @@ import {
   IL_SUPPLEMENTAL_PENSION_MAX_RATE,
 } from "./constants/tax-year-2026";
 import type { ILBreakdown, ILCalculatorInputs, ILTaxBreakdown } from "./types";
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
-
-function roundCurrency(value: number): number {
-  return Math.round(value * 100) / 100;
-}
+import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
 
 function getStudyFundLimit(grossIncome: number): number {
   return Math.max(0, grossIncome) * IL_STUDY_FUND_MAX_RATE;

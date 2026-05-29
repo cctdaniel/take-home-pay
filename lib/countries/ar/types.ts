@@ -6,7 +6,7 @@ import type {
   TaxBreakdown,
   TaxBracket,
 } from "../types";
-import type { ARGananciasSemester } from "./constants/ganancias-semesters";
+import type { ARGananciasSemester } from "./constants/tax-year-2026";
 
 export type { ARGananciasSemester };
 

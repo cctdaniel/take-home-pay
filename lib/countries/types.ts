@@ -69,6 +69,7 @@ export type CountryRegion =
   | "North America"
   | "South America"
   | "Europe"
+  | "Africa"
   | "Asia-Pacific"
   | "Middle East";
 

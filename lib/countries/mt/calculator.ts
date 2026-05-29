@@ -3,7 +3,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { MT_CONFIG } from "./config";
@@ -19,19 +18,8 @@ import {
 } from "./constants/tax-brackets-2026";
 import type { MTBreakdown, MTCalculatorInputs, MTTaxBreakdown } from "./types";
 import { clampAmount } from "@/lib/utils";
+import { getPeriodsPerYear } from "../calculator-utils";
 
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
 
 export function calculateMT(inputs: MTCalculatorInputs): CalculationResult {
   const {

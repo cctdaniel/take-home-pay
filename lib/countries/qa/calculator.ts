@@ -3,7 +3,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { QA_CONFIG } from "./config";
@@ -14,33 +13,18 @@ import {
   QA_SOURCE_URLS,
 } from "./constants/tax-year-2026";
 import type { QABreakdown, QACalculatorInputs, QATaxBreakdown } from "./types";
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
-
-function roundCurrency(value: number): number {
-  return Math.round(value * 100) / 100;
-}
+import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
+import { calculateSalaryShareContributionBase } from "../employee-contribution-base";
 
 export function calculateQA(inputs: QACalculatorInputs): CalculationResult {
   const grossIncome = Math.max(0, inputs.grossSalary);
   const isQatariNational = inputs.nationality === "qatari_national";
-  const monthlyContributionSalary = isQatariNational
-    ? roundCurrency((grossIncome / 12) * QA_CONTRIBUTION_SALARY_SHARE)
-    : 0;
-  const contributionSalaryAnnual = roundCurrency(
-    monthlyContributionSalary * 12,
-  );
+  const { monthly: monthlyContributionSalary, annual: contributionSalaryAnnual } =
+    calculateSalaryShareContributionBase({
+      grossSalary: grossIncome,
+      applies: isQatariNational,
+      salaryShare: QA_CONTRIBUTION_SALARY_SHARE,
+    });
   const incomeTax = 0;
   const socialInsuranceEmployee = roundCurrency(
     contributionSalaryAnnual * QA_SOCIAL_INSURANCE_EMPLOYEE_RATE,

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   AR_GANANCIAS_H1_2026,
-  AR_GANANCIAS_H2_2026_AVAILABLE,
+  AR_GANANCIAS_H2_2026,
   calculateArGananciasTax,
   getDefaultArGananciasSemester,
   resolveArGananciasSemester,
-} from "./constants/ganancias-semesters";
+} from "./constants/tax-year-2026";
 import { calculateAR, ARCalculator } from "./calculator";
 
 describe("AR calculator smoke", () => {
@@ -72,7 +72,7 @@ describe("AR calculator smoke", () => {
   it("defaults to H1 before July and when H2 2026 is unpublished", () => {
     expect(getDefaultArGananciasSemester(new Date("2026-05-15"))).toBe("h1");
     expect(getDefaultArGananciasSemester(new Date("2026-09-01"))).toBe("h1");
-    expect(AR_GANANCIAS_H2_2026_AVAILABLE).toBe(false);
+    expect(AR_GANANCIAS_H2_2026.available).toBe(false);
     expect(resolveArGananciasSemester("h2")).toBe("h1");
   });
 });

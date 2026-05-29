@@ -7,7 +7,6 @@ import type {
   CalculationResult,
   CountryCalculator,
   ContributionLimits,
-  PayFrequency,
   RegionInfo,
   TWBreakdown,
   TWCalculatorInputs,
@@ -25,23 +24,11 @@ import {
   TW_NHI_2026,
   TW_LABOR_PENSION_2026,
 } from "./constants/tax-brackets-2026";
+import { getPeriodsPerYear } from "../calculator-utils";
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
-
 // ============================================================================
 // TAIWAN TAX CALCULATION
 // ============================================================================

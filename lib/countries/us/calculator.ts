@@ -11,7 +11,6 @@ import type {
   USBreakdown,
   RegionInfo,
   ContributionLimits,
-  PayFrequency,
 } from "../types";
 import { US_CONFIG } from "./config";
 import { calculateFederalIncomeTax, getFederalTaxableIncome } from "./federal-tax";
@@ -23,19 +22,8 @@ import {
 } from "./contribution-limits";
 import type { HSACoverageType } from "./contribution-limits";
 import { calculateUSFamilyTaxCredits } from "./tax-credits";
+import { getPeriodsPerYear } from "../calculator-utils";
 
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
 
 function sumPreTaxDeductions(contributions: USCalculatorInputs["contributions"]): number {
   return (

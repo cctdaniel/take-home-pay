@@ -12,7 +12,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   PTBreakdown,
   PTCalculatorInputs,
   PTTaxBreakdown,
@@ -26,6 +25,7 @@ import {
   calculateSpecificDeduction,
   PORTUGAL_SOCIAL_SECURITY_2026,
 } from "./constants/tax-brackets-2026";
+import { getPeriodsPerYear } from "../calculator-utils";
 
 // ============================================================================
 // PPR CONTRIBUTION LIMITS (2026)
@@ -59,19 +59,6 @@ function calculateDependentDeduction(numberOfDependents: number): number {
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
-
 // NHR 2.0 flat tax rate (20% for eligible employment income)
 const NHR2_FLAT_RATE = 0.20;
 

@@ -3,7 +3,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { CZ_CONFIG } from "./config";
@@ -18,19 +17,8 @@ import {
 } from "./constants/tax-parameters-2026";
 import type { CZBreakdown, CZCalculatorInputs, CZTaxBreakdown } from "./types";
 import { clampAmount } from "@/lib/utils";
+import { getPeriodsPerYear } from "../calculator-utils";
 
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
 
 export function calculateCZ(inputs: CZCalculatorInputs): CalculationResult {
   const {

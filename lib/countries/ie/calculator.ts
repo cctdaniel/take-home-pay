@@ -3,7 +3,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
   TaxBracket,
 } from "../types";
@@ -16,6 +15,8 @@ import type {
   IETaxStatus,
 } from "./types";
 import { clampAmount } from "@/lib/utils";
+import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
+
 
 interface IETaxStatusConfig {
   name: string;
@@ -33,21 +34,6 @@ interface LocalSalaryTaxConfig {
   taxStatuses: Record<IETaxStatus, IETaxStatusConfig>;
   assumptions: string[];
   sourceUrls: string[];
-}
-function roundCurrency(value: number): number {
-  return Math.round(value * 100) / 100;
-}
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
 }
 function calculateBracketTax(
   taxableIncome: number,

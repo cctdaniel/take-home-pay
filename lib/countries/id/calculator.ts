@@ -6,7 +6,6 @@ import type {
   IDBreakdown,
   IDCalculatorInputs,
   IDTaxBreakdown,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { ID_CONFIG } from "./config";
@@ -16,19 +15,7 @@ import {
   calculatePtkp,
   calculateProgressiveTax,
 } from "./constants/tax-brackets-2026";
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
+import { getPeriodsPerYear } from "../calculator-utils";
 
 function calculateBpjsContributions(annualSalary: number) {
   const monthlySalary = annualSalary / 12;

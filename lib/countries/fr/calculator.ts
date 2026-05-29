@@ -3,7 +3,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
   TaxBracket,
 } from "../types";
@@ -11,6 +10,7 @@ import { clampAmount } from "@/lib/utils";
 import { FR_CONFIG } from "./config";
 import { FR_TAX_CONFIG } from "./constants/tax-year-2026";
 import type { FRBreakdown, FRCalculatorInputs, FRTaxBreakdown } from "./types";
+import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
 
 interface LocalSalaryTaxConfig {
   defaultSalary: number;
@@ -26,23 +26,6 @@ interface LocalSalaryTaxConfig {
   brackets: TaxBracket[];
   assumptions: string[];
   sourceUrls: string[];
-}
-
-function roundCurrency(value: number): number {
-  return Math.round(value * 100) / 100;
-}
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
 }
 
 function calculateBracketTax(

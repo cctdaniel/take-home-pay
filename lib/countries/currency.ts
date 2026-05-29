@@ -75,65 +75,11 @@ const BASE_CURRENCIES: Record<string, CurrencyConfig> = {
     name: "British Pound",
     locale: "en-GB",
   },
-  CHF: {
-    code: "CHF",
-    symbol: "CHF",
-    name: "Swiss Franc",
-    locale: "de-CH",
-  },
-  ILS: {
-    code: "ILS",
-    symbol: "₪",
-    name: "Israeli Shekel",
-    locale: "he-IL",
-  },
-  TRY: {
-    code: "TRY",
-    symbol: "₺",
-    name: "Turkish Lira",
-    locale: "tr-TR",
-  },
-  ZAR: {
-    code: "ZAR",
-    symbol: "R",
-    name: "South African Rand",
-    locale: "en-ZA",
-  },
-  ARS: {
-    code: "ARS",
-    symbol: "$",
-    name: "Argentine Peso",
-    locale: "es-AR",
-  },
-  BRL: {
-    code: "BRL",
-    symbol: "R$",
-    name: "Brazilian Real",
-    locale: "pt-BR",
-  },
-  HUF: {
-    code: "HUF",
-    symbol: "Ft",
-    name: "Hungarian Forint",
-    locale: "hu-HU",
-  },
-  PLN: {
-    code: "PLN",
-    symbol: "zł",
-    name: "Polish Zloty",
-    locale: "pl-PL",
-  },
-  SAR: {
-    code: "SAR",
-    symbol: "﷼",
-    name: "Saudi Riyal",
-    locale: "ar-SA",
-  },
-  QAR: {
-    code: "QAR",
-    symbol: "QR",
-    name: "Qatari Riyal",
-    locale: "ar-QA",
+  MYR: {
+    code: "MYR",
+    symbol: "RM",
+    name: "Malaysian Ringgit",
+    locale: "ms-MY",
   },
 };
 

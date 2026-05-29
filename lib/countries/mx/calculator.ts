@@ -3,7 +3,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { MX_CONFIG } from "./config";
@@ -18,19 +17,7 @@ import {
 import { clampAmount } from "@/lib/utils";
 import type { MXBreakdown, MXCalculatorInputs, MXTaxBreakdown } from "./types";
 import type { MexicoStateCode } from "./constants/tax-year-2026";
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual": return 1;
-    case "monthly": return 12;
-    case "biweekly": return 26;
-    case "weekly": return 52;
-  }
-}
-
-function roundCurrency(value: number): number {
-  return Math.round(value * 100) / 100;
-}
+import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
 
 function getState(state: MexicoStateCode) {
   return MEXICO_STATES.find((candidate) => candidate.code === state) ?? MEXICO_STATES[6];
