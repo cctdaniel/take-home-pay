@@ -23,3 +23,10 @@ export const RO_PERSONAL_DEDUCTION_SLOPE = 0.066;
 
 /** Additional monthly deduction per dependent child modeled in UI. */
 export const RO_DEPENDENT_DEDUCTION_MONTHLY = 100;
+
+/** Voluntary private pension (Pillar III) — excluded from PIT base, max EUR 400/year. */
+export const RO_PRIVATE_PENSION_CAP_EUR_2026 = 400;
+export const RO_EUR_RON_RATE_2026 = 4.97;
+export const RO_PRIVATE_PENSION_CAP_RON_2026 = Math.round(
+  RO_PRIVATE_PENSION_CAP_EUR_2026 * RO_EUR_RON_RATE_2026,
+);

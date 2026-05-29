@@ -6,7 +6,10 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type ROContributionInputs = Record<never, never>;
+export interface ROContributionInputs {
+  /** Pillar III voluntary pension — reduces income tax base up to EUR 400/year. */
+  privatePension: number;
+}
 
 export interface ROCalculatorInputs extends BaseCalculatorInputs {
   country: "RO";
@@ -30,6 +33,11 @@ export interface ROBreakdown {
   personalDeduction: number;
   taxableIncome: number;
   incomeTax: { rate: number; total: number };
+  voluntaryContributions: {
+    privatePension: number;
+    privatePensionLimit: number;
+    total: number;
+  };
   assumptions: string[];
   sourceUrls: string[];
 }

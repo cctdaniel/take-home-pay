@@ -11,15 +11,19 @@ import {
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
 import { InfoPanel } from "@/components/calculator/info-panel";
-import { RO_SOURCE_URLS } from "@/lib/countries/ro/constants/tax-year-2026";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
 import type { ROCalculatorInputs } from "@/lib/countries/ro/types";
-import { clampCount } from "@/lib/utils";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 export default function ROCountryExtension({
   country,
 }: CountryCalculatorExtensionProps) {
   const { inputs, setInputs, currency, result, setGrossSalary, setPayFrequency } =
     useCountryCalculatorExtension<ROCalculatorInputs>(country);
+  const privatePensionLimit =
+    getCountryCalculator(country).getContributionLimits().privatePension?.limit ??
+    0;
 
   return (
     <CountryCalculatorExtensionShell
@@ -53,36 +57,30 @@ export default function ROCountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <div className="space-y-3 text-sm text-zinc-400">
-          <p>
-            No employee voluntary pension or private health contributions are
-            modeled. Mandatory CAS and CASS are calculated from gross salary
-            above.
-          </p>
-          <p>
-            <strong className="text-zinc-300">Mandatory:</strong> CAS 25% and
-            CASS 10% on capped gross base, then 10% income tax on remaining
-            taxable income after personal deduction.
-          </p>
-          <p className="text-xs text-zinc-500">
-            Source:{" "}
-            <a
-              href={RO_SOURCE_URLS.incomeTax}
-              className="text-blue-400 hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              ANAF (Romanian Tax Authority)
-            </a>
-          </p>
-        </div>
+        <ContributionSlider
+          label="Voluntary private pension (Pillar III)"
+          description="Payroll contributions reduce the income tax base up to EUR 400 per year."
+          value={inputs.contributions.privatePension}
+          onChange={(privatePension) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                privatePension: clampAmount(privatePension, privatePensionLimit),
+              },
+            }))
+          }
+          max={privatePensionLimit}
+          step={50}
+          currency={currency}
+        />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="Mandatory payroll deductions are calculated from your gross salary above"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
       infoCard={
         <InfoPanel title="Modeled scope">
-          CAS 25% and CASS 10% on capped gross, phased personal deduction, 10%
-          PIT on taxable remainder.
+          CAS 25% and CASS 10% on capped gross, personal deduction, optional Pillar
+          III, then 10% PIT.
         </InfoPanel>
       }
       seoInfo={<RomaniaTaxInfo />}
@@ -100,16 +98,16 @@ function RomaniaTaxInfo() {
         <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Romania</h3>
         <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
           <li>
-            <strong className="text-zinc-300">Social contributions</strong> –
-            CAS 25% and CASS 10% on gross up to the annual cap.
+            <strong className="text-zinc-300">CAS / CASS</strong> – 25% and 10%
+            employee on capped gross.
           </li>
           <li>
-            <strong className="text-zinc-300">Personal deduction</strong> –
-            simplified monthly formula plus allowance per dependent child.
+            <strong className="text-zinc-300">Pillar III</strong> – up to EUR
+            400/year reduces the income tax base.
           </li>
           <li>
-            <strong className="text-zinc-300">Income tax</strong> – flat 10% on
-            taxable salary after social and personal deduction.
+            <strong className="text-zinc-300">Income tax</strong> – 10% flat on
+            taxable income after deductions.
           </li>
         </ul>
       </div>

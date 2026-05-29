@@ -5,21 +5,29 @@ import type {
   CountryCalculator,
   RegionInfo,
 } from "../types";
+import { clampAmount } from "@/lib/utils";
 import { calculateProgressiveTax, getPeriodsPerYear, roundCurrency } from "../nordic-shared";
 import { LU_CONFIG } from "./config";
 import {
   LU_EMPLOYEE_SOCIAL_CAP_ANNUAL_2026,
   LU_EMPLOYEE_SOCIAL_RATE,
   LU_PIT_BRACKETS_2026,
+  LU_PRIVATE_PENSION_ANNUAL_CAP_2026,
   LU_SOURCE_URLS,
 } from "./constants/tax-year-2026";
 import type { LUBreakdown, LUCalculatorInputs, LUTaxBreakdown } from "./types";
 
 export function calculateLU(inputs: LUCalculatorInputs): CalculationResult {
   const grossIncome = Math.max(0, inputs.grossSalary);
+  const privatePension = clampAmount(
+    inputs.contributions?.privatePension,
+    LU_PRIVATE_PENSION_ANNUAL_CAP_2026,
+  );
   const socialBase = Math.min(grossIncome, LU_EMPLOYEE_SOCIAL_CAP_ANNUAL_2026);
   const employeeSocial = roundCurrency(socialBase * LU_EMPLOYEE_SOCIAL_RATE);
-  const taxableIncome = roundCurrency(Math.max(0, grossIncome - employeeSocial));
+  const taxableIncome = roundCurrency(
+    Math.max(0, grossIncome - employeeSocial - privatePension),
+  );
   const progressive = calculateProgressiveTax(taxableIncome, LU_PIT_BRACKETS_2026);
   const incomeTax = progressive.tax;
 
@@ -30,7 +38,8 @@ export function calculateLU(inputs: LUCalculatorInputs): CalculationResult {
     employeeSocial,
   };
   const totalTax = incomeTax + employeeSocial;
-  const netSalary = grossIncome - totalTax;
+  const totalDeductions = totalTax + privatePension;
+  const netSalary = grossIncome - totalDeductions;
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
 
   const breakdown: LUBreakdown = {
@@ -45,6 +54,11 @@ export function calculateLU(inputs: LUCalculatorInputs): CalculationResult {
     taxableIncome,
     bracketTaxes: progressive.details,
     incomeTax: { total: incomeTax },
+    voluntaryContributions: {
+      privatePension,
+      privatePensionLimit: LU_PRIVATE_PENSION_ANNUAL_CAP_2026,
+      total: privatePension,
+    },
     assumptions: [
       "Employee social security modeled at 12.45% on gross up to EUR 140,364 annual insurable base.",
       "Progressive income tax on taxable salary after employee social contributions.",
@@ -60,7 +74,7 @@ export function calculateLU(inputs: LUCalculatorInputs): CalculationResult {
     taxableIncome,
     taxes,
     totalTax,
-    totalDeductions: totalTax,
+    totalDeductions,
     netSalary,
     effectiveTaxRate: grossIncome > 0 ? totalTax / grossIncome : 0,
     perPeriod: {
@@ -88,7 +102,15 @@ export const LUCalculator: CountryCalculator = {
   },
 
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      privatePension: {
+        limit: LU_PRIVATE_PENSION_ANNUAL_CAP_2026,
+        name: "Private pension savings (Article 111bis)",
+        description:
+          "Voluntary épargne-pension contributions deductible up to EUR 4,500 per year.",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): LUCalculatorInputs {
@@ -96,7 +118,7 @@ export const LUCalculator: CountryCalculator = {
       country: "LU",
       grossSalary: 72_000,
       payFrequency: "monthly",
-      contributions: {},
+      contributions: { privatePension: 0 },
     };
   },
 };

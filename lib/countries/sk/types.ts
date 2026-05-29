@@ -6,7 +6,10 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type SKContributionInputs = Record<never, never>;
+export interface SKContributionInputs {
+  /** Third-pillar DDS — reduces income tax base up to EUR 180/year. */
+  thirdPillar: number;
+}
 
 export interface SKCalculatorInputs extends BaseCalculatorInputs {
   country: "SK";
@@ -38,6 +41,11 @@ export interface SKBreakdown {
   taxableIncome: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
   incomeTax: {
+    total: number;
+  };
+  voluntaryContributions: {
+    thirdPillar: number;
+    thirdPillarLimit: number;
     total: number;
   };
   assumptions: string[];

@@ -5,6 +5,7 @@ import type {
   CountryCalculator,
   RegionInfo,
 } from "../types";
+import { clampAmount } from "@/lib/utils";
 import { calculateProgressiveTax } from "../nordic-shared";
 import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
 import { SK_CONFIG } from "./config";
@@ -15,16 +16,21 @@ import {
   SK_SOCIAL_ANNUAL_CAP,
   SK_SOCIAL_EMPLOYEE_RATE,
   SK_SOURCE_URLS,
+  SK_THIRD_PILLAR_ANNUAL_CAP_2026,
 } from "./constants/tax-year-2026";
 import type { SKBreakdown, SKCalculatorInputs, SKTaxBreakdown } from "./types";
 
 export function calculateSK(inputs: SKCalculatorInputs): CalculationResult {
   const grossIncome = Math.max(0, inputs.grossSalary);
+  const thirdPillar = clampAmount(
+    inputs.contributions?.thirdPillar,
+    SK_THIRD_PILLAR_ANNUAL_CAP_2026,
+  );
   const socialBase = Math.min(grossIncome, SK_SOCIAL_ANNUAL_CAP);
   const socialInsurance = roundCurrency(socialBase * SK_SOCIAL_EMPLOYEE_RATE);
   const healthInsurance = roundCurrency(grossIncome * SK_HEALTH_EMPLOYEE_RATE);
   const preAllowanceBase = roundCurrency(
-    Math.max(0, grossIncome - socialInsurance - healthInsurance),
+    Math.max(0, grossIncome - socialInsurance - healthInsurance - thirdPillar),
   );
   const nonTaxableAllowance = roundCurrency(
     calculateSlovakAllowance(preAllowanceBase),
@@ -45,7 +51,7 @@ export function calculateSK(inputs: SKCalculatorInputs): CalculationResult {
     healthInsurance,
   };
   const totalTax = incomeTax + socialInsurance + healthInsurance;
-  const totalDeductions = totalTax;
+  const totalDeductions = totalTax + thirdPillar;
   const netSalary = roundCurrency(grossIncome - totalDeductions);
   const effectiveTaxRate = grossIncome > 0 ? totalTax / grossIncome : 0;
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
@@ -70,11 +76,16 @@ export function calculateSK(inputs: SKCalculatorInputs): CalculationResult {
     incomeTax: {
       total: incomeTax,
     },
+    voluntaryContributions: {
+      thirdPillar,
+      thirdPillarLimit: SK_THIRD_PILLAR_ANNUAL_CAP_2026,
+      total: thirdPillar,
+    },
     assumptions: [
       "Employee social insurance 9.4% on gross capped at EUR 16,764/month annualized.",
       "Employee health insurance 5% on gross with no cap.",
       "Progressive PIT on gross minus social, health, and EUR 5,966.73 NCZD when pre-allowance base is at or below EUR 43,983.32.",
-      "No voluntary tax-reducing salary contributions modeled.",
+      "Third pillar (DDS) up to EUR 180/year reduces the tax base and net pay.",
     ],
     sourceUrls: Object.values(SK_SOURCE_URLS),
   };
@@ -114,7 +125,15 @@ export const SKCalculator: CountryCalculator = {
   },
 
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      thirdPillar: {
+        limit: SK_THIRD_PILLAR_ANNUAL_CAP_2026,
+        name: "Third-pillar pension (DDS)",
+        description:
+          "Employee contributions reduce the income tax base up to EUR 180 per year.",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): SKCalculatorInputs {
@@ -122,7 +141,7 @@ export const SKCalculator: CountryCalculator = {
       country: "SK",
       grossSalary: 36_000,
       payFrequency: "monthly",
-      contributions: {},
+      contributions: { thirdPillar: 0 },
     };
   },
 };

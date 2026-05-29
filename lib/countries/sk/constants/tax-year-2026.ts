@@ -5,6 +5,11 @@ import type { TaxBracket } from "../../types";
 
 export const SK_TAX_YEAR = 2026;
 
+/** Third-pillar (DDS) contributions — reduces tax base, max EUR 180/year.
+ * https://www.financnasprava.sk/
+ */
+export const SK_THIRD_PILLAR_ANNUAL_CAP_2026 = 180;
+
 export const SK_SOURCE_URLS = {
   personalIncomeTax:
     "https://www.financnasprava.sk/sk/elektronicke-sluzby/elektronicka-kalkulacka-dane-z-prijmov",

@@ -10,14 +10,18 @@ import {
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
 import { InfoPanel } from "@/components/calculator/info-panel";
-import { CL_SOURCE_URLS } from "@/lib/countries/cl/constants/tax-year-2026";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
 import type { CLCalculatorInputs } from "@/lib/countries/cl/types";
+import { clampAmount } from "@/lib/utils";
 
 export default function CLCountryExtension({
   country,
 }: CountryCalculatorExtensionProps) {
-  const { inputs, currency, result, setGrossSalary, setPayFrequency } =
+  const { inputs, setInputs, currency, result, setGrossSalary, setPayFrequency } =
     useCountryCalculatorExtension<CLCalculatorInputs>(country);
+  const apvLimit =
+    getCountryCalculator(country).getContributionLimits().apvRegimeB?.limit ?? 0;
 
   return (
     <CountryCalculatorExtensionShell
@@ -37,35 +41,30 @@ export default function CLCountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <div className="space-y-3 text-sm text-zinc-400">
-          <p>
-            No voluntary APV pension or other tax-relief contributions are
-            modeled. Mandatory AFP, health, and unemployment deductions are
-            calculated from gross salary above.
-          </p>
-          <p>
-            <strong className="text-zinc-300">Mandatory:</strong> AFP 10%,
-            health 7%, unemployment 0.6% employee on gross.
-          </p>
-          <p className="text-xs text-zinc-500">
-            Source:{" "}
-            <a
-              href={CL_SOURCE_URLS.incomeTax}
-              className="text-blue-400 hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Servicio de Impuestos Internos (SII)
-            </a>
-          </p>
-        </div>
+        <ContributionSlider
+          label="APV Régimen B"
+          description="Voluntary pension savings deductible from income tax base up to 600 UF per year."
+          value={inputs.contributions.apvRegimeB}
+          onChange={(apvRegimeB) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                apvRegimeB: clampAmount(apvRegimeB, apvLimit),
+              },
+            }))
+          }
+          max={apvLimit}
+          step={100_000}
+          currency={currency}
+        />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="Mandatory payroll deductions are calculated from your gross salary above"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
       infoCard={
         <InfoPanel title="Modeled scope">
-          AFP 10%, health 7%, unemployment 0.6% on gross; simplified SII
-          progressive table on annual taxable income after mandatory deductions.
+          AFP, health, unemployment on gross; optional APV Régimen B reduces
+          taxable income for impuesto único.
         </InfoPanel>
       }
       seoInfo={<ChileTaxInfo />}
@@ -83,13 +82,12 @@ function ChileTaxInfo() {
         <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Chile</h3>
         <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
           <li>
-            <strong className="text-zinc-300">Mandatory deductions</strong> – AFP
-            pension 10%, health 7%, unemployment 0.6% on gross salary.
+            <strong className="text-zinc-300">Mandatory</strong> – AFP 10%,
+            health 7%, unemployment 0.6%.
           </li>
           <li>
-            <strong className="text-zinc-300">Income tax</strong> – simplified
-            monthly SII table annualized; progressive 0%–40% on taxable income
-            after mandatory deductions.
+            <strong className="text-zinc-300">APV Régimen B</strong> – up to 600
+            UF/year reduces taxable income.
           </li>
         </ul>
       </div>

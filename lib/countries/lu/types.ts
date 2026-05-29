@@ -6,7 +6,10 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type LUContributionInputs = Record<never, never>;
+export interface LUContributionInputs {
+  /** Article 111bis private pension (épargne-pension) — reduces taxable income. */
+  privatePension: number;
+}
 
 export interface LUCalculatorInputs extends BaseCalculatorInputs {
   country: "LU";

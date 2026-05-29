@@ -9,21 +9,16 @@ import {
   useCountryCalculatorExtension,
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
+import { MandatoryOnlyContributionsNote } from "@/components/calculator/mandatory-only-contributions-note";
 import { InfoPanel } from "@/components/calculator/info-panel";
-import { NoPitContributionsNote } from "@/components/calculator/no-pit-contributions-note";
 import { LV_SOURCE_URLS } from "@/lib/countries/lv/constants/tax-year-2026";
 import type { LVCalculatorInputs } from "@/lib/countries/lv/types";
 
 export default function LVCountryExtension({
   country,
 }: CountryCalculatorExtensionProps) {
-  const {
-    inputs,
-    currency,
-    result,
-    setGrossSalary,
-    setPayFrequency,
-  } = useCountryCalculatorExtension<LVCalculatorInputs>(country);
+  const { inputs, currency, result, setGrossSalary, setPayFrequency } =
+    useCountryCalculatorExtension<LVCalculatorInputs>(country);
 
   return (
     <CountryCalculatorExtensionShell
@@ -32,6 +27,7 @@ export default function LVCountryExtension({
       grossSalary={inputs.grossSalary}
       onGrossSalaryChange={setGrossSalary}
       result={result}
+      hideDefaultSeoTaxInfo
       taxOptions={
         <CalculatorFieldGrid columns={2}>
           <PayFrequencyField
@@ -42,22 +38,19 @@ export default function LVCountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <NoPitContributionsNote
-          mandatoryLabel="Employee social security 10.5% on gross, capped at EUR 105,300 annually."
-          sourceUrl={LV_SOURCE_URLS.socialInsurance}
-          sourceLabel="SSIA"
+        <MandatoryOnlyContributionsNote
+          mandatoryLabel="Employee social 10.5% (capped) and PIT 25.5%/33% after EUR 550/month non-taxable minimum."
+          sourceUrl={LV_SOURCE_URLS.personalIncomeTax}
+          sourceLabel="State Revenue Service (VID)"
+          unmodeledVoluntary={['Private pension fund (3rd level) contributions', 'Dependent allowance']}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="Mandatory payroll deductions are calculated from your salary above"
-      seoInfo={<LatviaTaxInfo />}
-      hideDefaultSeoTaxInfo
+      contributionsDescription="Mandatory items are in your results; optional schemes listed below"
       infoCard={
-        <InfoPanel title="Modeled scope">
-          Employee SS 10.5% capped, EUR 6,600 NTA, and progressive PIT 25.5% /
-          33%.
-        </InfoPanel>
+        <InfoPanel title="Modeled scope">SS capped; fixed NTA; progressive PIT.</InfoPanel>
       }
+      seoInfo={<LatviaTaxInfo />}
     />
   );
 }
@@ -71,39 +64,9 @@ function LatviaTaxInfo() {
       <div className="prose prose-invert prose-zinc prose-sm">
         <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Latvia</h3>
         <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
-          <li>
-            <strong className="text-zinc-300">Social security</strong> – 10.5%
-            employee contribution on gross, capped at EUR 105,300 per year.
-          </li>
-          <li>
-            <strong className="text-zinc-300">Non-taxable minimum</strong> – EUR
-            550/month (EUR 6,600/year) deducted before PIT.
-          </li>
-          <li>
-            <strong className="text-zinc-300">Personal income tax</strong> –
-            25.5% up to EUR 105,300 taxable income and 33% above.
-          </li>
+          <li><strong className="text-zinc-300">Social insurance</strong> – 10.5% capped.</li>
+          <li><strong className="text-zinc-300">PIT</strong> – 25.5% / 33% after NTA.</li>
         </ul>
-        <p className="text-zinc-400 text-sm mt-3">
-          Sources:{" "}
-          <a
-            href="https://www.vid.gov.lv/"
-            className="text-blue-400 hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            VID
-          </a>
-          ,{" "}
-          <a
-            href="https://www.ssia.gov.lv/"
-            className="text-blue-400 hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            SSIA
-          </a>
-        </p>
       </div>
     </section>
   );

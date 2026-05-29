@@ -13,6 +13,10 @@ export const CL_SOURCE_URLS = {
 
 /** Monthly UTM value for 2026 (SII published schedule). */
 export const CL_UTM_MONTHLY_2026 = 68_923;
+/** UF value April 2026 reference (SII) for APV caps. */
+export const CL_UF_MONTHLY_2026 = 37_733;
+/** APV Régimen B annual deductible cap (600 UF/year). */
+export const CL_APV_REGIME_B_ANNUAL_CAP_2026 = 600 * CL_UF_MONTHLY_2026;
 
 export const CL_AFP_EMPLOYEE_RATE = 0.1;
 export const CL_HEALTH_EMPLOYEE_RATE = 0.07;

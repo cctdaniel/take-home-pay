@@ -6,7 +6,10 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type CLContributionInputs = Record<never, never>;
+export interface CLContributionInputs {
+  /** APV Régimen B — reduces income tax base up to 600 UF/year. */
+  apvRegimeB: number;
+}
 
 export interface CLCalculatorInputs extends BaseCalculatorInputs {
   country: "CL";
@@ -33,6 +36,11 @@ export interface CLBreakdown {
   taxableIncome: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
   incomeTax: {
+    total: number;
+  };
+  voluntaryContributions: {
+    apvRegimeB: number;
+    apvRegimeBLimit: number;
     total: number;
   };
   assumptions: string[];

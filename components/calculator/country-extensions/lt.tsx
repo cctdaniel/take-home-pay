@@ -9,21 +9,16 @@ import {
   useCountryCalculatorExtension,
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
+import { MandatoryOnlyContributionsNote } from "@/components/calculator/mandatory-only-contributions-note";
 import { InfoPanel } from "@/components/calculator/info-panel";
-import { NoPitContributionsNote } from "@/components/calculator/no-pit-contributions-note";
 import { LT_SOURCE_URLS } from "@/lib/countries/lt/constants/tax-year-2026";
 import type { LTCalculatorInputs } from "@/lib/countries/lt/types";
 
 export default function LTCountryExtension({
   country,
 }: CountryCalculatorExtensionProps) {
-  const {
-    inputs,
-    currency,
-    result,
-    setGrossSalary,
-    setPayFrequency,
-  } = useCountryCalculatorExtension<LTCalculatorInputs>(country);
+  const { inputs, currency, result, setGrossSalary, setPayFrequency } =
+    useCountryCalculatorExtension<LTCalculatorInputs>(country);
 
   return (
     <CountryCalculatorExtensionShell
@@ -32,6 +27,7 @@ export default function LTCountryExtension({
       grossSalary={inputs.grossSalary}
       onGrossSalaryChange={setGrossSalary}
       result={result}
+      hideDefaultSeoTaxInfo
       taxOptions={
         <CalculatorFieldGrid columns={2}>
           <PayFrequencyField
@@ -42,22 +38,19 @@ export default function LTCountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <NoPitContributionsNote
-          mandatoryLabel="Employee VSD social insurance 19.5% on gross, capped at EUR 138,729 annually."
-          sourceUrl={LT_SOURCE_URLS.socialInsurance}
-          sourceLabel="SODRA"
+        <MandatoryOnlyContributionsNote
+          mandatoryLabel="VSD 19.5% on gross (capped) and progressive GPM 20/25/32% on taxable salary."
+          sourceUrl={LT_SOURCE_URLS.personalIncomeTax}
+          sourceLabel="VMI Lithuania"
+          unmodeledVoluntary={['III-pillar pension tax credit (pre-2025 contracts only)', 'Life insurance premium deductions']}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="Mandatory payroll deductions are calculated from your salary above"
-      seoInfo={<LithuaniaTaxInfo />}
-      hideDefaultSeoTaxInfo
+      contributionsDescription="Mandatory items are in your results; optional schemes listed below"
       infoCard={
-        <InfoPanel title="Modeled scope">
-          Employee VSD 19.5% capped and progressive GPM 20% / 25% / 32% on gross
-          minus VSD.
-        </InfoPanel>
+        <InfoPanel title="Modeled scope">VSD capped at 60 VDU; progressive GPM on salary after VSD.</InfoPanel>
       }
+      seoInfo={<LithuaniaTaxInfo />}
     />
   );
 }
@@ -69,40 +62,11 @@ function LithuaniaTaxInfo() {
         How Your Take Home Pay Is Calculated
       </h2>
       <div className="prose prose-invert prose-zinc prose-sm">
-        <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">
-          Lithuania
-        </h3>
+        <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Lithuania</h3>
         <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
-          <li>
-            <strong className="text-zinc-300">VSD</strong> – employee social
-            insurance 19.5% on gross, capped at EUR 138,729 per year.
-          </li>
-          <li>
-            <strong className="text-zinc-300">GPM</strong> – progressive
-            personal income tax at 20% up to EUR 83,237.40, 25% to EUR 138,729,
-            and 32% above on gross minus VSD.
-          </li>
+          <li><strong className="text-zinc-300">VSD</strong> – 19.5% employee, capped.</li>
+          <li><strong className="text-zinc-300">GPM</strong> – 20% / 25% / 32% progressive.</li>
         </ul>
-        <p className="text-zinc-400 text-sm mt-3">
-          Sources:{" "}
-          <a
-            href="https://www.vmi.lt/"
-            className="text-blue-400 hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            VMI
-          </a>
-          ,{" "}
-          <a
-            href="https://www.sodra.lt/"
-            className="text-blue-400 hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            SODRA
-          </a>
-        </p>
       </div>
     </section>
   );

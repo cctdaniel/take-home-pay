@@ -5,6 +5,11 @@ import type { TaxBracket } from "../../types";
 
 export const LU_TAX_YEAR = 2026;
 
+/** Article 111bis private pension savings — special expense deduction per taxpayer.
+ * https://impotsdirects.public.lu/
+ */
+export const LU_PRIVATE_PENSION_ANNUAL_CAP_2026 = 4_500;
+
 export const LU_SOURCE_URLS = {
   incomeTax:
     "https://impotsdirects.public.lu/fr/bareme-impot-2026.html",

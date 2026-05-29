@@ -5,7 +5,7 @@ import type {
   CountryCalculator,
   RegionInfo,
 } from "../types";
-import { clampCount } from "@/lib/utils";
+import { clampAmount, clampCount } from "@/lib/utils";
 import { RO_CONFIG } from "./config";
 import {
   RO_CAS_RATE,
@@ -14,6 +14,7 @@ import {
   RO_PERSONAL_DEDUCTION_INTERCEPT_MONTHLY,
   RO_PERSONAL_DEDUCTION_SLOPE,
   RO_PIT_RATE,
+  RO_PRIVATE_PENSION_CAP_RON_2026,
   RO_SOCIAL_CAP_ANNUAL_2026,
   RO_SOURCE_URLS,
 } from "./constants/tax-year-2026";
@@ -37,6 +38,10 @@ export function calculateRomanianPersonalDeduction(
 export function calculateRO(inputs: ROCalculatorInputs): CalculationResult {
   const grossIncome = Math.max(0, inputs.grossSalary);
   const children = clampCount(inputs.numberOfChildren, 10);
+  const privatePension = clampAmount(
+    inputs.contributions?.privatePension,
+    RO_PRIVATE_PENSION_CAP_RON_2026,
+  );
   const socialBase = Math.min(grossIncome, RO_SOCIAL_CAP_ANNUAL_2026);
   const cas = roundCurrency(socialBase * RO_CAS_RATE);
   const cass = roundCurrency(socialBase * RO_CASS_RATE);
@@ -45,7 +50,7 @@ export function calculateRO(inputs: ROCalculatorInputs): CalculationResult {
     children,
   );
   const taxableIncome = roundCurrency(
-    Math.max(0, grossIncome - cas - cass - personalDeduction),
+    Math.max(0, grossIncome - cas - cass - personalDeduction - privatePension),
   );
   const incomeTax = roundCurrency(taxableIncome * RO_PIT_RATE);
 
@@ -57,7 +62,8 @@ export function calculateRO(inputs: ROCalculatorInputs): CalculationResult {
     cass,
   };
   const totalTax = incomeTax + cas + cass;
-  const netSalary = grossIncome - totalTax;
+  const totalDeductions = totalTax + privatePension;
+  const netSalary = grossIncome - totalDeductions;
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
 
   const breakdown: ROBreakdown = {
@@ -69,10 +75,15 @@ export function calculateRO(inputs: ROCalculatorInputs): CalculationResult {
     personalDeduction,
     taxableIncome,
     incomeTax: { rate: RO_PIT_RATE, total: incomeTax },
+    voluntaryContributions: {
+      privatePension,
+      privatePensionLimit: RO_PRIVATE_PENSION_CAP_RON_2026,
+      total: privatePension,
+    },
     assumptions: [
       "Employee CAS 25% and CASS 10% on gross (capped annual base), then 10% income tax on remaining base after personal deduction.",
       "Personal deduction simplified from 2026 payroll tables; dependent allowance per child.",
-      "Excludes minimum-wage fiscal facility and special sector exemptions.",
+      "Pillar III voluntary pension up to EUR 400/year reduces the income tax base. Excludes minimum-wage fiscal facility and special sector exemptions.",
     ],
     sourceUrls: Object.values(RO_SOURCE_URLS),
   };
@@ -84,7 +95,7 @@ export function calculateRO(inputs: ROCalculatorInputs): CalculationResult {
     taxableIncome,
     taxes,
     totalTax,
-    totalDeductions: totalTax,
+    totalDeductions,
     netSalary,
     effectiveTaxRate: grossIncome > 0 ? totalTax / grossIncome : 0,
     perPeriod: {
@@ -112,7 +123,15 @@ export const ROCalculator: CountryCalculator = {
   },
 
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      privatePension: {
+        limit: RO_PRIVATE_PENSION_CAP_RON_2026,
+        name: "Voluntary private pension (Pillar III)",
+        description:
+          "Employee contributions via payroll reduce the income tax base up to EUR 400 per year.",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): ROCalculatorInputs {
@@ -121,7 +140,7 @@ export const ROCalculator: CountryCalculator = {
       grossSalary: 120_000,
       payFrequency: "monthly",
       numberOfChildren: 0,
-      contributions: {},
+      contributions: { privatePension: 0 },
     };
   },
 };

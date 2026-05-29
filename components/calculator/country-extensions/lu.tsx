@@ -10,14 +10,19 @@ import {
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
 import { InfoPanel } from "@/components/calculator/info-panel";
-import { LU_SOURCE_URLS } from "@/lib/countries/lu/constants/tax-year-2026";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
 import type { LUCalculatorInputs } from "@/lib/countries/lu/types";
+import { clampAmount } from "@/lib/utils";
 
 export default function LUCountryExtension({
   country,
 }: CountryCalculatorExtensionProps) {
-  const { inputs, currency, result, setGrossSalary, setPayFrequency } =
+  const { inputs, setInputs, currency, result, setGrossSalary, setPayFrequency } =
     useCountryCalculatorExtension<LUCalculatorInputs>(country);
+  const privatePensionLimit =
+    getCountryCalculator(country).getContributionLimits().privatePension?.limit ??
+    0;
 
   return (
     <CountryCalculatorExtensionShell
@@ -37,56 +42,34 @@ export default function LUCountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <MandatoryOnlyContributionsNote
-          mandatoryLabel="Employee social security 12.45% on gross up to EUR 140,364 annual insurable base."
-          sourceUrl={LU_SOURCE_URLS.socialSecurity}
-          sourceLabel="CCSS Luxembourg"
+        <ContributionSlider
+          label="Private pension savings (Article 111bis)"
+          description="Épargne-pension deductible from taxable income up to EUR 4,500 per year (2026)."
+          value={inputs.contributions.privatePension}
+          onChange={(privatePension) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                privatePension: clampAmount(privatePension, privatePensionLimit),
+              },
+            }))
+          }
+          max={privatePensionLimit}
+          step={100}
+          currency={currency}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="Mandatory payroll deductions are calculated from your gross salary above"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
       infoCard={
         <InfoPanel title="Modeled scope">
           Capped employee social at 12.45% and progressive income tax on taxable
-          salary after social contributions.
+          salary after social and private pension deductions.
         </InfoPanel>
       }
       seoInfo={<LuxembourgTaxInfo />}
     />
-  );
-}
-
-function MandatoryOnlyContributionsNote({
-  mandatoryLabel,
-  sourceUrl,
-  sourceLabel,
-}: {
-  mandatoryLabel: string;
-  sourceUrl: string;
-  sourceLabel: string;
-}) {
-  return (
-    <div className="space-y-3 text-sm text-zinc-400">
-      <p>
-        No employee voluntary pension or tax-relief contributions are modeled
-        for this country. Mandatory payroll deductions are calculated
-        automatically from your gross salary above.
-      </p>
-      <p>
-        <strong className="text-zinc-300">Mandatory:</strong> {mandatoryLabel}
-      </p>
-      <p className="text-xs text-zinc-500">
-        Source:{" "}
-        <a
-          href={sourceUrl}
-          className="text-blue-400 hover:underline"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {sourceLabel}
-        </a>
-      </p>
-    </div>
   );
 }
 
@@ -103,24 +86,17 @@ function LuxembourgTaxInfo() {
         <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
           <li>
             <strong className="text-zinc-300">Social security</strong> – employee
-            contributions at 12.45% on gross up to EUR 140,364 annual base.
+            12.45% on gross up to EUR 140,364 annual base.
+          </li>
+          <li>
+            <strong className="text-zinc-300">Private pension</strong> – Article
+            111bis deduction up to EUR 4,500/year.
           </li>
           <li>
             <strong className="text-zinc-300">Income tax</strong> – progressive
-            0%–17% on taxable salary after employee social contributions.
+            0%–17% on remaining taxable salary.
           </li>
         </ul>
-        <p className="text-zinc-400 text-sm mt-3">
-          Sources:{" "}
-          <a
-            href="https://impotsdirects.public.lu/"
-            className="text-blue-400 hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Administration des contributions directes
-          </a>
-        </p>
       </div>
     </section>
   );

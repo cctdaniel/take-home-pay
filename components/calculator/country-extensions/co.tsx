@@ -9,6 +9,7 @@ import {
   useCountryCalculatorExtension,
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
+import { MandatoryOnlyContributionsNote } from "@/components/calculator/mandatory-only-contributions-note";
 import { InfoPanel } from "@/components/calculator/info-panel";
 import { CO_SOURCE_URLS } from "@/lib/countries/co/constants/tax-year-2026";
 import type { COCalculatorInputs } from "@/lib/countries/co/types";
@@ -37,36 +38,17 @@ export default function COCountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <div className="space-y-3 text-sm text-zinc-400">
-          <p>
-            No voluntary AFC pension or other tax-relief contributions are
-            modeled. Mandatory pension, health, and solidarity fund deductions
-            are calculated from gross salary above.
-          </p>
-          <p>
-            <strong className="text-zinc-300">Mandatory:</strong> pension 4%,
-            health 4%, solidarity 1% employee on gross.
-          </p>
-          <p className="text-xs text-zinc-500">
-            Source:{" "}
-            <a
-              href={CO_SOURCE_URLS.socialSecurity}
-              className="text-blue-400 hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Ministerio del Trabajo
-            </a>
-          </p>
-        </div>
+        <MandatoryOnlyContributionsNote
+          mandatoryLabel="Pension 4%, health 4%, solidarity 1% employee; progressive withholding on taxable income."
+          sourceUrl={CO_SOURCE_URLS.incomeTax}
+          sourceLabel="DIAN Colombia"
+          unmodeledVoluntary={['AFC housing/education savings accounts', 'Voluntary pension (Ahorro pensional voluntario)']}
+        />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="Mandatory payroll deductions are calculated from your gross salary above"
+      contributionsDescription="Mandatory items are in your results; optional schemes listed below"
       infoCard={
-        <InfoPanel title="Modeled scope">
-          Pension 4%, health 4%, solidarity 1% on gross; UVT-based progressive
-          withholding on taxable income after mandatory contributions.
-        </InfoPanel>
+        <InfoPanel title="Modeled scope">Mandatory parafiscales; simplified UVT progressive PIT.</InfoPanel>
       }
       seoInfo={<ColombiaTaxInfo />}
     />
@@ -80,19 +62,10 @@ function ColombiaTaxInfo() {
         How Your Take Home Pay Is Calculated
       </h2>
       <div className="prose prose-invert prose-zinc prose-sm">
-        <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">
-          Colombia
-        </h3>
+        <h3 className="text-lg font-medium text-zinc-300 mt-6 mb-2">Colombia</h3>
         <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
-          <li>
-            <strong className="text-zinc-300">Mandatory deductions</strong> –
-            pension 4%, health 4%, solidarity 1% on gross salary.
-          </li>
-          <li>
-            <strong className="text-zinc-300">Income tax</strong> – simplified
-            UVT-based progressive withholding on taxable income after
-            contributions.
-          </li>
+          <li><strong className="text-zinc-300">Parafiscales</strong> – 9% employee.</li>
+          <li><strong className="text-zinc-300">PIT</strong> – UVT-based progressive.</li>
         </ul>
       </div>
     </section>
