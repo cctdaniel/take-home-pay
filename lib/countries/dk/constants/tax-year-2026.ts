@@ -37,3 +37,5 @@ export const DK_TAX_CONFIG: NordicTaxConfig = {
     DK_SOURCE_URLS.skatEmploymentDeduction,
   ],
 };
+
+export const DK_RATEPENSION_ANNUAL_CAP_2026 = 68_700;

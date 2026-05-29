@@ -5,15 +5,25 @@ import type {
   CountryCalculator,
   RegionInfo,
 } from "../types";
+import { clampAmount } from "@/lib/utils";
 import { calculateNordicTax, getPeriodsPerYear, roundCurrency } from "../nordic-shared";
 import { FI_CONFIG } from "./config";
-import { FI_TAX_CONFIG } from "./constants/tax-year-2026";
+import { FI_VOLUNTARY_PENSION_ANNUAL_CAP_2026, FI_TAX_CONFIG } from "./constants/tax-year-2026";
 import type { FIBreakdown, FICalculatorInputs, FITaxBreakdown } from "./types";
 
 export function calculateFI(inputs: FICalculatorInputs): CalculationResult {
-  const computation = calculateNordicTax(inputs.grossSalary, FI_TAX_CONFIG);
+  const voluntaryPension = clampAmount(
+    inputs.contributions?.voluntaryPension,
+    FI_VOLUNTARY_PENSION_ANNUAL_CAP_2026,
+  );
+  const computation = calculateNordicTax(inputs.grossSalary, {
+    ...FI_TAX_CONFIG,
+    standardDeduction: FI_TAX_CONFIG.standardDeduction + voluntaryPension,
+  });
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
-  const netSalary = roundCurrency(inputs.grossSalary - computation.totalTax);
+  const netSalary = roundCurrency(
+    inputs.grossSalary - computation.totalTax - voluntaryPension,
+  );
 
   const taxes: FITaxBreakdown = {
     type: "FI",
@@ -36,6 +46,11 @@ export function calculateFI(inputs: FICalculatorInputs): CalculationResult {
     standardDeduction: FI_TAX_CONFIG.standardDeduction,
     assumptions: FI_TAX_CONFIG.assumptions,
     sourceUrls: FI_TAX_CONFIG.sourceUrls,
+    voluntaryContributions: {
+      voluntaryPension,
+      voluntaryPensionLimit: FI_VOLUNTARY_PENSION_ANNUAL_CAP_2026,
+      total: voluntaryPension,
+    },
   };
 
   return {
@@ -45,7 +60,7 @@ export function calculateFI(inputs: FICalculatorInputs): CalculationResult {
     taxableIncome: computation.taxableIncome,
     taxes,
     totalTax: computation.totalTax,
-    totalDeductions: computation.totalTax,
+    totalDeductions: computation.totalTax + voluntaryPension,
     netSalary,
     effectiveTaxRate: inputs.grossSalary > 0 ? computation.totalTax / inputs.grossSalary : 0,
     perPeriod: {
@@ -74,7 +89,14 @@ export const FICalculator: CountryCalculator = {
   },
 
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      voluntaryPension: {
+        limit: FI_VOLUNTARY_PENSION_ANNUAL_CAP_2026,
+        name: "Voluntary pension",
+        description: "2026 earned-income deduction cap",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): FICalculatorInputs {
@@ -82,7 +104,7 @@ export const FICalculator: CountryCalculator = {
       country: "FI",
       grossSalary: 60_000,
       payFrequency: "monthly",
-      contributions: {},
+      contributions: { voluntaryPension: 0 },
     };
   },
 };

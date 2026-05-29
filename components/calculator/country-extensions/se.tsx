@@ -10,7 +10,9 @@ import {
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
 import { SE_SOURCE_URLS } from "@/lib/countries/se/constants/tax-year-2026";
-import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
+import { clampAmount } from "@/lib/utils";
 import { InfoPanel } from "@/components/calculator/info-panel";
 import type { SECalculatorInputs } from "@/lib/countries/se/types";
 
@@ -21,9 +23,12 @@ export default function SECountryExtension({
     inputs,
     currency,
     result,
+    setInputs,
     setGrossSalary,
     setPayFrequency,
   } = useCountryCalculatorExtension<SECalculatorInputs>(country);
+  const limits = getCountryCalculator(country).getContributionLimits(inputs);
+  const ipsContributionLimit = limits.ipsContribution?.limit ?? 0;
 
   return (
     <CountryCalculatorExtensionShell
@@ -42,15 +47,26 @@ export default function SECountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <NoVoluntaryPitReliefNote
-          explanation="Individual pension savings (IPS) tax relief is claimed on the annual tax return, not through employer monthly payroll withholding in this calculator."
-          mandatoryLabel="Employee social fees and state/municipal income tax on taxable salary."
-          sourceUrl={SE_SOURCE_URLS.skatteverketAmounts}
-          sourceLabel="Skatteverket"
+        <ContributionSlider
+          label="IPS pension savings"
+          description="Private pension deduction up to 35% of income (when no occupational pension)."
+          value={inputs.contributions.ipsContribution}
+          onChange={(ipsContribution) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                ipsContribution: clampAmount(ipsContribution, ipsContributionLimit),
+              },
+            }))
+          }
+          max={ipsContributionLimit}
+          step={1000}
+          currency={currency}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="No employee voluntary income-tax relief on monthly payroll salary"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
       infoCard={
         <InfoPanel title="Modeled Scope">
           <p>

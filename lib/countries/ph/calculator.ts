@@ -14,8 +14,12 @@ import {
   PH_PAGIBIG_2026,
   PH_PHILHEALTH_2026,
   PH_SSS_2026,
+  PH_PERA_ANNUAL_CONTRIBUTION_CAP_2026,
+  PH_PERA_MAX_TAX_CREDIT_2026,
+  PH_PERA_TAX_CREDIT_RATE,
 } from "./constants/tax-parameters-2026";
 import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
+import { clampAmount } from "@/lib/utils";
 
 function calculateSSS(monthlySalary: number) {
   const msc = Math.max(
@@ -79,23 +83,33 @@ export function calculatePH(inputs: PHCalculatorInputs): CalculationResult {
     grossSalary - totalMandatoryContributions
   );
 
+  const peraContribution = clampAmount(
+    inputs.contributions?.peraContribution,
+    PH_PERA_ANNUAL_CONTRIBUTION_CAP_2026,
+  );
+  const peraTaxCredit = Math.min(
+    peraContribution * PH_PERA_TAX_CREDIT_RATE,
+    PH_PERA_MAX_TAX_CREDIT_2026,
+  );
+
   const taxResult = calculatePHProgressiveTax(taxableIncome);
+  const incomeTaxAfterPera = Math.max(0, taxResult.totalTax - peraTaxCredit);
 
   const taxes: PHTaxBreakdown = {
     type: "PH",
     totalIncomeTax: taxResult.totalTax + totalMandatoryContributions,
-    incomeTax: taxResult.totalTax,
+    incomeTax: incomeTaxAfterPera,
     sssEmployee: sss.employee,
     philHealthEmployee: philHealth.employee,
     pagIbigEmployee: pagIbig.employee,
   };
 
   const totalTax =
-    taxResult.totalTax +
+    incomeTaxAfterPera +
     sss.employee +
     philHealth.employee +
     pagIbig.employee;
-  const netSalary = grossSalary - totalTax;
+  const netSalary = grossSalary - totalTax - peraContribution;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(payFrequency);
 
@@ -107,6 +121,11 @@ export function calculatePH(inputs: PHCalculatorInputs): CalculationResult {
     philHealth,
     pagIbig,
     bracketTaxes: taxResult.bracketTaxes,
+    voluntaryContributions: {
+      peraContribution,
+      peraTaxCredit,
+      total: peraContribution,
+    },
   };
 
   return {
@@ -116,7 +135,7 @@ export function calculatePH(inputs: PHCalculatorInputs): CalculationResult {
     taxableIncome,
     taxes,
     totalTax,
-    totalDeductions: totalTax,
+    totalDeductions: totalTax + peraContribution,
     netSalary,
     effectiveTaxRate,
     perPeriod: {
@@ -144,7 +163,14 @@ export const PHCalculator: CountryCalculator = {
   },
 
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      peraContribution: {
+        limit: PH_PERA_ANNUAL_CONTRIBUTION_CAP_2026,
+        name: "PERA contribution",
+        description: "5% income tax credit on contributions (max PHP 10,000 credit)",
+        preTax: false,
+      },
+    };
   },
 
   getDefaultInputs(): PHCalculatorInputs {
@@ -152,6 +178,7 @@ export const PHCalculator: CountryCalculator = {
       country: "PH",
       grossSalary: 600_000,
       payFrequency: "monthly",
+      contributions: { peraContribution: 0 },
     };
   },
 };

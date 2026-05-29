@@ -9,8 +9,10 @@ import {
   useCountryCalculatorExtension,
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
-import { DK_SOURCE_URLS } from "@/lib/countries/dk/constants/tax-year-2026";
-import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
+import { DK_RATEPENSION_ANNUAL_CAP_2026, DK_SOURCE_URLS } from "@/lib/countries/dk/constants/tax-year-2026";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
+import { clampAmount } from "@/lib/utils";
 import { InfoPanel } from "@/components/calculator/info-panel";
 import type { DKCalculatorInputs } from "@/lib/countries/dk/types";
 
@@ -21,6 +23,7 @@ export default function DKCountryExtension({
     inputs,
     currency,
     result,
+    setInputs,
     setGrossSalary,
     setPayFrequency,
   } = useCountryCalculatorExtension<DKCalculatorInputs>(country);
@@ -42,15 +45,26 @@ export default function DKCountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <NoVoluntaryPitReliefNote
-          explanation="Denmark does not use standard monthly payroll withholding for employee-chosen voluntary pension top-ups. Workplace pensions and private retirement products are arranged outside this salary withholding model."
-          mandatoryLabel="Labour-market contributions and A-tax withholding on taxable income after the employment deduction."
-          sourceUrl={DK_SOURCE_URLS.skmTaxCalculationRules}
-          sourceLabel="SKAT — tax calculation rules"
+        <ContributionSlider
+          label="Ratepension / term annuity"
+          description="Deductible private pension savings up to DKK 68,700 per year combined."
+          value={inputs.contributions.ratepension}
+          onChange={(ratepension) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                ratepension: clampAmount(ratepension, DK_RATEPENSION_ANNUAL_CAP_2026),
+              },
+            }))
+          }
+          max={DK_RATEPENSION_ANNUAL_CAP_2026}
+          step={1000}
+          currency={currency}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="No employee voluntary income-tax relief on monthly payroll salary"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
       infoCard={
         <InfoPanel title="Modeled Scope">
           <p>

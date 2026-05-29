@@ -12,12 +12,15 @@ import {
   CountryCalculatorExtensionShell,
   useCountryCalculatorExtension,
 } from "@/components/calculator/country-extension";
-import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
+import { clampAmount } from "@/lib/utils";
 import { InfoPanel } from "@/components/calculator/info-panel";
 import type {
   CNCalculatorInputs,
   CNSpecialDeductions,
 } from "@/lib/countries/types";
+import { CN_PRIVATE_PENSION_ANNUAL_CAP_2026 } from "@/lib/countries/cn/constants/tax-parameters-2026";
 import type { CountryCalculatorExtensionProps } from "../country-extension";
 
 const HOUSING_FUND_RATE_OPTIONS = [
@@ -218,15 +221,26 @@ export default function CNCountryExtension({
         </div>
       }
       contributions={
-        <NoVoluntaryPitReliefNote
-          explanation="China’s individual private pension account (个人养老金) tax benefits are claimed at annual settlement, not through the monthly payroll withholding shown here."
-          mandatoryLabel="Mandatory social insurance and housing fund at the rates and bases you selected."
-          sourceUrl="https://www.chinatax.gov.cn/"
-          sourceLabel="State Taxation Administration"
+        <ContributionSlider
+          label="Personal pension (个人养老金)"
+          description="Reduces comprehensive income tax base up to CNY 12,000 per year."
+          value={inputs.contributions.privatePensionAccount}
+          onChange={(privatePensionAccount) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                privatePensionAccount: clampAmount(privatePensionAccount, CN_PRIVATE_PENSION_ANNUAL_CAP_2026),
+              },
+            }))
+          }
+          max={CN_PRIVATE_PENSION_ANNUAL_CAP_2026}
+          step={1000}
+          currency={currency}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="Private pension account relief is outside monthly payroll withholding"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
     />
   );
 }

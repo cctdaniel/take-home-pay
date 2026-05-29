@@ -6,7 +6,9 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type DKContributionInputs = Record<never, never>;
+export interface DKContributionInputs {
+  ratepension: number;
+}
 
 export interface DKCalculatorInputs extends BaseCalculatorInputs {
   country: "DK";
@@ -33,6 +35,11 @@ export interface DKBreakdown {
   standardDeduction: number;
   assumptions: string[];
   sourceUrls: string[];
+  voluntaryContributions?: {
+    ratepension: number;
+    ratepensionLimit: number;
+    total: number;
+  };
 }
 
 declare module "../types" {

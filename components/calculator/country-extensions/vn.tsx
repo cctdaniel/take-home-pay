@@ -9,8 +9,11 @@ import {
   CountryCalculatorExtensionShell,
   useCountryCalculatorExtension,
 } from "@/components/calculator/country-extension";
-import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
+import { clampAmount } from "@/lib/utils";
 import { InfoPanel } from "@/components/calculator/info-panel";
+import { VN_VOLUNTARY_PENSION_ANNUAL_CAP_2026 } from "@/lib/countries/vn/constants/tax-parameters-2026";
 import type { VNCalculatorInputs } from "@/lib/countries/types";
 import type { CountryCalculatorExtensionProps } from "../country-extension";
 
@@ -56,15 +59,26 @@ export default function VNCountryExtension({
         </div>
       }
       contributions={
-        <NoVoluntaryPitReliefNote
-          explanation="Vietnam does not provide employee-controlled voluntary pension or savings amounts that reduce monthly personal income tax on payroll salary in this calculator."
-          mandatoryLabel="Social insurance, health insurance, unemployment insurance, and progressive PIT on taxable income."
-          sourceUrl="https://www.gdt.gov.vn/"
-          sourceLabel="General Department of Taxation"
+        <ContributionSlider
+          label="Voluntary pension insurance"
+          description="Reduces PIT taxable income (VND 12,000,000 annual cap)."
+          value={inputs.contributions.voluntaryPension}
+          onChange={(voluntaryPension) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                voluntaryPension: clampAmount(voluntaryPension, VN_VOLUNTARY_PENSION_ANNUAL_CAP_2026),
+              },
+            }))
+          }
+          max={VN_VOLUNTARY_PENSION_ANNUAL_CAP_2026}
+          step={500000}
+          currency={currency}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="No employee voluntary income-tax relief on monthly payroll salary"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
     />
   );
 }

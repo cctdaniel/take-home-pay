@@ -31,3 +31,6 @@ export const SE_TAX_CONFIG: NordicTaxConfig = {
   ],
   sourceUrls: [SE_SOURCE_URLS.skatteverketStateTax, SE_SOURCE_URLS.skatteverketAmounts, SE_SOURCE_URLS.oecdSweden],
 };
+
+export const SE_IPS_MAX_INCOME_FOR_DEDUCTION_2026 = 581_100;
+export const SE_IPS_DEDUCTION_RATE = 0.35;

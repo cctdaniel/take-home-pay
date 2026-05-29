@@ -16,9 +16,11 @@ import {
   IN_CESS_RATE,
   IN_EPF_2026,
   IN_STANDARD_DEDUCTION_NEW_REGIME,
+  IN_NPS_80CCD1B_ANNUAL_CAP_2026,
   IN_STANDARD_DEDUCTION_OLD_REGIME,
 } from "./constants/tax-parameters-2026";
 import { getPeriodsPerYear } from "../calculator-utils";
+import { clampAmount } from "@/lib/utils";
 
 function roundCurrency(value: number): number {
   return Math.round(value);
@@ -55,10 +57,14 @@ export function calculateIN(inputs: INCalculatorInputs): CalculationResult {
       : IN_STANDARD_DEDUCTION_OLD_REGIME;
 
   const epf = calculateEPF(grossSalary, isEpfApplicable);
+  const nps80ccd1b =
+    regime === "old"
+      ? clampAmount(inputs.contributions?.nps80ccd1b, IN_NPS_80CCD1B_ANNUAL_CAP_2026)
+      : 0;
 
   // Taxable income = gross - standard deduction
   // Note: EPF contribution is deducted from salary but does not reduce taxable income under new regime
-  const taxableIncomeBase = Math.max(0, grossSalary - standardDeduction);
+  const taxableIncomeBase = Math.max(0, grossSalary - standardDeduction - nps80ccd1b);
   const taxableIncome = Math.round(taxableIncomeBase);
 
   const taxResult = calculateINProgressiveTax(taxableIncome, regime);
@@ -86,7 +92,7 @@ export function calculateIN(inputs: INCalculatorInputs): CalculationResult {
   };
 
   const totalTax = totalIncomeTax + epf.employee;
-  const netSalary = grossSalary - totalTax;
+  const netSalary = grossSalary - totalTax - nps80ccd1b;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(payFrequency);
 
@@ -102,6 +108,11 @@ export function calculateIN(inputs: INCalculatorInputs): CalculationResult {
     cess,
     epf,
     bracketTaxes: taxResult.bracketTaxes,
+    voluntaryContributions: {
+      nps80ccd1b,
+      nps80ccd1bLimit: IN_NPS_80CCD1B_ANNUAL_CAP_2026,
+      total: nps80ccd1b,
+    },
   };
 
   return {
@@ -111,7 +122,7 @@ export function calculateIN(inputs: INCalculatorInputs): CalculationResult {
     taxableIncome,
     taxes,
     totalTax,
-    totalDeductions: totalTax,
+    totalDeductions: totalTax + nps80ccd1b,
     netSalary,
     effectiveTaxRate,
     perPeriod: {
@@ -138,8 +149,19 @@ export const INCalculator: CountryCalculator = {
     return [];
   },
 
-  getContributionLimits(): ContributionLimits {
-    return {};
+  getContributionLimits(inputs?: Partial<CalculatorInputs>): ContributionLimits {
+    const regime = inputs && "regime" in inputs ? inputs.regime : "new";
+    if (regime !== "old") {
+      return {};
+    }
+    return {
+      nps80ccd1b: {
+        limit: IN_NPS_80CCD1B_ANNUAL_CAP_2026,
+        name: "NPS Tier I (80CCD(1B))",
+        description: "Additional NPS deduction — old tax regime only",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): INCalculatorInputs {
@@ -149,6 +171,7 @@ export const INCalculator: CountryCalculator = {
       payFrequency: "monthly",
       regime: "new",
       isEpfApplicable: true,
+      contributions: { nps80ccd1b: 0 },
     };
   },
 };

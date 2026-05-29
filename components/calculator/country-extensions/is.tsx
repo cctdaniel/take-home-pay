@@ -10,7 +10,9 @@ import {
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
 import { IS_SOURCE_URLS } from "@/lib/countries/is/constants/tax-year-2026";
-import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
+import { clampAmount } from "@/lib/utils";
 import { InfoPanel } from "@/components/calculator/info-panel";
 import type { ISCalculatorInputs } from "@/lib/countries/is/types";
 
@@ -21,9 +23,12 @@ export default function ISCountryExtension({
     inputs,
     currency,
     result,
+    setInputs,
     setGrossSalary,
     setPayFrequency,
   } = useCountryCalculatorExtension<ISCalculatorInputs>(country);
+  const limits = getCountryCalculator(country).getContributionLimits(inputs);
+  const privatePensionSavingsLimit = limits.privatePensionSavings?.limit ?? 0;
 
   return (
     <CountryCalculatorExtensionShell
@@ -42,15 +47,26 @@ export default function ISCountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <NoVoluntaryPitReliefNote
-          explanation="Iceland’s 4% mandatory employee pension is withheld on salary. Supplementary private pension savings are not deducted through payroll withholding in this calculator."
-          mandatoryLabel="Mandatory 4% employee pension and progressive income tax after the personal tax credit."
-          sourceUrl={IS_SOURCE_URLS.skatturinnBrackets}
-          sourceLabel="Skatturinn"
+        <ContributionSlider
+          label="Private pension savings"
+          description="Supplementary pension up to 4% of gross wages."
+          value={inputs.contributions.privatePensionSavings}
+          onChange={(privatePensionSavings) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                privatePensionSavings: clampAmount(privatePensionSavings, privatePensionSavingsLimit),
+              },
+            }))
+          }
+          max={privatePensionSavingsLimit}
+          step={50000}
+          currency={currency}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="No employee voluntary income-tax relief on monthly payroll salary"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
       infoCard={
         <InfoPanel title="Modeled Scope">
           <p>

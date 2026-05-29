@@ -10,9 +10,12 @@ import {
   CountryCalculatorExtensionShell,
   useCountryCalculatorExtension,
 } from "@/components/calculator/country-extension";
-import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
+import { clampAmount } from "@/lib/utils";
 import { InfoPanel } from "@/components/calculator/info-panel";
 import type { INCalculatorInputs, INRegime } from "@/lib/countries/types";
+import { IN_NPS_80CCD1B_ANNUAL_CAP_2026 } from "@/lib/countries/in/constants/tax-parameters-2026";
 import type { CountryCalculatorExtensionProps } from "../country-extension";
 
 const REGIME_OPTIONS = [
@@ -25,6 +28,7 @@ export default function INCountryExtension({
 }: CountryCalculatorExtensionProps) {
   const { inputs, setInputs, currency, result, setGrossSalary, setPayFrequency } =
     useCountryCalculatorExtension<INCalculatorInputs>(country);
+  const npsLimit = inputs.regime === "old" ? IN_NPS_80CCD1B_ANNUAL_CAP_2026 : 0;
 
   return (
     <CountryCalculatorExtensionShell
@@ -72,15 +76,26 @@ export default function INCountryExtension({
         </div>
       }
       contributions={
-        <NoVoluntaryPitReliefNote
-          explanation="Section 80C, 80CCD, and similar Chapter VI-A deductions are claimed when filing income tax returns, not through monthly TDS salary slips in this calculator."
-          mandatoryLabel="Employee PF, professional tax where applicable, and TDS on taxable salary."
-          sourceUrl="https://www.incometax.gov.in/"
-          sourceLabel="Income Tax Department (India)"
+        <ContributionSlider
+          label="NPS Tier I (80CCD(1B))"
+          description="Additional NPS deduction — old tax regime only (₹50,000 cap)."
+          value={inputs.contributions.nps80ccd1b}
+          onChange={(nps80ccd1b) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                nps80ccd1b: clampAmount(nps80ccd1b, npsLimit),
+              },
+            }))
+          }
+          max={npsLimit}
+          step={5000}
+          currency={currency}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="Chapter VI-A deductions are outside monthly TDS payroll"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
     />
   );
 }

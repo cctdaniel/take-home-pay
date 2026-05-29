@@ -29,3 +29,6 @@ export const IS_TAX_CONFIG: NordicTaxConfig = {
   ],
   sourceUrls: [IS_SOURCE_URLS.skatturinnBrackets, IS_SOURCE_URLS.skatturinnKeyRates, IS_SOURCE_URLS.pwcOtherTaxes],
 };
+
+export const IS_PRIVATE_PENSION_MAX_GROSS_RATE = 0.04;
+export const IS_PRIVATE_PENSION_TOTAL_DEDUCTION_RATE = 0.08;
