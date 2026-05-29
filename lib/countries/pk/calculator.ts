@@ -5,7 +5,7 @@ import type {
   CountryCalculator,
   RegionInfo,
 } from "../types";
-import { calculateProgressiveTax, getPeriodsPerYear, roundCurrency } from "../nordic-shared";
+import { calculateProgressiveTax, getPeriodsPerYear } from "../nordic-shared";
 import { PK_CONFIG } from "./config";
 import { PK_PIT_BRACKETS_FY2026, PK_SOURCE_URLS } from "./constants/tax-year-2026";
 import type { PKBreakdown, PKCalculatorInputs, PKTaxBreakdown } from "./types";
