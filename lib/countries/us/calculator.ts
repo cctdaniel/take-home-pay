@@ -25,6 +25,7 @@ import { calculateUSFamilyTaxCredits } from "./tax-credits";
 import { getPeriodsPerYear } from "../calculator-utils";
 
 
+/** Amounts that reduce taxable income (including above-the-line adjustments). */
 function sumPreTaxDeductions(contributions: USCalculatorInputs["contributions"]): number {
   return (
     contributions.traditional401k +
@@ -34,6 +35,19 @@ function sumPreTaxDeductions(contributions: USCalculatorInputs["contributions"])
     contributions.dependentCareFSA +
     contributions.commuterBenefits +
     contributions.studentLoanInterest
+  );
+}
+
+/** Payroll/cafeteria deferrals withheld from gross pay (excludes tax-only adjustments). */
+function sumPayrollPreTaxContributions(
+  contributions: USCalculatorInputs["contributions"],
+): number {
+  return (
+    contributions.traditional401k +
+    contributions.hsa +
+    contributions.fsa +
+    contributions.dependentCareFSA +
+    contributions.commuterBenefits
   );
 }
 
@@ -63,6 +77,8 @@ export function calculateUS(inputs: USCalculatorInputs): CalculationResult {
   };
 
   const preTaxDeductions = sumPreTaxDeductions(clampedContributions);
+  const payrollPreTaxContributions =
+    sumPayrollPreTaxContributions(clampedContributions);
 
   const modifiedAGI = Math.max(0, grossSalary - preTaxDeductions);
   const taxableIncomeForFederal = getFederalTaxableIncome(
@@ -124,7 +140,10 @@ export function calculateUS(inputs: USCalculatorInputs): CalculationResult {
     clampedContributions.rothIRA + clampedContributions.roth401k;
 
   const netSalary =
-    grossSalary - totalTax - postTaxContributions - preTaxDeductions;
+    grossSalary -
+    totalTax -
+    postTaxContributions -
+    payrollPreTaxContributions;
   const effectiveTaxRate = grossSalary > 0 ? totalTax / grossSalary : 0;
   const periodsPerYear = getPeriodsPerYear(payFrequency);
 
@@ -151,7 +170,8 @@ export function calculateUS(inputs: USCalculatorInputs): CalculationResult {
     taxableIncome: taxableIncomeForFederal,
     taxes,
     totalTax,
-    totalDeductions: totalTax + postTaxContributions + preTaxDeductions,
+    totalDeductions:
+      totalTax + postTaxContributions + payrollPreTaxContributions,
     netSalary,
     effectiveTaxRate,
     perPeriod: {
