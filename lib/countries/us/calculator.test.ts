@@ -60,6 +60,23 @@ describe("US calculator 2026", () => {
     );
   });
 
+  it("pre-tax 401(k) lowers take-home pay even when taxes fall", () => {
+    const base = calculateUS(usInput(500_000));
+    const max401k = calculateUS(
+      usInput(500_000, {
+        contributions: {
+          ...usInput(500_000).contributions,
+          traditional401k: 24_500,
+        },
+      }),
+    );
+    expect(max401k.taxes.federalIncomeTax).toBeLessThan(base.taxes.federalIncomeTax);
+    expect(max401k.netSalary).toBeLessThan(base.netSalary);
+    expect(max401k.netSalary).toBe(
+      max401k.grossSalary - max401k.totalDeductions,
+    );
+  });
+
   it("child tax credit reduces federal income tax", () => {
     const noKids = calculateUS(usInput(120_000));
     const withKids = calculateUS(
