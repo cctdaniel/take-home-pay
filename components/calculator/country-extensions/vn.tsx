@@ -9,6 +9,7 @@ import {
   CountryCalculatorExtensionShell,
   useCountryCalculatorExtension,
 } from "@/components/calculator/country-extension";
+import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
 import { InfoPanel } from "@/components/calculator/info-panel";
 import type { VNCalculatorInputs } from "@/lib/countries/types";
 import type { CountryCalculatorExtensionProps } from "../country-extension";
@@ -54,6 +55,16 @@ export default function VNCountryExtension({
           </InfoPanel>
         </div>
       }
+      contributions={
+        <NoVoluntaryPitReliefNote
+          explanation="Vietnam does not provide employee-controlled voluntary pension or savings amounts that reduce monthly personal income tax on payroll salary in this calculator."
+          mandatoryLabel="Social insurance, health insurance, unemployment insurance, and progressive PIT on taxable income."
+          sourceUrl="https://www.gdt.gov.vn/"
+          sourceLabel="General Department of Taxation"
+        />
+      }
+      contributionsTitle="Retirement & Savings Contributions"
+      contributionsDescription="No employee voluntary income-tax relief on monthly payroll salary"
     />
   );
 }

@@ -5,6 +5,7 @@ import {
   CountryCalculatorExtensionShell,
   useCountryCalculatorExtension,
 } from "@/components/calculator/country-extension";
+import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
 import { InfoPanel } from "@/components/calculator/info-panel";
 import type { PHCalculatorInputs } from "@/lib/countries/types";
 import type { CountryCalculatorExtensionProps } from "../country-extension";
@@ -37,6 +38,16 @@ export default function PHCountryExtension({
           </InfoPanel>
         </div>
       }
+      contributions={
+        <NoVoluntaryPitReliefNote
+          explanation="PERA retirement contributions receive tax credits on the annual income tax return; they are not deducted from employer monthly payroll withholding in this calculator."
+          mandatoryLabel="SSS, PhilHealth, Pag-IBIG, and withholding tax on compensation."
+          sourceUrl="https://www.bir.gov.ph/"
+          sourceLabel="Bureau of Internal Revenue"
+        />
+      }
+      contributionsTitle="Retirement & Savings Contributions"
+      contributionsDescription="PERA tax benefits are outside monthly payroll withholding"
     />
   );
 }

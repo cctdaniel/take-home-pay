@@ -1,5 +1,6 @@
 import type {
   BaseCalculatorInputs,
+  BaseTaxBreakdown,
   CalculatorInputs,
 } from "../types";
 

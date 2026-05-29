@@ -10,6 +10,7 @@ import {
   CountryCalculatorExtensionShell,
   useCountryCalculatorExtension,
 } from "@/components/calculator/country-extension";
+import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
 import { InfoPanel } from "@/components/calculator/info-panel";
 import type { INCalculatorInputs, INRegime } from "@/lib/countries/types";
 import type { CountryCalculatorExtensionProps } from "../country-extension";
@@ -70,6 +71,16 @@ export default function INCountryExtension({
           </InfoPanel>
         </div>
       }
+      contributions={
+        <NoVoluntaryPitReliefNote
+          explanation="Section 80C, 80CCD, and similar Chapter VI-A deductions are claimed when filing income tax returns, not through monthly TDS salary slips in this calculator."
+          mandatoryLabel="Employee PF, professional tax where applicable, and TDS on taxable salary."
+          sourceUrl="https://www.incometax.gov.in/"
+          sourceLabel="Income Tax Department (India)"
+        />
+      }
+      contributionsTitle="Retirement & Savings Contributions"
+      contributionsDescription="Chapter VI-A deductions are outside monthly TDS payroll"
     />
   );
 }

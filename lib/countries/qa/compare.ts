@@ -27,7 +27,9 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     "Expatriate employee; no social insurance deduction",
   ];
   if (isMaxRetirement) {
-    assumptions.push("No voluntary retirement tax relief modeled for Qatar salary");
+    assumptions.push(
+      "No income tax on salary; voluntary contributions do not reduce wage tax",
+    );
   }
 
   return {

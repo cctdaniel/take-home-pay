@@ -26,8 +26,8 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
   const result = calculateNetSalary(calculatorInputs);
   const assumptions = buildAssumptionsSummary(country, inputs, isMaxRetirement);
 
-  if (isMaxRetirement) {
-    assumptions.push("No voluntary APV pension deduction modeled");
+  if (isMaxRetirement && apvRegimeB > 0) {
+    assumptions.push("APV Régimen B at statutory annual cap");
   }
 
   return {

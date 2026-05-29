@@ -12,6 +12,7 @@ import {
   CountryCalculatorExtensionShell,
   useCountryCalculatorExtension,
 } from "@/components/calculator/country-extension";
+import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
 import { InfoPanel } from "@/components/calculator/info-panel";
 import type {
   CNCalculatorInputs,
@@ -216,6 +217,16 @@ export default function CNCountryExtension({
           </InfoPanel>
         </div>
       }
+      contributions={
+        <NoVoluntaryPitReliefNote
+          explanation="China’s individual private pension account (个人养老金) tax benefits are claimed at annual settlement, not through the monthly payroll withholding shown here."
+          mandatoryLabel="Mandatory social insurance and housing fund at the rates and bases you selected."
+          sourceUrl="https://www.chinatax.gov.cn/"
+          sourceLabel="State Taxation Administration"
+        />
+      }
+      contributionsTitle="Retirement & Savings Contributions"
+      contributionsDescription="Private pension account relief is outside monthly payroll withholding"
     />
   );
 }

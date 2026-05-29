@@ -5,6 +5,7 @@ import {
   CountryCalculatorExtensionShell,
   useCountryCalculatorExtension,
 } from "@/components/calculator/country-extension";
+import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
 import { InfoPanel } from "@/components/calculator/info-panel";
 import type { JPCalculatorInputs } from "@/lib/countries/types";
 import type { CountryCalculatorExtensionProps } from "../country-extension";
@@ -36,6 +37,16 @@ export default function JPCountryExtension({
           </InfoPanel>
         </div>
       }
+      contributions={
+        <NoVoluntaryPitReliefNote
+          explanation="iDeCo and similar personal retirement accounts are outside standard monthly employer payroll withholding for take-home pay in this calculator."
+          mandatoryLabel="Employee social insurance, income tax, and resident tax on modeled taxable employment income."
+          sourceUrl="https://www.nta.go.jp/english/"
+          sourceLabel="National Tax Agency (Japan)"
+        />
+      }
+      contributionsTitle="Retirement & Savings Contributions"
+      contributionsDescription="Personal retirement accounts are outside monthly payroll withholding"
     />
   );
 }

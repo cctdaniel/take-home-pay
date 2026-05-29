@@ -9,6 +9,8 @@ import {
   useCountryCalculatorExtension,
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
+import { FI_SOURCE_URLS } from "@/lib/countries/fi/constants/tax-year-2026";
+import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
 import { InfoPanel } from "@/components/calculator/info-panel";
 import type { FICalculatorInputs } from "@/lib/countries/fi/types";
 
@@ -39,6 +41,16 @@ export default function FICountryExtension({
           />
         </CalculatorFieldGrid>
       }
+      contributions={
+        <NoVoluntaryPitReliefNote
+          explanation="Finnish TyEL pension is mandatory on wages. Employee-chosen voluntary private pension savings are not deducted through employment withholding in this calculator."
+          mandatoryLabel="Employee TyEL and income tax after the standard deduction and municipal withholding assumptions."
+          sourceUrl={FI_SOURCE_URLS.telaPensionContributions}
+          sourceLabel="Finnish Centre for Pensions (TELA)"
+        />
+      }
+      contributionsTitle="Retirement & Savings Contributions"
+      contributionsDescription="No employee voluntary income-tax relief on monthly payroll salary"
       infoCard={
         <InfoPanel title="Modeled Scope">
           <p>

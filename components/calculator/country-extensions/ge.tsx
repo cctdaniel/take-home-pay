@@ -10,6 +10,7 @@ import {
   useCountryCalculatorExtension,
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
+import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
 import { InfoPanel } from "@/components/calculator/info-panel";
 import {
   Card,
@@ -195,6 +196,16 @@ export default function GECountryExtension({
           onPayFrequencyChange={setPayFrequency}
         />
       }
+      contributions={
+        <NoVoluntaryPitReliefNote
+          explanation="Georgia does not provide employee-controlled voluntary pension or savings deductions on monthly payroll salary that reduce personal income tax in this calculator."
+          mandatoryLabel="Pension contribution and 20% personal income tax on taxable employment income."
+          sourceUrl="https://www.rs.ge/"
+          sourceLabel="Revenue Service of Georgia"
+        />
+      }
+      contributionsTitle="Retirement & Savings Contributions"
+      contributionsDescription="No employee voluntary income-tax relief on monthly payroll salary"
       infoCard={<GeorgiaInfoCard result={result} />}
       seoInfo={<GeorgiaTaxInfo />}
     />

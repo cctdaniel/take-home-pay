@@ -13,6 +13,7 @@ import {
   useCountryCalculatorExtension,
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
+import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
 import { InfoPanel } from "@/components/calculator/info-panel";
 import {
   CROATIA_LOCAL_TAX_RATES_2026,
@@ -133,6 +134,16 @@ export default function HRCountryExtension({
           />
         </CalculatorFieldGrid>
       }
+      contributions={
+        <NoVoluntaryPitReliefNote
+          explanation="Croatian payroll income tax does not allow employee-paid voluntary third-pillar pension premiums as a salary deduction. Mandatory pension pillars I and II are already deducted from gross before tax."
+          mandatoryLabel="Employee pension (15% + 5% or 20% pillar I only) and local income tax after personal allowance."
+          sourceUrl="https://porezna-uprava.gov.hr/hr/porezne-stope-godisnjeg-poreza-na-dohodak/4764"
+          sourceLabel="Croatian Tax Administration"
+        />
+      }
+      contributionsTitle="Retirement & Savings Contributions"
+      contributionsDescription="No employee voluntary income-tax relief on Croatian payroll salary"
       infoCard={
         <InfoPanel title="Modeled Scope">
           <p>
