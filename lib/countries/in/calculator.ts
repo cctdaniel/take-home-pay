@@ -6,7 +6,6 @@ import type {
   INBreakdown,
   INCalculatorInputs,
   INTaxBreakdown,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { IN_CONFIG } from "./config";
@@ -19,19 +18,7 @@ import {
   IN_STANDARD_DEDUCTION_NEW_REGIME,
   IN_STANDARD_DEDUCTION_OLD_REGIME,
 } from "./constants/tax-parameters-2026";
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
+import { getPeriodsPerYear } from "../calculator-utils";
 
 function roundCurrency(value: number): number {
   return Math.round(value);

@@ -3,7 +3,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   PHBreakdown,
   PHCalculatorInputs,
   PHTaxBreakdown,
@@ -16,23 +15,7 @@ import {
   PH_PHILHEALTH_2026,
   PH_SSS_2026,
 } from "./constants/tax-parameters-2026";
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
-
-function roundCurrency(value: number): number {
-  return Math.round(value * 100) / 100;
-}
+import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
 
 function calculateSSS(monthlySalary: number) {
   const msc = Math.max(

@@ -3,7 +3,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { SA_CONFIG } from "./config";
@@ -15,48 +14,18 @@ import {
   SA_SOURCE_URLS,
 } from "./constants/tax-year-2026";
 import type { SABreakdown, SACalculatorInputs, SATaxBreakdown } from "./types";
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
-
-function roundCurrency(value: number): number {
-  return Math.round(value * 100) / 100;
-}
-
-function calculateContributionSalary(
-  grossSalary: number,
-  isSaudiNational: boolean,
-) {
-  if (!isSaudiNational) {
-    return { annual: 0, monthly: 0 };
-  }
-  const monthly = Math.min(
-    (grossSalary / 12) * SA_CONTRIBUTION_SALARY_SHARE,
-    SA_GOSI_MONTHLY_CAP,
-  );
-  return {
-    monthly: roundCurrency(monthly),
-    annual: roundCurrency(monthly * 12),
-  };
-}
+import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
+import { calculateSalaryShareContributionBase } from "../employee-contribution-base";
 
 export function calculateSA(inputs: SACalculatorInputs): CalculationResult {
   const grossIncome = Math.max(0, inputs.grossSalary);
   const isSaudiNational = inputs.nationality === "saudi_national";
-  const contributionSalary = calculateContributionSalary(
-    grossIncome,
-    isSaudiNational,
-  );
+  const contributionSalary = calculateSalaryShareContributionBase({
+    grossSalary: grossIncome,
+    applies: isSaudiNational,
+    salaryShare: SA_CONTRIBUTION_SALARY_SHARE,
+    monthlyCap: SA_GOSI_MONTHLY_CAP,
+  });
   const incomeTax = 0;
   const gosiEmployee = roundCurrency(
     contributionSalary.annual * SA_GOSI_EMPLOYEE_RATE,

@@ -6,7 +6,6 @@ import type {
   JPBreakdown,
   JPCalculatorInputs,
   JPTaxBreakdown,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { JP_CONFIG } from "./config";
@@ -19,19 +18,7 @@ import {
   JP_RESIDENT_TAX_RATE,
   JP_SOCIAL_INSURANCE_2026,
 } from "./constants/tax-parameters-2026";
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
+import { getPeriodsPerYear } from "../calculator-utils";
 
 function roundCurrency(value: number): number {
   return Math.round(value);

@@ -11,28 +11,16 @@ import type {
   SGBreakdown,
   RegionInfo,
   ContributionLimits,
-  PayFrequency,
 } from "../types";
 import { SG_CONFIG } from "./config";
 import { calculateAnnualCPF, CPF_VOLUNTARY_TOPUP_LIMIT, getSRSLimit, getCPFRates, CPF_MONTHLY_CEILING } from "./constants/cpf-rates-2026";
 import { calculateSGIncomeTax } from "./constants/tax-brackets-2026";
+import { getPeriodsPerYear } from "../calculator-utils";
+
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
-
 // ============================================================================
 // SINGAPORE CALCULATOR
 // ============================================================================

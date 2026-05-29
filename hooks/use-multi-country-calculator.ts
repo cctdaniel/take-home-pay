@@ -7,7 +7,6 @@ import {
 } from "@/lib/countries/registry";
 import { DECalculator } from "@/lib/countries/de/calculator";
 import { USCalculator } from "@/lib/countries/us/calculator";
-import { getElectiveDeferralLimit } from "@/lib/countries/us/contribution-limits";
 import { ESCalculator } from "@/lib/countries/es/calculator";
 import type {
   ESCalculatorInputs,
@@ -29,6 +28,7 @@ import {
   getSRSLimit,
 } from "@/lib/countries/sg/constants/cpf-rates-2026";
 import type {
+  ContributionLimits,
   AUCalculatorInputs,
   AUResidencyType,
   CalculationResult,
@@ -663,6 +663,11 @@ export function useMultiCountryCalculator(
     [country],
   );
 
+  const usContributionLimit = (
+    limits: ContributionLimits,
+    key: keyof ContributionLimits,
+  ): number => limits[key]?.limit ?? 0;
+
   // Get limits
   const usLimits = useMemo(() => {
     const raw = USCalculator.getContributionLimits({
@@ -671,18 +676,17 @@ export function useMultiCountryCalculator(
       filingStatus,
       contributions: { hsaCoverageType },
     } as Partial<USCalculatorInputs>);
-    const deferral = raw.traditional401k?.limit ?? getElectiveDeferralLimit(age);
-    const remainingDeferral = Math.max(0, deferral - traditional401k);
+    const deferral = usContributionLimit(raw, "traditional401k");
     return {
       traditional401k: deferral,
-      roth401k: remainingDeferral,
-      traditionalIRA: raw.traditionalIRA?.limit ?? 7_500,
-      rothIRA: raw.rothIRA?.limit ?? 7_500,
-      hsa: raw.hsa?.limit ?? getHSALimit(hsaCoverageType, age),
-      fsa: raw.fsa?.limit ?? 3_400,
-      dependentCareFSA: raw.dependentCareFSA?.limit ?? 5_000,
-      commuterBenefits: raw.commuterBenefits?.limit ?? 8_160,
-      studentLoanInterest: raw.studentLoanInterest?.limit ?? 2_500,
+      roth401k: Math.max(0, deferral - traditional401k),
+      traditionalIRA: usContributionLimit(raw, "traditionalIRA"),
+      rothIRA: usContributionLimit(raw, "rothIRA"),
+      hsa: usContributionLimit(raw, "hsa"),
+      fsa: usContributionLimit(raw, "fsa"),
+      dependentCareFSA: usContributionLimit(raw, "dependentCareFSA"),
+      commuterBenefits: usContributionLimit(raw, "commuterBenefits"),
+      studentLoanInterest: usContributionLimit(raw, "studentLoanInterest"),
     };
   }, [age, filingStatus, hsaCoverageType, traditional401k]);
 

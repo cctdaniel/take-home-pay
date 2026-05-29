@@ -11,27 +11,15 @@ import type {
   THBreakdown,
   RegionInfo,
   ContributionLimits,
-  PayFrequency,
 } from "../types";
 import { TH_CONFIG } from "./config";
 import { calculateTHIncomeTax, calculateSocialSecurityContribution, TH_TAX_ALLOWANCES, TH_TAX_BRACKETS } from "./constants/tax-brackets-2026";
+import { getPeriodsPerYear } from "../calculator-utils";
+
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
-
 // ============================================================================
 // THAILAND CALCULATOR
 // ============================================================================

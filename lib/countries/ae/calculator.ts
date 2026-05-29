@@ -3,7 +3,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { AE_CONFIG } from "./config";
@@ -13,29 +12,13 @@ import {
   UAE_PERSONAL_INCOME_TAX_RATE,
   UAE_SOURCE_URLS,
 } from "./constants/tax-year-2026";
+import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
 import type {
   AEBreakdown,
   AECalculatorInputs,
   AEEmployeeCategory,
   AETaxBreakdown,
 } from "./types";
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
-
-function roundCurrency(value: number): number {
-  return Math.round(value * 100) / 100;
-}
 
 function clamp(value: number, min?: number, max?: number): number {
   const minClamped = min === undefined ? value : Math.max(value, min);

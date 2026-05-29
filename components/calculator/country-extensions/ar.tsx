@@ -16,10 +16,9 @@ import { InfoPanel } from "@/components/calculator/info-panel";
 import { ContributionSlider } from "@/components/ui/contribution-slider";
 import {
   AR_GANANCIAS_H2_2026,
-  AR_GANANCIAS_H2_2026_AVAILABLE,
   getArGananciasParams,
   resolveArGananciasSemester,
-} from "@/lib/countries/ar/constants/ganancias-semesters";
+} from "@/lib/countries/ar/constants/tax-year-2026";
 import { getCountryCalculator } from "@/lib/countries/registry";
 import type {
   ARCalculatorInputs,
@@ -39,7 +38,7 @@ const AR_SEMESTER_OPTIONS: {
   {
     value: "h2",
     label: "Julio–diciembre 2026 (AFIP)",
-    disabled: !AR_GANANCIAS_H2_2026_AVAILABLE,
+    disabled: !AR_GANANCIAS_H2_2026.available,
   },
 ];
 
@@ -78,12 +77,15 @@ export default function ARCountryExtension({
             id="ar-ganancias-semester"
             label="Ganancias semester"
             value={gananciasSemester}
-            onChange={(gananciasSemester) =>
-              setInputs((current) => ({ ...current, gananciasSemester }))
+            onChange={(semester) =>
+              setInputs((current) => ({
+                ...current,
+                gananciasSemester: resolveArGananciasSemester(semester),
+              }))
             }
             options={AR_SEMESTER_OPTIONS}
             description={
-              AR_GANANCIAS_H2_2026_AVAILABLE
+              AR_GANANCIAS_H2_2026.available
                 ? "AFIP publishes separate Art. 30 and Art. 94 tables each semester."
                 : AR_GANANCIAS_H2_2026.unavailableNote
             }

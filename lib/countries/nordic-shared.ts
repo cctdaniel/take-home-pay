@@ -1,3 +1,4 @@
+import { getPeriodsPerYear, roundCurrency } from "./calculator-utils";
 import type { TaxBracket } from "./types";
 
 export interface NordicTaxConfig {
@@ -31,19 +32,7 @@ export interface NordicTaxComputation {
   totalTax: number;
 }
 
-export function roundCurrency(value: number): number {
-  return Math.round(value * 100) / 100;
-}
-
-export function getPeriodsPerYear(frequency: string): number {
-  switch (frequency) {
-    case "annual": return 1;
-    case "monthly": return 12;
-    case "biweekly": return 26;
-    case "weekly": return 52;
-    default: return 12;
-  }
-}
+export { getPeriodsPerYear, roundCurrency };
 
 export function calculateProgressiveTax(income: number, brackets: TaxBracket[]) {
   let total = 0;

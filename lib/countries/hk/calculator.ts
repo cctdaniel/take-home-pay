@@ -10,7 +10,6 @@ import type {
   HKBreakdown,
   HKCalculatorInputs,
   HKTaxBreakdown,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { HK_CONFIG } from "./config";
@@ -21,23 +20,11 @@ import {
   HK_STANDARD_RATE_2026,
   HK_TAX_BRACKETS_2026,
 } from "./constants/tax-brackets-2026";
+import { getPeriodsPerYear } from "../calculator-utils";
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
-
 function calculateProgressiveTax(taxableIncome: number): number {
   let tax = 0;
   for (const bracket of HK_TAX_BRACKETS_2026) {

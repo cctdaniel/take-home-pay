@@ -12,7 +12,6 @@ import type {
   KRTaxReliefInputs,
   RegionInfo,
   ContributionLimits,
-  PayFrequency,
 } from "../types";
 import { KR_CONFIG } from "./config";
 import {
@@ -35,6 +34,7 @@ import {
   calculateDonationCredit,
   calculateRentCredit,
 } from "./constants/tax-brackets-2026";
+import { getPeriodsPerYear } from "../calculator-utils";
 
 // Default tax reliefs (no dependents)
 const DEFAULT_KR_TAX_RELIEFS: KRTaxReliefInputs = {
@@ -55,19 +55,6 @@ const DEFAULT_KR_TAX_RELIEFS: KRTaxReliefInputs = {
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
-
 // ============================================================================
 // SOUTH KOREA CALCULATOR
 // ============================================================================

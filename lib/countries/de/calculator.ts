@@ -30,7 +30,6 @@ import type {
   DEBreakdown,
   DECalculatorInputs,
   DETaxBreakdown,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { DE_CONFIG } from "./config";
@@ -46,23 +45,12 @@ import {
   DE_RUERUP_MAX_SINGLE_2026,
 } from "./constants/contribution-limits-2026";
 import { DE_FEDERAL_STATES } from "./config";
+import { getPeriodsPerYear } from "../calculator-utils";
+
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
 
 /**
  * Get church tax rate for a given state

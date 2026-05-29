@@ -10,7 +10,6 @@ import type {
   NLBreakdown,
   NLCalculatorInputs,
   NLTaxBreakdown,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { NL_CONFIG } from "./config";
@@ -24,23 +23,11 @@ import {
   calculateIACK,
   calculateLaborTaxCredit,
 } from "./constants/tax-credits-2026";
+import { getPeriodsPerYear } from "../calculator-utils";
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
-
 /**
  * Calculate combined progressive tax (for backwards compat / UI bracket display)
  */

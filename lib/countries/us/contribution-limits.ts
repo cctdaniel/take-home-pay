@@ -105,7 +105,7 @@ export function getUSContributionLimits(
     traditionalIRA: {
       limit: getIraLimit(age, "traditional"),
       name: "Traditional IRA",
-      description: "Pre-tax when deductible (simplified model)",
+      description: "Pre-tax when deductible under modeled IRA rules",
       preTax: true,
     },
     rothIRA: {

@@ -18,7 +18,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
   TaxBracket,
 } from "../types";
@@ -35,6 +34,7 @@ import {
   calculateSpanishProgressiveTax,
   getSpainRegionScale,
 } from "./constants/tax-brackets-2026";
+import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
 import type {
   ESBreakdown,
   ESCalculatorInputs,
@@ -43,23 +43,6 @@ import type {
   ESResidencyType,
   ESTaxBreakdown,
 } from "./types";
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
-
-function roundCurrency(value: number): number {
-  return Math.round(value * 100) / 100;
-}
 
 function calculateTaxpayerMinimum(age: number): number {
   const minimums = SPAIN_PERSONAL_FAMILY_MINIMUMS_2025;

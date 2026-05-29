@@ -3,7 +3,6 @@ import type {
   CalculatorInputs,
   ContributionLimits,
   CountryCalculator,
-  PayFrequency,
   RegionInfo,
 } from "../types";
 import { clampAmount } from "@/lib/utils";
@@ -16,19 +15,7 @@ import {
   HU_VOLUNTARY_PENSION_ANNUAL_CAP_2026,
 } from "./constants/tax-year-2026";
 import type { HUBreakdown, HUCalculatorInputs, HUTaxBreakdown } from "./types";
-
-function getPeriodsPerYear(frequency: PayFrequency): number {
-  switch (frequency) {
-    case "annual":
-      return 1;
-    case "monthly":
-      return 12;
-    case "biweekly":
-      return 26;
-    case "weekly":
-      return 52;
-  }
-}
+import { getPeriodsPerYear } from "../calculator-utils";
 
 function roundCurrency(value: number): number {
   return Math.round(value);

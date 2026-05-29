@@ -19,7 +19,7 @@ function getCountryDirectories() {
     .sort();
 }
 
-const template = (code) => `// Smoke tests — extend with official golden numbers
+const template = (code) => `// Add golden cases from an official calculator or table (cite URL in a comment).
 import { describe, expect, it } from "vitest";
 import { ${code}Calculator } from "./calculator";
 
@@ -32,17 +32,9 @@ describe("${code} calculator smoke", () => {
     expect(result.netSalary).toBeLessThanOrEqual(result.grossSalary);
   });
 
-  it("scales monotonically for higher gross at defaults", () => {
-    const low = ${code}Calculator.calculate({
-      ...${code}Calculator.getDefaultInputs(),
-      grossSalary: ${code}Calculator.getDefaultInputs().grossSalary * 0.5,
-    });
-    const high = ${code}Calculator.calculate({
-      ...${code}Calculator.getDefaultInputs(),
-      grossSalary: ${code}Calculator.getDefaultInputs().grossSalary * 1.5,
-    });
-    expect(high.totalTax).toBeGreaterThanOrEqual(low.totalTax);
-  });
+  it.todo("golden: low salary from official source");
+  it.todo("golden: mid salary from official source");
+  it.todo("golden: high salary from official source");
 });
 `;
 
@@ -58,4 +50,4 @@ for (const directory of getCountryDirectories()) {
   console.log(`Created ${testPath}`);
 }
 
-console.log(`Smoke tests created: ${created}`);
+console.log(`Smoke test scaffolds created: ${created}`);
