@@ -77,6 +77,39 @@ describe("US calculator 2026", () => {
     );
   });
 
+  it("student loan interest raises net pay via tax savings only", () => {
+    const base = calculateUS(usInput(100_000));
+    const withInterest = calculateUS(
+      usInput(100_000, {
+        contributions: {
+          ...usInput(100_000).contributions,
+          studentLoanInterest: 2_500,
+        },
+      }),
+    );
+    expect(withInterest.taxes.federalIncomeTax).toBeLessThan(
+      base.taxes.federalIncomeTax,
+    );
+    expect(withInterest.netSalary).toBeGreaterThan(base.netSalary);
+    expect(withInterest.netSalary).toBe(
+      withInterest.grossSalary - withInterest.totalDeductions,
+    );
+  });
+
+  it("traditional IRA deduction does not reduce modeled take-home pay", () => {
+    const base = calculateUS(usInput(100_000));
+    const withIra = calculateUS(
+      usInput(100_000, {
+        contributions: {
+          ...usInput(100_000).contributions,
+          traditionalIRA: 7_000,
+        },
+      }),
+    );
+    expect(withIra.taxes.federalIncomeTax).toBeLessThan(base.taxes.federalIncomeTax);
+    expect(withIra.netSalary).toBeGreaterThan(base.netSalary);
+  });
+
   it("child tax credit reduces federal income tax", () => {
     const noKids = calculateUS(usInput(120_000));
     const withKids = calculateUS(
