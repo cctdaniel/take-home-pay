@@ -4,12 +4,16 @@
 import type { CountryCode } from "@/lib/countries/types";
 import type { ReactNode } from "react";
 import { AEResultBreakdown } from "./ae-result-breakdown";
+import { ALResultBreakdown } from "./al-result-breakdown";
 import { ARResultBreakdown } from "./ar-result-breakdown";
 import { ATResultBreakdown } from "./at-result-breakdown";
+import { BBResultBreakdown } from "./bb-result-breakdown";
 import { BDResultBreakdown } from "./bd-result-breakdown";
 import { BEResultBreakdown } from "./be-result-breakdown";
 import { BGResultBreakdown } from "./bg-result-breakdown";
+import { BHResultBreakdown } from "./bh-result-breakdown";
 import { BRResultBreakdown } from "./br-result-breakdown";
+import { BZResultBreakdown } from "./bz-result-breakdown";
 import { CHResultBreakdown } from "./ch-result-breakdown";
 import { CLResultBreakdown } from "./cl-result-breakdown";
 import { CNResultBreakdown } from "./cn-result-breakdown";
@@ -17,6 +21,8 @@ import { COResultBreakdown } from "./co-result-breakdown";
 import { CRResultBreakdown } from "./cr-result-breakdown";
 import { CYResultBreakdown } from "./cy-result-breakdown";
 import { CZResultBreakdown } from "./cz-result-breakdown";
+import { DOResultBreakdown } from "./do-result-breakdown";
+import { ECResultBreakdown } from "./ec-result-breakdown";
 import { EEResultBreakdown } from "./ee-result-breakdown";
 import { EGResultBreakdown } from "./eg-result-breakdown";
 import { ESResultBreakdown } from "./es-result-breakdown";
@@ -35,14 +41,18 @@ import { LTResultBreakdown } from "./lt-result-breakdown";
 import { LUResultBreakdown } from "./lu-result-breakdown";
 import { LVResultBreakdown } from "./lv-result-breakdown";
 import { MAResultBreakdown } from "./ma-result-breakdown";
+import { MEResultBreakdown } from "./me-result-breakdown";
 import { MTResultBreakdown } from "./mt-result-breakdown";
+import { MUResultBreakdown } from "./mu-result-breakdown";
 import { MYResultBreakdown } from "./my-result-breakdown";
 import { NGResultBreakdown } from "./ng-result-breakdown";
 import { NZResultBreakdown } from "./nz-result-breakdown";
+import { PAResultBreakdown } from "./pa-result-breakdown";
 import { PEResultBreakdown } from "./pe-result-breakdown";
 import { PHResultBreakdown } from "./ph-result-breakdown";
 import { PKResultBreakdown } from "./pk-result-breakdown";
 import { PLResultBreakdown } from "./pl-result-breakdown";
+import { PYResultBreakdown } from "./py-result-breakdown";
 import { QAResultBreakdown } from "./qa-result-breakdown";
 import { ROResultBreakdown } from "./ro-result-breakdown";
 import { RSResultBreakdown } from "./rs-result-breakdown";
@@ -64,12 +74,16 @@ export const COUNTRY_RESULT_BREAKDOWNS: Partial<
   Record<CountryCode, CountryResultBreakdownComponent>
 > = {
   AE: AEResultBreakdown,
+  AL: ALResultBreakdown,
   AR: ARResultBreakdown,
   AT: ATResultBreakdown,
+  BB: BBResultBreakdown,
   BD: BDResultBreakdown,
   BE: BEResultBreakdown,
   BG: BGResultBreakdown,
+  BH: BHResultBreakdown,
   BR: BRResultBreakdown,
+  BZ: BZResultBreakdown,
   CH: CHResultBreakdown,
   CL: CLResultBreakdown,
   CN: CNResultBreakdown,
@@ -77,6 +91,8 @@ export const COUNTRY_RESULT_BREAKDOWNS: Partial<
   CR: CRResultBreakdown,
   CY: CYResultBreakdown,
   CZ: CZResultBreakdown,
+  DO: DOResultBreakdown,
+  EC: ECResultBreakdown,
   EE: EEResultBreakdown,
   EG: EGResultBreakdown,
   ES: ESResultBreakdown,
@@ -95,14 +111,18 @@ export const COUNTRY_RESULT_BREAKDOWNS: Partial<
   LU: LUResultBreakdown,
   LV: LVResultBreakdown,
   MA: MAResultBreakdown,
+  ME: MEResultBreakdown,
   MT: MTResultBreakdown,
+  MU: MUResultBreakdown,
   MY: MYResultBreakdown,
   NG: NGResultBreakdown,
   NZ: NZResultBreakdown,
+  PA: PAResultBreakdown,
   PE: PEResultBreakdown,
   PH: PHResultBreakdown,
   PK: PKResultBreakdown,
   PL: PLResultBreakdown,
+  PY: PYResultBreakdown,
   QA: QAResultBreakdown,
   RO: ROResultBreakdown,
   RS: RSResultBreakdown,
