@@ -1,0 +1,127 @@
+import { clampAmount } from "@/lib/utils";
+import type {
+  CalculationResult,
+  CalculatorInputs,
+  ContributionLimits,
+  CountryCalculator,
+  RegionInfo,
+} from "../types";
+import { getPeriodsPerYear, roundCurrency } from "../calculator-utils";
+import { RS_CONFIG } from "./config";
+import {
+  RS_NON_TAXABLE_ANNUAL,
+  RS_PIT_RATE,
+  RS_SOCIAL_ANNUAL_CAP,
+  RS_SOCIAL_EMPLOYEE_RATE,
+  RS_SOURCE_URLS,
+  RS_VOLUNTARY_PENSION_ANNUAL_CAP,
+} from "./constants/tax-year-2026";
+import type { RSBreakdown, RSCalculatorInputs, RSTaxBreakdown } from "./types";
+
+export function calculateRS(inputs: RSCalculatorInputs): CalculationResult {
+  const grossIncome = Math.max(0, inputs.grossSalary);
+  const voluntaryPension = clampAmount(
+    inputs.contributions?.voluntaryPension,
+    RS_VOLUNTARY_PENSION_ANNUAL_CAP,
+  );
+  const socialBase = Math.min(grossIncome, RS_SOCIAL_ANNUAL_CAP);
+  const socialSecurity = roundCurrency(socialBase * RS_SOCIAL_EMPLOYEE_RATE);
+  const taxableIncome = roundCurrency(
+    Math.max(0, grossIncome - RS_NON_TAXABLE_ANNUAL - voluntaryPension),
+  );
+  const incomeTax = roundCurrency(taxableIncome * RS_PIT_RATE);
+
+  const taxes: RSTaxBreakdown = {
+    type: "RS",
+    totalIncomeTax: incomeTax,
+    incomeTax,
+    socialSecurity,
+  };
+  const totalTax = incomeTax + socialSecurity;
+  const totalDeductions = totalTax + voluntaryPension;
+  const netSalary = roundCurrency(grossIncome - totalDeductions);
+  const effectiveTaxRate = grossIncome > 0 ? totalTax / grossIncome : 0;
+  const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
+
+  const breakdown: RSBreakdown = {
+    type: "RS",
+    grossIncome,
+    socialSecurity: {
+      rate: RS_SOCIAL_EMPLOYEE_RATE,
+      base: socialBase,
+      employee: socialSecurity,
+      annualCap: RS_SOCIAL_ANNUAL_CAP,
+    },
+    nonTaxableAmount: RS_NON_TAXABLE_ANNUAL,
+    taxableIncome,
+    incomeTax: { rate: RS_PIT_RATE, total: incomeTax },
+    voluntaryContributions: {
+      voluntaryPension,
+      voluntaryPensionLimit: RS_VOLUNTARY_PENSION_ANNUAL_CAP,
+      total: voluntaryPension,
+    },
+    assumptions: [
+      "Employee social 19.9% on gross capped at RSD 732,820/month.",
+      "Flat 10% personal income tax after non-taxable minimum and tax-exempt voluntary pension.",
+      "Employee social security is computed separately and not deducted from the PIT base.",
+      "Voluntary private pension fund contributions up to RSD 8,677/month are exempt from PIT and social.",
+      "Excludes local surtaxes, meal allowances, and employer-only payroll costs.",
+    ],
+    sourceUrls: Object.values(RS_SOURCE_URLS),
+  };
+
+  return {
+    country: "RS",
+    currency: "RSD",
+    grossSalary: grossIncome,
+    taxableIncome,
+    taxes,
+    totalTax,
+    totalDeductions,
+    netSalary,
+    effectiveTaxRate,
+    perPeriod: {
+      gross: grossIncome / periodsPerYear,
+      net: netSalary / periodsPerYear,
+      frequency: inputs.payFrequency,
+    },
+    breakdown,
+  };
+}
+
+export const RSCalculator: CountryCalculator = {
+  countryCode: "RS",
+  config: RS_CONFIG,
+
+  calculate(inputs: CalculatorInputs): CalculationResult {
+    if (inputs.country !== "RS") {
+      throw new Error("RSCalculator can only calculate RS inputs");
+    }
+    return calculateRS(inputs);
+  },
+
+  getRegions(): RegionInfo[] {
+    return [];
+  },
+
+  getContributionLimits(): ContributionLimits {
+    return {
+      voluntaryPension: {
+        limit: RS_VOLUNTARY_PENSION_ANNUAL_CAP,
+        name: "Voluntary private pension fund",
+        description:
+          "Payroll contributions up to RSD 8,677/month are exempt from income tax and social security.",
+        preTax: true,
+      },
+    };
+  },
+
+  getDefaultInputs(): RSCalculatorInputs {
+    return {
+      country: "RS",
+      grossSalary: 2_160_000,
+      payFrequency: "monthly",
+      contributions: { voluntaryPension: 0 },
+    };
+  },
+};
