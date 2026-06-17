@@ -6,15 +6,19 @@ import type { ReactNode } from "react";
 import { AEResultBreakdown } from "./ae-result-breakdown";
 import { ARResultBreakdown } from "./ar-result-breakdown";
 import { ATResultBreakdown } from "./at-result-breakdown";
+import { BDResultBreakdown } from "./bd-result-breakdown";
 import { BEResultBreakdown } from "./be-result-breakdown";
+import { BGResultBreakdown } from "./bg-result-breakdown";
 import { BRResultBreakdown } from "./br-result-breakdown";
 import { CHResultBreakdown } from "./ch-result-breakdown";
 import { CLResultBreakdown } from "./cl-result-breakdown";
 import { CNResultBreakdown } from "./cn-result-breakdown";
 import { COResultBreakdown } from "./co-result-breakdown";
+import { CRResultBreakdown } from "./cr-result-breakdown";
 import { CYResultBreakdown } from "./cy-result-breakdown";
 import { CZResultBreakdown } from "./cz-result-breakdown";
 import { EEResultBreakdown } from "./ee-result-breakdown";
+import { EGResultBreakdown } from "./eg-result-breakdown";
 import { ESResultBreakdown } from "./es-result-breakdown";
 import { FRResultBreakdown } from "./fr-result-breakdown";
 import { GEResultBreakdown } from "./ge-result-breakdown";
@@ -26,22 +30,28 @@ import { ILResultBreakdown } from "./il-result-breakdown";
 import { INResultBreakdown } from "./in-result-breakdown";
 import { ITResultBreakdown } from "./it-result-breakdown";
 import { JPResultBreakdown } from "./jp-result-breakdown";
+import { KZResultBreakdown } from "./kz-result-breakdown";
 import { LTResultBreakdown } from "./lt-result-breakdown";
 import { LUResultBreakdown } from "./lu-result-breakdown";
 import { LVResultBreakdown } from "./lv-result-breakdown";
+import { MAResultBreakdown } from "./ma-result-breakdown";
 import { MTResultBreakdown } from "./mt-result-breakdown";
 import { MYResultBreakdown } from "./my-result-breakdown";
+import { NGResultBreakdown } from "./ng-result-breakdown";
 import { NZResultBreakdown } from "./nz-result-breakdown";
+import { PEResultBreakdown } from "./pe-result-breakdown";
 import { PHResultBreakdown } from "./ph-result-breakdown";
 import { PKResultBreakdown } from "./pk-result-breakdown";
 import { PLResultBreakdown } from "./pl-result-breakdown";
 import { QAResultBreakdown } from "./qa-result-breakdown";
 import { ROResultBreakdown } from "./ro-result-breakdown";
+import { RSResultBreakdown } from "./rs-result-breakdown";
 import { SAResultBreakdown } from "./sa-result-breakdown";
 import { SIResultBreakdown } from "./si-result-breakdown";
 import { SKResultBreakdown } from "./sk-result-breakdown";
 import { TRResultBreakdown } from "./tr-result-breakdown";
 import { UAResultBreakdown } from "./ua-result-breakdown";
+import { UYResultBreakdown } from "./uy-result-breakdown";
 import { VNResultBreakdown } from "./vn-result-breakdown";
 import { ZAResultBreakdown } from "./za-result-breakdown";
 import type { CountryResultBreakdownProps } from "./types";
@@ -56,15 +66,19 @@ export const COUNTRY_RESULT_BREAKDOWNS: Partial<
   AE: AEResultBreakdown,
   AR: ARResultBreakdown,
   AT: ATResultBreakdown,
+  BD: BDResultBreakdown,
   BE: BEResultBreakdown,
+  BG: BGResultBreakdown,
   BR: BRResultBreakdown,
   CH: CHResultBreakdown,
   CL: CLResultBreakdown,
   CN: CNResultBreakdown,
   CO: COResultBreakdown,
+  CR: CRResultBreakdown,
   CY: CYResultBreakdown,
   CZ: CZResultBreakdown,
   EE: EEResultBreakdown,
+  EG: EGResultBreakdown,
   ES: ESResultBreakdown,
   FR: FRResultBreakdown,
   GE: GEResultBreakdown,
@@ -76,22 +90,28 @@ export const COUNTRY_RESULT_BREAKDOWNS: Partial<
   IN: INResultBreakdown,
   IT: ITResultBreakdown,
   JP: JPResultBreakdown,
+  KZ: KZResultBreakdown,
   LT: LTResultBreakdown,
   LU: LUResultBreakdown,
   LV: LVResultBreakdown,
+  MA: MAResultBreakdown,
   MT: MTResultBreakdown,
   MY: MYResultBreakdown,
+  NG: NGResultBreakdown,
   NZ: NZResultBreakdown,
+  PE: PEResultBreakdown,
   PH: PHResultBreakdown,
   PK: PKResultBreakdown,
   PL: PLResultBreakdown,
   QA: QAResultBreakdown,
   RO: ROResultBreakdown,
+  RS: RSResultBreakdown,
   SA: SAResultBreakdown,
   SI: SIResultBreakdown,
   SK: SKResultBreakdown,
   TR: TRResultBreakdown,
   UA: UAResultBreakdown,
+  UY: UYResultBreakdown,
   VN: VNResultBreakdown,
   ZA: ZAResultBreakdown,
 };
