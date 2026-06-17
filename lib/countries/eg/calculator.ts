@@ -18,8 +18,9 @@ import { roundCurrency } from "../calculator-utils";
 
 export function calculateEG(inputs: EGCalculatorInputs): CalculationResult {
   const grossIncome = Math.max(0, inputs.grossSalary);
+  const socialBase = Math.min(grossIncome, EG_SOCIAL_INSURANCE_2026.annualSalaryCap);
   const socialInsurance = roundCurrency(
-    grossIncome * EG_SOCIAL_INSURANCE_2026.employeeRate,
+    socialBase * EG_SOCIAL_INSURANCE_2026.employeeRate,
   );
   const incomeAfterSocial = Math.max(0, grossIncome - socialInsurance);
   const taxableIncome = Math.max(
@@ -48,7 +49,7 @@ export function calculateEG(inputs: EGCalculatorInputs): CalculationResult {
     bracketTaxes: progressive.details,
     incomeTax: { total: incomeTax },
     assumptions: [
-      "Employee social insurance 11% on gross (simplified NOSI employee share).",
+      "Employee social insurance 11% on gross capped at EGP 16,700/month.",
       "Personal exemption EGP 20,000 applied before progressive salary tax.",
       "High-earner bracket elimination rule excluded for simplicity.",
       "Excludes solidarity levy, Zakat, and sector-specific exemptions.",

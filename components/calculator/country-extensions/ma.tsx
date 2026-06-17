@@ -59,7 +59,7 @@ export default function MACountryExtension({
               }))
             }
             max={MA_DEPENDENT_CREDIT_2026.maxDependents}
-            description="MAD 360/month tax credit per dependent (max 6)."
+            description="MAD 600/year tax credit per dependent (max MAD 3,600 total)."
           />
         </CalculatorFieldGrid>
       }
@@ -115,6 +115,10 @@ function MoroccoTaxInfo() {
           <li>
             <strong className="text-zinc-300">Income tax (IR)</strong> –
             progressive rates from 0% to 37% on net taxable income.
+          </li>
+          <li>
+            <strong className="text-zinc-300">Dependents</strong> – MAD 600/year
+            credit per dependent (max MAD 3,600).
           </li>
         </ul>
         <p className="text-xs text-zinc-500 mt-4">

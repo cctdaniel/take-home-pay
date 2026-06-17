@@ -18,9 +18,9 @@ describe("MA calculator", () => {
       ...MACalculator.getDefaultInputs(),
       dependents: 2,
     });
-    expect(result.breakdown.dependentCredit).toBeCloseTo(8_640, 0);
-    expect(result.taxes.incomeTax).toBeCloseTo(6_765.44, 0);
-    expect(result.netSalary).toBeCloseTo(130_754.56, 0);
+    expect(result.breakdown.dependentCredit).toBeCloseTo(1_200, 0);
+    expect(result.taxes.incomeTax).toBeCloseTo(14_205.44, 0);
+    expect(result.netSalary).toBeCloseTo(123_314.56, 0);
   });
 
   it("has low tax on MAD 60,000 annual salary", () => {

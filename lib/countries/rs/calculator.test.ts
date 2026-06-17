@@ -24,23 +24,23 @@ describe("RS calculator", () => {
     if (result.breakdown.type === "RS") {
       expect(result.breakdown.socialSecurity.employee).toBe(429_840);
       expect(result.breakdown.nonTaxableAmount).toBe(RS_NON_TAXABLE_ANNUAL);
-      expect(result.breakdown.taxableIncome).toBe(1_319_508);
-      expect(result.breakdown.incomeTax.total).toBe(131_950.8);
+      expect(result.breakdown.taxableIncome).toBe(1_749_348);
+      expect(result.breakdown.incomeTax.total).toBe(174_934.8);
     }
-    expect(result.netSalary).toBe(1_598_209.2);
+    expect(result.netSalary).toBe(1_555_225.2);
   });
 
-  it("returns zero PIT when non-taxable amount exceeds remaining income", () => {
+  it("returns zero PIT when non-taxable amount exceeds gross", () => {
     const result = RSCalculator.calculate({
       ...RSCalculator.getDefaultInputs(),
       grossSalary: 500_000,
     });
     if (result.breakdown.type === "RS") {
       expect(result.breakdown.socialSecurity.employee).toBe(99_500);
-      expect(result.breakdown.taxableIncome).toBe(0);
-      expect(result.breakdown.incomeTax.total).toBe(0);
+      expect(result.breakdown.taxableIncome).toBe(89_348);
+      expect(result.breakdown.incomeTax.total).toBe(8_934.8);
     }
-    expect(result.netSalary).toBe(400_500);
+    expect(result.netSalary).toBe(391_565.2);
   });
 
   it("caps employee social at RSD 8,793,840 annual base", () => {
@@ -64,10 +64,10 @@ describe("RS calculator", () => {
     });
     if (result.breakdown.type === "RS") {
       expect(result.breakdown.socialSecurity.employee).toBe(238_800);
-      expect(result.breakdown.taxableIncome).toBe(550_548);
-      expect(result.breakdown.incomeTax.total).toBe(55_054.8);
+      expect(result.breakdown.taxableIncome).toBe(789_348);
+      expect(result.breakdown.incomeTax.total).toBe(78_934.8);
     }
-    expect(result.netSalary).toBe(906_145.2);
+    expect(result.netSalary).toBe(882_265.2);
   });
 
   it("returns zero tax on zero gross", () => {

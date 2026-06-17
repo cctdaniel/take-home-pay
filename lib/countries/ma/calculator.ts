@@ -94,7 +94,7 @@ export function calculateMA(inputs: MACalculatorInputs): CalculationResult {
       "CNSS employee 4.48% capped at MAD 6,000/month plus AMO 2.26% uncapped.",
       "Professional expense deduction 20% of (gross − social), capped MAD 30,000/year.",
       "Supplementary retirement (e.g. CIMR) deductible up to 50% of net taxable salary.",
-      "Dependent credit MAD 360/month per dependent (max 6).",
+      "Dependent credit MAD 600/year per dependent (max MAD 3,600).",
     ],
     sourceUrls: Object.values(MA_SOURCE_URLS),
   };

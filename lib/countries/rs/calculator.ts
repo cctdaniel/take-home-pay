@@ -27,7 +27,7 @@ export function calculateRS(inputs: RSCalculatorInputs): CalculationResult {
   const socialBase = Math.min(grossIncome, RS_SOCIAL_ANNUAL_CAP);
   const socialSecurity = roundCurrency(socialBase * RS_SOCIAL_EMPLOYEE_RATE);
   const taxableIncome = roundCurrency(
-    Math.max(0, grossIncome - socialSecurity - RS_NON_TAXABLE_ANNUAL - voluntaryPension),
+    Math.max(0, grossIncome - RS_NON_TAXABLE_ANNUAL - voluntaryPension),
   );
   const incomeTax = roundCurrency(taxableIncome * RS_PIT_RATE);
 
@@ -62,7 +62,8 @@ export function calculateRS(inputs: RSCalculatorInputs): CalculationResult {
     },
     assumptions: [
       "Employee social 19.9% on gross capped at RSD 732,820/month.",
-      "Flat 10% personal income tax after employee social, non-taxable minimum, and tax-exempt voluntary pension.",
+      "Flat 10% personal income tax after non-taxable minimum and tax-exempt voluntary pension.",
+      "Employee social security is computed separately and not deducted from the PIT base.",
       "Voluntary private pension fund contributions up to RSD 8,677/month are exempt from PIT and social.",
       "Excludes local surtaxes, meal allowances, and employer-only payroll costs.",
     ],

@@ -27,9 +27,11 @@ export const MA_PROFESSIONAL_EXPENSES_2026 = {
   annualCap: 30_000,
 } as const;
 
-/** Dependent tax credit — MAD 360/month per dependent. */
+/** Dependent tax credit — MAD 600/year per dependent, capped at MAD 3,600. */
+// Source: https://www.finances.gov.ma/Publication/dgi/2025/note-synthetique-mesures-fiscalesLF20265.pdf
 export const MA_DEPENDENT_CREDIT_2026 = {
-  monthlyCredit: 360,
+  annualCreditPerDependent: 600,
+  annualCap: 3_600,
   maxDependents: 6,
 } as const;
 
@@ -80,5 +82,8 @@ export function calculateMaDependentCredit(dependents: number): number {
     Math.max(0, dependents),
     MA_DEPENDENT_CREDIT_2026.maxDependents,
   );
-  return count * MA_DEPENDENT_CREDIT_2026.monthlyCredit * 12;
+  return Math.min(
+    count * MA_DEPENDENT_CREDIT_2026.annualCreditPerDependent,
+    MA_DEPENDENT_CREDIT_2026.annualCap,
+  );
 }

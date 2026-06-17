@@ -13,6 +13,9 @@ export const EG_SOURCE_URLS = {
 /** Simplified NOSI employee social insurance share on gross salary. */
 export const EG_SOCIAL_INSURANCE_2026 = {
   employeeRate: 0.11,
+  /** Maximum insurable monthly wage — EGP 16,700/month. */
+  monthlySalaryCap: 16_700,
+  annualSalaryCap: 16_700 * 12,
 } as const;
 
 /** Annual personal exemption (EGP). */

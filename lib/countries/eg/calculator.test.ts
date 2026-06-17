@@ -2,15 +2,19 @@
 // https://eta.gov.eg/
 
 import { describe, expect, it } from "vitest";
+import { EG_SOCIAL_INSURANCE_2026 } from "./constants/tax-year-2026";
 import { EGCalculator } from "./calculator";
 
 describe("EG calculator", () => {
-  it("applies social insurance, exemption, and PIT at EGP 300,000 default", () => {
+  it("applies capped social insurance, exemption, and PIT at EGP 300,000 default", () => {
     const result = EGCalculator.calculate(EGCalculator.getDefaultInputs());
-    expect(result.taxes.socialInsurance).toBeCloseTo(33_000, 0);
-    expect(result.taxableIncome).toBeCloseTo(247_000, 0);
-    expect(result.taxes.incomeTax).toBeCloseTo(40_325, 0);
-    expect(result.netSalary).toBeCloseTo(226_675, 0);
+    const expectedSocial =
+      EG_SOCIAL_INSURANCE_2026.annualSalaryCap *
+      EG_SOCIAL_INSURANCE_2026.employeeRate;
+    expect(result.taxes.socialInsurance).toBeCloseTo(expectedSocial, 0);
+    expect(result.taxableIncome).toBeCloseTo(257_956, 0);
+    expect(result.taxes.incomeTax).toBeCloseTo(42_790.1, 0);
+    expect(result.netSalary).toBeCloseTo(235_165.9, 0);
   });
 
   it("has zero income tax below personal exemption after social insurance", () => {
@@ -32,14 +36,14 @@ describe("EG calculator", () => {
     expect(result.netSalary).toBeCloseTo(85_400, 0);
   });
 
-  it("applies top 27.5% bracket on high salary EGP 1,500,000", () => {
+  it("caps social insurance and applies top bracket on high salary EGP 1,500,000", () => {
     const result = EGCalculator.calculate({
       ...EGCalculator.getDefaultInputs(),
       grossSalary: 1_500_000,
     });
-    expect(result.taxes.socialInsurance).toBeCloseTo(165_000, 0);
-    expect(result.taxes.incomeTax).toBeCloseTo(306_375, 0);
-    expect(result.netSalary).toBeCloseTo(1_028_625, 0);
+    expect(result.taxes.socialInsurance).toBeCloseTo(22_044, 0);
+    expect(result.taxes.incomeTax).toBeCloseTo(345_687.9, 0);
+    expect(result.netSalary).toBeCloseTo(1_132_268.1, 0);
   });
 
   it("returns zero tax on zero gross salary", () => {

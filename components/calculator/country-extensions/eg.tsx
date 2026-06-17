@@ -40,7 +40,7 @@ export default function EGCountryExtension({
       contributions={
         <NoVoluntaryPitReliefNote
           explanation="Egypt does not model employee-controlled voluntary pension or savings contributions that reduce salary income tax on monthly payroll."
-          mandatoryLabel="NOSI employee social insurance (11% of gross) and progressive salary tax after the EGP 20,000 personal exemption."
+          mandatoryLabel="NOSI employee social insurance (11% capped at EGP 16,700/month) and progressive salary tax after the EGP 20,000 personal exemption."
           sourceUrl={EG_SOURCE_URLS.incomeTax}
           sourceLabel="Egyptian Tax Authority"
         />
@@ -49,8 +49,8 @@ export default function EGCountryExtension({
       contributionsDescription="No voluntary tax-reducing contributions modeled for Egypt"
       infoCard={
         <InfoPanel title="Modeled scope">
-          Employee social insurance 11% on gross, EGP 20,000 exemption, then
-          progressive PIT. High-earner bracket elimination rule excluded.
+          Employee social insurance 11% capped at EGP 16,700/month, EGP 20,000
+          exemption, then progressive PIT. High-earner bracket elimination rule excluded.
         </InfoPanel>
       }
       seoInfo={<EgyptTaxInfo />}
@@ -69,7 +69,7 @@ function EgyptTaxInfo() {
         <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
           <li>
             <strong className="text-zinc-300">Social insurance</strong> – 11%
-            employee share on gross salary (simplified NOSI model).
+            employee share capped at EGP 16,700/month.
           </li>
           <li>
             <strong className="text-zinc-300">Personal exemption</strong> –

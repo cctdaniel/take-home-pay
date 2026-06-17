@@ -43,7 +43,7 @@ export const buildCountryComparison: CountryComparisonAdapter = (ctx) => {
   const assumptions = buildAssumptionsSummary(country, inputs, isMaxRetirement);
   assumptions.push("CNSS + AMO, 20% professional expenses, IR brackets");
   if (dependents > 0) {
-    assumptions.push(`${dependents} dependent(s) for MAD 360/month credit each`);
+    assumptions.push(`${dependents} dependent(s) for MAD 600/year credit each`);
   }
   if (supplementaryPension > 0) {
     assumptions.push("Supplementary retirement (CIMR) at 50% of net taxable salary cap");
