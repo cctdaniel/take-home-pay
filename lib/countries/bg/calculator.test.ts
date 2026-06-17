@@ -75,4 +75,18 @@ describe("BG calculator", () => {
     expect(result.netSalary).toBeGreaterThan(80_000);
     expect(result.netSalary).toBeLessThan(100_000);
   });
+
+  it("reduces PIT when voluntary pension is at the 10% tax-base cap", () => {
+    const without = BGCalculator.calculate({
+      ...BGCalculator.getDefaultInputs(),
+      grossSalary: 36_000,
+    });
+    const withVoluntary = BGCalculator.calculate({
+      ...BGCalculator.getDefaultInputs(),
+      grossSalary: 36_000,
+      contributions: { voluntaryPension: 3_069.28 },
+    });
+    expect(withVoluntary.totalTax).toBeLessThan(without.totalTax);
+    expect(withVoluntary.netSalary).toBeLessThan(without.netSalary);
+  });
 });

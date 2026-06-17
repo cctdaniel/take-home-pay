@@ -10,7 +10,7 @@ import {
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
 import { InfoPanel } from "@/components/calculator/info-panel";
-import { NoPitContributionsNote } from "@/components/calculator/no-pit-contributions-note";
+import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
 import { UY_SOURCE_URLS } from "@/lib/countries/uy/constants/tax-year-2026";
 import type { UYCalculatorInputs } from "@/lib/countries/uy/types";
 
@@ -38,18 +38,19 @@ export default function UYCountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <NoPitContributionsNote
-          mandatoryLabel="BPS 15%, FRL 0.1%, and FONASA 3% employee contributions on gross; progressive IRPF after social with 7 BPC MNIG exemption."
+        <NoVoluntaryPitReliefNote
+          explanation="Uruguay has tax-deductible voluntary AFAP contributions (similar in spirit to SRS/401k), but relief is typically claimed on the annual IRPF return rather than in monthly BPS withholding. This calculator models mandatory BPS/FONASA only."
+          mandatoryLabel="BPS 15%, FRL 0.1%, and FONASA 3% employee contributions; progressive IRPF after social with 7 BPC MNIG exemption."
           sourceUrl={UY_SOURCE_URLS.bps}
           sourceLabel="BPS Uruguay"
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="Mandatory payroll deductions are calculated automatically from your gross salary"
+      contributionsDescription="Voluntary AFAP top-ups exist but are not modeled on monthly payroll"
       infoCard={
         <InfoPanel title="Modeled scope">
-          18.1% employee social; IRPF progressive by BPC bands after social. No
-          voluntary AFAP top-ups modeled.
+          18.1% employee social; IRPF progressive by BPC bands after social.
+          Voluntary AFAP deductible via annual return — not in monthly slider.
         </InfoPanel>
       }
       seoInfo={<UruguayTaxInfo />}
@@ -71,8 +72,9 @@ function UruguayTaxInfo() {
             15%, FRL 0.1%, FONASA 3% (18.1% total) on gross.
           </li>
           <li>
-            <strong className="text-zinc-300">IRPF base</strong> – gross minus
-            employee social contributions.
+            <strong className="text-zinc-300">Voluntary AFAP</strong> – exists
+            and reduces IRPF, but is claimed on the annual tax return (not
+            modeled here).
           </li>
           <li>
             <strong className="text-zinc-300">Income tax</strong> – progressive

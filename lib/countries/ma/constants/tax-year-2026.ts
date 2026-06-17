@@ -33,6 +33,10 @@ export const MA_DEPENDENT_CREDIT_2026 = {
   maxDependents: 6,
 } as const;
 
+/** Supplementary retirement (e.g. CIMR) — deductible up to 50% of net taxable salary. */
+// Source: https://www.tax.gov.ma/ — CGI art. 28-III / art. 59
+export const MA_SUPPLEMENTARY_PENSION_MAX_NET_SALARY_RATE = 0.5;
+
 /** Progressive IR brackets on net taxable income (annual MAD). */
 export const MA_IR_BRACKETS_2026: TaxBracket[] = [
   { min: 0, max: 40_000, rate: 0 },

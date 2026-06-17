@@ -10,15 +10,20 @@ import {
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
 import { InfoPanel } from "@/components/calculator/info-panel";
-import { NoPitContributionsNote } from "@/components/calculator/no-pit-contributions-note";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
 import { BG_SOURCE_URLS } from "@/lib/countries/bg/constants/tax-year-2026";
 import type { BGCalculatorInputs } from "@/lib/countries/bg/types";
+import { clampAmount } from "@/lib/utils";
 
 export default function BGCountryExtension({
   country,
 }: CountryCalculatorExtensionProps) {
-  const { inputs, currency, result, setGrossSalary, setPayFrequency } =
+  const { inputs, setInputs, currency, result, setGrossSalary, setPayFrequency } =
     useCountryCalculatorExtension<BGCalculatorInputs>(country);
+  const limit =
+    getCountryCalculator(country).getContributionLimits(inputs).voluntaryPension
+      ?.limit ?? 0;
 
   return (
     <CountryCalculatorExtensionShell
@@ -38,18 +43,30 @@ export default function BGCountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <NoPitContributionsNote
-          mandatoryLabel="Employee social security 13.78% on gross, capped at EUR 2,111.64/month; flat 10% PIT on remaining salary."
-          sourceUrl={BG_SOURCE_URLS.taxesAndSocial}
-          sourceLabel="Ministry of Labour and Social Policy"
+        <ContributionSlider
+          label="Voluntary supplementary pension"
+          description="Third-pillar pension contributions reduce your income tax base up to 10% of annual taxable income after social security."
+          value={inputs.contributions.voluntaryPension}
+          onChange={(voluntaryPension) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                voluntaryPension: clampAmount(voluntaryPension, limit),
+              },
+            }))
+          }
+          max={limit}
+          step={100}
+          currency={currency}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="Mandatory payroll deductions are calculated automatically from your gross salary"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
       infoCard={
         <InfoPanel title="Modeled scope">
-          13.78% employee social capped monthly; 10% flat PIT after social. No
-          voluntary pension top-ups modeled.
+          13.78% employee social capped monthly; 10% flat PIT after social and
+          voluntary pension.
         </InfoPanel>
       }
       seoInfo={<BulgariaTaxInfo />}
@@ -71,14 +88,25 @@ function BulgariaTaxInfo() {
             employee on gross, capped at EUR 2,111.64 per month.
           </li>
           <li>
-            <strong className="text-zinc-300">Income tax</strong> – flat 10% on
-            gross salary minus employee social security.
+            <strong className="text-zinc-300">Voluntary pension</strong> –
+            deductible up to 10% of the tax base (NRA Art. 19).
           </li>
           <li>
-            <strong className="text-zinc-300">Voluntary contributions</strong> –
-            not modeled; mandatory payroll items are calculated automatically.
+            <strong className="text-zinc-300">Income tax</strong> – flat 10% on
+            gross minus employee social security and voluntary pension.
           </li>
         </ul>
+        <p className="text-xs text-zinc-500 mt-4">
+          Source:{" "}
+          <a
+            href={BG_SOURCE_URLS.nra}
+            className="text-blue-400 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Bulgarian National Revenue Agency
+          </a>
+        </p>
       </div>
     </section>
   );

@@ -10,15 +10,20 @@ import {
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
 import { InfoPanel } from "@/components/calculator/info-panel";
-import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
 import { NG_SOURCE_URLS } from "@/lib/countries/ng/constants/tax-year-2026";
 import type { NGCalculatorInputs } from "@/lib/countries/ng/types";
+import { clampAmount } from "@/lib/utils";
 
 export default function NGCountryExtension({
   country,
 }: CountryCalculatorExtensionProps) {
-  const { inputs, currency, result, setGrossSalary, setPayFrequency } =
+  const { inputs, setInputs, currency, result, setGrossSalary, setPayFrequency } =
     useCountryCalculatorExtension<NGCalculatorInputs>(country);
+  const limit =
+    getCountryCalculator(country).getContributionLimits(inputs)
+      .additionalVoluntaryPension?.limit ?? 0;
 
   return (
     <CountryCalculatorExtensionShell
@@ -38,19 +43,33 @@ export default function NGCountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <NoVoluntaryPitReliefNote
-          explanation="Nigeria's mandatory 8% pension contribution is already deducted before PAYE. Voluntary additional voluntary contributions (AVC) and other optional pension top-ups are not modeled here."
-          mandatoryLabel="Employee pension 8% of gross and NTA 2025 PAYE on chargeable income."
-          sourceUrl={NG_SOURCE_URLS.pension}
-          sourceLabel="National Pension Commission (PenCom)"
+        <ContributionSlider
+          label="Additional voluntary pension (AVC)"
+          description="Extra pension contributions under the Pension Reform Act, deductible before PAYE (on top of the mandatory 8%)."
+          value={inputs.contributions.additionalVoluntaryPension}
+          onChange={(additionalVoluntaryPension) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                additionalVoluntaryPension: clampAmount(
+                  additionalVoluntaryPension,
+                  limit,
+                ),
+              },
+            }))
+          }
+          max={limit}
+          step={50_000}
+          currency={currency}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="Mandatory pension is automatic; voluntary top-ups not modeled"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
       infoCard={
         <InfoPanel title="Modeled scope">
-          Mandatory pension 8% before NTA 2025 PAYE Fourth Schedule brackets.
-          Consolidated relief allowance and NHF excluded.
+          Mandatory 8% pension plus optional AVC before NTA 2025 PAYE. Rent
+          relief, NHF, and life insurance excluded.
         </InfoPanel>
       }
       seoInfo={<NigeriaTaxInfo />}
@@ -72,10 +91,25 @@ function NigeriaTaxInfo() {
             employee contribution deducted from gross before tax.
           </li>
           <li>
+            <strong className="text-zinc-300">AVC</strong> – additional
+            voluntary pension deductible under NTA 2025 §30(2)(a)(iii).
+          </li>
+          <li>
             <strong className="text-zinc-300">PAYE</strong> – NTA 2025
             progressive rates from 0% to 25% on chargeable income.
           </li>
         </ul>
+        <p className="text-xs text-zinc-500 mt-4">
+          Source:{" "}
+          <a
+            href={NG_SOURCE_URLS.pension}
+            className="text-blue-400 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            National Pension Commission (PenCom)
+          </a>
+        </p>
       </div>
     </section>
   );

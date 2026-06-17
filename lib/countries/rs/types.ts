@@ -6,7 +6,9 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type RSContributionInputs = Record<string, never>;
+export interface RSContributionInputs {
+  voluntaryPension: number;
+}
 
 export interface RSCalculatorInputs extends BaseCalculatorInputs {
   country: "RS";
@@ -32,6 +34,8 @@ export interface RSBreakdown {
   taxableIncome: number;
   incomeTax: { rate: number; total: number };
   voluntaryContributions: {
+    voluntaryPension: number;
+    voluntaryPensionLimit: number;
     total: number;
   };
   assumptions: string[];

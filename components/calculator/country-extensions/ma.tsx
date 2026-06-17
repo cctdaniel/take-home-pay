@@ -11,19 +11,23 @@ import {
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
 import { InfoPanel } from "@/components/calculator/info-panel";
-import { NoVoluntaryPitReliefNote } from "@/components/calculator/no-voluntary-pit-relief-note";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
 import {
   MA_DEPENDENT_CREDIT_2026,
   MA_SOURCE_URLS,
 } from "@/lib/countries/ma/constants/tax-year-2026";
 import type { MACalculatorInputs } from "@/lib/countries/ma/types";
-import { clampCount } from "@/lib/utils";
+import { clampAmount, clampCount } from "@/lib/utils";
 
 export default function MACountryExtension({
   country,
 }: CountryCalculatorExtensionProps) {
   const { inputs, setInputs, currency, result, setGrossSalary, setPayFrequency } =
     useCountryCalculatorExtension<MACalculatorInputs>(country);
+  const limit =
+    getCountryCalculator(country).getContributionLimits(inputs).supplementaryPension
+      ?.limit ?? 0;
 
   return (
     <CountryCalculatorExtensionShell
@@ -60,19 +64,30 @@ export default function MACountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <NoVoluntaryPitReliefNote
-          explanation="Morocco does not model employee-controlled voluntary pension or savings contributions that reduce salary income tax on monthly payroll."
-          mandatoryLabel="CNSS and AMO social contributions, professional expense deduction, and progressive IR with dependent credits."
-          sourceUrl={MA_SOURCE_URLS.incomeTax}
-          sourceLabel="Direction Générale des Impôts"
+        <ContributionSlider
+          label="Supplementary retirement (CIMR)"
+          description="Employee supplementary pension contributions deductible up to 50% of net taxable salary (CGI art. 28-III)."
+          value={inputs.contributions.supplementaryPension}
+          onChange={(supplementaryPension) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                supplementaryPension: clampAmount(supplementaryPension, limit),
+              },
+            }))
+          }
+          max={limit}
+          step={1_000}
+          currency={currency}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="No voluntary tax-reducing contributions modeled for Morocco"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
       infoCard={
         <InfoPanel title="Modeled scope">
-          CNSS 4.48% (capped) + AMO 2.26%, 20% professional expenses (max MAD
-          30,000), progressive IR, and dependent credits.
+          CNSS + AMO, 20% professional expenses, CIMR supplementary pension,
+          progressive IR, and dependent credits.
         </InfoPanel>
       }
       seoInfo={<MoroccoTaxInfo />}
@@ -94,18 +109,25 @@ function MoroccoTaxInfo() {
             CNSS 4.48% capped at MAD 6,000/month plus AMO 2.26% on gross.
           </li>
           <li>
-            <strong className="text-zinc-300">Professional expenses</strong> –
-            20% of (gross − social), capped at MAD 30,000/year.
+            <strong className="text-zinc-300">CIMR</strong> – supplementary
+            pension deductible up to 50% of net taxable salary.
           </li>
           <li>
             <strong className="text-zinc-300">Income tax (IR)</strong> –
             progressive rates from 0% to 37% on net taxable income.
           </li>
-          <li>
-            <strong className="text-zinc-300">Dependents</strong> – MAD 360/month
-            credit per dependent (up to 6).
-          </li>
         </ul>
+        <p className="text-xs text-zinc-500 mt-4">
+          Source:{" "}
+          <a
+            href={MA_SOURCE_URLS.incomeTax}
+            className="text-blue-400 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Direction Générale des Impôts
+          </a>
+        </p>
       </div>
     </section>
   );

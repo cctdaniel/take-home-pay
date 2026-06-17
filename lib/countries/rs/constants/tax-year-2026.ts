@@ -26,3 +26,8 @@ export const RS_PIT_RATE = 0.1;
 export const RS_PIT_BRACKETS_2026: TaxBracket[] = [
   { min: 0, max: Infinity, rate: RS_PIT_RATE },
 ];
+
+/** Tax-exempt voluntary pension + health insurance payroll contributions (combined cap). */
+// Source: https://www.raiffeisenfuture.rs/maksimalni-neoporezivi-iznos-doprinosa-od-1-februara-2026-godine/
+export const RS_VOLUNTARY_PENSION_MONTHLY_CAP = 8_677;
+export const RS_VOLUNTARY_PENSION_ANNUAL_CAP = RS_VOLUNTARY_PENSION_MONTHLY_CAP * 12;

@@ -10,15 +10,20 @@ import {
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
 import { InfoPanel } from "@/components/calculator/info-panel";
-import { NoPitContributionsNote } from "@/components/calculator/no-pit-contributions-note";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
 import { RS_SOURCE_URLS } from "@/lib/countries/rs/constants/tax-year-2026";
 import type { RSCalculatorInputs } from "@/lib/countries/rs/types";
+import { clampAmount } from "@/lib/utils";
 
 export default function RSCountryExtension({
   country,
 }: CountryCalculatorExtensionProps) {
-  const { inputs, currency, result, setGrossSalary, setPayFrequency } =
+  const { inputs, setInputs, currency, result, setGrossSalary, setPayFrequency } =
     useCountryCalculatorExtension<RSCalculatorInputs>(country);
+  const limit =
+    getCountryCalculator(country).getContributionLimits(inputs).voluntaryPension
+      ?.limit ?? 0;
 
   return (
     <CountryCalculatorExtensionShell
@@ -38,18 +43,30 @@ export default function RSCountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <NoPitContributionsNote
-          mandatoryLabel="Employee social 19.9% on gross (capped monthly); flat 10% PIT after social and RSD 410,652 annual non-taxable amount."
-          sourceUrl={RS_SOURCE_URLS.purs}
-          sourceLabel="Serbian Tax Administration (PURS)"
+        <ContributionSlider
+          label="Voluntary private pension fund"
+          description="Payroll contributions up to RSD 8,677/month are exempt from income tax and social security."
+          value={inputs.contributions.voluntaryPension}
+          onChange={(voluntaryPension) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                voluntaryPension: clampAmount(voluntaryPension, limit),
+              },
+            }))
+          }
+          max={limit}
+          step={1_000}
+          currency={currency}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="Mandatory payroll deductions are calculated automatically from your gross salary"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
       infoCard={
         <InfoPanel title="Modeled scope">
           19.9% employee social capped; RSD 34,221/month non-taxable; 10% flat
-          PIT. No voluntary deductions modeled.
+          PIT after social and voluntary pension.
         </InfoPanel>
       }
       seoInfo={<SerbiaTaxInfo />}
@@ -72,14 +89,25 @@ function SerbiaTaxInfo() {
             732,820/month.
           </li>
           <li>
-            <strong className="text-zinc-300">Non-taxable amount</strong> – RSD
-            410,652 per year deducted before income tax.
+            <strong className="text-zinc-300">Voluntary pension</strong> – up
+            to RSD 8,677/month via payroll is tax-exempt.
           </li>
           <li>
-            <strong className="text-zinc-300">Income tax</strong> – flat 10% on
-            remaining taxable salary.
+            <strong className="text-zinc-300">Income tax</strong> – flat 10%
+            after social, non-taxable minimum, and voluntary pension.
           </li>
         </ul>
+        <p className="text-xs text-zinc-500 mt-4">
+          Source:{" "}
+          <a
+            href={RS_SOURCE_URLS.purs}
+            className="text-blue-400 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Serbian Tax Administration (PURS)
+          </a>
+        </p>
       </div>
     </section>
   );

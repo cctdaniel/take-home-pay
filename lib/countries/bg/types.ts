@@ -6,7 +6,9 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type BGContributionInputs = Record<string, never>;
+export interface BGContributionInputs {
+  voluntaryPension: number;
+}
 
 export interface BGCalculatorInputs extends BaseCalculatorInputs {
   country: "BG";
@@ -31,6 +33,8 @@ export interface BGBreakdown {
   taxableIncome: number;
   incomeTax: { rate: number; total: number };
   voluntaryContributions: {
+    voluntaryPension: number;
+    voluntaryPensionLimit: number;
     total: number;
   };
   assumptions: string[];

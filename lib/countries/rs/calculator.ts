@@ -1,3 +1,4 @@
+import { clampAmount } from "@/lib/utils";
 import type {
   CalculationResult,
   CalculatorInputs,
@@ -13,15 +14,20 @@ import {
   RS_SOCIAL_ANNUAL_CAP,
   RS_SOCIAL_EMPLOYEE_RATE,
   RS_SOURCE_URLS,
+  RS_VOLUNTARY_PENSION_ANNUAL_CAP,
 } from "./constants/tax-year-2026";
 import type { RSBreakdown, RSCalculatorInputs, RSTaxBreakdown } from "./types";
 
 export function calculateRS(inputs: RSCalculatorInputs): CalculationResult {
   const grossIncome = Math.max(0, inputs.grossSalary);
+  const voluntaryPension = clampAmount(
+    inputs.contributions?.voluntaryPension,
+    RS_VOLUNTARY_PENSION_ANNUAL_CAP,
+  );
   const socialBase = Math.min(grossIncome, RS_SOCIAL_ANNUAL_CAP);
   const socialSecurity = roundCurrency(socialBase * RS_SOCIAL_EMPLOYEE_RATE);
   const taxableIncome = roundCurrency(
-    Math.max(0, grossIncome - socialSecurity - RS_NON_TAXABLE_ANNUAL),
+    Math.max(0, grossIncome - socialSecurity - RS_NON_TAXABLE_ANNUAL - voluntaryPension),
   );
   const incomeTax = roundCurrency(taxableIncome * RS_PIT_RATE);
 
@@ -32,7 +38,7 @@ export function calculateRS(inputs: RSCalculatorInputs): CalculationResult {
     socialSecurity,
   };
   const totalTax = incomeTax + socialSecurity;
-  const totalDeductions = totalTax;
+  const totalDeductions = totalTax + voluntaryPension;
   const netSalary = roundCurrency(grossIncome - totalDeductions);
   const effectiveTaxRate = grossIncome > 0 ? totalTax / grossIncome : 0;
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
@@ -49,11 +55,15 @@ export function calculateRS(inputs: RSCalculatorInputs): CalculationResult {
     nonTaxableAmount: RS_NON_TAXABLE_ANNUAL,
     taxableIncome,
     incomeTax: { rate: RS_PIT_RATE, total: incomeTax },
-    voluntaryContributions: { total: 0 },
+    voluntaryContributions: {
+      voluntaryPension,
+      voluntaryPensionLimit: RS_VOLUNTARY_PENSION_ANNUAL_CAP,
+      total: voluntaryPension,
+    },
     assumptions: [
       "Employee social 19.9% on gross capped at RSD 732,820/month.",
-      "Flat 10% personal income tax after employee social and RSD 410,652 annual non-taxable amount.",
-      "No voluntary pension or private insurance deductions modeled.",
+      "Flat 10% personal income tax after employee social, non-taxable minimum, and tax-exempt voluntary pension.",
+      "Voluntary private pension fund contributions up to RSD 8,677/month are exempt from PIT and social.",
       "Excludes local surtaxes, meal allowances, and employer-only payroll costs.",
     ],
     sourceUrls: Object.values(RS_SOURCE_URLS),
@@ -94,7 +104,15 @@ export const RSCalculator: CountryCalculator = {
   },
 
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      voluntaryPension: {
+        limit: RS_VOLUNTARY_PENSION_ANNUAL_CAP,
+        name: "Voluntary private pension fund",
+        description:
+          "Payroll contributions up to RSD 8,677/month are exempt from income tax and social security.",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): RSCalculatorInputs {
@@ -102,7 +120,7 @@ export const RSCalculator: CountryCalculator = {
       country: "RS",
       grossSalary: 2_160_000,
       payFrequency: "monthly",
-      contributions: {},
+      contributions: { voluntaryPension: 0 },
     };
   },
 };

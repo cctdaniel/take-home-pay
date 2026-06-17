@@ -10,15 +10,19 @@ import {
   type CountryCalculatorExtensionProps,
 } from "@/components/calculator/country-extension";
 import { InfoPanel } from "@/components/calculator/info-panel";
-import { NoPitContributionsNote } from "@/components/calculator/no-pit-contributions-note";
+import { ContributionSlider } from "@/components/ui/contribution-slider";
+import { getCountryCalculator } from "@/lib/countries/registry";
 import { PE_SOURCE_URLS } from "@/lib/countries/pe/constants/tax-year-2026";
 import type { PECalculatorInputs } from "@/lib/countries/pe/types";
+import { clampAmount } from "@/lib/utils";
 
 export default function PECountryExtension({
   country,
 }: CountryCalculatorExtensionProps) {
-  const { inputs, currency, result, setGrossSalary, setPayFrequency } =
+  const { inputs, setInputs, currency, result, setGrossSalary, setPayFrequency } =
     useCountryCalculatorExtension<PECalculatorInputs>(country);
+  const limit =
+    getCountryCalculator(country).getContributionLimits(inputs).apv?.limit ?? 0;
 
   return (
     <CountryCalculatorExtensionShell
@@ -38,18 +42,30 @@ export default function PECountryExtension({
         </CalculatorFieldGrid>
       }
       contributions={
-        <NoPitContributionsNote
-          mandatoryLabel="Employee pension ~13% on gross; progressive fifth-category income tax after 7 UIT (PEN 38,500) deduction."
-          sourceUrl={PE_SOURCE_URLS.sunat}
-          sourceLabel="SUNAT"
+        <ContributionSlider
+          label="AFP voluntary contribution (APV)"
+          description="Tax-deductible voluntary pension up to 8% of gross income or 41 UIT per year."
+          value={inputs.contributions.apv}
+          onChange={(apv) =>
+            setInputs((current) => ({
+              ...current,
+              contributions: {
+                ...current.contributions,
+                apv: clampAmount(apv, limit),
+              },
+            }))
+          }
+          max={limit}
+          step={500}
+          currency={currency}
         />
       }
       contributionsTitle="Retirement & Savings Contributions"
-      contributionsDescription="Mandatory payroll deductions are calculated automatically from your gross salary"
+      contributionsDescription="Adjust voluntary contributions that reduce your tax base"
       infoCard={
         <InfoPanel title="Modeled scope">
-          13% pension; 7 UIT deduction; progressive PIT 8%–30%. AFP voluntary
-          top-ups not modeled.
+          13% mandatory pension; 7 UIT deduction; APV reduces PIT base; progressive
+          fifth-category rates 8%–30%.
         </InfoPanel>
       }
       seoInfo={<PeruTaxInfo />}
@@ -71,14 +87,25 @@ function PeruTaxInfo() {
             contribution on gross (ONP/AFP blended).
           </li>
           <li>
-            <strong className="text-zinc-300">Work-income deduction</strong> –
-            7 UIT (PEN 38,500) subtracted before income tax.
+            <strong className="text-zinc-300">APV</strong> – voluntary AFP
+            contributions deductible up to 8% of gross or 41 UIT.
           </li>
           <li>
             <strong className="text-zinc-300">Income tax</strong> – progressive
-            fifth-category rates from 8% to 30%.
+            fifth-category rates after 7 UIT deduction and APV.
           </li>
         </ul>
+        <p className="text-xs text-zinc-500 mt-4">
+          Source:{" "}
+          <a
+            href={PE_SOURCE_URLS.sunat}
+            className="text-blue-400 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            SUNAT
+          </a>
+        </p>
       </div>
     </section>
   );

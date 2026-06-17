@@ -1,3 +1,4 @@
+import { clampAmount } from "@/lib/utils";
 import type {
   CalculationResult,
   CalculatorInputs,
@@ -8,6 +9,7 @@ import type {
 import { calculateProgressiveTax, getPeriodsPerYear } from "../nordic-shared";
 import { NG_CONFIG } from "./config";
 import {
+  NG_AVC_MAX_ADDITIONAL_RATE,
   NG_PAYE_BRACKETS_2026,
   NG_PENSION_2026,
   NG_SOURCE_URLS,
@@ -15,10 +17,19 @@ import {
 import type { NGBreakdown, NGCalculatorInputs, NGTaxBreakdown } from "./types";
 import { roundCurrency } from "../calculator-utils";
 
+function getAdditionalVoluntaryPensionLimit(grossIncome: number): number {
+  return roundCurrency(grossIncome * NG_AVC_MAX_ADDITIONAL_RATE);
+}
+
 export function calculateNG(inputs: NGCalculatorInputs): CalculationResult {
   const grossIncome = Math.max(0, inputs.grossSalary);
   const pension = roundCurrency(grossIncome * NG_PENSION_2026.employeeRate);
-  const chargeableIncome = Math.max(0, grossIncome - pension);
+  const additionalVoluntaryPensionLimit = getAdditionalVoluntaryPensionLimit(grossIncome);
+  const additionalVoluntaryPension = clampAmount(
+    inputs.contributions?.additionalVoluntaryPension,
+    additionalVoluntaryPensionLimit,
+  );
+  const chargeableIncome = Math.max(0, grossIncome - pension - additionalVoluntaryPension);
   const progressive = calculateProgressiveTax(chargeableIncome, NG_PAYE_BRACKETS_2026);
   const incomeTax = progressive.tax;
 
@@ -29,7 +40,8 @@ export function calculateNG(inputs: NGCalculatorInputs): CalculationResult {
     pension,
   };
   const totalTax = roundCurrency(incomeTax + pension);
-  const netSalary = grossIncome - totalTax;
+  const totalDeductions = roundCurrency(totalTax + additionalVoluntaryPension);
+  const netSalary = grossIncome - totalDeductions;
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
 
   const breakdown: NGBreakdown = {
@@ -39,11 +51,16 @@ export function calculateNG(inputs: NGCalculatorInputs): CalculationResult {
     chargeableIncome,
     bracketTaxes: progressive.details,
     incomeTax: { total: incomeTax },
+    voluntaryContributions: {
+      additionalVoluntaryPension,
+      additionalVoluntaryPensionLimit,
+      total: additionalVoluntaryPension,
+    },
     assumptions: [
       "Mandatory employee pension 8% of gross deducted before PAYE.",
+      "Additional voluntary pension (AVC) deductible up to 10% of gross on top of mandatory pension.",
       "NTA 2025 Fourth Schedule PAYE brackets on chargeable income.",
-      "Voluntary AVC or additional pension top-ups not modeled.",
-      "Excludes NHF, NSITF, state levies, and consolidated relief allowance.",
+      "Excludes NHF, NSITF, rent relief, life insurance, and state levies.",
     ],
     sourceUrls: Object.values(NG_SOURCE_URLS),
   };
@@ -55,7 +72,7 @@ export function calculateNG(inputs: NGCalculatorInputs): CalculationResult {
     taxableIncome: chargeableIncome,
     taxes,
     totalTax,
-    totalDeductions: totalTax,
+    totalDeductions,
     netSalary,
     effectiveTaxRate: grossIncome > 0 ? totalTax / grossIncome : 0,
     perPeriod: {
@@ -82,8 +99,18 @@ export const NGCalculator: CountryCalculator = {
     return [];
   },
 
-  getContributionLimits(): ContributionLimits {
-    return {};
+  getContributionLimits(inputs?: NGCalculatorInputs): ContributionLimits {
+    const gross = inputs?.grossSalary ?? 7_200_000;
+    const limit = getAdditionalVoluntaryPensionLimit(gross);
+    return {
+      additionalVoluntaryPension: {
+        limit,
+        name: "Additional voluntary pension (AVC)",
+        description:
+          "Extra pension contributions under the Pension Reform Act, deductible before PAYE (modeled up to 10% of gross).",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): NGCalculatorInputs {
@@ -91,7 +118,7 @@ export const NGCalculator: CountryCalculator = {
       country: "NG",
       grossSalary: 7_200_000,
       payFrequency: "monthly",
-      contributions: {},
+      contributions: { additionalVoluntaryPension: 0 },
     };
   },
 };

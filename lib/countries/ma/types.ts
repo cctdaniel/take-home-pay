@@ -4,7 +4,9 @@ import type {
   CalculatorInputs,
 } from "../types";
 
-export type MAContributionInputs = Record<never, never>;
+export interface MAContributionInputs {
+  supplementaryPension: number;
+}
 
 export interface MACalculatorInputs extends BaseCalculatorInputs {
   country: "MA";
@@ -33,6 +35,11 @@ export interface MABreakdown {
   grossIncomeTax: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
   incomeTax: { total: number };
+  voluntaryContributions: {
+    supplementaryPension: number;
+    supplementaryPensionLimit: number;
+    total: number;
+  };
   assumptions: string[];
   sourceUrls: string[];
 }

@@ -16,3 +16,7 @@ export const BG_PIT_RATE = 0.1;
 export const BG_SOCIAL_EMPLOYEE_RATE = 0.1378;
 export const BG_SOCIAL_MONTHLY_CAP = 2_111.64;
 export const BG_SOCIAL_ANNUAL_CAP = BG_SOCIAL_MONTHLY_CAP * 12;
+
+/** Voluntary supplementary pension — deductible up to 10% of annual tax base (Art. 19 ZDDFL). */
+// Source: https://nra.bg/wps/portal/nra/taxes/godishen-danak-varhu-dohdite/danachni-oblekcheniya/danachni-oblekcheniq
+export const BG_VOLUNTARY_PENSION_MAX_TAX_BASE_RATE = 0.1;

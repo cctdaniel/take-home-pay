@@ -1,3 +1,4 @@
+import { clampAmount } from "@/lib/utils";
 import type {
   CalculationResult,
   CalculatorInputs,
@@ -12,14 +13,27 @@ import {
   BG_SOCIAL_ANNUAL_CAP,
   BG_SOCIAL_EMPLOYEE_RATE,
   BG_SOURCE_URLS,
+  BG_VOLUNTARY_PENSION_MAX_TAX_BASE_RATE,
 } from "./constants/tax-year-2026";
 import type { BGBreakdown, BGCalculatorInputs, BGTaxBreakdown } from "./types";
+
+function getVoluntaryPensionLimit(grossIncome: number, socialSecurity: number): number {
+  const taxBase = Math.max(0, grossIncome - socialSecurity);
+  return roundCurrency(taxBase * BG_VOLUNTARY_PENSION_MAX_TAX_BASE_RATE);
+}
 
 export function calculateBG(inputs: BGCalculatorInputs): CalculationResult {
   const grossIncome = Math.max(0, inputs.grossSalary);
   const socialBase = Math.min(grossIncome, BG_SOCIAL_ANNUAL_CAP);
   const socialSecurity = roundCurrency(socialBase * BG_SOCIAL_EMPLOYEE_RATE);
-  const taxableIncome = roundCurrency(Math.max(0, grossIncome - socialSecurity));
+  const voluntaryPensionLimit = getVoluntaryPensionLimit(grossIncome, socialSecurity);
+  const voluntaryPension = clampAmount(
+    inputs.contributions?.voluntaryPension,
+    voluntaryPensionLimit,
+  );
+  const taxableIncome = roundCurrency(
+    Math.max(0, grossIncome - socialSecurity - voluntaryPension),
+  );
   const incomeTax = roundCurrency(taxableIncome * BG_PIT_RATE);
 
   const taxes: BGTaxBreakdown = {
@@ -29,7 +43,7 @@ export function calculateBG(inputs: BGCalculatorInputs): CalculationResult {
     socialSecurity,
   };
   const totalTax = incomeTax + socialSecurity;
-  const totalDeductions = totalTax;
+  const totalDeductions = totalTax + voluntaryPension;
   const netSalary = roundCurrency(grossIncome - totalDeductions);
   const effectiveTaxRate = grossIncome > 0 ? totalTax / grossIncome : 0;
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
@@ -45,11 +59,15 @@ export function calculateBG(inputs: BGCalculatorInputs): CalculationResult {
     },
     taxableIncome,
     incomeTax: { rate: BG_PIT_RATE, total: incomeTax },
-    voluntaryContributions: { total: 0 },
+    voluntaryContributions: {
+      voluntaryPension,
+      voluntaryPensionLimit,
+      total: voluntaryPension,
+    },
     assumptions: [
       "Employee social security 13.78% on gross capped at EUR 2,111.64/month.",
-      "Flat 10% personal income tax on gross minus employee social security.",
-      "No voluntary pension or tax-reducing payroll contributions modeled.",
+      "Flat 10% personal income tax on gross minus employee social security and voluntary pension.",
+      "Voluntary supplementary pension deductible up to 10% of the annual tax base.",
       "Excludes health insurance top-ups, meal vouchers, and employer-only costs.",
     ],
     sourceUrls: Object.values(BG_SOURCE_URLS),
@@ -89,8 +107,20 @@ export const BGCalculator: CountryCalculator = {
     return [];
   },
 
-  getContributionLimits(): ContributionLimits {
-    return {};
+  getContributionLimits(inputs?: BGCalculatorInputs): ContributionLimits {
+    const gross = inputs?.grossSalary ?? 36_000;
+    const socialBase = Math.min(Math.max(0, gross), BG_SOCIAL_ANNUAL_CAP);
+    const socialSecurity = roundCurrency(socialBase * BG_SOCIAL_EMPLOYEE_RATE);
+    const limit = getVoluntaryPensionLimit(gross, socialSecurity);
+    return {
+      voluntaryPension: {
+        limit,
+        name: "Voluntary supplementary pension",
+        description:
+          "Third-pillar pension contributions deductible up to 10% of the annual tax base.",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): BGCalculatorInputs {
@@ -98,7 +128,7 @@ export const BGCalculator: CountryCalculator = {
       country: "BG",
       grossSalary: 36_000,
       payFrequency: "monthly",
-      contributions: {},
+      contributions: { voluntaryPension: 0 },
     };
   },
 };

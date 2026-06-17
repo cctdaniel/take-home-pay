@@ -7,7 +7,9 @@ import type {
   TaxBracket,
 } from "../types";
 
-export type PEContributionInputs = Record<string, never>;
+export interface PEContributionInputs {
+  apv: number;
+}
 
 export interface PECalculatorInputs extends BaseCalculatorInputs {
   country: "PE";
@@ -32,6 +34,8 @@ export interface PEBreakdown {
   bracketTaxes: Array<TaxBracket & { tax: number }>;
   incomeTax: { total: number };
   voluntaryContributions: {
+    apv: number;
+    apvLimit: number;
     total: number;
   };
   assumptions: string[];

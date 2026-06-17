@@ -4,7 +4,9 @@ import type {
   CalculatorInputs,
 } from "../types";
 
-export type NGContributionInputs = Record<never, never>;
+export interface NGContributionInputs {
+  additionalVoluntaryPension: number;
+}
 
 export interface NGCalculatorInputs extends BaseCalculatorInputs {
   country: "NG";
@@ -24,6 +26,11 @@ export interface NGBreakdown {
   chargeableIncome: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
   incomeTax: { total: number };
+  voluntaryContributions: {
+    additionalVoluntaryPension: number;
+    additionalVoluntaryPensionLimit: number;
+    total: number;
+  };
   assumptions: string[];
   sourceUrls: string[];
 }

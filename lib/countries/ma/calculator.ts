@@ -1,3 +1,4 @@
+import { clampAmount, clampCount } from "@/lib/utils";
 import type {
   CalculationResult,
   CalculatorInputs,
@@ -5,7 +6,6 @@ import type {
   CountryCalculator,
   RegionInfo,
 } from "../types";
-import { clampCount } from "@/lib/utils";
 import { calculateProgressiveTax, getPeriodsPerYear } from "../nordic-shared";
 import { MA_CONFIG } from "./config";
 import {
@@ -15,9 +15,24 @@ import {
   MA_DEPENDENT_CREDIT_2026,
   MA_IR_BRACKETS_2026,
   MA_SOURCE_URLS,
+  MA_SUPPLEMENTARY_PENSION_MAX_NET_SALARY_RATE,
 } from "./constants/tax-year-2026";
 import type { MABreakdown, MACalculatorInputs, MATaxBreakdown } from "./types";
 import { roundCurrency } from "../calculator-utils";
+
+function getSupplementaryPensionLimit(
+  grossIncome: number,
+  socialTotal: number,
+  professionalExpenseDeduction: number,
+): number {
+  const netTaxableBeforePension = Math.max(
+    0,
+    grossIncome - socialTotal - professionalExpenseDeduction,
+  );
+  return roundCurrency(
+    netTaxableBeforePension * MA_SUPPLEMENTARY_PENSION_MAX_NET_SALARY_RATE,
+  );
+}
 
 export function calculateMA(inputs: MACalculatorInputs): CalculationResult {
   const grossIncome = Math.max(0, inputs.grossSalary);
@@ -27,9 +42,21 @@ export function calculateMA(inputs: MACalculatorInputs): CalculationResult {
     grossIncome,
     socialInsurance.total,
   );
+  const supplementaryPensionLimit = getSupplementaryPensionLimit(
+    grossIncome,
+    socialInsurance.total,
+    professionalExpenseDeduction,
+  );
+  const supplementaryPension = clampAmount(
+    inputs.contributions?.supplementaryPension,
+    supplementaryPensionLimit,
+  );
   const taxableIncome = Math.max(
     0,
-    grossIncome - socialInsurance.total - professionalExpenseDeduction,
+    grossIncome -
+      socialInsurance.total -
+      professionalExpenseDeduction -
+      supplementaryPension,
   );
   const progressive = calculateProgressiveTax(taxableIncome, MA_IR_BRACKETS_2026);
   const grossIncomeTax = progressive.tax;
@@ -43,7 +70,8 @@ export function calculateMA(inputs: MACalculatorInputs): CalculationResult {
     socialInsurance: socialInsurance.total,
   };
   const totalTax = roundCurrency(incomeTax + socialInsurance.total);
-  const netSalary = grossIncome - totalTax;
+  const totalDeductions = roundCurrency(totalTax + supplementaryPension);
+  const netSalary = grossIncome - totalDeductions;
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
 
   const breakdown: MABreakdown = {
@@ -57,11 +85,16 @@ export function calculateMA(inputs: MACalculatorInputs): CalculationResult {
     grossIncomeTax,
     bracketTaxes: progressive.details,
     incomeTax: { total: incomeTax },
+    voluntaryContributions: {
+      supplementaryPension,
+      supplementaryPensionLimit,
+      total: supplementaryPension,
+    },
     assumptions: [
       "CNSS employee 4.48% capped at MAD 6,000/month plus AMO 2.26% uncapped.",
       "Professional expense deduction 20% of (gross − social), capped MAD 30,000/year.",
+      "Supplementary retirement (e.g. CIMR) deductible up to 50% of net taxable salary.",
       "Dependent credit MAD 360/month per dependent (max 6).",
-      "Excludes CIMR, family charges, and sector-specific allowances.",
     ],
     sourceUrls: Object.values(MA_SOURCE_URLS),
   };
@@ -73,7 +106,7 @@ export function calculateMA(inputs: MACalculatorInputs): CalculationResult {
     taxableIncome,
     taxes,
     totalTax,
-    totalDeductions: totalTax,
+    totalDeductions,
     netSalary,
     effectiveTaxRate: grossIncome > 0 ? totalTax / grossIncome : 0,
     perPeriod: {
@@ -100,8 +133,27 @@ export const MACalculator: CountryCalculator = {
     return [];
   },
 
-  getContributionLimits(): ContributionLimits {
-    return {};
+  getContributionLimits(inputs?: MACalculatorInputs): ContributionLimits {
+    const gross = inputs?.grossSalary ?? 144_000;
+    const socialInsurance = calculateMaSocialContributions(gross);
+    const professionalExpenseDeduction = calculateMaProfessionalExpenseDeduction(
+      gross,
+      socialInsurance.total,
+    );
+    const limit = getSupplementaryPensionLimit(
+      gross,
+      socialInsurance.total,
+      professionalExpenseDeduction,
+    );
+    return {
+      supplementaryPension: {
+        limit,
+        name: "Supplementary retirement (CIMR)",
+        description:
+          "Employee supplementary pension contributions deductible up to 50% of net taxable salary.",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): MACalculatorInputs {
@@ -110,7 +162,7 @@ export const MACalculator: CountryCalculator = {
       grossSalary: 144_000,
       payFrequency: "monthly",
       dependents: 0,
-      contributions: {},
+      contributions: { supplementaryPension: 0 },
     };
   },
 };

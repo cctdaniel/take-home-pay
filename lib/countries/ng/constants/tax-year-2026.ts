@@ -15,6 +15,9 @@ export const NG_PENSION_2026 = {
   employeeRate: 0.08,
 } as const;
 
+/** Additional voluntary contributions (AVC) deductible under NTA 2025 §30(2)(a)(iii). */
+export const NG_AVC_MAX_ADDITIONAL_RATE = 0.1;
+
 /** NTA 2025 PAYE brackets on chargeable income after pension. */
 export const NG_PAYE_BRACKETS_2026: TaxBracket[] = [
   { min: 0, max: 800_000, rate: 0 },
