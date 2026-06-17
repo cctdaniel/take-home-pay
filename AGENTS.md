@@ -104,7 +104,7 @@ Country option UIs should compose shared controls instead of duplicating labels,
 - Use `ContributionSlider` from `components/ui/contribution-slider.tsx` for bounded contribution/deduction amounts with max toggles.
 - Use `InfoPanel` for repeated note/tip callouts (short “Modeled scope” notes only — not a substitute for the Contributions card).
 
-Every country page should expose a **Contributions** card via `CountryCalculatorExtensionShell` when the country has any modeled voluntary inputs or when the checklist below requires explaining why none exist (e.g. 0% PIT countries use `NoPitContributionsNote` from `components/calculator/no-pit-contributions-note.tsx`):
+Every country page should expose a **Contributions** card via `CountryCalculatorExtensionShell` when the country has any modeled voluntary inputs or when the checklist below requires explaining why none exist. Pick the contributions content by tax treatment (see **Contributions card content** under Voluntary Contribution Checklist):
 
 - `contributionsTitle="Retirement & Savings Contributions"` (or country-appropriate title)
 - `contributionsDescription="Adjust voluntary contributions that reduce your tax base"` (adapt copy for credits-only or no-PIT cases)
@@ -148,7 +148,7 @@ Use this matrix for every new or updated country UI. The US calculator is the re
 
 1. Research official sources (step above); document gaps in constants comments if something is intentionally excluded.
 2. Implement `lib/countries/{code}/` calculator, types, config, compare adapter.
-3. Complete the **Voluntary Contribution Checklist** (below); add sliders + calculator logic, or `NoPitContributionsNote` with a source-backed explanation.
+3. Complete the **Voluntary Contribution Checklist** (below); add sliders + calculator logic, or the correct no-voluntary note with a source-backed explanation.
 4. Add `calculator.test.ts` with 5+ golden numbers from the official source (low/mid/high salary; with/without dependents; max retirement if modeled).
 5. Compose UI from shared primitives per the matrix above; include the Contributions card on the country extension.
 6. Add SEO block titled **How Your Take Home Pay Is Calculated** (inline in `country-extensions/{code}.tsx` is preferred).
@@ -263,14 +263,34 @@ Mobile note: `Input` and `Select` intentionally render at 16px on mobile (`text-
 
 ### Voluntary Contribution Checklist
 
-**Do not ship a country with only a “Modeled scope” info panel.** Every country extension must either (a) implement local voluntary contribution sliders, or (b) show a Contributions card that explains why none apply (0% PIT / mandatory-only), with official sources cited.
+**Do not ship a country with only a “Modeled scope” info panel.** Every country extension must either (a) implement local voluntary contribution sliders, or (b) show a Contributions card that explains why none apply, with official sources cited.
+
+**Default assumption: voluntary tax-saving contributions probably exist.** Most countries with income tax offer at least one employee-controlled pension top-up, supplemental fund, or deductible savings scheme (401(k)-style, SRS-style, third pillar, APV, AVC, CIMR, etc.). Do not conclude “none modeled” until you have searched official tax-authority and social-insurance guidance and can cite why payroll modeling is out of scope.
 
 Before deciding a country has no optional tax-saving inputs, check **official government** guidance for resident tax-reducing contributions and reliefs, including:
 
-- Pension, retirement, provident, occupational pension, and social welfare schemes (PGBL/VGBL, Pillar 3a, IKZE, RA, BES, etc.)
+- Pension, retirement, provident, occupational pension, and social welfare schemes (PGBL/VGBL, Pillar 3a, IKZE, RA, BES, third pillar, APV, AVC, AFAP, voluntary PF, etc.)
 - Voluntary top-ups to mandatory retirement or savings systems (PPK, III pillar, supplemental pension)
 - Life/medical insurance premiums when user-controlled and tax-relevant
 - Charitable/religious payments, education, lifestyle, or qualifying expense reliefs that are common enough to model
+
+**Voluntary contribution research (required):**
+
+1. Search the tax authority and social-insurance agency sites for: voluntary pension, supplementary pension, additional voluntary contributions, private pension fund, retirement savings deduction, pillar 3, APV/APVC, provident fund top-up.
+2. For each scheme found, record: official name, whether relief is payroll/pre-tax or annual return claim, legal payment cap, and any lower tax-relief cap.
+3. If relief is payroll/pre-tax or commonly modeled as an annual capped deduction (US 401(k), SG SRS, BG third pillar, RS voluntary PF, PE AFP APV, NG AVC, MA CIMR): add a `ContributionSlider`, calculator logic, and compare `isMaxRetirement`.
+4. If relief exists only on annual filing (e.g. some AFAP-style claims): use `NoVoluntaryPitReliefNote` with accurate copy — do not imply the scheme does not exist.
+5. Document excluded schemes in constants comments and visible assumptions copy.
+
+**Contributions card content (never contradict the calculator):**
+
+| Country PIT | Voluntary scheme modeled | Use |
+| --- | --- | --- |
+| 0% employment PIT | — | `NoPitContributionsNote` — only when salary truly has no PIT (AE, QA, SA, etc.) |
+| Taxed | Yes (capped) | `ContributionSlider`(s) in `space-y-6` |
+| Taxed | No payroll slider (researched) | `NoVoluntaryPitReliefNote` — explain why nothing is adjustable on this page |
+
+**Never use `NoPitContributionsNote` on a country that deducts income tax.** That component states employment salary is not subject to PIT; using it on taxed countries (e.g. BG, RS, PE) contradicts the results column. When in doubt, use `NoVoluntaryPitReliefNote` or add the slider.
 
 **When applicable (most countries with income tax):**
 
@@ -285,7 +305,19 @@ If a user-entered amount has an official or modeled cap, use `ContributionSlider
 
 When a scheme has multiple caps, keep them separate in constants and UI copy. Use the legal contribution/payment cap as the slider max, then apply any lower tax-relief cap in the calculator and breakdown. If a complex employer-plan or plan-specific extra limit is intentionally excluded, state that exclusion near the constants and in visible assumptions copy.
 
-For `/compare`, the "max retirement" assumption must include each modeled tax-reducing retirement contribution where the user's assumptions make them eligible. If no voluntary contribution is modeled, the Contributions card must still explain why (e.g. `NoPitContributionsNote`) with a source-backed link.
+For `/compare`, the "max retirement" assumption must include each modeled tax-reducing retirement contribution where the user's assumptions make them eligible. If no voluntary contribution is modeled after research, the Contributions card must still explain why (`NoVoluntaryPitReliefNote` for taxed countries; `NoPitContributionsNote` only for 0% PIT) with a source-backed link.
+
+### Calculation accuracy (common mistakes)
+
+Accuracy is not optional. Golden tests must use official calculators/tables; also sanity-check these pitfalls before opening a PR:
+
+- **Social-insurance wage ceilings:** Many countries cap the base before applying employee rates (monthly or annual ceiling). Never multiply full gross by the rate when a statutory cap exists — model the cap in constants and apply `min(gross, cap)` first.
+- **PIT base vs social base:** Employee social contributions and income-tax base are often computed separately. Do not subtract social security from the PIT base unless the official rules explicitly allow it (Serbia: PIT base is gross minus non-taxable minus voluntary pension; social is computed on capped gross separately).
+- **Annual vs monthly amounts:** Confirm whether credits, caps, and non-taxable amounts are expressed per month, per year, or per tax period. Do not multiply or divide by 12 unless the source defines it that way (Morocco dependent credit: MAD 600/year per dependent, cap MAD 3,600 — not MAD 360/month × 12).
+- **High earners:** Check bracket elimination, surcharge rules, and additional caps that change effective rates above common defaults.
+- **Cross-check:** Compare net pay to a second public calculator at low, mid, and high salary; target ≤1% difference. Mismatches often indicate a missing cap, wrong base order, or unit error.
+
+When fixing accuracy bugs, update golden tests, assumptions copy in the country extension, and compare adapter if affected.
 
 ### Updating Tax Data
 
