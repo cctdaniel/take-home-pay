@@ -37,13 +37,24 @@ describe("DO calculator", () => {
     expect(result.netSalary).toBe(1_195_518.1);
   });
 
-  it("withholds 5.91% TSS on gross", () => {
+  it("withholds 5.91% TSS on gross below contribution ceilings", () => {
     const result = DOCalculator.calculate({
       ...DOCalculator.getDefaultInputs(),
       grossSalary: 600_000,
     });
 
     expect(result.taxes.tssEmployee).toBe(35_460);
+  });
+
+  it("caps TSS contributions at separate AFP and SFS monthly ceilings", () => {
+    const result = DOCalculator.calculate({
+      ...DOCalculator.getDefaultInputs(),
+      grossSalary: 6_000_000,
+    });
+
+    expect(result.taxes.tssEmployee).toBe(244_677.52);
+    expect(result.taxes.incomeTax).toBe(1_301_825.02);
+    expect(result.netSalary).toBe(4_453_497.46);
   });
 
   it("returns zero tax on zero gross", () => {

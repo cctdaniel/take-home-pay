@@ -24,7 +24,7 @@ export function DOResultBreakdown({
       <Separator className="my-2" />
       <p className="pb-1 pt-2 text-xs text-zinc-500">Deductions</p>
       <DeductionRow
-        label="TSS Employee (5.91%)"
+        label="TSS Employee (AFP + SFS)"
         amount={taxes.tssEmployee}
         grossSalary={grossSalary}
         currency={currency}

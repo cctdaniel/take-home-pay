@@ -50,7 +50,8 @@ export default function MUCountryExtension({
       infoCard={
         <InfoPanel title="Modeled scope">
           Premium Visa and remote-work permit holders may have different
-          sourcing rules. Fair Share Contribution and Solidarity Levy excluded.
+          sourcing rules. Solidarity Levy excluded; Fair Share included above MUR
+          12M/year.
         </InfoPanel>
       }
       seoInfo={<MauritiusTaxInfo />}
@@ -74,6 +75,10 @@ function MauritiusTaxInfo() {
           <li>
             <strong className="text-zinc-300">PAYE</strong> – on income after
             CSG: 0% first MUR 500,000, 10% next MUR 500,000, 20% above.
+          </li>
+          <li>
+            <strong className="text-zinc-300">Fair Share</strong> – 15% on
+            monthly emoluments above MUR 923,077 (MUR 12M/year threshold).
           </li>
         </ul>
       </div>

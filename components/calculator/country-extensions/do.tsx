@@ -40,7 +40,7 @@ export default function DOCountryExtension({
       contributions={
         <NoVoluntaryPitReliefNote
           explanation="Ordinary voluntary AFP top-ups are tax-exempt inside your pension account under Ley 87-01 Art. 15, but they are not modeled here as monthly ISR withholding deductions. PwC lists education expenses (up to 10% of gross) as the main employment deduction besides the standard exemption."
-          mandatoryLabel="TSS employee 5.91% on gross, then progressive ISR with DOP 416,220 exempt."
+          mandatoryLabel="TSS AFP 2.87% (cap 20× min wage) and SFS 3.04% (cap 10× min wage), then progressive ISR with DOP 416,220 exempt."
           sourceUrl={DO_SOURCE_URLS.incomeTax}
           sourceLabel="Dirección General de Impuestos Internos (DGII)"
         />
@@ -70,8 +70,9 @@ function DominicanRepublicTaxInfo() {
         </h3>
         <ul className="text-zinc-400 space-y-1 mt-3 list-disc list-inside">
           <li>
-            <strong className="text-zinc-300">TSS</strong> – 5.91% employee
-            (AFP 2.87% + SFS 3.04%) on gross.
+            <strong className="text-zinc-300">TSS</strong> – AFP 2.87% (capped at
+            20× national minimum wage) and SFS 3.04% (capped at 10× minimum wage)
+            monthly.
           </li>
           <li>
             <strong className="text-zinc-300">ISR</strong> – on salary after TSS

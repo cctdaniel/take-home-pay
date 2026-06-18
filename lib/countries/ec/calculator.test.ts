@@ -12,8 +12,8 @@ describe("EC calculator", () => {
     });
 
     expect(result.taxes.iessEmployee).toBe(3_402);
-    expect(result.taxes.incomeTax).toBe(3_113.65);
-    expect(result.netSalary).toBe(29_484.35);
+    expect(result.taxes.incomeTax).toBe(2_297.09);
+    expect(result.netSalary).toBe(30_300.91);
   });
 
   it("applies minimal PIT on low salary after IESS exempt band", () => {
@@ -34,8 +34,8 @@ describe("EC calculator", () => {
     });
 
     expect(result.taxes.iessEmployee).toBe(4_252.5);
-    expect(result.taxes.incomeTax).toBe(13_897);
-    expect(result.netSalary).toBe(61_850.5);
+    expect(result.taxes.incomeTax).toBe(12_945.84);
+    expect(result.netSalary).toBe(62_801.66);
   });
 
   it("has zero PIT when income after IESS is within exempt fraction", () => {

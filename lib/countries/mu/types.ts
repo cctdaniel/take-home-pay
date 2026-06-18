@@ -16,6 +16,8 @@ export interface MUCalculatorInputs extends BaseCalculatorInputs {
 export interface MUTaxBreakdown extends BaseTaxBreakdown {
   type: "MU";
   incomeTax: number;
+  payeTax: number;
+  fairShareContribution: number;
   csgEmployee: number;
 }
 
@@ -25,6 +27,8 @@ export interface MUBreakdown {
   csgEmployee: number;
   csgRate: number;
   taxableIncome: number;
+  payeTax: number;
+  fairShareContribution: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
   incomeTax: { total: number };
   assumptions: string[];

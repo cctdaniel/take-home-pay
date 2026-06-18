@@ -12,6 +12,8 @@ import {
   MU_CSG_MONTHLY_THRESHOLD,
   MU_CSG_RATE_HIGH,
   MU_CSG_RATE_LOW,
+  MU_FAIR_SHARE_MONTHLY_THRESHOLD,
+  MU_FAIR_SHARE_RATE,
   MU_PAYE_BRACKETS_2026,
   MU_SOURCE_URLS,
 } from "./constants/tax-year-2026";
@@ -25,12 +27,23 @@ export function calculateMU(inputs: MUCalculatorInputs): CalculationResult {
   const csgEmployee = roundCurrency(grossIncome * csgRate);
   const taxableIncome = Math.max(0, grossIncome - csgEmployee);
   const progressive = calculateProgressiveTax(taxableIncome, MU_PAYE_BRACKETS_2026);
-  const incomeTax = progressive.tax;
+  const payeTax = progressive.tax;
+  const fairShareContribution =
+    monthlyGross > MU_FAIR_SHARE_MONTHLY_THRESHOLD
+      ? roundCurrency(
+          MU_FAIR_SHARE_RATE *
+            (monthlyGross - MU_FAIR_SHARE_MONTHLY_THRESHOLD) *
+            12,
+        )
+      : 0;
+  const incomeTax = roundCurrency(payeTax + fairShareContribution);
 
   const taxes: MUTaxBreakdown = {
     type: "MU",
     totalIncomeTax: incomeTax,
     incomeTax,
+    payeTax,
+    fairShareContribution,
     csgEmployee,
   };
   const totalTax = roundCurrency(incomeTax + csgEmployee);
@@ -43,13 +56,15 @@ export function calculateMU(inputs: MUCalculatorInputs): CalculationResult {
     csgEmployee,
     csgRate,
     taxableIncome,
+    payeTax,
+    fairShareContribution,
     bracketTaxes: progressive.details,
     incomeTax: { total: incomeTax },
     assumptions: [
       "CSG 1.5% when monthly gross is MUR 50,000 or below, otherwise 3%.",
       "PAYE on income after CSG: 0% first MUR 500,000, 10% next MUR 500,000, 20% above.",
-      "Fair Share Contribution and Solidarity Levy excluded.",
-      "Excludes employer NPF/NPS and expatriate-specific regimes.",
+      "Fair Share Contribution 15% on monthly emoluments above MUR 923,077 (MUR 12M/year).",
+      "Solidarity Levy excluded; excludes employer NPF/NPS and expatriate-specific regimes.",
     ],
     sourceUrls: Object.values(MU_SOURCE_URLS),
   };

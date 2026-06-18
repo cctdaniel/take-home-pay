@@ -40,7 +40,7 @@ export default function PYCountryExtension({
       contributions={
         <NoVoluntaryPitReliefNote
           explanation="Paraguay does not model employee-controlled voluntary pension top-ups that reduce salary IRP on monthly payroll."
-          mandatoryLabel="IPS employee 9% on gross; IRP applies when annual gross exceeds PYG 80,000,000."
+          mandatoryLabel="IPS employee 9% on gross; IRP on full net income when annual gross exceeds PYG 80,000,000."
           sourceUrl={PY_SOURCE_URLS.incomeTax}
           sourceLabel="Subsecretaría de Estado de Tributación (SET)"
         />
@@ -72,9 +72,9 @@ function ParaguayTaxInfo() {
             security on gross salary.
           </li>
           <li>
-            <strong className="text-zinc-300">IRP</strong> – applies only when
-            annual gross exceeds PYG 80,000,000, then 8%/9%/10% progressive
-            bands.
+            <strong className="text-zinc-300">IRP</strong> – applies when annual
+            gross exceeds PYG 80,000,000; progressive 8%/9%/10% on full net income
+            (after IPS).
           </li>
         </ul>
       </div>

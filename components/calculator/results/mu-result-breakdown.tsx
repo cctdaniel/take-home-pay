@@ -49,10 +49,18 @@ export function MUResultBreakdown({
         ))}
       <DeductionRow
         label="PAYE Income Tax"
-        amount={taxes.incomeTax}
+        amount={breakdown.payeTax}
         grossSalary={grossSalary}
         currency={currency}
       />
+      {breakdown.fairShareContribution > 0 ? (
+        <DeductionRow
+          label="Fair Share Contribution (15%)"
+          amount={breakdown.fairShareContribution}
+          grossSalary={grossSalary}
+          currency={currency}
+        />
+      ) : null}
     </>
   );
 }

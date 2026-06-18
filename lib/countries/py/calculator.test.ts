@@ -12,8 +12,8 @@ describe("PY calculator", () => {
     });
 
     expect(result.taxes.ipsEmployee).toBe(10_800_000);
-    expect(result.taxes.incomeTax).toBe(3_200_000);
-    expect(result.netSalary).toBe(106_000_000);
+    expect(result.taxes.incomeTax).toBe(9_328_000);
+    expect(result.netSalary).toBe(99_872_000);
   });
 
   it("withholds IPS only when gross is below IRP threshold", () => {
@@ -27,14 +27,14 @@ describe("PY calculator", () => {
     expect(result.netSalary).toBe(54_600_000);
   });
 
-  it("applies progressive IRP bands on income above PYG 80M", () => {
+  it("applies progressive IRP on full net income when gross exceeds PYG 80M", () => {
     const result = PYCalculator.calculate({
       ...PYCalculator.getDefaultInputs(),
       grossSalary: 200_000_000,
     });
 
-    expect(result.taxes.incomeTax).toBe(10_300_000);
-    expect(result.netSalary).toBe(171_700_000);
+    expect(result.taxes.incomeTax).toBe(16_200_000);
+    expect(result.netSalary).toBe(165_800_000);
   });
 
   it("withholds 9% IPS on gross", () => {

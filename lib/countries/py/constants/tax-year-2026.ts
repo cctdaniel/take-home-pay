@@ -13,10 +13,10 @@ export const PY_SOURCE_URLS = {
 /** IPS employee social security rate on gross salary. */
 export const PY_IPS_EMPLOYEE_RATE = 0.09;
 
-/** Minimum annual gross before IRP applies (PYG). */
+/** Minimum annual gross before IRP applies (PYG, Ley 6380/19). */
 export const PY_IRP_MINIMUM_GROSS = 80_000_000;
 
-/** IRP progressive bands on income above the minimum threshold (PYG). */
+/** IRP progressive bands on net income (renta neta) once gross exceeds the threshold (PYG). */
 export const PY_IRP_BRACKETS_2026: TaxBracket[] = [
   { min: 0, max: 50_000_000, rate: 0.08 },
   { min: 50_000_000, max: 150_000_000, rate: 0.09 },

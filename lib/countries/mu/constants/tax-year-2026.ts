@@ -25,3 +25,12 @@ export const MU_PAYE_BRACKETS_2026: TaxBracket[] = [
   { min: 500_000, max: 1_000_000, rate: 0.1 },
   { min: 1_000_000, max: Infinity, rate: 0.2 },
 ];
+
+/** Fair Share Contribution rate on emoluments above the monthly threshold. */
+export const MU_FAIR_SHARE_RATE = 0.15;
+
+/** Monthly emoluments threshold for Fair Share (MUR 12,000,000 ÷ 13). */
+export const MU_FAIR_SHARE_MONTHLY_THRESHOLD = 923_077;
+
+/** Annual income threshold for Fair Share liability (MUR). */
+export const MU_FAIR_SHARE_ANNUAL_THRESHOLD = 12_000_000;

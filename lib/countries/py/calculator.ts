@@ -19,7 +19,9 @@ import type { PYBreakdown, PYCalculatorInputs, PYTaxBreakdown } from "./types";
 export function calculatePY(inputs: PYCalculatorInputs): CalculationResult {
   const grossIncome = Math.max(0, inputs.grossSalary);
   const ipsEmployee = roundCurrency(grossIncome * PY_IPS_EMPLOYEE_RATE);
-  const irpTaxableIncome = Math.max(0, grossIncome - PY_IRP_MINIMUM_GROSS);
+  const netIncome = Math.max(0, grossIncome - ipsEmployee);
+  const irpTaxableIncome =
+    grossIncome > PY_IRP_MINIMUM_GROSS ? netIncome : 0;
   const progressive =
     irpTaxableIncome > 0
       ? calculateProgressiveTax(irpTaxableIncome, PY_IRP_BRACKETS_2026)
@@ -47,7 +49,7 @@ export function calculatePY(inputs: PYCalculatorInputs): CalculationResult {
     assumptions: [
       "IPS employee 9% on gross salary.",
       "IRP applies only when annual gross exceeds PYG 80,000,000.",
-      "Progressive IRP 8%/9%/10% on income above the threshold across 50M/150M bands.",
+      "Progressive IRP 8%/9%/10% on full net income (after IPS) across 50M/150M bands.",
       "Excludes IVA, aguinaldo, and simplified-regime flat taxes.",
     ],
     sourceUrls: Object.values(PY_SOURCE_URLS),

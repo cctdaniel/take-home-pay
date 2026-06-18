@@ -47,6 +47,19 @@ describe("MU calculator", () => {
     expect(result.taxes.incomeTax).toBe(0);
   });
 
+  it("withholds Fair Share Contribution on emoluments above MUR 923,077/month", () => {
+    const result = MUCalculator.calculate({
+      ...MUCalculator.getDefaultInputs(),
+      grossSalary: 15_000_000,
+    });
+
+    expect(result.taxes.csgEmployee).toBe(450_000);
+    expect(result.taxes.payeTax).toBe(2_760_000);
+    expect(result.taxes.fairShareContribution).toBe(588_461.4);
+    expect(result.taxes.incomeTax).toBe(3_348_461.4);
+    expect(result.netSalary).toBe(11_201_538.6);
+  });
+
   it("returns zero tax on zero gross", () => {
     const result = MUCalculator.calculate({
       ...MUCalculator.getDefaultInputs(),
