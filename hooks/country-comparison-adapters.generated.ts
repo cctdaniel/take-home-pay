@@ -3,12 +3,16 @@
 
 import type { CountryCode } from "@/lib/countries/types";
 import { buildCountryComparison as AECountryComparisonAdapter } from "@/lib/countries/ae/compare";
+import { buildCountryComparison as ALCountryComparisonAdapter } from "@/lib/countries/al/compare";
 import { buildCountryComparison as ARCountryComparisonAdapter } from "@/lib/countries/ar/compare";
 import { buildCountryComparison as ATCountryComparisonAdapter } from "@/lib/countries/at/compare";
+import { buildCountryComparison as BBCountryComparisonAdapter } from "@/lib/countries/bb/compare";
 import { buildCountryComparison as BDCountryComparisonAdapter } from "@/lib/countries/bd/compare";
 import { buildCountryComparison as BECountryComparisonAdapter } from "@/lib/countries/be/compare";
 import { buildCountryComparison as BGCountryComparisonAdapter } from "@/lib/countries/bg/compare";
+import { buildCountryComparison as BHCountryComparisonAdapter } from "@/lib/countries/bh/compare";
 import { buildCountryComparison as BRCountryComparisonAdapter } from "@/lib/countries/br/compare";
+import { buildCountryComparison as BZCountryComparisonAdapter } from "@/lib/countries/bz/compare";
 import { buildCountryComparison as CACountryComparisonAdapter } from "@/lib/countries/ca/compare";
 import { buildCountryComparison as CHCountryComparisonAdapter } from "@/lib/countries/ch/compare";
 import { buildCountryComparison as CLCountryComparisonAdapter } from "@/lib/countries/cl/compare";
@@ -18,6 +22,8 @@ import { buildCountryComparison as CRCountryComparisonAdapter } from "@/lib/coun
 import { buildCountryComparison as CYCountryComparisonAdapter } from "@/lib/countries/cy/compare";
 import { buildCountryComparison as CZCountryComparisonAdapter } from "@/lib/countries/cz/compare";
 import { buildCountryComparison as DKCountryComparisonAdapter } from "@/lib/countries/dk/compare";
+import { buildCountryComparison as DOCountryComparisonAdapter } from "@/lib/countries/do/compare";
+import { buildCountryComparison as ECCountryComparisonAdapter } from "@/lib/countries/ec/compare";
 import { buildCountryComparison as EECountryComparisonAdapter } from "@/lib/countries/ee/compare";
 import { buildCountryComparison as EGCountryComparisonAdapter } from "@/lib/countries/eg/compare";
 import { buildCountryComparison as FICountryComparisonAdapter } from "@/lib/countries/fi/compare";
@@ -36,15 +42,19 @@ import { buildCountryComparison as LTCountryComparisonAdapter } from "@/lib/coun
 import { buildCountryComparison as LUCountryComparisonAdapter } from "@/lib/countries/lu/compare";
 import { buildCountryComparison as LVCountryComparisonAdapter } from "@/lib/countries/lv/compare";
 import { buildCountryComparison as MACountryComparisonAdapter } from "@/lib/countries/ma/compare";
+import { buildCountryComparison as MECountryComparisonAdapter } from "@/lib/countries/me/compare";
 import { buildCountryComparison as MTCountryComparisonAdapter } from "@/lib/countries/mt/compare";
+import { buildCountryComparison as MUCountryComparisonAdapter } from "@/lib/countries/mu/compare";
 import { buildCountryComparison as MXCountryComparisonAdapter } from "@/lib/countries/mx/compare";
 import { buildCountryComparison as NGCountryComparisonAdapter } from "@/lib/countries/ng/compare";
 import { buildCountryComparison as NOCountryComparisonAdapter } from "@/lib/countries/no/compare";
 import { buildCountryComparison as NZCountryComparisonAdapter } from "@/lib/countries/nz/compare";
+import { buildCountryComparison as PACountryComparisonAdapter } from "@/lib/countries/pa/compare";
 import { buildCountryComparison as PECountryComparisonAdapter } from "@/lib/countries/pe/compare";
 import { buildCountryComparison as PHCountryComparisonAdapter } from "@/lib/countries/ph/compare";
 import { buildCountryComparison as PKCountryComparisonAdapter } from "@/lib/countries/pk/compare";
 import { buildCountryComparison as PLCountryComparisonAdapter } from "@/lib/countries/pl/compare";
+import { buildCountryComparison as PYCountryComparisonAdapter } from "@/lib/countries/py/compare";
 import { buildCountryComparison as QACountryComparisonAdapter } from "@/lib/countries/qa/compare";
 import { buildCountryComparison as ROCountryComparisonAdapter } from "@/lib/countries/ro/compare";
 import { buildCountryComparison as RSCountryComparisonAdapter } from "@/lib/countries/rs/compare";
@@ -63,12 +73,16 @@ export const COUNTRY_COMPARISON_ADAPTERS: Partial<
   Record<CountryCode, CountryComparisonAdapter>
 > = {
   AE: AECountryComparisonAdapter,
+  AL: ALCountryComparisonAdapter,
   AR: ARCountryComparisonAdapter,
   AT: ATCountryComparisonAdapter,
+  BB: BBCountryComparisonAdapter,
   BD: BDCountryComparisonAdapter,
   BE: BECountryComparisonAdapter,
   BG: BGCountryComparisonAdapter,
+  BH: BHCountryComparisonAdapter,
   BR: BRCountryComparisonAdapter,
+  BZ: BZCountryComparisonAdapter,
   CA: CACountryComparisonAdapter,
   CH: CHCountryComparisonAdapter,
   CL: CLCountryComparisonAdapter,
@@ -78,6 +92,8 @@ export const COUNTRY_COMPARISON_ADAPTERS: Partial<
   CY: CYCountryComparisonAdapter,
   CZ: CZCountryComparisonAdapter,
   DK: DKCountryComparisonAdapter,
+  DO: DOCountryComparisonAdapter,
+  EC: ECCountryComparisonAdapter,
   EE: EECountryComparisonAdapter,
   EG: EGCountryComparisonAdapter,
   FI: FICountryComparisonAdapter,
@@ -96,15 +112,19 @@ export const COUNTRY_COMPARISON_ADAPTERS: Partial<
   LU: LUCountryComparisonAdapter,
   LV: LVCountryComparisonAdapter,
   MA: MACountryComparisonAdapter,
+  ME: MECountryComparisonAdapter,
   MT: MTCountryComparisonAdapter,
+  MU: MUCountryComparisonAdapter,
   MX: MXCountryComparisonAdapter,
   NG: NGCountryComparisonAdapter,
   NO: NOCountryComparisonAdapter,
   NZ: NZCountryComparisonAdapter,
+  PA: PACountryComparisonAdapter,
   PE: PECountryComparisonAdapter,
   PH: PHCountryComparisonAdapter,
   PK: PKCountryComparisonAdapter,
   PL: PLCountryComparisonAdapter,
+  PY: PYCountryComparisonAdapter,
   QA: QACountryComparisonAdapter,
   RO: ROCountryComparisonAdapter,
   RS: RSCountryComparisonAdapter,
