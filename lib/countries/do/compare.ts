@@ -24,7 +24,9 @@ export const buildCountryComparison: CountryComparisonAdapter = ({
     "Dominican Republic employment salary with TSS and progressive ISR",
   ];
   if (isMaxRetirement) {
-    assumptions.push("No voluntary tax-reducing retirement modeled");
+    assumptions.push(
+      "Voluntary AFP top-ups are not modeled as ISR deductions (Ley 87-01 Art. 15)",
+    );
   }
   return {
     country,

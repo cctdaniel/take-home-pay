@@ -55,4 +55,16 @@ describe("AL calculator", () => {
     expect(result.totalTax).toBe(0);
     expect(result.netSalary).toBe(0);
   });
+
+  it("reduces PIT when voluntary private pension is deducted", () => {
+    const result = ALCalculator.calculate({
+      ...ALCalculator.getDefaultInputs(),
+      grossSalary: 1_800_000,
+      contributions: { voluntaryPension: 480_000 },
+    });
+
+    expect(result.taxableIncome).toBe(758_400);
+    expect(result.taxes.incomeTax).toBe(98_592);
+    expect(result.netSalary).toBe(1_019_808);
+  });
 });

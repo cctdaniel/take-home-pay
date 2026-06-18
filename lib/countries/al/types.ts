@@ -6,7 +6,9 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type ALContributionInputs = Record<never, never>;
+export interface ALContributionInputs {
+  voluntaryPension: number;
+}
 
 export interface ALCalculatorInputs extends BaseCalculatorInputs {
   country: "AL";
@@ -27,6 +29,11 @@ export interface ALBreakdown {
   taxableIncome: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
   incomeTax: { total: number };
+  voluntaryContributions: {
+    voluntaryPension: number;
+    voluntaryPensionLimit: number;
+    total: number;
+  };
   assumptions: string[];
   sourceUrls: string[];
 }

@@ -35,6 +35,14 @@ export function PAResultBreakdown({
         grossSalary={grossSalary}
         currency={currency}
       />
+      {breakdown.voluntaryContributions.voluntaryPension > 0 ? (
+        <DeductionRow
+          label="Voluntary pension (Law 10/1993)"
+          amount={breakdown.voluntaryContributions.voluntaryPension}
+          grossSalary={grossSalary}
+          currency={currency}
+        />
+      ) : null}
       <Separator className="my-2" />
       <p className="pb-1 pt-2 text-xs text-zinc-500">Income Tax</p>
       {breakdown.bracketTaxes

@@ -60,4 +60,23 @@ describe("PA calculator", () => {
     expect(result.totalTax).toBe(0);
     expect(result.netSalary).toBe(0);
   });
+
+  it("reduces PIT when voluntary pension is at the 10% gross cap", () => {
+    const gross = 48_000;
+    const without = PACalculator.calculate({
+      ...PACalculator.getDefaultInputs(),
+      grossSalary: gross,
+      contributions: { voluntaryPension: 0 },
+    });
+    const withVoluntary = PACalculator.calculate({
+      ...PACalculator.getDefaultInputs(),
+      grossSalary: gross,
+      contributions: { voluntaryPension: 4_800 },
+    });
+
+    expect(withVoluntary.taxableIncome).toBe(37_920);
+    expect(withVoluntary.taxes.incomeTax).toBe(4_038);
+    expect(withVoluntary.taxes.incomeTax).toBeLessThan(without.taxes.incomeTax);
+    expect(withVoluntary.netSalary).toBe(33_882);
+  });
 });

@@ -1,3 +1,4 @@
+import { clampAmount } from "@/lib/utils";
 import type {
   CalculationResult,
   CalculatorInputs,
@@ -14,6 +15,7 @@ import {
   AL_SOCIAL_ANNUAL_CAP,
   AL_SOCIAL_EMPLOYEE_RATE,
   AL_SOURCE_URLS,
+  AL_VOLUNTARY_PENSION_ANNUAL_CAP,
 } from "./constants/tax-year-2026";
 import type { ALBreakdown, ALCalculatorInputs, ALTaxBreakdown } from "./types";
 
@@ -21,9 +23,13 @@ export function calculateAL(inputs: ALCalculatorInputs): CalculationResult {
   const grossIncome = Math.max(0, inputs.grossSalary);
   const socialBase = Math.min(grossIncome, AL_SOCIAL_ANNUAL_CAP);
   const socialInsurance = roundCurrency(socialBase * AL_SOCIAL_EMPLOYEE_RATE);
+  const voluntaryPension = clampAmount(
+    inputs.contributions?.voluntaryPension,
+    AL_VOLUNTARY_PENSION_ANNUAL_CAP,
+  );
   const taxableIncome = Math.max(
     0,
-    grossIncome - socialInsurance - AL_PERSONAL_DEDUCTION_2026,
+    grossIncome - socialInsurance - AL_PERSONAL_DEDUCTION_2026 - voluntaryPension,
   );
   const progressive = calculateProgressiveTax(taxableIncome, AL_PIT_BRACKETS_2026);
   const incomeTax = progressive.tax;
@@ -35,7 +41,8 @@ export function calculateAL(inputs: ALCalculatorInputs): CalculationResult {
     socialInsurance,
   };
   const totalTax = roundCurrency(incomeTax + socialInsurance);
-  const netSalary = grossIncome - totalTax;
+  const totalDeductions = roundCurrency(totalTax + voluntaryPension);
+  const netSalary = grossIncome - totalDeductions;
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
 
   const breakdown: ALBreakdown = {
@@ -46,9 +53,14 @@ export function calculateAL(inputs: ALCalculatorInputs): CalculationResult {
     taxableIncome,
     bracketTaxes: progressive.details,
     incomeTax: { total: incomeTax },
+    voluntaryContributions: {
+      voluntaryPension,
+      voluntaryPensionLimit: AL_VOLUNTARY_PENSION_ANNUAL_CAP,
+      total: voluntaryPension,
+    },
     assumptions: [
       "Employee social insurance 11.2% (9.5% + 1.7%) capped at ALL 186,416/month.",
-      "Personal deduction ALL 360,000 applied before progressive salary tax.",
+      "Personal deduction ALL 360,000 and voluntary private pension up to ALL 480,000 reduce PIT base.",
       "Progressive PIT 13% up to ALL 2,040,000 taxable, 23% above.",
       "Excludes employer contributions and self-employed regimes.",
     ],
@@ -62,7 +74,7 @@ export function calculateAL(inputs: ALCalculatorInputs): CalculationResult {
     taxableIncome,
     taxes,
     totalTax,
-    totalDeductions: totalTax,
+    totalDeductions,
     netSalary,
     effectiveTaxRate: grossIncome > 0 ? totalTax / grossIncome : 0,
     perPeriod: {
@@ -90,7 +102,15 @@ export const ALCalculator: CountryCalculator = {
   },
 
   getContributionLimits(): ContributionLimits {
-    return {};
+    return {
+      voluntaryPension: {
+        limit: AL_VOLUNTARY_PENSION_ANNUAL_CAP,
+        name: "Private voluntary pension",
+        description:
+          "Contributions to approved private pension funds deductible up to ALL 480,000 per year (national minimum wage cap).",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): ALCalculatorInputs {
@@ -98,7 +118,7 @@ export const ALCalculator: CountryCalculator = {
       country: "AL",
       grossSalary: 1_800_000,
       payFrequency: "monthly",
-      contributions: {},
+      contributions: { voluntaryPension: 0 },
     };
   },
 };

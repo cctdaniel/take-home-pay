@@ -39,7 +39,7 @@ export default function DOCountryExtension({
       }
       contributions={
         <NoVoluntaryPitReliefNote
-          explanation="Dominican Republic does not model employee-controlled voluntary AFP top-ups that reduce salary ISR on monthly payroll."
+          explanation="Ordinary voluntary AFP top-ups are tax-exempt inside your pension account under Ley 87-01 Art. 15, but they are not modeled here as monthly ISR withholding deductions. PwC lists education expenses (up to 10% of gross) as the main employment deduction besides the standard exemption."
           mandatoryLabel="TSS employee 5.91% on gross, then progressive ISR with DOP 416,220 exempt."
           sourceUrl={DO_SOURCE_URLS.incomeTax}
           sourceLabel="Dirección General de Impuestos Internos (DGII)"

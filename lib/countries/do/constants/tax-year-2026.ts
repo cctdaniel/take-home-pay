@@ -8,6 +8,7 @@ export const DO_TAX_YEAR = 2026;
 export const DO_SOURCE_URLS = {
   incomeTax: "https://www.dgii.gov.do/",
   socialSecurity: "https://www.dgii.gov.do/",
+  socialSecurityLaw: "https://www.dgii.gov.do/",
 } as const;
 
 /** TSS employee rate (AFP 2.87% + SFS 3.04%). */

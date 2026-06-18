@@ -1,3 +1,4 @@
+import { clampAmount } from "@/lib/utils";
 import type {
   CalculationResult,
   CalculatorInputs,
@@ -13,15 +14,29 @@ import {
   PA_EDUCATION_EMPLOYEE_RATE,
   PA_PIT_BRACKETS_2026,
   PA_SOURCE_URLS,
+  PA_VOLUNTARY_PENSION_ANNUAL_CAP,
+  PA_VOLUNTARY_PENSION_MAX_GROSS_RATE,
 } from "./constants/tax-year-2026";
 import type { PABreakdown, PACalculatorInputs, PATaxBreakdown } from "./types";
+
+function getVoluntaryPensionLimit(grossIncome: number): number {
+  return Math.min(
+    PA_VOLUNTARY_PENSION_ANNUAL_CAP,
+    roundCurrency(grossIncome * PA_VOLUNTARY_PENSION_MAX_GROSS_RATE),
+  );
+}
 
 export function calculatePA(inputs: PACalculatorInputs): CalculationResult {
   const grossIncome = Math.max(0, inputs.grossSalary);
   const cssEmployee = roundCurrency(grossIncome * PA_CSS_EMPLOYEE_RATE);
   const educationEmployee = roundCurrency(grossIncome * PA_EDUCATION_EMPLOYEE_RATE);
+  const voluntaryPensionLimit = getVoluntaryPensionLimit(grossIncome);
+  const voluntaryPension = clampAmount(
+    inputs.contributions?.voluntaryPension,
+    voluntaryPensionLimit,
+  );
   const taxableIncome = roundCurrency(
-    Math.max(0, grossIncome - cssEmployee - educationEmployee),
+    Math.max(0, grossIncome - cssEmployee - educationEmployee - voluntaryPension),
   );
   const progressive = calculateProgressiveTax(taxableIncome, PA_PIT_BRACKETS_2026);
   const incomeTax = progressive.tax;
@@ -35,7 +50,7 @@ export function calculatePA(inputs: PACalculatorInputs): CalculationResult {
   };
   const mandatoryTotal = cssEmployee + educationEmployee;
   const totalTax = roundCurrency(incomeTax + mandatoryTotal);
-  const totalDeductions = totalTax;
+  const totalDeductions = roundCurrency(totalTax + voluntaryPension);
   const netSalary = grossIncome - totalDeductions;
   const periodsPerYear = getPeriodsPerYear(inputs.payFrequency);
 
@@ -47,9 +62,15 @@ export function calculatePA(inputs: PACalculatorInputs): CalculationResult {
     taxableIncome,
     bracketTaxes: progressive.details,
     incomeTax: { total: incomeTax },
+    voluntaryContributions: {
+      voluntaryPension,
+      voluntaryPensionLimit,
+      total: voluntaryPension,
+    },
     assumptions: [
       "CSS employee 9.75% and educational insurance 1.25% on gross (2025 reform rates).",
-      "Progressive PIT on Panama-sourced salary after social deductions.",
+      "Voluntary pension (Law 10/1993) deductible before PIT up to min(10% gross, USD 15,000).",
+      "Progressive PIT on Panama-sourced salary after social and voluntary pension.",
       "Territorial taxation: foreign-sourced remote income is often exempt — not modeled here.",
       "Excludes fondos de reserva, aguinaldo, and employer-only contributions.",
     ],
@@ -90,8 +111,18 @@ export const PACalculator: CountryCalculator = {
     return [];
   },
 
-  getContributionLimits(): ContributionLimits {
-    return {};
+  getContributionLimits(inputs?: PACalculatorInputs): ContributionLimits {
+    const gross = inputs?.grossSalary ?? 48_000;
+    const limit = getVoluntaryPensionLimit(gross);
+    return {
+      voluntaryPension: {
+        limit,
+        name: "Voluntary pension (Law 10/1993)",
+        description:
+          "Approved private pension contributions deductible before salary PIT up to 10% of gross or USD 15,000 per year.",
+        preTax: true,
+      },
+    };
   },
 
   getDefaultInputs(): PACalculatorInputs {
@@ -99,7 +130,7 @@ export const PACalculator: CountryCalculator = {
       country: "PA",
       grossSalary: 48_000,
       payFrequency: "monthly",
-      contributions: {},
+      contributions: { voluntaryPension: 0 },
     };
   },
 };

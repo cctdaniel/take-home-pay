@@ -6,7 +6,9 @@ import type {
   TaxBreakdown,
 } from "../types";
 
-export type PAContributionInputs = Record<never, never>;
+export interface PAContributionInputs {
+  voluntaryPension: number;
+}
 
 export interface PACalculatorInputs extends BaseCalculatorInputs {
   country: "PA";
@@ -28,6 +30,11 @@ export interface PABreakdown {
   taxableIncome: number;
   bracketTaxes: Array<{ min: number; max: number; rate: number; tax: number }>;
   incomeTax: { total: number };
+  voluntaryContributions: {
+    voluntaryPension: number;
+    voluntaryPensionLimit: number;
+    total: number;
+  };
   assumptions: string[];
   sourceUrls: string[];
 }
